@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
 
-export default {
-  root: '/nandart-3d/',
-};
+export default defineConfig({
+  root: '.',
   build: {
     outDir: 'dist',
     target: 'esnext',

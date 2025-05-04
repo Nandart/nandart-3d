@@ -1,86 +1,60 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
+// src/scripts/submit.js
+
+export async function handleSubmission(formData, isInternal = false) {
+  const cloudName = "dld2sejas";
+  const uploadPreset = "nandart_public";
+
+  const imageFile = formData.get("imagem");
+
+  // 1. Upload para o Cloudinary
+  const cloudinaryData = new FormData();
+  cloudinaryData.append("file", imageFile);
+  cloudinaryData.append("upload_preset", uploadPreset);
+
+  const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: "POST",
+    body: cloudinaryData,
+  });
+
+  if (!cloudinaryResponse.ok) {
+    throw new Error("Erro ao fazer upload da imagem para o Cloudinary.");
   }
 
-  const {
-    artist,
-    title,
-    description,
-    year,
-    style,
-    technique,
-    dimensions,
-    materials,
-    location,
-    image
-  } = req.body;
+  const uploadedImage = await cloudinaryResponse.json();
 
-  if (!artist || !title || !description || !year || !image || !location) {
-    return res.status(400).json({ message: 'Missing required fields.' });
+  // 2. Envio dos dados para o backend (/api/submit)
+  const submission = {
+    titulo: formData.get("titulo"),
+    artista: formData.get("artista"),
+    estilo: formData.get("estilo"),
+    tecnica: formData.get("tecnica"),
+    ano: formData.get("ano"),
+    local: formData.get("local"),
+    materiais: formData.get("materiais"),
+    dimensoes: formData.get("dimensoes"),
+    descricao: formData.get("descricao"),
+    imagem: uploadedImage.secure_url,
+    tipo: isInternal ? "colecao" : "normal",
+  };
+
+  const response = await fetch("/api/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submission),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error("Erro ao submeter obra: " + error);
   }
 
-  const githubToken = process.env.GITHUB_TOKEN;
-  const repoOwner = 'teu-username-ou-organizacao';
-  const repoName = 'nandart-3d'; // ou o nome correto do teu repositório
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/issues`;
-
-  const issueTitle = `🖼️ Submission: ${title} by ${artist}`;
-  const issueBody = `
-### 🧑‍🎨 Artist
-${artist}
-
-### 🖌️ Title
-${title}
-
-### 📜 Description
-${description}
-
-### 🗓️ Year
-${year}
-
-### 🖼️ Style
-${style}
-
-### 🧪 Technique
-${technique}
-
-### 📐 Dimensions
-${dimensions}
-
-### 🧱 Materials
-${materials}
-
-### 📍 Place of Creation
-${location}
-
-### 🌐 Image
-![Artwork](${image})
-`;
-
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${githubToken}`,
-        Accept: 'application/vnd.github+json'
-      },
-      body: JSON.stringify({
-        title: issueTitle,
-        body: issueBody,
-        labels: ['submission', 'pending review']
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      return res.status(500).json({ message: 'GitHub issue creation failed.', error });
-    }
-
-    const result = await response.json();
-    return res.status(200).json({ message: 'Submission received.', issueUrl: result.html_url });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Server error.', error: err.message });
-  }
+  return await response.json();
 }
+🔁 Caminho onde o ficheiro deve estar:
+css
+Copiar
+Editar
+nandart-3d/
+└── src/
+    └── scripts/
+        └── submit.js

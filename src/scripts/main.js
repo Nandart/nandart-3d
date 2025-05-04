@@ -73,9 +73,6 @@ premium.position.set(0, 2.6, 0)
 premium.userData.tipo = 'premium'
 scene.add(premium)
 
-// Controlo orbital opcional (desativado por agora)
-// const controls = new OrbitControls(camera, renderer.domElement)
-
 // Responsividade
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
@@ -139,3 +136,9 @@ function destacarObra(obra) {
     gsap.to(scene.background, { r: 0.07, g: 0.07, b: 0.07, duration: 0.6 })
   }, 4000)
 }
+
+// Ocultar ícone de ajuda após 20 segundos
+setTimeout(() => {
+  const ajuda = document.getElementById('ajudaIcone')
+  if (ajuda) ajuda.classList.add('ocultar')
+}, 20000)

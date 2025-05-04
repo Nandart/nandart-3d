@@ -1,83 +1,92 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("submit-form");
+  const statusEl = document.getElementById("status");
+  const tokenParam = new URLSearchParams(window.location.search).get("token");
+
+  if (tokenParam === "nandartpower") {
+    const adminButton = document.getElementById("admin-button");
+    if (adminButton) adminButton.style.display = "inline-block";
   }
 
-  const {
-    titulo,
-    artista,
-    estilo,
-    tecnica,
-    ano,
-    dimensoes,
-    materiais,
-    local,
-    descricao,
-    imagemBase64
-  } = req.body;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    statusEl.textContent = "Submitting...";
+    statusEl.style.color = "white";
 
-  if (
-    !titulo || !artista || !estilo || !tecnica || !ano ||
-    !dimensoes || !materiais || !local || !descricao || !imagemBase64
-  ) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+    const formData = new FormData(form);
+    const imageFile = formData.get("image");
 
-  // Upload da imagem para o Cloudinary
-  const uploadResponse = await fetch("https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      file: imagemBase64,
-      upload_preset: "YOUR_UPLOAD_PRESET"
-    })
+    const requiredFields = [
+      "title", "artist", "year", "description", "location", "style",
+      "technique", "dimensions", "materials"
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData.get(field) || formData.get(field).trim() === "") {
+        statusEl.textContent = `Please fill in the "${field}" field.`;
+        statusEl.style.color = "orange";
+        return;
+      }
+    }
+
+    if (!imageFile || imageFile.size === 0) {
+      statusEl.textContent = "Please upload an image.";
+      statusEl.style.color = "orange";
+      return;
+    }
+
+    try {
+      const cloudinaryData = new FormData();
+      cloudinaryData.append("file", imageFile);
+      cloudinaryData.append("upload_preset", "nandart_public");
+
+      const cloudinaryRes = await fetch("https://api.cloudinary.com/v1_1/dld2sejas/image/upload", {
+        method: "POST",
+        body: cloudinaryData
+      });
+
+      const cloudinaryJson = await cloudinaryRes.json();
+
+      if (!cloudinaryJson.secure_url) {
+        throw new Error("Image upload failed.");
+      }
+
+      const submissionPayload = {
+        title: formData.get("title"),
+        artist: formData.get("artist"),
+        year: formData.get("year"),
+        description: formData.get("description"),
+        location: formData.get("location"),
+        style: formData.get("style"),
+        technique: formData.get("technique"),
+        dimensions: formData.get("dimensions"),
+        materials: formData.get("materials"),
+        imageUrl: cloudinaryJson.secure_url
+      };
+
+      const apiRes = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(submissionPayload)
+      });
+
+      if (!apiRes.ok) {
+        throw new Error("Failed to submit artwork.");
+      }
+
+      statusEl.textContent = "Artwork submitted successfully!";
+      statusEl.style.color = "lightgreen";
+      form.reset();
+
+      if (tokenParam === "nandartpower") {
+        const adminButton = document.getElementById("admin-button");
+        if (adminButton) adminButton.style.display = "inline-block";
+      }
+
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = "An error occurred during submission.";
+      statusEl.style.color = "red";
+    }
   });
-
-  const uploadData = await uploadResponse.json();
-
-  if (!uploadData.secure_url) {
-    return res.status(500).json({ error: "Failed to upload image" });
-  }
-
-  const imageURL = uploadData.secure_url;
-
-  // Criação da issue no GitHub
-  const githubToken = process.env.GITHUB_TOKEN;
-  const repo = "Nandart/nandart-3d";
-
-  const issueTitle = `Obra submetida: ${titulo}`;
-  const issueBody = `
-**Artista:** ${artista}  
-**Estilo:** ${estilo}  
-**Técnica:** ${tecnica}  
-**Ano:** ${ano}  
-**Dimensões:** ${dimensoes}  
-**Materiais:** ${materiais}  
-**Local de criação:** ${local}  
-**Descrição:**  
-${descricao}  
-
-**Imagem:**  
-${imageURL}
-  `;
-
-  const githubResponse = await fetch(`https://api.github.com/repos/${repo}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: `token ${githubToken}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      title: issueTitle,
-      body: issueBody
-    })
-  });
-
-  if (!githubResponse.ok) {
-    const errorText = await githubResponse.text();
-    return res.status(500).json({ error: "Failed to create issue", details: errorText });
-  }
-
-  return res.status(200).json({ message: "Submission successful" });
+});

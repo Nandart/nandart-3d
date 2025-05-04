@@ -4,10 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NANdART 3D Gallery</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/src/styles/index.css" />
   </head>
   <body>
     <canvas id="scene"></canvas>
-    <script type="module" src="/main.js"></script>
+
+    <!-- Ícone de ajuda flutuante (desaparece após 20s) -->
+    <img src="/assets/icons/ajuda-flutuante.png" id="ajudaIcone" alt="Ajuda" />
+
+    <!-- Música ambiente -->
+    <audio id="musica" loop autoplay>
+      <source src="/assets/musica/musica.mp3" type="audio/mpeg" />
+    </audio>
+
+    <script type="module" src="/src/scripts/main.js"></script>
   </body>
 </html>
-

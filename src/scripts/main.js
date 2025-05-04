@@ -1,6 +1,6 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js'
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/loaders/GLTFLoader.js'
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/controls/OrbitControls.js'
+import * as THREE from './three/build/three.module.js'
+import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js'
 
 // Cena e câmara
 const scene = new THREE.Scene()

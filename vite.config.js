@@ -6,4 +6,4 @@ export default defineConfig({
   base: '/nandart-3d/',
   plugins: [basicPlugin()],
 })
-✅ O que faz:
+

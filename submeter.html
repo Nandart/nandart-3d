@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Submit Artwork — NANdART</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles/index.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      body {
+        background-color: #111;
+        color: #f3f3f3;
+        font-family: 'Segoe UI', sans-serif;
+        padding: 40px 20px;
+        max-width: 700px;
+        margin: auto;
+      }
+
+      h1 {
+        color: #e0c28d;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      input, textarea, select {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        background-color: #1a1a1a;
+        color: #fff;
+      }
+
+      button {
+        background-color: #e0c28d;
+        color: #111;
+        padding: 12px;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #d1b073;
+      }
+
+      #status {
+        margin-top: 15px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #admin-button {
+        display: none;
+        margin-top: 20px;
+        background-color: transparent;
+        border: 2px solid #e0c28d;
+        color: #e0c28d;
+      }
+
+      #admin-button:hover {
+        background-color: #e0c28d;
+        color: #111;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Submit Your Artwork</h1>
+
+    <form id="submit-form" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Title of the artwork" required />
+      <input type="text" name="artist" placeholder="Artist's name" required />
+      <input type="text" name="style" placeholder="Style (e.g. Abstract, Realism...)" required />
+      <input type="text" name="technique" placeholder="Technique used" required />
+      <input type="text" name="year" placeholder="Year of creation" required />
+      <input type="text" name="dimensions" placeholder="Dimensions (e.g. 80x100cm)" required />
+      <input type="text" name="materials" placeholder="Materials used" required />
+      <input type="text" name="location" placeholder="Place of creation" required />
+      <textarea name="description" placeholder="Brief description..." rows="5" required></textarea>
+      <input type="file" name="image" accept="image/*" required />
+      <button type="submit">Submit Artwork</button>
+    </form>
+
+    <p id="status"></p>
+
+    <button id="admin-button" onclick="window.location.href='painel-aprovacao.html?token=nandartpower'">
+      Go to Approval Panel
+    </button>
+
+    <script type="module" src="/src/scripts/submit.js"></script>
+  </body>
+</html>

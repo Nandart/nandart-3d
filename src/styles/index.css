@@ -1,0 +1,68 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #111111;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Canvas da galeria */
+#scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Ícone flutuante de ajuda */
+#ajudaIcone {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  z-index: 10;
+  opacity: 0.9;
+  cursor: pointer;
+  animation: flutuar 2.5s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+/* Desaparecer após 20 segundos */
+#ajudaIcone.ocultar {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+/* Animação de flutuação suave */
+@keyframes flutuar {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Música invisível */
+audio {
+  display: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  #ajudaIcone {
+    width: 38px;
+    height: 38px;
+    bottom: 15px;
+    right: 15px;
+  }
+}

@@ -1,20 +1,20 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: '.', 
+  root: '.',
   build: {
-    outDir: 'dist', 
-    target: 'esnext', 
-    sourcemap: true, 
+    outDir: 'dist',
+    target: 'esnext',
+    sourcemap: true,
   },
   resolve: {
     alias: {
-      '@': '/src', '
+      '@': '/src',
     },
   },
   server: {
-    port: 3000, 
-    open: true, 
+    port: 3000,
+    open: true,
   },
   optimizeDeps: {
     esbuildOptions: {

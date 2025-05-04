@@ -1,1 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Contact — NANdART</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles/index.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      body {
+        background-color: #111111;
+        color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 60px 20px;
+        font-family: 'Segoe UI', sans-serif;
+      }
 
+      h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        color: #e0c28d;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        max-width: 480px;
+        width: 100%;
+        gap: 15px;
+      }
+
+      input, textarea {
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        background-color: #1c1c1c;
+        color: #fff;
+      }
+
+      input::placeholder, textarea::placeholder {
+        color: #888;
+      }
+
+      button {
+        padding: 12px;
+        background-color: #e0c28d;
+        color: #111;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #d1b073;
+      }
+
+      a#btnMenu {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+      }
+
+      a#btnMenu img {
+        width: 32px;
+        height: auto;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.6rem;
+        }
+
+        input, textarea {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/index.html" id="btnMenu" title="Back to Gallery">
+      <img src="/assets/icons/horizontes.png" alt="Menu" />
+    </a>
+
+    <h1>Contact NANdART</h1>
+    <form>
+      <input type="text" placeholder="Your Name" required />
+      <input type="email" placeholder="Your Email" required />
+      <textarea rows="5" placeholder="Your Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </body>
+</html>

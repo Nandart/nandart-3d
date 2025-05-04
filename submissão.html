@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Submit Artwork — NANdART</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles/index.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      body {
+        background-color: #111111;
+        color: #f3f3f3;
+        font-family: 'Segoe UI', sans-serif;
+        padding: 80px 30px 40px;
+        max-width: 700px;
+        margin: 0 auto;
+      }
 
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: #e0c28d;
+        text-align: center;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #d9d9d9;
+      }
+
+      input, textarea, select {
+        padding: 10px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        background-color: #1c1c1c;
+        color: #fff;
+      }
+
+      input[type="file"] {
+        padding: 8px;
+        background-color: #1c1c1c;
+        color: #ccc;
+      }
+
+      button {
+        padding: 12px;
+        background-color: #e0c28d;
+        color: #111;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #d1b073;
+      }
+
+      a#btnMenu {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+      }
+
+      a#btnMenu img {
+        width: 32px;
+        height: auto;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/index.html" id="btnMenu" title="Back to Gallery">
+      <img src="/assets/icons/horizontes.png" alt="Menu" />
+    </a>
+
+    <h1>Submit Your Artwork</h1>
+
+    <form id="submissionForm">
+      <div>
+        <label for="artist">Artist Name</label>
+        <input type="text" id="artist" name="artist" required />
+      </div>
+
+      <div>
+        <label for="title">Title of the Work</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+      </div>
+
+      <div>
+        <label for="year">Year of Creation</label>
+        <input type="number" id="year" name="year" min="1900" max="2100" required />
+      </div>
+
+      <div>
+        <label for="style">Art Style</label>
+        <input type="text" id="style" name="style" required />
+      </div>
+
+      <div>
+        <label for="technique">Technique Used</label>
+        <input type="text" id="technique" name="technique" required />
+      </div>
+
+      <div>
+        <label for="dimensions">Dimensions (e.g., 40x60 cm)</label>
+        <input type="text" id="dimensions" name="dimensions" required />
+      </div>
+
+      <div>
+        <label for="materials">Materials</label>
+        <input type="text" id="materials" name="materials" required />
+      </div>
+
+      <div>
+        <label for="location">Place of Creation</label>
+        <input type="text" id="location" name="location" required />
+      </div>
+
+      <div>
+        <label for="image">Upload Image (JPG or PNG)</label>
+        <input type="file" id="image" name="image" accept="image/png, image/jpeg" required />
+      </div>
+
+      <button type="submit">Submit Artwork</button>
+    </form>
+  </body>
+</html>

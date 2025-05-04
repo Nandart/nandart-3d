@@ -1,71 +1,83 @@
-const form = document.getElementById('submissionForm');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData(form);
-  const imageFile = formData.get('image');
-
-  if (!imageFile || !imageFile.name) {
-    alert('Please upload a valid image.');
-    return;
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    // Upload da imagem para IPFS via NFT.Storage
-    const imageCID = await uploadToIPFS(imageFile);
-    const imageURL = `https://ipfs.io/ipfs/${imageCID}`;
+  const {
+    titulo,
+    artista,
+    estilo,
+    tecnica,
+    ano,
+    dimensoes,
+    materiais,
+    local,
+    descricao,
+    imagemBase64
+  } = req.body;
 
-    // Construir os dados da obra
-    const submission = {
-      artist: formData.get('artist'),
-      title: formData.get('title'),
-      description: formData.get('description'),
-      year: formData.get('year'),
-      style: formData.get('style'),
-      technique: formData.get('technique'),
-      dimensions: formData.get('dimensions'),
-      materials: formData.get('materials'),
-      location: formData.get('location'),
-      image: imageURL
-    };
-
-    // Criar issue no GitHub
-    const response = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(submission)
-    });
-
-    if (response.ok) {
-      alert('Artwork submitted successfully!');
-      form.reset();
-    } else {
-      throw new Error('Failed to submit artwork.');
-    }
-  } catch (err) {
-    console.error(err);
-    alert('There was an error submitting your artwork.');
+  if (
+    !titulo || !artista || !estilo || !tecnica || !ano ||
+    !dimensoes || !materiais || !local || !descricao || !imagemBase64
+  ) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
-});
 
-// Função para carregar para NFT.Storage
-async function uploadToIPFS(file) {
-  const apiKey = import.meta.env.VITE_NFT_STORAGE_API_KEY;
-
-  const data = new FormData();
-  data.append('file', file);
-
-  const response = await fetch('https://api.nft.storage/upload', {
-    method: 'POST',
+  // Upload da imagem para o Cloudinary
+  const uploadResponse = await fetch("https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload", {
+    method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`
+      "Content-Type": "application/json"
     },
-    body: data
+    body: JSON.stringify({
+      file: imagemBase64,
+      upload_preset: "YOUR_UPLOAD_PRESET"
+    })
   });
 
-  if (!response.ok) throw new Error('Failed to upload to NFT.Storage');
+  const uploadData = await uploadResponse.json();
 
-  const result = await response.json();
-  return result.value.cid;
-}
+  if (!uploadData.secure_url) {
+    return res.status(500).json({ error: "Failed to upload image" });
+  }
+
+  const imageURL = uploadData.secure_url;
+
+  // Criação da issue no GitHub
+  const githubToken = process.env.GITHUB_TOKEN;
+  const repo = "Nandart/nandart-3d";
+
+  const issueTitle = `Obra submetida: ${titulo}`;
+  const issueBody = `
+**Artista:** ${artista}  
+**Estilo:** ${estilo}  
+**Técnica:** ${tecnica}  
+**Ano:** ${ano}  
+**Dimensões:** ${dimensoes}  
+**Materiais:** ${materiais}  
+**Local de criação:** ${local}  
+**Descrição:**  
+${descricao}  
+
+**Imagem:**  
+${imageURL}
+  `;
+
+  const githubResponse = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+    method: "POST",
+    headers: {
+      Authorization: `token ${githubToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+
+  if (!githubResponse.ok) {
+    const errorText = await githubResponse.text();
+    return res.status(500).json({ error: "Failed to create issue", details: errorText });
+  }
+
+  return res.status(200).json({ message: "Submission successful" });

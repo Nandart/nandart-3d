@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 app.use(express.json());
@@ -13,18 +14,27 @@ const ADMIN_CREDENTIALS = {
 // Chave secreta para assinar o token JWT
 const JWT_SECRET = process.env.JWT_SECRET || "minha-chave-secreta";
 
-// Rota para login de administrador
-app.post("/api/admin-login", (req, res) => {
+// Configurar um limite para tentativas de login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Limite de 5 tentativas por IP
+  message: {
+    message: "Muitas tentativas de login. Tente novamente após 15 minutos.",
+  },
+  standardHeaders: true, // Retorna informações de limitação nos cabeçalhos RateLimit-*
+  legacyHeaders: false, // Desativa os cabeçalhos X-RateLimit-*
+});
+
+// Rota para login de administrador (com limitação de tentativas)
+app.post("/api/admin-login", loginLimiter, (req, res) => {
   const { username, password } = req.body;
 
-  // Verifique as credenciais
   if (
     username === ADMIN_CREDENTIALS.username &&
     password === ADMIN_CREDENTIALS.password
   ) {
-    // Gere um token JWT
     const token = jwt.sign({ username, role: "admin" }, JWT_SECRET, {
-      expiresIn: "1h", // O token expira em 1 hora
+      expiresIn: "1h",
     });
 
     return res.json({ token });

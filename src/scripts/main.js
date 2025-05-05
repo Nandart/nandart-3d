@@ -9,9 +9,17 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.m
 import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
 // Verificar o valor de BASE_URL
-console.log("BASE_URL:", import.meta.env.BASE_URL);
-
+//console.log("BASE_URL:", import.meta.env.BASE_URL);
 // Configurações iniciais
+const obraPaths = [
+  `${./}assets/obras/obra1.jpg`,
+  `${./}assets/obras/obra2.jpg`,
+  `${./}assets/obras/obra3.jpg`,
+  `${./}assets/obras/obra4.jpg`,
+  `${./}assets/obras/obra5.jpg`,
+  `${./}assets/obras/obra6.jpg`
+];
+/*
 const obraPaths = [
   `${import.meta.env.BASE_URL}assets/obras/obra1.jpg`,
   `${import.meta.env.BASE_URL}assets/obras/obra2.jpg`,
@@ -20,6 +28,8 @@ const obraPaths = [
   `${import.meta.env.BASE_URL}assets/obras/obra5.jpg`,
   `${import.meta.env.BASE_URL}assets/obras/obra6.jpg`
 ];
+
+*/
 
 // Cena e câmera
 const scene = new THREE.Scene();

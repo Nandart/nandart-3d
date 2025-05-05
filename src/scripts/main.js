@@ -5,7 +5,8 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
 //import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 //import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import gsap from 'gsap';
+//import gsap from 'gsap';
+import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
 // Verificar o valor de BASE_URL
 console.log("BASE_URL:", import.meta.env.BASE_URL);

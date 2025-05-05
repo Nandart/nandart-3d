@@ -1,7 +1,8 @@
 // Importação de módulos
 // Corrigido para usar caminhos relativos ou CDN, dependendo do ambiente
 
-import * as THREE from 'three'; // Certifique-se de que o módulo 'three' está instalado via npm
+//import * as THREE from 'three'; // Certifique-se de que o módulo 'three' está instalado via npm
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import gsap from 'gsap';

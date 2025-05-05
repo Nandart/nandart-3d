@@ -39,6 +39,9 @@
     <button id="logout-button" style="display: none; position: absolute; top: 60px; left: 20px;">Sair</button>
 
     <!-- Script principal -->
+    if (!THREE.WebGLRenderer) {
+  alert("Seu navegador não suporta WebGL.");
+}
     <script type="module" src="/src/scripts/main.js"></script>
     <script src="src/scripts/admin-login.js" defer></script>
   </body>

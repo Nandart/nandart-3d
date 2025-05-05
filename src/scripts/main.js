@@ -23,6 +23,11 @@ scene.background = new THREE.Color(0x111111);
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 2, 8);
 
+// Verificar suporte ao WebGL
+if (!THREE.WebGLRenderer) {
+  alert("Seu navegador não suporta WebGL.");
+}
+
 // Renderizador
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);

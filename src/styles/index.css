@@ -14,13 +14,14 @@ html, body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Canvas da galeria */
 canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-/* Canvas da galeria */
+/* Cena 3D */
 #scene {
   width: 100%;
   height: 100%;
@@ -30,6 +31,13 @@ canvas {
   left: 0;
   z-index: 1;
   background-color: transparent;
+}
+
+/* Efeito de fundo embaciado ao abrir obra */
+.fundo-desfocado {
+  filter: blur(4px) brightness(0.6);
+  transition: filter 0.5s ease;
+  pointer-events: none;
 }
 
 /* Ícone flutuante de ajuda */
@@ -54,18 +62,72 @@ canvas {
   outline: 2px solid #ffffff;
 }
 
-/* Desaparecer após 20 segundos */
 #ajudaIcone.ocultar {
   opacity: 0;
   pointer-events: none;
   transition: opacity 1s ease;
 }
 
-/* Animação de flutuação suave */
 @keyframes flutuar {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
   100% { transform: translateY(0px); }
+}
+
+/* Moldura das obras */
+.quadro-moldura {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  background-color: #1c1c1c;
+}
+
+/* Ícone estrela premium */
+.icone-premium {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  z-index: 5;
+  opacity: 0.8;
+}
+
+/* Modal */
+#modal-obra {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 20, 20, 0.9);
+  padding: 30px;
+  border-radius: 10px;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+#modal-obra img {
+  max-width: 80vw;
+  max-height: 70vh;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+#modal-obra button {
+  display: block;
+  margin: 0 auto;
+  background: #d4af37;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #111;
+}
+
+#modal-obra button:hover {
+  background: #f0cc5a;
 }
 
 /* Música invisível */
@@ -80,6 +142,11 @@ audio.hidden {
     height: 38px;
     bottom: 15px;
     right: 15px;
+  }
+
+  #modal-obra img {
+    max-width: 95vw;
+    max-height: 60vh;
   }
 }
 

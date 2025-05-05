@@ -89,7 +89,7 @@ obraPaths.forEach((src, i) => {
 });
 
 // Obra premium suspensa (placeholder)
-const texPremium = new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}assets/premium/premium1.jpg`);
+const texPremium = new THREE.TextureLoader().load('./assets/premium/premium1.jpg');
 const matPremium = new THREE.MeshBasicMaterial({ map: texPremium });
 const geoPremium = new THREE.PlaneGeometry(1.4, 1.4);
 const premium = new THREE.Mesh(geoPremium, matPremium);

@@ -1,6 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const rateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit"); // Importar express-rate-limit
 
 const app = express();
 app.use(express.json());
@@ -21,8 +21,8 @@ const loginLimiter = rateLimit({
   message: {
     message: "Muitas tentativas de login. Tente novamente após 15 minutos.",
   },
-  standardHeaders: true, // Retorna informações de limitação nos cabeçalhos RateLimit-*
-  legacyHeaders: false, // Desativa os cabeçalhos X-RateLimit-*
+  standardHeaders: true, // Adiciona informações de limitação nos cabeçalhos padrão
+  legacyHeaders: false, // Remove cabeçalhos legados (X-RateLimit-*)
 });
 
 // Rota para login de administrador (com limitação de tentativas)
@@ -66,5 +66,5 @@ app.get("/api/verify-admin", (req, res) => {
   }
 });
 
-// Iniciar o servidor (exemplo)
+// Iniciar o servidor
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

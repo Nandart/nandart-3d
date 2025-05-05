@@ -21,7 +21,12 @@ export default async function handler(req, res) {
 
     const obras = issues.map((issue) => {
       const extractField = (label, content) => {
-        const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+       const { data: issues } = await octokit.paginate(octokit.issues.listForRepo, {
+  owner,
+  repo,
+  state: "open",
+  labels: "submission,pending review"
+});
         const match = content.match(regex);
         return match ? match[1].trim() : "";
       };

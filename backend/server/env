@@ -1,1 +1,5 @@
-
+# Credenciais de Administrador
+ADMIN_USERNAME=Fernanda
+ADMIN_PASSWORD=MrcfN06iLA
+# Chave secreta para assinar tokens JWT
+JWT_SECRET=263893561'

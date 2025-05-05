@@ -3,6 +3,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import gsap from 'gsap';
 
+// Verificar o valor de BASE_URL
+console.log("BASE_URL:", import.meta.env.BASE_URL);
+
 // Configurações iniciais
 const obraPaths = [
   `${import.meta.env.BASE_URL}assets/obras/obra1.jpg`,

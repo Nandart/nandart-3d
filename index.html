@@ -19,27 +19,25 @@
       <source src="/assets/musica/musica.mp3" type="audio/mpeg" />
     </audio>
 
-    <!-- Formulário de Login (invisível por padrão) -->
+    <!-- Formulário de Login -->
     <form id="admin-login-form" style="display: none; position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 8px;">
       <h3>Login de Administrador</h3>
       <label for="username">Usuário:</label>
       <input type="text" id="username" name="username" required />
-      
+
       <label for="password">Senha:</label>
       <input type="password" id="password" name="password" required />
-      
+
       <button type="submit">Entrar</button>
       <p id="login-status"></p>
     </form>
 
-    <!-- Botão de Administrador (invisível por padrão) -->
+    <!-- Botões administrativos -->
     <button id="admin-button" style="display: none; position: absolute; top: 20px; left: 20px;">Área do Administrador</button>
-
-    <!-- Botão de Logout (invisível por padrão) -->
     <button id="logout-button" style="display: none; position: absolute; top: 60px; left: 20px;">Sair</button>
 
-    <!-- Script principal -->
+    <!-- Scripts -->
     <script type="module" src="/src/scripts/main.js"></script>
-    <script src="src/scripts/admin-login.js" defer></script>
+    <script src="/src/scripts/admin-login.js" defer></script>
   </body>
 </html>

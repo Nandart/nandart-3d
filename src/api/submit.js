@@ -1,28 +1,41 @@
-// src/scripts/submit.js
-
 export async function handleSubmission(formData, isInternal = false) {
-  const cloudName = "dld2sejas";
-  const uploadPreset = "nandart_public";
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
 
+  // Validação básica dos campos obrigatórios
+  const requiredFields = ["titulo", "artista", "imagem"];
+  for (const field of requiredFields) {
+    if (!formData.get(field)) {
+      throw new Error(`O campo ${field} é obrigatório.`);
+    }
+  }
+
+  // Upload para o Cloudinary
   const imageFile = formData.get("imagem");
-
-  // 1. Upload para o Cloudinary
   const cloudinaryData = new FormData();
   cloudinaryData.append("file", imageFile);
   cloudinaryData.append("upload_preset", uploadPreset);
 
-  const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-    method: "POST",
-    body: cloudinaryData,
-  });
+  let uploadedImage;
+  try {
+    const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: cloudinaryData,
+    });
 
-  if (!cloudinaryResponse.ok) {
-    throw new Error("Erro ao fazer upload da imagem para o Cloudinary.");
+    if (!cloudinaryResponse.ok) {
+      const errorDetails = await cloudinaryResponse.json();
+      throw new Error(`Erro no upload: ${errorDetails.error.message}`);
+    }
+
+    uploadedImage = await cloudinaryResponse.json();
+  } catch (error) {
+    console.error("Erro no Cloudinary:", error);
+    throw new Error("Erro ao fazer upload da imagem. Tente novamente.");
   }
 
-  const uploadedImage = await cloudinaryResponse.json();
-
-  // 2. Envio dos dados para o backend (/api/submit)
+  // Envio dos dados para o backend
+  const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
   const submission = {
     titulo: formData.get("titulo"),
     artista: formData.get("artista"),
@@ -37,24 +50,21 @@ export async function handleSubmission(formData, isInternal = false) {
     tipo: isInternal ? "colecao" : "normal",
   };
 
-  const response = await fetch("/api/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(submission),
-  });
+  try {
+    const response = await fetch(`${backendUrl}/api/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(submission),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error("Erro ao submeter obra: " + error);
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error("Erro ao submeter obra: " + errorDetails);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao enviar submissão:", error);
+    throw new Error("Erro ao submeter os dados. Tente novamente.");
   }
-
-  return await response.json();
 }
-🔁 Caminho onde o ficheiro deve estar:
-css
-Copiar
-Editar
-nandart-3d/
-└── src/
-    └── scripts/
-        └── submit.js

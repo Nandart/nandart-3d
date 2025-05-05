@@ -1,20 +1,19 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: '.', // Define o diretório raiz
-  base: process.env.BASE_URL || '/', // Define a base URL para produção
+  base: './', // Caminho relativo para funcionar bem em GitHub Pages e Vercel
   build: {
-    outDir: 'dist', // Diretório de saída para os arquivos de build
-    target: 'esnext', // Define o alvo ES para compatibilidade moderna
-    sourcemap: true, // Gera mapas de sourcemap para depuração
+    outDir: 'dist',
+    target: 'esnext',
+    sourcemap: true
   },
   resolve: {
     alias: {
-      '@': '/src', // Alias para facilitar os imports
-    },
+      '@': '/src'
+    }
   },
   server: {
-    port: 3000, // Porta padrão do servidor de desenvolvimento
-    open: true, // Abre automaticamente o navegador após iniciar o servidor
-  },
+    port: 3000,
+    open: true
+  }
 });

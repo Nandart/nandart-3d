@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
   try {
     const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
-    const branchName = `obra-${timestamp}`;
+    const branchName = `obra-${titulo.replace(/\s+/g, "_").toLowerCase()}-${timestamp}`;
 
     // Obter o SHA da branch principal
     const mainRef = await octokit.git.getRef({

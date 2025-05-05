@@ -1,55 +1,27 @@
-// Importação de módulos
-// Corrigido para usar caminhos relativos ou CDN, dependendo do ambiente
-
-//import * as THREE from 'three'; // Certifique-se de que o módulo 'three' está instalado via npm
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-//import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-//import gsap from 'gsap';
 import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
-// Verificar o valor de BASE_URL
-//console.log("BASE_URL:", import.meta.env.BASE_URL);
-// Configurações iniciais
+// Caminhos das obras
 const obraPaths = [
   "./assets/obras/obra1.jpg",
   "./assets/obras/obra2.jpg",
   "./assets/obras/obra3.jpg",
- "./assets/obras/obra4.jpg",
- "./assets/obras/obra5.jpg",
- "./assets/obras/obra6.jpg"
-];
-/*
-const obraPaths = [
-  `${import.meta.env.BASE_URL}assets/obras/obra1.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra2.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra3.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra4.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra5.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra6.jpg`
+  "./assets/obras/obra4.jpg",
+  "./assets/obras/obra5.jpg",
+  "./assets/obras/obra6.jpg"
 ];
 
-*/
-
-// Cena e câmera
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0x222222);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 2, 8);
 
-// Verificar suporte ao WebGL
-if (!THREE.WebGLRenderer) {
-  alert("Seu navegador não suporta WebGL.");
-}
-
-// Renderizador
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true;
 
-// Luz ambiente + spotlight
 const ambient = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambient);
 
@@ -58,53 +30,69 @@ spotlight.position.set(0, 8, 6);
 spotlight.castShadow = true;
 scene.add(spotlight);
 
-// Chão reflexivo (obsidiana líquida)
+// Chão
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
-const planeMaterial = new THREE.MeshPhongMaterial({
-  color: 0x050505,
-  shininess: 100,
-  reflectivity: 0.8
-});
+const planeMaterial = new THREE.MeshPhongMaterial({ color: 0x050505, shininess: 100, reflectivity: 0.8 });
 const floor = new THREE.Mesh(planeGeometry, planeMaterial);
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// Lista de obras normais (placeholders)
+// Moldura elegante
+function criarQuadroComMoldura(texture, largura, altura) {
+  const quadro = new THREE.Group();
+
+  const geoQuadro = new THREE.PlaneGeometry(largura, altura);
+  const matQuadro = new THREE.MeshBasicMaterial({ map: texture });
+  const planoQuadro = new THREE.Mesh(geoQuadro, matQuadro);
+  quadro.add(planoQuadro);
+
+  const molduraGeo = new THREE.PlaneGeometry(largura + 0.1, altura + 0.1);
+  const molduraMat = new THREE.MeshBasicMaterial({ color: 0xcccccc, side: THREE.BackSide });
+  const moldura = new THREE.Mesh(molduraGeo, molduraMat);
+  quadro.add(moldura);
+
+  return quadro;
+}
+
+// Obras
 const obrasNormais = [];
 const raio = 3.5;
 
-// Criar quadros suspensos em círculo
 obraPaths.forEach((src, i) => {
   const tex = new THREE.TextureLoader().load(src);
-  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
-  const geo = new THREE.PlaneGeometry(1.2, 1.2);
-  const quadro = new THREE.Mesh(geo, mat);
+  const quadro = criarQuadroComMoldura(tex, 0.6, 0.6); // metade do tamanho
   const angulo = (i / obraPaths.length) * Math.PI * 2;
-  quadro.position.set(Math.cos(angulo) * raio, 1.8, Math.sin(angulo) * raio);
+  quadro.position.set(Math.cos(angulo) * raio, 1.5, Math.sin(angulo) * raio);
   quadro.rotation.y = -angulo + Math.PI;
   quadro.userData.tipo = 'normal';
   scene.add(quadro);
   obrasNormais.push(quadro);
 });
 
-// Obra premium suspensa (placeholder)
+// Obra premium
 const texPremium = new THREE.TextureLoader().load('./assets/premium/premium1.jpg');
-const matPremium = new THREE.MeshBasicMaterial({ map: texPremium });
-const geoPremium = new THREE.PlaneGeometry(1.4, 1.4);
-const premium = new THREE.Mesh(geoPremium, matPremium);
-premium.position.set(0, 2.6, 0);
+const premium = criarQuadroComMoldura(texPremium, 0.7, 0.7);
+premium.position.set(0, 3.2, 0);
 premium.userData.tipo = 'premium';
 scene.add(premium);
 
-// Responsividade
+// Estrela premium
+const estrelaGeo = new THREE.PlaneGeometry(0.1, 0.1);
+const estrelaTex = new THREE.TextureLoader().load('./assets/icones/estrela.png');
+const estrelaMat = new THREE.MeshBasicMaterial({ map: estrelaTex, transparent: true });
+const estrela = new THREE.Mesh(estrelaGeo, estrelaMat);
+estrela.position.set(0.35, 0.35, 0.01);
+premium.add(estrela);
+
+// Responsivo
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Animação contínua
+// Animação
 function animate() {
   requestAnimationFrame(animate);
 
@@ -119,7 +107,7 @@ function animate() {
 }
 animate();
 
-// Interatividade — click ou touch numa obra para abrir modal
+// Interatividade
 renderer.domElement.addEventListener('click', onClick);
 renderer.domElement.addEventListener('touchstart', onClick);
 
@@ -131,40 +119,44 @@ function onClick(event) {
 
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects([...obrasNormais, premium]);
+  const intersects = raycaster.intersectObjects([...obrasNormais, premium], true);
 
   if (intersects.length > 0) {
-    const obra = intersects[0].object;
+    const obra = intersects[0].object.parent;
     destacarObra(obra);
-  } else {
-    console.warn('Nenhuma obra válida foi selecionada.');
   }
 }
 
-// Função para modal animado
 function destacarObra(obra) {
   const clone = obra.clone();
-  clone.material = obra.material.clone();
+  clone.children.forEach(c => c.material = c.material.clone());
   scene.add(clone);
   clone.position.copy(obra.position);
   clone.scale.set(1, 1, 1);
+  clone.rotation.copy(obra.rotation);
 
-  gsap.to(clone.position, { x: 0, y: 2.2, z: 1, duration: 0.8, ease: 'power2.out' });
-  gsap.to(clone.scale, { x: 2.5, y: 2.5, duration: 0.8, ease: 'power2.out' });
+  gsap.to(clone.position, { x: 0, y: 2.2, z: 1, duration: 0.8 });
+  gsap.to(clone.rotation, { y: 0, duration: 0.8 });
+  gsap.to(clone.scale, { x: 1.6, y: 1.6, duration: 0.8 });
 
-  // Embaciar fundo
-  gsap.to(scene.background, { r: 0.05, g: 0.05, b: 0.05, duration: 0.5 });
+  gsap.to(scene.background, { r: 0.08, g: 0.08, b: 0.08, duration: 0.5 });
 
-  // Recolher após 4 segundos (exemplo)
+  const modal = document.createElement('div');
+  modal.style.position = 'fixed';
+  modal.style.top = '20px';
+  modal.style.right = '20px';
+  modal.style.padding = '15px';
+  modal.style.background = 'rgba(255,255,255,0.9)';
+  modal.style.border = '1px solid #ccc';
+  modal.style.borderRadius = '8px';
+  modal.style.zIndex = 999;
+  modal.innerHTML = `<strong>Obra em destaque</strong><br><button onclick="alert('Compra simulada!')">Comprar</button>`;
+  document.body.appendChild(modal);
+
   setTimeout(() => {
     gsap.to(clone.position, { z: obra.position.z, duration: 0.6, onComplete: () => scene.remove(clone) });
     gsap.to(clone.scale, { x: 1, y: 1, duration: 0.6 });
-    gsap.to(scene.background, { r: 0.07, g: 0.07, b: 0.07, duration: 0.6 });
+    gsap.to(scene.background, { r: 0.13, g: 0.13, b: 0.13, duration: 0.6 });
+    document.body.removeChild(modal);
   }, 4000);
 }
-
-// Ocultar ícone de ajuda após 20 segundos
-setTimeout(() => {
-  const ajuda = document.getElementById('ajudaIcone');
-  if (ajuda) ajuda.classList.add('ocultar');
-}, 20000);

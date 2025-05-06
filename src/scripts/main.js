@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-//import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
+import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
 //import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
 //import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
@@ -53,7 +53,8 @@ scene.add(parede);
 // Texto NANdART
 const fontLoader = new FontLoader();
 fontLoader.load('./assets/fontes/helvetiker_regular.typeface.json', function (font) {
-  const textGeo = new TextGeometry('NANdART', {
+    // Código para criar geometria do texto
+});
     font: font,
     size: 0.9,
     height: 0.2,

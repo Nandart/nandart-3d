@@ -1,35 +1,15 @@
-// Importação de módulos
-// Corrigido para usar caminhos relativos ou CDN, dependendo do ambiente
-
-//import * as THREE from 'three'; // Certifique-se de que o módulo 'three' está instalado via npm
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-//import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-//import gsap from 'gsap';
 import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
-// Verificar o valor de BASE_URL
-//console.log("BASE_URL:", import.meta.env.BASE_URL);
 // Configurações iniciais
 const obraPaths = [
   "./assets/obras/obra1.jpg",
   "./assets/obras/obra2.jpg",
   "./assets/obras/obra3.jpg",
- "./assets/obras/obra4.jpg",
- "./assets/obras/obra5.jpg",
- "./assets/obras/obra6.jpg"
+  "./assets/obras/obra4.jpg",
+  "./assets/obras/obra5.jpg",
+  "./assets/obras/obra6.jpg"
 ];
-/*
-const obraPaths = [
-  `${import.meta.env.BASE_URL}assets/obras/obra1.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra2.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra3.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra4.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra5.jpg`,
-  `${import.meta.env.BASE_URL}assets/obras/obra6.jpg`
-];
-
-*/
 
 // Cena e câmera
 const scene = new THREE.Scene();
@@ -37,11 +17,6 @@ scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 2, 8);
-
-// Verificar suporte ao WebGL
-if (!THREE.WebGLRenderer) {
-  alert("Seu navegador não suporta WebGL.");
-}
 
 // Renderizador
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
@@ -58,7 +33,16 @@ spotlight.position.set(0, 8, 6);
 spotlight.castShadow = true;
 scene.add(spotlight);
 
-// Chão reflexivo (obsidiana líquida)
+// Luzes cenográficas (LEDs nas paredes)
+const ledLight1 = new THREE.PointLight(0xffffff, 0.8, 10);
+ledLight1.position.set(-5, 4, 0);
+scene.add(ledLight1);
+
+const ledLight2 = new THREE.PointLight(0xffffff, 0.8, 10);
+ledLight2.position.set(5, 4, 0);
+scene.add(ledLight2);
+
+// Chão reflexivo
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
 const planeMaterial = new THREE.MeshPhongMaterial({
   color: 0x050505,
@@ -70,32 +54,132 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// Lista de obras normais (placeholders)
+// Parede de fundo
+const wallGeometry = new THREE.PlaneGeometry(20, 10);
+const wallMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
+backWall.position.set(0, 5, -7);
+scene.add(backWall);
+
+// Paredes laterais
+const sideWallGeometry = new THREE.PlaneGeometry(14, 10);
+const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+leftWall.position.set(-10, 5, 0);
+leftWall.rotation.y = Math.PI / 2;
+scene.add(leftWall);
+
+const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+rightWall.position.set(10, 5, 0);
+rightWall.rotation.y = Math.PI / 2;
+scene.add(rightWall);
+
+// Teto
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshPhongMaterial({ color: 0x0a0a0a }));
+ceiling.position.set(0, 10, 0);
+ceiling.rotation.x = Math.PI / 2;
+scene.add(ceiling);
+
+// Texto NANdART
+const createText = () => {
+  const loader = new THREE.FontLoader();
+  loader.load('https://cdn.jsdelivr.net/npm/three@0.152.2/examples/fonts/helvetiker_regular.typeface.json', (font) => {
+    const textGeometry = new THREE.TextGeometry('NANdART', {
+      font: font,
+      size: 0.5,
+      height: 0.1,
+    });
+    const textMaterial = new THREE.MeshPhongMaterial({ color: 0xd4af37 });
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(-1.5, 5.5, -6.95);
+    scene.add(textMesh);
+  });
+};
+createText();
+
+// Lista de obras normais
 const obrasNormais = [];
 const raio = 3.5;
 
 // Criar quadros suspensos em círculo
 obraPaths.forEach((src, i) => {
+  // Moldura
+  const molduraGeo = new THREE.BoxGeometry(0.65, 0.65, 0.05);
+  const molduraMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+  const moldura = new THREE.Mesh(molduraGeo, molduraMat);
+  
+  // Obra
   const tex = new THREE.TextureLoader().load(src);
   const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
-  const geo = new THREE.PlaneGeometry(1.2, 1.2);
+  const geo = new THREE.PlaneGeometry(0.6, 0.6);
   const quadro = new THREE.Mesh(geo, mat);
+  quadro.position.z = 0.03; // Coloca a frente da moldura
+  
+  // Grupo para moldura + obra
+  const grupoQuadro = new THREE.Group();
+  grupoQuadro.add(moldura);
+  grupoQuadro.add(quadro);
+  
   const angulo = (i / obraPaths.length) * Math.PI * 2;
-  quadro.position.set(Math.cos(angulo) * raio, 1.8, Math.sin(angulo) * raio);
-  quadro.rotation.y = -angulo + Math.PI;
-  quadro.userData.tipo = 'normal';
-  scene.add(quadro);
-  obrasNormais.push(quadro);
+  grupoQuadro.position.set(Math.cos(angulo) * raio, 1.8, Math.sin(angulo) * raio);
+  grupoQuadro.rotation.y = -angulo + Math.PI;
+  grupoQuadro.userData = { tipo: 'normal', obra: quadro };
+  
+  scene.add(grupoQuadro);
+  obrasNormais.push(grupoQuadro);
 });
 
-// Obra premium suspensa (placeholder)
-const texPremium = new THREE.TextureLoader().load('./assets/premium/premium1.jpg');
-const matPremium = new THREE.MeshBasicMaterial({ map: texPremium });
-const geoPremium = new THREE.PlaneGeometry(1.4, 1.4);
-const premium = new THREE.Mesh(geoPremium, matPremium);
-premium.position.set(0, 2.6, 0);
-premium.userData.tipo = 'premium';
-scene.add(premium);
+// Obra premium
+const createPremiumObra = () => {
+  // Moldura premium
+  const molduraGeo = new THREE.BoxGeometry(0.75, 0.75, 0.05);
+  const molduraMat = new THREE.MeshPhongMaterial({ color: 0xd4af37 });
+  const moldura = new THREE.Mesh(molduraGeo, molduraMat);
+  
+  // Obra premium
+  const texPremium = new THREE.TextureLoader().load('./assets/premium/premium1.jpg');
+  const matPremium = new THREE.MeshBasicMaterial({ map: texPremium });
+  const geoPremium = new THREE.PlaneGeometry(0.7, 0.7);
+  const premium = new THREE.Mesh(geoPremium, matPremium);
+  premium.position.z = 0.03;
+  
+  // Estrela premium
+  const starTex = new THREE.TextureLoader().load('./assets/icons/estrela-premium.png');
+  const starMat = new THREE.MeshBasicMaterial({ 
+    map: starTex, 
+    transparent: true,
+    opacity: 0.9
+  });
+  const starGeo = new THREE.PlaneGeometry(0.15, 0.15);
+  const star = new THREE.Mesh(starGeo, starMat);
+  star.position.set(0.25, 0.25, 0.04);
+  
+  // Grupo premium
+  const grupoPremium = new THREE.Group();
+  grupoPremium.add(moldura);
+  grupoPremium.add(premium);
+  grupoPremium.add(star);
+  grupoPremium.position.set(0, 3.2, 0);
+  grupoPremium.userData = { tipo: 'premium', obra: premium };
+  
+  scene.add(grupoPremium);
+  return grupoPremium;
+};
+
+const premium = createPremiumObra();
+
+// Modal HTML
+const modal = document.createElement('div');
+modal.className = 'obra-modal';
+modal.innerHTML = `
+  <h3 style="color: #d4af37; margin-bottom: 10px;">Detalhes da Obra</h3>
+  <p style="color: white; text-align: center;">Obra selecionada</p>
+  <button id="comprar-obra">Adquirir Obra</button>
+`;
+document.body.appendChild(modal);
+
+// Variável para controlar a animação
+let isAnimating = false;
+let animationSpeed = 1;
 
 // Responsividade
 window.addEventListener('resize', () => {
@@ -108,18 +192,20 @@ window.addEventListener('resize', () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  obrasNormais.forEach((q, i) => {
-    const angulo = Date.now() * 0.0002 + (i / obrasNormais.length) * Math.PI * 2;
-    q.position.x = Math.cos(angulo) * raio;
-    q.position.z = Math.sin(angulo) * raio;
-    q.rotation.y = -angulo + Math.PI;
-  });
+  if (!isAnimating) {
+    obrasNormais.forEach((q, i) => {
+      const angulo = Date.now() * 0.0002 * animationSpeed + (i / obrasNormais.length) * Math.PI * 2;
+      q.position.x = Math.cos(angulo) * raio;
+      q.position.z = Math.sin(angulo) * raio;
+      q.rotation.y = -angulo + Math.PI;
+    });
+  }
 
   renderer.render(scene, camera);
 }
 animate();
 
-// Interatividade — click ou touch numa obra para abrir modal
+// Interatividade
 renderer.domElement.addEventListener('click', onClick);
 renderer.domElement.addEventListener('touchstart', onClick);
 
@@ -131,36 +217,127 @@ function onClick(event) {
 
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects([...obrasNormais, premium]);
+  const allObjects = [...obrasNormais, premium];
+  const intersects = raycaster.intersectObjects(allObjects.flatMap(obj => obj.children));
 
   if (intersects.length > 0) {
-    const obra = intersects[0].object;
-    destacarObra(obra);
-  } else {
-    console.warn('Nenhuma obra válida foi selecionada.');
+    const intersected = intersects[0].object;
+    // Encontrar o grupo pai (moldura + obra)
+    let parent = intersected.parent;
+    while (parent && !parent.userData.tipo) {
+      parent = parent.parent;
+    }
+    
+    if (parent && parent.userData.obra) {
+      destacarObra(parent);
+    }
   }
 }
 
-// Função para modal animado
-function destacarObra(obra) {
+// Função para destacar obra
+function destacarObra(obraGroup) {
+  if (isAnimating) return;
+  isAnimating = true;
+  
+  // Aplicar desfoque
+  document.getElementById('scene').classList.add('blurred');
+  
+  // Desacelerar ambiente
+  animationSpeed = 0.2;
+  
+  // Clonar apenas a obra (não a moldura)
+  const obra = obraGroup.userData.obra;
   const clone = obra.clone();
   clone.material = obra.material.clone();
   scene.add(clone);
-  clone.position.copy(obra.position);
-  clone.scale.set(1, 1, 1);
-
-  gsap.to(clone.position, { x: 0, y: 2.2, z: 1, duration: 0.8, ease: 'power2.out' });
-  gsap.to(clone.scale, { x: 2.5, y: 2.5, duration: 0.8, ease: 'power2.out' });
-
-  // Embaciar fundo
+  
+  // Posicionar clone na posição original
+  clone.position.copy(obraGroup.position);
+  clone.rotation.copy(obraGroup.rotation);
+  clone.scale.copy(obra.scale);
+  
+  // Calcular rotação para ficar de frente para a câmera
+  const targetRotation = new THREE.Quaternion();
+  targetRotation.setFromRotationMatrix(
+    new THREE.Matrix4().lookAt(clone.position, camera.position, new THREE.Vector3(0, 1, 0))
+  );
+  
+  // Animação para o centro
+  gsap.to(clone.position, { 
+    x: 0, 
+    y: 2.2, 
+    z: 1, 
+    duration: 0.8, 
+    ease: 'power2.out' 
+  });
+  
+  gsap.to(clone.rotation, { 
+    x: 0,
+    y: 0,
+    z: 0,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+  
+  gsap.to(clone.scale, { 
+    x: 2, 
+    y: 2, 
+    duration: 0.8, 
+    ease: 'power2.out' 
+  });
+  
+  // Escurecer fundo
   gsap.to(scene.background, { r: 0.05, g: 0.05, b: 0.05, duration: 0.5 });
-
-  // Recolher após 4 segundos (exemplo)
+  
+  // Mostrar modal
   setTimeout(() => {
-    gsap.to(clone.position, { z: obra.position.z, duration: 0.6, onComplete: () => scene.remove(clone) });
-    gsap.to(clone.scale, { x: 1, y: 1, duration: 0.6 });
-    gsap.to(scene.background, { r: 0.07, g: 0.07, b: 0.07, duration: 0.6 });
-  }, 4000);
+    modal.style.display = 'flex';
+    
+    // Configurar botão de compra
+    document.getElementById('comprar-obra').onclick = () => {
+      alert(`Obra ${obraGroup.userData.tipo === 'premium' ? 'Premium' : 'Normal'} adquirida com sucesso!`);
+      fecharModal();
+    };
+  }, 800);
+  
+  // Recolher após 8 segundos se não interagir
+  setTimeout(() => {
+    if (isAnimating) {
+      fecharModal();
+    }
+  }, 8000);
+}
+
+function fecharModal() {
+  if (!isAnimating) return;
+  
+  modal.style.display = 'none';
+  document.getElementById('scene').classList.remove('blurred');
+  
+  // Encontrar o clone da obra
+  const clones = scene.children.filter(obj => obj !== premium && obj.userData && obj.userData.isClone);
+  
+  clones.forEach(clone => {
+    gsap.to(clone.scale, { 
+      x: 0.6, 
+      y: 0.6, 
+      duration: 0.6,
+      onComplete: () => scene.remove(clone)
+    });
+    
+    gsap.to(scene.background, { 
+      r: 0.07, 
+      g: 0.07, 
+      b: 0.07, 
+      duration: 0.6 
+    });
+  });
+  
+  // Restaurar velocidade normal
+  setTimeout(() => {
+    animationSpeed = 1;
+    isAnimating = false;
+  }, 1000);
 }
 
 // Ocultar ícone de ajuda após 20 segundos

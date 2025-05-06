@@ -10,12 +10,12 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 // Dimensões responsivas
 const getConfig = () => ({
-  obraSize: isMobile ? 0.18 : 0.25,
-  premiumSize: isMobile ? 0.22 : 0.3,
-  circleRadius: isMobile ? 1.5 : 2,
-  wallDistance: isMobile ? 7 : 9,
-  cameraZ: isMobile ? 14 : 12,
-  textSize: isMobile ? 0.35 : 0.45
+  obraSize: isMobile ? 0.35 : 0.5,
+  premiumSize: isMobile ? 0.45 : 0.65,
+  circleRadius: isMobile ? 2.5 : 3.5,
+  wallDistance: isMobile ? 8 : 10,
+  cameraZ: isMobile ? 16 : 14,
+  textSize: isMobile ? 0.4 : 0.5
 });
 
 let config = getConfig();
@@ -35,8 +35,8 @@ updateCamera();
 
 function updateCamera() {
   config = getConfig();
-  camera.position.set(0, isMobile ? 3.5 : 3, config.cameraZ);
-  camera.lookAt(0, 2, 0);
+  camera.position.set(0, isMobile ? 4 : 3.5, config.cameraZ);
+  camera.lookAt(0, 2.5, 0);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
@@ -63,13 +63,15 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 7);
 directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 1024;
-directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
 // Chão com reflexo
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(30, 30),
+  new THREE.PlaneGeometry(40, 40, 32, 32),
   new THREE.MeshPhongMaterial({
     color: 0x050505,
     shininess: 100,
@@ -82,13 +84,16 @@ scene.add(floor);
 
 // Parede de fundo
 const backWall = new THREE.Mesh(
-  new THREE.PlaneGeometry(22, 14),
-  new THREE.MeshPhongMaterial({ 
+  new THREE.PlaneGeometry(25, 16, 32, 32),
+  new THREE.MeshStandardMaterial({ 
     color: 0x1a1a1a,
+    roughness: 0.8,
+    metalness: 0.2,
     side: THREE.DoubleSide
   })
 );
-backWall.position.set(0, 7, -config.wallDistance);
+backWall.position.set(0, 8, -config.wallDistance);
+backWall.receiveShadow = true;
 scene.add(backWall);
 
 // Texto NANdART universal
@@ -100,7 +105,7 @@ const createText = () => {
       const textGeometry = new TextGeometry('NANdART', {
         font: font,
         size: config.textSize,
-        height: 0.03,
+        height: 0.05,
         curveSegments: 12
       });
       
@@ -117,7 +122,7 @@ const createText = () => {
       const textMesh = new THREE.Mesh(textGeometry, textMaterial);
       textMesh.position.set(
         -textWidth/2 - 0.1, 
-        isMobile ? 8 : 8.5, 
+        isMobile ? 9 : 9.5, 
         -config.wallDistance + 0.01
       );
       
@@ -130,51 +135,50 @@ const createText = () => {
     undefined,
     (err) => {
       console.error('Error loading font:', err);
-      createTextFallback();
     }
   );
-};
-
-const createTextFallback = () => {
-  const textShape = new THREE.Shape();
-  // ... (código para criar texto alternativo)
 };
 
 createText();
 
 // Paredes laterais otimizadas
-const wallMaterial = new THREE.MeshPhongMaterial({ 
+const wallMaterial = new THREE.MeshStandardMaterial({ 
   color: 0x1a1a1a,
+  roughness: 0.8,
+  metalness: 0.2,
   side: THREE.DoubleSide
 });
 
 const leftWall = new THREE.Mesh(
-  new THREE.PlaneGeometry(18, 14),
+  new THREE.PlaneGeometry(20, 16, 32, 32),
   wallMaterial
 );
-leftWall.position.set(-11, 7, config.wallDistance/3);
+leftWall.position.set(-12, 8, config.wallDistance/3);
 leftWall.rotation.y = Math.PI/3;
+leftWall.receiveShadow = true;
 scene.add(leftWall);
 
 const rightWall = new THREE.Mesh(
-  new THREE.PlaneGeometry(18, 14),
+  new THREE.PlaneGeometry(20, 16, 32, 32),
   wallMaterial
 );
-rightWall.position.set(11, 7, config.wallDistance/3);
+rightWall.position.set(12, 8, config.wallDistance/3);
 rightWall.rotation.y = -Math.PI/3;
+rightWall.receiveShadow = true;
 scene.add(rightWall);
 
 // Teto visível
 const ceiling = new THREE.Mesh(
-  new THREE.PlaneGeometry(25, 25),
-  new THREE.MeshPhongMaterial({ 
+  new THREE.PlaneGeometry(30, 30, 32, 32),
+  new THREE.MeshStandardMaterial({ 
     color: 0x121212,
-    emissive: 0x080808,
-    shininess: 20
+    roughness: 0.9,
+    metalness: 0.1
   })
 );
-ceiling.position.set(0, 14, 0);
+ceiling.position.set(0, 16, 0);
 ceiling.rotation.x = Math.PI/2;
+ceiling.receiveShadow = true;
 scene.add(ceiling);
 
 // Sistema de obras
@@ -210,25 +214,33 @@ const createArtworks = () => {
     const angulo = (i / obraPaths.length) * Math.PI * 2;
     
     const moldura = new THREE.Mesh(
-      new THREE.BoxGeometry(config.obraSize + 0.04, config.obraSize + 0.04, 0.05),
-      new THREE.MeshPhongMaterial({ color: 0x333333 })
+      new THREE.BoxGeometry(config.obraSize + 0.08, config.obraSize + 0.08, 0.08),
+      new THREE.MeshStandardMaterial({ 
+        color: 0x333333,
+        roughness: 0.7,
+        metalness: 0.3
+      })
     );
+    moldura.castShadow = true;
+    moldura.receiveShadow = true;
     
     const obra = new THREE.Mesh(
       new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-      new THREE.MeshBasicMaterial({ 
+      new THREE.MeshStandardMaterial({ 
         map: textureCache[src],
-        transparent: true
+        roughness: 0.4,
+        metalness: 0.1
       })
     );
-    obra.position.z = 0.03;
+    obra.position.z = 0.05;
+    obra.castShadow = true;
     
     const grupo = new THREE.Group();
     grupo.add(moldura);
     grupo.add(obra);
     grupo.position.set(
       Math.cos(angulo) * config.circleRadius,
-      isMobile ? 3 : 3.2,
+      isMobile ? 4 : 4.2,
       Math.sin(angulo) * config.circleRadius
     );
     grupo.rotation.y = -angulo + Math.PI;
@@ -250,48 +262,55 @@ const createArtworks = () => {
 // Obra premium
 const createPremiumArtwork = () => {
   const moldura = new THREE.Mesh(
-    new THREE.BoxGeometry(config.premiumSize + 0.08, config.premiumSize + 0.08, 0.08),
-    new THREE.MeshPhongMaterial({ 
+    new THREE.BoxGeometry(config.premiumSize + 0.12, config.premiumSize + 0.12, 0.12),
+    new THREE.MeshStandardMaterial({ 
       color: 0xc4b582,
-      specular: 0xffffff,
-      shininess: 100
+      roughness: 0.3,
+      metalness: 0.8,
+      emissive: 0x222222
     })
   );
+  moldura.castShadow = true;
+  moldura.receiveShadow = true;
   
   const obra = new THREE.Mesh(
     new THREE.PlaneGeometry(config.premiumSize, config.premiumSize),
-    new THREE.MeshBasicMaterial({ 
+    new THREE.MeshStandardMaterial({ 
       map: textureCache['premium'],
-      transparent: true
+      roughness: 0.2,
+      metalness: 0.3
     })
   );
-  obra.position.z = 0.05;
+  obra.position.z = 0.08;
+  obra.castShadow = true;
   
   const star = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.12, 0.12),
-    new THREE.MeshBasicMaterial({
+    new THREE.PlaneGeometry(0.15, 0.15),
+    new THREE.MeshStandardMaterial({
       map: new THREE.TextureLoader().load('./assets/icons/estrela-premium.png'),
-      transparent: true
+      transparent: true,
+      roughness: 0.1,
+      metalness: 0.9
     })
   );
-  star.position.set(0.2, 0.2, 0.09);
+  star.position.set(0.25, 0.25, 0.12);
   
-  const aura = new THREE.PointLight(0xfff7d6, 0.8, 2.5);
-  aura.position.set(0, 0, 0.15);
+  const aura = new THREE.PointLight(0xfff7d6, 1.2, 3.5);
+  aura.position.set(0, 0, 0.2);
   
   const grupo = new THREE.Group();
   grupo.add(moldura);
   grupo.add(obra);
   grupo.add(star);
   grupo.add(aura);
-  grupo.position.set(0, isMobile ? 4.5 : 4.8, 0);
+  grupo.position.set(0, isMobile ? 5.5 : 5.8, 0);
   
   // Animação de flutuação
   let floatTime = 0;
   const animateFloat = () => {
-    floatTime += 0.016; // Delta time aproximado
-    grupo.position.y = (isMobile ? 4.5 : 4.8) + Math.sin(floatTime * 2.2) * 0.18;
-    grupo.rotation.z = Math.sin(floatTime * 1.6) * 0.04;
+    floatTime += 0.016;
+    grupo.position.y = (isMobile ? 5.5 : 5.8) + Math.sin(floatTime * 2.2) * 0.22;
+    grupo.rotation.z = Math.sin(floatTime * 1.6) * 0.05;
     requestAnimationFrame(animateFloat);
   };
   animateFloat();
@@ -342,11 +361,14 @@ const showArtworkDetails = (artwork) => {
   artworkClone.scale.copy(artwork.scale);
   scene.add(artworkClone);
 
+  // Trazer para frente de todos os objetos
+  artworkClone.renderOrder = 999;
+
   // Animação para o centro (dobro do tamanho)
   gsap.to(artworkClone.position, {
     x: 0,
-    y: isMobile ? 3.5 : 3.2,
-    z: 2,
+    y: isMobile ? 4.5 : 4.2,
+    z: 1.5,
     duration: 0.8,
     ease: 'power2.out'
   });
@@ -360,9 +382,9 @@ const showArtworkDetails = (artwork) => {
   });
 
   gsap.to(artworkClone.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
+    x: 2.2,
+    y: 2.2,
+    z: 2.2,
     duration: 0.8
   });
 
@@ -373,24 +395,24 @@ const showArtworkDetails = (artwork) => {
       obj.material = new THREE.MeshBasicMaterial({ 
         color: 0x111111,
         transparent: true,
-        opacity: 0.7
+        opacity: 0.6
       });
     }
   });
 
-  // Modal minimalista
+  // Modal
   modal.style.display = 'flex';
-  modal.style.width = '140px';
-  modal.style.padding = '8px';
   modal.querySelector('#art-title').textContent = 
     artwork.userData.tipo === 'premium' ? 'Obra Premium' : `Obra #${artwork.userData.index + 1}`;
   
   // Event listeners
-  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('click', handleClickOutside, true);
   modal.querySelector('#buy-art').onclick = handleBuyClick;
 };
 
 const closeArtworkDetails = () => {
+  if (!artworkClone) return;
+  
   gsap.to(artworkClone.scale, {
     x: 1,
     y: 1,
@@ -427,20 +449,20 @@ const closeArtworkDetails = () => {
       artworkClone = null;
       
       // Remover listeners
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside, true);
     }
   });
 };
 
 const handleClickOutside = (e) => {
-  if (!modal.contains(e.target) && e.target.id === 'scene') {
+  if (!modal.contains(e.target) {
     closeArtworkDetails();
   }
 };
 
-const handleBuyClick = () => {
+const handleBuyClick = (e) => {
+  e.stopPropagation();
   alert(`${focusedArtwork.userData.tipo === 'premium' ? 'Obra Premium' : 'Obra'} adquirida com sucesso!`);
-  closeArtworkDetails();
 };
 
 // Animação principal (anti-horário)
@@ -450,14 +472,6 @@ const animate = () => {
   if (!isFocusMode) {
     obrasNormais.forEach((q, i) => {
       const angulo = Date.now() * -0.00012 + (i / obrasNormais.length) * Math.PI * 2;
-      q.position.x = Math.cos(angulo) * config.circleRadius;
-      q.position.z = Math.sin(angulo) * config.circleRadius;
-      q.rotation.y = -angulo + Math.PI;
-    });
-  } else {
-    // Desacelerar (30% da velocidade)
-    obrasNormais.forEach((q, i) => {
-      const angulo = Date.now() * -0.00004 + (i / obrasNormais.length) * Math.PI * 2;
       q.position.x = Math.cos(angulo) * config.circleRadius;
       q.position.z = Math.sin(angulo) * config.circleRadius;
       q.rotation.y = -angulo + Math.PI;

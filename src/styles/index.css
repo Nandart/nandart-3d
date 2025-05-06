@@ -30,6 +30,46 @@ canvas {
   left: 0;
   z-index: 1;
   background-color: transparent;
+  transition: filter 0.5s ease;
+}
+
+#scene.blurred {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Modal de obra */
+.obra-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(26, 26, 26, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #d4af37;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  max-width: 80%;
+}
+
+.obra-modal button {
+  background: #d4af37;
+  color: #1a1a1a;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obra-modal button:hover {
+  background: #f0d264;
+  transform: scale(1.05);
 }
 
 /* Ícone flutuante de ajuda */
@@ -81,6 +121,11 @@ audio.hidden {
     bottom: 15px;
     right: 15px;
   }
+  
+  .obra-modal {
+    padding: 15px;
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -89,5 +134,10 @@ audio.hidden {
     height: 30px;
     bottom: 10px;
     right: 10px;
+  }
+  
+  .obra-modal {
+    padding: 10px;
+    max-width: 95%;
   }
 }

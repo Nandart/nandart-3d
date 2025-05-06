@@ -1,16 +1,1 @@
-{
-  "name": "nandart-gallery",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "three": "^0.158.0"
-  },
-  "devDependencies": {
-    "vite": "^4.4.4",
-    "@rollup/plugin-commonjs": "^25.0.4"
-  }
-}
+

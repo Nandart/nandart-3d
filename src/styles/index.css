@@ -18,9 +18,9 @@ canvas {
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
 
-/* Canvas da galeria */
 #scene {
   width: 100%;
   height: 100%;
@@ -44,35 +44,45 @@ canvas {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(26, 26, 26, 0.9);
-  padding: 20px;
-  border-radius: 8px;
+  background: rgba(26, 26, 26, 0.95);
+  padding: 25px;
+  border-radius: 10px;
   border: 1px solid #d4af37;
   z-index: 100;
   display: none;
   flex-direction: column;
   align-items: center;
+  color: white;
   max-width: 80%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
 }
 
-.obra-modal button {
+.obra-modal h3 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+#comprar-obra {
   background: #d4af37;
   color: #1a1a1a;
   border: none;
-  padding: 10px 20px;
-  margin-top: 15px;
-  border-radius: 4px;
+  padding: 12px 25px;
+  margin-top: 20px;
+  border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
-.obra-modal button:hover {
+#comprar-obra:hover {
   background: #f0d264;
   transform: scale(1.05);
 }
 
-/* Ícone flutuante de ajuda */
+/* Ícone flutuante */
 #ajudaIcone {
   position: fixed;
   bottom: 20px;
@@ -90,41 +100,24 @@ canvas {
   transform: scale(1.1);
 }
 
-#ajudaIcone:focus {
-  outline: 2px solid #ffffff;
-}
-
-/* Desaparecer após 20 segundos */
-#ajudaIcone.ocultar {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease;
-}
-
-/* Animação de flutuação suave */
 @keyframes flutuar {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
   100% { transform: translateY(0px); }
 }
 
-/* Música invisível */
-audio.hidden {
-  display: none;
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
+  .obra-modal {
+    max-width: 95%;
+    padding: 15px;
+  }
+  
   #ajudaIcone {
     width: 38px;
     height: 38px;
     bottom: 15px;
     right: 15px;
-  }
-  
-  .obra-modal {
-    padding: 15px;
-    max-width: 90%;
   }
 }
 
@@ -134,10 +127,5 @@ audio.hidden {
     height: 30px;
     bottom: 10px;
     right: 10px;
-  }
-  
-  .obra-modal {
-    padding: 10px;
-    max-width: 95%;
   }
 }

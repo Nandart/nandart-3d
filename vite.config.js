@@ -1,48 +1,26 @@
 import { defineConfig } from 'vite';
-import path from 'path';
+import { resolve } from 'path';
 
 export default defineConfig({
-  root: '.',
+  root: resolve(__dirname, './'),
   base: '/',
   
   build: {
-    outDir: 'dist',
+    outDir: resolve(__dirname, 'dist'),
+    emptyOutDir: true,
     target: 'esnext',
     sourcemap: true,
-    assetsInlineLimit: 4096,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html')
+        main: resolve(__dirname, 'index.html')
       }
     }
   },
   
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, '/src'),
-    },
-  },
-  
   server: {
     port: 3000,
-    open: true,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp'
-    },
     fs: {
       strict: false
     }
-  },
-  
-  optimizeDeps: {
-    include: ['gsap']
-  },
-  
-  // Configuração específica para Vercel
-  vercel: {
-    rewrites: [
-      { source: "/(.*)", destination: "/index.html" }
-    ]
   }
 });

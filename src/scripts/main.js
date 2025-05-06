@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
 import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
-//import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
+import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
 //import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
 const obraPaths = [
@@ -53,22 +53,28 @@ scene.add(parede);
 // Texto NANdART
 const fontLoader = new FontLoader();
 fontLoader.load('./assets/fontes/helvetiker_regular.typeface.json', function (font) {
-    // Código para criar geometria do texto
-});
-    font: font,
-    size: 0.9,
-    height: 0.2,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.02,
-    bevelSize: 0.02,
-    bevelSegments: 3
-  });
+    // Criar geometria do texto
+    const textGeo = new TextGeometry('NANdART', {
+        font: font,
+        size: 0.9,
+        height: 0.2,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.02,
+        bevelSize: 0.02,
+        bevelSegments: 3
+    });
 
-  const textMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 1, roughness: 0.4 });
-  const textMesh = new THREE.Mesh(textGeo, textMat);
-  textMesh.position.set(-3.8, 4.1, -9.9);
-  scene.add(textMesh);
+    // Criar material e mesh
+    const textMat = new THREE.MeshStandardMaterial({
+        color: 0xd4af37,
+        metalness: 1,
+        roughness: 0.4
+    });
+
+    const textMesh = new THREE.Mesh(textGeo, textMat);
+    textMesh.position.set(-3.8, 4.1, -9.9); // Ajustar posição conforme necessário
+    scene.add(textMesh);
 });
 
 // Obras normais suspensas

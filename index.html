@@ -6,31 +6,59 @@
   <title>NANdART 3D Gallery</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="stylesheet" href="/src/styles/index.css" />
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      overflow: hidden;
+      background-color: #111;
+    }
+    
+    /* Modal minimalista */
+    .art-modal {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid #c4b582;
+      border-radius: 4px;
+      padding: 12px;
+      color: white;
+      max-width: 300px;
+      z-index: 100;
+      display: none;
+      backdrop-filter: blur(3px);
+    }
+    
+    .art-modal button {
+      background: #c4b582;
+      color: #1a1a1a;
+      border: none;
+      padding: 8px 16px;
+      margin-top: 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <canvas id="scene"></canvas>
-  <img src="/assets/icons/ajuda-flutuante.png" id="ajudaIcone" alt="Ajuda" />
   
-  <audio id="musica" loop autoplay>
-    <source src="/assets/musica/musica.mp3" type="audio/mpeg" />
-  </audio>
-
-  <div id="obra-modal" class="obra-modal">
-    <h3>Detalhes da Obra</h3>
-    <p id="obra-descricao"></p>
-    <button id="comprar-obra">Adquirir Obra</button>
+  <div class="art-modal">
+    <h3 id="art-title"></h3>
+    <p id="art-description"></p>
+    <button id="buy-art">Adquirir Obra</button>
   </div>
-
-  <!-- Elementos de admin (mantidos ocultos) -->
-  <form id="admin-login-form" style="display: none; /* estilos inline */"></form>
-  <button id="admin-button" style="display: none; /* estilos inline */"></button>
-  <button id="logout-button" style="display: none; /* estilos inline */"></button>
 
   <script type="importmap">
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-      "three/examples/jsm/controls/OrbitControls": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js",
       "three/examples/jsm/loaders/FontLoader": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js",
       "three/examples/jsm/geometries/TextGeometry": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js",
       "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js"
@@ -39,7 +67,5 @@
   </script>
 
   <script type="module" src="/src/scripts/main.js"></script>
-  <script src="/src/scripts/admin-login.js" defer></script>
 </body>
 </html>
-

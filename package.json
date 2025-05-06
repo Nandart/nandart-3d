@@ -1,4 +1,3 @@
-# Substitua seu package.json por este conteúdo MÍNIMO:
 {
   "name": "nandart-gallery",
   "type": "module",

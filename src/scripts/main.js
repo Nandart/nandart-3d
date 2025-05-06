@@ -52,7 +52,7 @@ scene.add(parede);
 
 // Texto NANdART
 const fontLoader = new FontLoader();
-fontLoader.load('./assets/fontes/helvetiker_regular.typeface.json', function (font) {
+fontLoader.load'./assets/fontes/helvetiker_regular.typeface.json', function (font) {
   const textGeo = new TextGeometry('NANdART', {
     font: font,
     size: 0.9,
@@ -98,7 +98,7 @@ scene.add(premium);
 
 // Ícone de estrela (obra premium)
 const estrelaGeo = new THREE.PlaneGeometry(0.1, 0.1);
-const estrelaTex = new THREE.TextureLoader().load('./assets/icons/estrela-premium.png');
+const estrelaTex = new THREE.TextureLoader().load'./assets/icons/estrela-premium.png';
 const estrelaMat = new THREE.MeshBasicMaterial({ map: estrelaTex, transparent: true });
 const estrela = new THREE.Mesh(estrelaGeo, estrelaMat);
 estrela.position.set(0.35, 3.25, 0.01);
@@ -228,7 +228,7 @@ function criarVitrineComGema(x, z) {
   vidro.position.set(x, 0.85, z);
   scene.add(vidro);
 
-  const texturaGema = new THREE.TextureLoader().load('./assets/gemas/gema-azul.jpg.png');
+  const texturaGema = new THREE.TextureLoader().load'./assets/gemas/gema-azul.jpg.png';
   const geoGema = new THREE.OctahedronGeometry(0.18, 0);
   const matGema = new THREE.MeshStandardMaterial({ map: texturaGema, roughness: 0.2, metalness: 0.9 });
   const gema = new THREE.Mesh(geoGema, matGema);

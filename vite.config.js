@@ -1,20 +1,25 @@
-iimport { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
   root: '.',
-  base: process.env.BASE_URL || '/',
+  base: '/',
   
   build: {
     outDir: 'dist',
     target: 'esnext',
     sourcemap: true,
     assetsInlineLimit: 4096,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
   },
   
   resolve: {
     alias: {
-      '@': resolve(__dirname, '/src'),
+      '@': path.resolve(__dirname, '/src'),
     },
   },
   
@@ -32,8 +37,12 @@ export default defineConfig({
   
   optimizeDeps: {
     include: ['gsap']
-  }
-});
-    include: ['gsap'] 
+  },
+  
+  // Configuração específica para Vercel
+  vercel: {
+    rewrites: [
+      { source: "/(.*)", destination: "/index.html" }
+    ]
   }
 });

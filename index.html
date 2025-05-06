@@ -2,12 +2,10 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>NANdART 3D Gallery</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="stylesheet" href="/src/styles/index.css" />
   <style>
-    /* Reset básico */
     * {
       margin: 0;
       padding: 0;
@@ -16,33 +14,63 @@
     
     body {
       overflow: hidden;
+      touch-action: none;
       background-color: #111;
+      font-family: 'Segoe UI', sans-serif;
     }
     
-    /* Modal minimalista */
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+    
     .art-modal {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(20, 20, 20, 0.95);
       border: 1px solid #c4b582;
-      border-radius: 4px;
-      padding: 12px;
+      border-radius: 5px;
+      padding: 15px;
       color: white;
-      max-width: 300px;
+      max-width: 90%;
+      width: 300px;
       z-index: 100;
       display: none;
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(5px);
     }
     
-    .art-modal button {
+    .art-modal h3 {
+      color: #c4b582;
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+    }
+    
+    .art-modal p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    #buy-art {
       background: #c4b582;
       color: #1a1a1a;
       border: none;
-      padding: 8px 16px;
-      margin-top: 10px;
+      padding: 10px 20px;
+      margin-top: 15px;
       border-radius: 3px;
+      font-weight: bold;
       cursor: pointer;
+      width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+      .art-modal {
+        width: 85%;
+        right: 10px;
+        bottom: 10px;
+        padding: 12px;
+      }
     }
   </style>
 </head>
@@ -50,7 +78,7 @@
   <canvas id="scene"></canvas>
   
   <div class="art-modal">
-    <h3 id="art-title"></h3>
+    <h3 id="art-title">Detalhes da Obra</h3>
     <p id="art-description"></p>
     <button id="buy-art">Adquirir Obra</button>
   </div>

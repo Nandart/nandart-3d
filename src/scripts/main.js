@@ -3,21 +3,26 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import gsap from 'gsap';
 
-// Configurações
+// Configurações responsivas
 const isMobile = window.innerWidth < 768;
-const obraSize = 0.3; // Metade do tamanho original
-const premiumSize = 0.35;
-const circleRadius = 1.5; // 1/3 do raio original
-const wallDepth = 8;
+const obraSize = isMobile ? 0.25 : 0.3;
+const premiumSize = isMobile ? 0.3 : 0.35;
+const circleRadius = isMobile ? 1.8 : 2.2;
+const wallDistance = isMobile ? 6 : 8;
 
 // Cena
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Câmera
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 2.5, 5);
-camera.lookAt(0, 1.5, 0);
+// Câmera ajustada para mostrar toda a sala
+const camera = new THREE.PerspectiveCamera(
+  50, 
+  window.innerWidth / window.innerHeight, 
+  0.1, 
+  100
+);
+camera.position.set(0, 3.5, isMobile ? 10 : 8); // Posição mais alta e distante
+camera.lookAt(0, 2, 0);
 
 // Renderizador
 const renderer = new THREE.WebGLRenderer({ 
@@ -25,18 +30,19 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true 
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 
-// Iluminação
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+// Sistema de iluminação melhorado
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const spotLight = new THREE.SpotLight(0xffffff, 1.5, 30, Math.PI/6, 0.2, 1);
-spotLight.position.set(0, 8, 4);
-spotLight.castShadow = true;
-scene.add(spotLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+directionalLight.position.set(0, 10, 5);
+directionalLight.castShadow = true;
+scene.add(directionalLight);
 
-// Chão
+// Chão com reflexo
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(20, 20),
   new THREE.MeshPhongMaterial({
@@ -45,19 +51,19 @@ const floor = new THREE.Mesh(
     reflectivity: 0.3
   })
 );
-floor.rotation.x = -Math.PI/2;
+floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// Parede de fundo
+// Parede de fundo maior
 const backWall = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 6),
+  new THREE.PlaneGeometry(16, 10),
   new THREE.MeshPhongMaterial({ color: 0x1a1a1a })
 );
-backWall.position.set(0, 3, -4);
+backWall.position.set(0, 5, -wallDistance);
 scene.add(backWall);
 
-// Texto NANdART
+// Texto NANdART visível em mobile
 const createText = () => {
   const loader = new FontLoader();
   loader.load(
@@ -65,7 +71,7 @@ const createText = () => {
     (font) => {
       const textGeometry = new TextGeometry('NANdART', {
         font: font,
-        size: 0.4,
+        size: isMobile ? 0.3 : 0.4,
         height: 0.02,
       });
       
@@ -76,40 +82,51 @@ const createText = () => {
       });
       
       const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-      textMesh.position.set(-1.2, 4.5, -3.99);
+      textGeometry.computeBoundingBox();
+      const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+      textMesh.position.set(
+        -textWidth/2, 
+        isMobile ? 6 : 6.5, 
+        -wallDistance + 0.01
+      );
       scene.add(textMesh);
-    },
-    undefined,
-    (error) => {
-      console.error('Error loading font:', error);
     }
   );
 };
 createText();
 
-// Paredes laterais
-const wallMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
-const sideWallGeometry = new THREE.PlaneGeometry(6, 6);
+// Paredes laterais RETAS e mais próximas
+const wallMaterial = new THREE.MeshPhongMaterial({ 
+  color: 0x1a1a1a,
+  side: THREE.DoubleSide
+});
 
-const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
-leftWall.position.set(-5, 3, 2);
-leftWall.rotation.y = Math.PI/4;
+const leftWall = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 10),
+  wallMaterial
+);
+leftWall.position.set(-7, 5, wallDistance/2);
+leftWall.rotation.y = Math.PI/2;
 scene.add(leftWall);
 
-const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
-rightWall.position.set(5, 3, 2);
-rightWall.rotation.y = -Math.PI/4;
+const rightWall = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 10),
+  wallMaterial
+);
+rightWall.position.set(7, 5, wallDistance/2);
+rightWall.rotation.y = Math.PI/2;
 scene.add(rightWall);
 
-// Teto
+// Teto visível
 const ceiling = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 10),
+  new THREE.PlaneGeometry(16, 16),
   new THREE.MeshPhongMaterial({ 
     color: 0x121212,
-    emissive: 0x050505
+    emissive: 0x050505,
+    shininess: 30
   })
 );
-ceiling.position.set(0, 6, 0);
+ceiling.position.set(0, 10, 0);
 ceiling.rotation.x = Math.PI/2;
 scene.add(ceiling);
 
@@ -125,7 +142,7 @@ const obraPaths = [
 
 const obrasNormais = [];
 
-// Criar obras normais
+// Criar obras normais ELEVADAS
 obraPaths.forEach((src, i) => {
   const angulo = (i / obraPaths.length) * Math.PI * 2;
   
@@ -150,7 +167,7 @@ obraPaths.forEach((src, i) => {
   grupo.add(obra);
   grupo.position.set(
     Math.cos(angulo) * circleRadius,
-    1.5,
+    isMobile ? 2.2 : 2.5, // Mais elevadas
     Math.sin(angulo) * circleRadius
   );
   grupo.rotation.y = -angulo + Math.PI;
@@ -164,9 +181,8 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(grupo);
 });
 
-// Obra premium
+// Obra premium com melhor flutuação
 const createPremiumArtwork = () => {
-  // Moldura premium
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(premiumSize + 0.1, premiumSize + 0.1, 0.08),
     new THREE.MeshPhongMaterial({ 
@@ -176,7 +192,6 @@ const createPremiumArtwork = () => {
     })
   );
   
-  // Obra
   const obra = new THREE.Mesh(
     new THREE.PlaneGeometry(premiumSize, premiumSize),
     new THREE.MeshBasicMaterial({ 
@@ -185,7 +200,6 @@ const createPremiumArtwork = () => {
   );
   obra.position.z = 0.05;
   
-  // Estrela
   const star = new THREE.Mesh(
     new THREE.PlaneGeometry(0.15, 0.15),
     new THREE.MeshBasicMaterial({
@@ -195,8 +209,7 @@ const createPremiumArtwork = () => {
   );
   star.position.set(0.25, 0.25, 0.09);
   
-  // Aura
-  const aura = new THREE.PointLight(0xfff7d6, 0.5, 1.5);
+  const aura = new THREE.PointLight(0xfff7d6, 0.7, 2);
   aura.position.set(0, 0, 0.1);
   
   const grupo = new THREE.Group();
@@ -204,18 +217,15 @@ const createPremiumArtwork = () => {
   grupo.add(obra);
   grupo.add(star);
   grupo.add(aura);
-  grupo.position.set(0, 3.2, 0);
+  grupo.position.set(0, isMobile ? 3.5 : 3.8, 0);
   
-  // Animação de flutuação
+  // Animação de flutuação melhorada
+  let floatTime = 0;
   const animateFloat = () => {
-    let time = 0;
-    const float = () => {
-      time += 0.01;
-      grupo.position.y = 3.2 + Math.sin(time * 2) * 0.1;
-      grupo.rotation.z = Math.sin(time * 1.5) * 0.02;
-      requestAnimationFrame(float);
-    };
-    float();
+    floatTime += 0.015;
+    grupo.position.y = (isMobile ? 3.5 : 3.8) + Math.sin(floatTime * 2.5) * 0.15;
+    grupo.rotation.z = Math.sin(floatTime * 1.8) * 0.03;
+    requestAnimationFrame(animateFloat);
   };
   animateFloat();
   
@@ -229,15 +239,9 @@ const createPremiumArtwork = () => {
 };
 const premium = createPremiumArtwork();
 
-// Modal
+// Sistema de interação
 const modal = document.querySelector('.art-modal');
-const buyBtn = document.getElementById('buy-art');
-
-// Interação
 let isAnimating = false;
-let currentArtwork = null;
-
-renderer.domElement.addEventListener('click', onClick);
 
 function onClick(event) {
   if (isAnimating) return;
@@ -252,59 +256,68 @@ function onClick(event) {
   const intersects = raycaster.intersectObjects([...obrasNormais, premium].flatMap(g => g.children));
 
   if (intersects.length > 0) {
-    const intersected = intersects[0].object.parent;
-    if (intersected.userData && intersected.userData.obra) {
-      showArtworkDetails(intersected);
-    }
+    const selected = intersects[0].object.parent;
+    showArtworkDetails(selected);
   }
 }
 
 function showArtworkDetails(artwork) {
   isAnimating = true;
-  currentArtwork = artwork;
-
+  
   // Trazer para frente
   gsap.to(artwork.position, {
-    z: 2,
+    z: 3,
     duration: 0.8,
     ease: 'power2.out'
   });
 
   // Mostrar modal
   modal.querySelector('#art-title').textContent = `Obra ${artwork.userData.tipo === 'premium' ? 'Premium' : 'Normal'}`;
-  modal.querySelector('#art-description').textContent = `Edição exclusiva ${artwork.userData.index + 1 || ''}`;
+  modal.querySelector('#art-description').textContent = `Edição ${artwork.userData.index + 1 || 'Exclusiva'}`;
   modal.style.display = 'block';
 
   // Configurar botão
-  buyBtn.onclick = () => {
+  document.getElementById('buy-art').onclick = () => {
+    closeArtworkDetails(artwork);
     alert(`Obra ${artwork.userData.tipo === 'premium' ? 'Premium' : ''} adquirida!`);
-    closeArtworkDetails();
   };
 }
 
-function closeArtworkDetails() {
-  if (!currentArtwork) return;
-  
-  gsap.to(currentArtwork.position, {
+function closeArtworkDetails(artwork) {
+  gsap.to(artwork.position, {
     z: 0,
     duration: 0.8,
     ease: 'power2.out',
     onComplete: () => {
       isAnimating = false;
-      currentArtwork = null;
     }
   });
-  
   modal.style.display = 'none';
 }
 
-// Animação
+// Responsividade completa
+function handleResize() {
+  const isNowMobile = window.innerWidth < 768;
+  
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  if (isMobile !== isNowMobile) {
+    window.location.reload();
+  }
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', handleResize);
+
+// Animação principal
 function animate() {
   requestAnimationFrame(animate);
 
   if (!isAnimating) {
     obrasNormais.forEach((q, i) => {
-      const angulo = Date.now() * 0.0002 + (i / obrasNormais.length) * Math.PI * 2;
+      const angulo = Date.now() * 0.00015 + (i / obrasNormais.length) * Math.PI * 2;
       q.position.x = Math.cos(angulo) * circleRadius;
       q.position.z = Math.sin(angulo) * circleRadius;
       q.rotation.y = -angulo + Math.PI;
@@ -313,11 +326,11 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-animate();
 
-// Responsividade
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+// Event listeners
+renderer.domElement.addEventListener('click', onClick);
+if ('ontouchstart' in window) {
+  renderer.domElement.addEventListener('touchstart', onClick);
+}
+
+animate();

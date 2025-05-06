@@ -4,22 +4,24 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 export default defineConfig({
   plugins: [
     nodePolyfills({
-      include: ['path', 'stream', 'util'],
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      }
+      protocolImports: true
     })
   ],
-  optimizeDeps: {
-    include: ['three', 'gsap'],
-    exclude: ['three/examples/jsm/**']
+  resolve: {
+    alias: {
+      'three/examples/jsm/': 'three/examples/jsm/',
+      'three': 'three/build/three.module.js'
+    }
   },
   build: {
-    commonjsOptions: {
-      include: [/node_modules/, /three/, /gsap/],
-      transformMixedEsModules: true
+    target: 'esnext',
+    rollupOptions: {
+      external: ['three', 'three/examples/jsm/**'],
+      output: {
+        manualChunks: {
+          three: ['three']
+        }
+      }
     }
   }
 })

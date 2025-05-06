@@ -1,19 +1,11 @@
-import { defineConfig } from 'vite';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
+import { defineConfig } from 'vite'
+import commonjs from '@rollup/plugin-commonjs'
 
+// Configuração mínima necessária
 export default defineConfig({
-  plugins: [
-    nodeResolve(),  
-    commonjs(),     
-  ],
+  plugins: [commonjs()],
   build: {
-    target: 'esnext',  
-    outDir: 'dist',    
-    emptyOutDir: true, 
-  },
-  server: {
-    port: 3000,        
-    open: true,        
-  },
-});
+    target: 'esnext',
+    outDir: 'dist'
+  }
+})

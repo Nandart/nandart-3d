@@ -5,5 +5,11 @@
       "src": "package.json",
       "use": "@vercel/static-build"
     }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    }
   ]
 }

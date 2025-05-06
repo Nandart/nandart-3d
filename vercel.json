@@ -5,17 +5,17 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"  // Deve corresponder ao outDir do Vite
+        "distDir": "dist"  
       }
     }
   ],
   "routes": [
     {
-      "src": "/assets/(.*)",  // Se você tiver arquivos estáticos
+      "src": "/assets/(.*)",  
       "dest": "/public/assets/$1"
     },
     {
-      "src": "/(.*)",  // Todas as rotas vão para index.html (SPA)
+      "src": "/(.*)",  
       "dest": "/"
     }
   ]

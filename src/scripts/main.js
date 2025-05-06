@@ -1,5 +1,8 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
+//import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
 import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
+import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
 
 // Configurações iniciais
 const obraPaths = [
@@ -19,7 +22,10 @@ const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerH
 camera.position.set(0, 2, 8);
 
 // Renderizador
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
+const renderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('scene'), 
+  antialias: true 
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true;
@@ -33,15 +39,6 @@ spotlight.position.set(0, 8, 6);
 spotlight.castShadow = true;
 scene.add(spotlight);
 
-// Luzes cenográficas (LEDs nas paredes)
-const ledLight1 = new THREE.PointLight(0xffffff, 0.8, 10);
-ledLight1.position.set(-5, 4, 0);
-scene.add(ledLight1);
-
-const ledLight2 = new THREE.PointLight(0xffffff, 0.8, 10);
-ledLight2.position.set(5, 4, 0);
-scene.add(ledLight2);
-
 // Chão reflexivo
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
 const planeMaterial = new THREE.MeshPhongMaterial({
@@ -53,6 +50,55 @@ const floor = new THREE.Mesh(planeGeometry, planeMaterial);
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+
+// Texto NANdART (versão simplificada sem FontLoader)
+const createText = () => {
+  // Fallback visual (será usado se a fonte não carregar)
+  const createTextFallback = () => {
+    const textGeometry = new THREE.PlaneGeometry(3, 0.5);
+    const textMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0xd4af37,
+      side: THREE.DoubleSide
+    });
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(0, 5.5, -6.95);
+    scene.add(textMesh);
+  };
+
+  // Carrega a fonte customizada
+  const loader = new FontLoader();
+  loader.load(
+    '/assets/fonts/helvetiker_regular.typeface.json',
+    (font) => {
+      const textGeometry = new TextGeometry('NANdART', {
+        font: font,
+        size: 0.5,
+        height: 0.1,
+        curveSegments: 12,
+        bevelEnabled: false
+      });
+      
+      // Centraliza o texto
+      textGeometry.computeBoundingBox();
+      const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+      
+      const textMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xd4af37,
+        specular: 0x111111,
+        shininess: 30
+      });
+      
+      const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+      textMesh.position.set(-textWidth/2, 5.5, -6.95); // Posição centralizada
+      scene.add(textMesh);
+    },
+    undefined, // Progress callback (opcional)
+    (error) => {
+      console.error('Erro ao carregar fonte:', error);
+      createTextFallback(); // Usa fallback se houver erro
+    }
+  );
+};
 
 // Parede de fundo
 const wallGeometry = new THREE.PlaneGeometry(20, 10);

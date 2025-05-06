@@ -1,16 +1,7 @@
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build --emptyOutDir",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "three": "^0.158.0",
-    "gsap": "^3.12.2"
-  },
-  "devDependencies": {
-    "vite": "^4.4.4",
-    "@rollup/plugin-node-resolve": "^15.2.1",
-    "@rollup/plugin-commonjs": "^25.0.4"
-  }
+"dependencies": {
+  "three": "^0.158.0"
+},
+"devDependencies": {
+  "vite": "^4.4.4",
+  "@rollup/plugin-node-resolve": "^15.2.1"
 }

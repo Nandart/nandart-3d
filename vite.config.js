@@ -1,9 +1,22 @@
 import { defineConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
-  base: '/',
+  plugins: [
+    nodePolyfills({
+      protocolImports: true
+    })
+  ],
+  resolve: {
+    alias: {
+      'three': 'three/build/three.module.js',
+      'three/addons/': 'three/examples/jsm/'
+    }
+  },
   build: {
-    outDir: 'dist',
-    emptyOutDir: true
+    target: 'esnext',
+    rollupOptions: {
+      external: ['three']
+    }
   }
 })

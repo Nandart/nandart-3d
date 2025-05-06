@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: '.', // Define o diretório raiz
-  base: process.env.BASE_URL || '/'. // Define a base URL para produção
+  base: process.env.BASE_URL || '/', // Define a base URL para produção
   build: {
     outDir: 'dist', // Diretório de saída para os arquivos de build
     target: 'esnext', // Define o alvo ES para compatibilidade moderna

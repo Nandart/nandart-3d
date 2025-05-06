@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
 import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
-//import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
+import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 
 const obraPaths = [
   "./assets/obras/obra1.jpg",

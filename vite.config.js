@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import commonjs from '@rollup/plugin-commonjs'
-import { nodeResolve } from '@rollup/plugin-node-resolve'
+import { defineConfig } from 'vite';
+import commonjs from '@rollup/plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
   plugins: [
@@ -16,4 +16,4 @@ export default defineConfig({
   build: {
     target: 'esnext'
   }
-})
+});

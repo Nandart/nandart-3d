@@ -71,7 +71,6 @@
       transform: scale(0.95);
     }
     
-    /* Garantir compatibilidade cross-browser */
     @supports not (backdrop-filter: blur(3px)) {
       .art-modal {
         background: rgba(15, 15, 15, 0.98);
@@ -87,23 +86,6 @@
     <button id="buy-art">Adquirir</button>
   </div>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-      "three/examples/jsm/loaders/FontLoader": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js",
-      "three/examples/jsm/geometries/TextGeometry": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js",
-      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js"
-    }
-  }
-  </script>
-
-  <script type="module" src="/src/scripts/main.js"></script>
-  
-  <!-- Fallback para browsers sem suporte a modules -->
-  <script nomodule>
-    alert("Seu navegador não suporta recursos necessários. Por favor, atualize para a versão mais recente do Chrome, Firefox ou Edge.");
-    window.location.href = "https://www.google.com/chrome/";
-  </script>
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

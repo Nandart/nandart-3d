@@ -1,8 +1,4 @@
-# Backup do arquivo atual
-mv package.json package.json.backup
 
-# Crie um novo arquivo limpo
-cat > package.json <<EOL
 {
   "name": "nandart-gallery",
   "type": "module",
@@ -19,8 +15,3 @@ cat > package.json <<EOL
     "vite": "^4.4.4"
   }
 }
-EOL
-
-# Verifique novamente
-npm install
-npm run build

@@ -1,19 +1,19 @@
-{
-  "name": "nandart-gallery",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+import { defineConfig } from 'vite'
+import commonjs from '@rollup/plugin-commonjs'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+
+export default defineConfig({
+  plugins: [
+    nodeResolve(),
+    commonjs()
+  ],
+  resolve: {
+    alias: {
+      'three': 'three/build/three.module.js',
+      'three/addons/': 'three/examples/jsm/'
+    }
   },
-  "dependencies": {
-    "three": "^0.158.0",
-    "gsap": "^3.12.2"
-  },
-  "devDependencies": {
-    "vite": "^5.0.8",
-    "vite-plugin-node-polyfills": "^0.15.0",
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.1"
+  build: {
+    target: 'esnext'
   }
-}
+})

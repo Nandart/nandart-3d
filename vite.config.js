@@ -1,15 +1,25 @@
 import { defineConfig } from 'vite'
-import { resolve } from 'path'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html')
+  plugins: [
+    nodePolyfills({
+      include: ['path', 'stream', 'util'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
       }
-    }
+    })
+  ],
+  optimizeDeps: {
+    include: ['three', 'gsap'],
+    exclude: ['three/examples/jsm/**']
   },
-  server: {
-    port: 3000
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/, /three/, /gsap/],
+      transformMixedEsModules: true
+    }
   }
 })

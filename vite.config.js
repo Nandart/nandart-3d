@@ -1,11 +1,24 @@
-import { defineConfig } from 'vite'
-import commonjs from '@rollup/plugin-commonjs'
+import { defineConfig } from 'vite';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
-// Configuração mínima necessária
 export default defineConfig({
-  plugins: [commonjs()],
+  plugins: [
+    nodeResolve({
+      browser: true,
+      dedupe: ['three']
+    }),
+    commonjs()
+  ],
   build: {
     target: 'esnext',
-    outDir: 'dist'
+    rollupOptions: {
+      input: './index.html'
+    }
+  },
+  resolve: {
+    alias: {
+      'three/examples/jsm/': new URL('./node_modules/three/examples/jsm/', import.meta.url).pathname
+    }
   }
-})
+});

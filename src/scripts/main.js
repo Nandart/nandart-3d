@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 
 // Configurações cross-browser
@@ -126,7 +126,6 @@ const createText = () => {
         -config.wallDistance + 0.01
       );
       
-      // Garantir visibilidade cross-browser
       if (isFirefox) textMesh.position.z -= 0.02;
       if (isSafari) textMesh.scale.set(1.05, 1.05, 1);
       
@@ -183,12 +182,12 @@ scene.add(ceiling);
 
 // Sistema de obras
 const obraPaths = [
-  "./assets/obras/obra1.jpg",
-  "./assets/obras/obra2.jpg",
-  "./assets/obras/obra3.jpg",
-  "./assets/obras/obra4.jpg", 
-  "./assets/obras/obra5.jpg",
-  "./assets/obras/obra6.jpg"
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg", 
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg"
 ];
 
 const obrasNormais = [];
@@ -199,12 +198,17 @@ const preloadTextures = async () => {
   const loader = new THREE.TextureLoader();
   for (const path of obraPaths) {
     textureCache[path] = await new Promise(resolve => {
-      loader.load(path, resolve);
+      loader.load(path, resolve, undefined, (err) => {
+        console.error('Failed to load texture:', path, err);
+        resolve(new THREE.Texture());
+      });
     });
   }
-  // Carrega textura premium
   textureCache['premium'] = await new Promise(resolve => {
-    loader.load('./assets/premium/premium1.jpg', resolve);
+    loader.load('/assets/premium/premium1.jpg', resolve, undefined, (err) => {
+      console.error('Failed to load premium texture:', err);
+      resolve(new THREE.Texture());
+    });
   });
 };
 
@@ -287,7 +291,7 @@ const createPremiumArtwork = () => {
   const star = new THREE.Mesh(
     new THREE.PlaneGeometry(0.15, 0.15),
     new THREE.MeshStandardMaterial({
-      map: new THREE.TextureLoader().load('./assets/icons/estrela-premium.png'),
+      map: new THREE.TextureLoader().load('/assets/icons/estrela-premium.png'),
       transparent: true,
       roughness: 0.1,
       metalness: 0.9
@@ -342,7 +346,6 @@ const showArtworkDetails = (artwork) => {
   const obraClone = artwork.userData.obra.clone();
   obraClone.material = artwork.userData.obra.material.clone();
   
-  // Aplicar textura em alta resolução
   if (artwork.userData.tipo === 'premium') {
     obraClone.material.map = textureCache['premium'].clone();
   } else {
@@ -350,7 +353,6 @@ const showArtworkDetails = (artwork) => {
   }
   obraClone.material.needsUpdate = true;
 
-  // Moldura clone
   const molduraClone = artwork.children[0].clone();
   molduraClone.material = artwork.children[0].material.clone();
   
@@ -361,10 +363,8 @@ const showArtworkDetails = (artwork) => {
   artworkClone.scale.copy(artwork.scale);
   scene.add(artworkClone);
 
-  // Trazer para frente de todos os objetos
   artworkClone.renderOrder = 999;
 
-  // Animação para o centro (dobro do tamanho)
   gsap.to(artworkClone.position, {
     x: 0,
     y: isMobile ? 4.5 : 4.2,
@@ -388,7 +388,6 @@ const showArtworkDetails = (artwork) => {
     duration: 0.8
   });
 
-  // Desfoque do ambiente (não da obra)
   scene.traverse(obj => {
     if (obj !== artworkClone && obj !== ceiling && obj.material) {
       obj.userData.originalMaterial = obj.material;
@@ -400,12 +399,10 @@ const showArtworkDetails = (artwork) => {
     }
   });
 
-  // Modal
   modal.style.display = 'flex';
   modal.querySelector('#art-title').textContent = 
     artwork.userData.tipo === 'premium' ? 'Obra Premium' : `Obra #${artwork.userData.index + 1}`;
   
-  // Event listeners
   document.addEventListener('click', handleClickOutside, true);
   modal.querySelector('#buy-art').onclick = handleBuyClick;
 };
@@ -435,7 +432,6 @@ const closeArtworkDetails = () => {
     onComplete: () => {
       scene.remove(artworkClone);
       
-      // Restaurar materiais originais
       scene.traverse(obj => {
         if (obj.userData?.originalMaterial) {
           obj.material = obj.userData.originalMaterial;
@@ -448,14 +444,13 @@ const closeArtworkDetails = () => {
       focusedArtwork = null;
       artworkClone = null;
       
-      // Remover listeners
       document.removeEventListener('click', handleClickOutside, true);
     }
   });
 };
 
 const handleClickOutside = (e) => {
-  if (!modal.contains(e.target) {
+  if (!modal.contains(e.target)) {
     closeArtworkDetails();
   }
 };
@@ -465,7 +460,7 @@ const handleBuyClick = (e) => {
   alert(`${focusedArtwork.userData.tipo === 'premium' ? 'Obra Premium' : 'Obra'} adquirida com sucesso!`);
 };
 
-// Animação principal (anti-horário)
+// Animação principal
 const animate = () => {
   requestAnimationFrame(animate);
 
@@ -487,7 +482,6 @@ const init = async () => {
   createArtworks();
   const premium = createPremiumArtwork();
   
-  // Event listeners
   renderer.domElement.addEventListener('click', (e) => {
     if (isFocusMode) return;
     
@@ -506,7 +500,6 @@ const init = async () => {
     }
   });
 
-  // Responsividade completa
   window.addEventListener('resize', () => {
     updateCamera();
     updateRenderer();

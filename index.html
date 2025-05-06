@@ -87,6 +87,17 @@
   <!-- Botão de Logout (invisível por padrão) -->
   <button id="logout-button" style="display: none; position: absolute; top: 60px; left: 20px; background: rgba(26, 26, 26, 0.9); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 10px 15px; border-radius: 4px; z-index: 50; cursor: pointer;">Sair</button>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
+    "three/examples/jsm/controls/OrbitControls": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js",
+    "three/examples/jsm/loaders/FontLoader": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js",
+    "three/examples/jsm/geometries/TextGeometry": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js"
+  }
+}
+</script>
+  
   <!-- Scripts -->
   <script type="module" src="/src/scripts/main.js"></script>
   <script src="/src/scripts/admin-login.js" defer></script>

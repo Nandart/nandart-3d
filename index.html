@@ -1,45 +1,102 @@
-DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NANdART 3D Gallery</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/src/styles/index.css" />
-  </head>
-  <body>
-    <!-- Canvas para renderização 3D -->
-    <canvas id="scene"></canvas>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NANdART 3D Gallery</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <style>
+    /* Estilos temporários para o modal (serão movidos para o CSS) */
+    .obra-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(26, 26, 26, 0.95);
+      padding: 25px;
+      border-radius: 10px;
+      border: 1px solid #d4af37;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      max-width: 80%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+    .obra-modal h3 {
+      color: #d4af37;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    #comprar-obra {
+      background: #d4af37;
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 25px;
+      margin-top: 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    #comprar-obra:hover {
+      background: #f0d264;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas para renderização 3D -->
+  <canvas id="scene"></canvas>
 
-    <!-- Ícone de ajuda flutuante -->
-    <img src="/assets/icons/ajuda-flutuante.png" id="ajudaIcone" alt="Ajuda" />
+  <!-- Ícone de ajuda flutuante -->
+  <img src="/assets/icons/ajuda-flutuante.png" id="ajudaIcone" alt="Ajuda" />
 
-    <!-- Música ambiente -->
-    <audio id="musica" loop autoplay>
-      <source src="/assets/musica/musica.mp3" type="audio/mpeg" />
-    </audio>
+  <!-- Música ambiente -->
+  <audio id="musica" loop autoplay>
+    <source src="/assets/musica/musica.mp3" type="audio/mpeg" />
+  </audio>
 
-    <!-- Formulário de Login (invisível por padrão) -->
-    <form id="admin-login-form" style="display: none; position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 8px;">
-      <h3>Login de Administrador</h3>
-      <label for="username">Usuário:</label>
-      <input type="text" id="username" name="username" required />
-      
-      <label for="password">Senha:</label>
-      <input type="password" id="password" name="password" required />
-      
-      <button type="submit">Entrar</button>
-      <p id="login-status"></p>
-    </form>
+  <!-- Modal para obras (melhorado) -->
+  <div id="obra-modal" class="obra-modal">
+    <h3>Detalhes da Obra</h3>
+    <p id="obra-descricao">Obra selecionada</p>
+    <button id="comprar-obra">Adquirir Obra</button>
+  </div>
 
-    <!-- Botão de Administrador (invisível por padrão) -->
-    <button id="admin-button" style="display: none; position: absolute; top: 20px; left: 20px;">Área do Administrador</button>
+  <!-- Formulário de Login (invisível por padrão) -->
+  <form id="admin-login-form" style="display: none; position: absolute; top: 20px; right: 20px; background: rgba(26, 26, 26, 0.9); padding: 20px; border-radius: 8px; border: 1px solid #d4af37; z-index: 50; color: white;">
+    <h3 style="color: #d4af37; margin-bottom: 15px;">Login de Administrador</h3>
+    <label for="username" style="display: block; margin-bottom: 5px;">Usuário:</label>
+    <input type="text" id="username" name="username" required style="width: 100%; padding: 8px; margin-bottom: 15px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;" />
+    
+    <label for="password" style="display: block; margin-bottom: 5px;">Senha:</label>
+    <input type="password" id="password" name="password" required style="width: 100%; padding: 8px; margin-bottom: 15px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;" />
+    
+    <button type="submit" style="background: #d4af37; color: #1a1a1a; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%;">Entrar</button>
+    <p id="login-status" style="margin-top: 10px; color: #ff6b6b;"></p>
+  </form>
 
-    <!-- Botão de Logout (invisível por padrão) -->
-    <button id="logout-button" style="display: none; position: absolute; top: 60px; left: 20px;">Sair</button>
+  <!-- Botão de Administrador (invisível por padrão) -->
+  <button id="admin-button" style="display: none; position: absolute; top: 20px; left: 20px; background: rgba(26, 26, 26, 0.9); color: #d4af37; border: 1px solid #d4af37; padding: 10px 15px; border-radius: 4px; z-index: 50; cursor: pointer;">Área do Administrador</button>
 
-    <!-- Script principal -->
-    <script type="module" src="/src/scripts/main.js"></script>
-    <script src="src/scripts/admin-login.js" defer></script>
-  </body>
-</html>  sim podes ajustado para este novo main
+  <!-- Botão de Logout (invisível por padrão) -->
+  <button id="logout-button" style="display: none; position: absolute; top: 60px; left: 20px; background: rgba(26, 26, 26, 0.9); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 10px 15px; border-radius: 4px; z-index: 50; cursor: pointer;">Sair</button>
+
+  <!-- Scripts -->
+  <script type="module" src="/src/scripts/main.js"></script>
+  <script src="/src/scripts/admin-login.js" defer></script>
+
+  <script>
+    // Inicialização do modal (exemplo)
+    document.getElementById('comprar-obra').addEventListener('click', () => {
+      alert('Obra adquirida com sucesso!');
+      document.getElementById('obra-modal').style.display = 'none';
+    });
+  </script>
+</body>
+</html>

@@ -1,20 +1,38 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
-  root: '.', // Define o diretório raiz
-  base: process.env.BASE_URL || '/', // Define a base URL para produção
+  root: '.',
+  base: process.env.BASE_URL || '/',
+  
   build: {
-    outDir: 'dist', // Diretório de saída para os arquivos de build
-    target: 'esnext', // Define o alvo ES para compatibilidade moderna
-    sourcemap: true, // Gera mapas de sourcemap para depuração
+    outDir: 'dist',
+    target: 'esnext',
+    sourcemap: true,
+    assetsInlineLimit: 4096, // Otimização para assets pequenos
   },
+  
   resolve: {
     alias: {
-      '@': '/src', // Alias para facilitar os imports
+      '@': resolve(__dirname, '/src'), // Caminho absoluto mais seguro
     },
   },
+  
   server: {
-    port: 3000, // Porta padrão do servidor de desenvolvimento
-    open: true, // Abre automaticamente o navegador após iniciar o servidor
+    port: 3000,
+    open: true,
+    // Configurações críticas para módulos ES e Three.js:
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
+    },
+    fs: {
+      strict: false // Permite carregar assets de fora do diretório raiz
+    }
   },
+  
+  optimizeDeps: {
+    // Opcional: se quiser pré-empacotar dependências
+    include: ['gsap'] 
+  }
 });

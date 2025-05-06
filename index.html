@@ -27,15 +27,10 @@
     
     .art-modal {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
       background: rgba(20, 20, 20, 0.95);
       border: 1px solid #c4b582;
       border-radius: 5px;
-      padding: 15px;
       color: white;
-      max-width: 90%;
-      width: 300px;
       z-index: 100;
       display: none;
       backdrop-filter: blur(5px);
@@ -44,7 +39,7 @@
     .art-modal h3 {
       color: #c4b582;
       margin-bottom: 8px;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
     
     .art-modal p {
@@ -56,20 +51,28 @@
       background: #c4b582;
       color: #1a1a1a;
       border: none;
-      padding: 10px 20px;
-      margin-top: 15px;
+      padding: 8px 16px;
+      margin-top: 12px;
       border-radius: 3px;
       font-weight: bold;
       cursor: pointer;
       width: 100%;
+      font-size: 0.9rem;
     }
     
     @media (max-width: 768px) {
       .art-modal {
-        width: 85%;
-        right: 10px;
-        bottom: 10px;
-        padding: 12px;
+        width: 80%;
+        padding: 10px;
+      }
+      
+      .art-modal h3 {
+        font-size: 1rem;
+      }
+      
+      #buy-art {
+        padding: 6px 12px;
+        font-size: 0.8rem;
       }
     }
   </style>

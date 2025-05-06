@@ -1,19 +1,16 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import path from 'path';
 
 export default defineConfig({
-  root: resolve(__dirname, './'),
+  root: path.resolve(__dirname, './'),
   base: '/',
+  publicDir: 'public',
   
   build: {
-    outDir: resolve(__dirname, 'dist'),
+    outDir: 'dist',
     emptyOutDir: true,
-    target: 'esnext',
-    sourcemap: true,
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html')
-      }
+      input: path.resolve(__dirname, 'index.html')
     }
   },
   

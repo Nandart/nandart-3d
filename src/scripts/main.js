@@ -269,3 +269,4 @@ scene.add(luzSuave);
   scene.add(spot);
   scene.add(spot.target);
 });
+

@@ -6,13 +6,14 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "vercel-build": "vite build"
+    "vercel-build": "vite build --mode production"
   },
   "dependencies": {
     "three": "^0.158.0",
     "gsap": "^3.12.2"
   },
   "devDependencies": {
-    "vite": "^4.4.4"
+    "vite": "^4.4.4",
+    "@rollup/plugin-node-resolve": "^15.2.1"
   }
 }

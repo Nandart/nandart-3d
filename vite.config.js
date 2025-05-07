@@ -3,16 +3,24 @@ import { resolve } from 'path';
 
 export default defineConfig({
   resolve: {
-    alias: {
-      'three': resolve(__dirname, 'node_modules/three/build/three.module.js'),
-      'three/addons': resolve(__dirname, 'node_modules/three/examples/jsm')
-    }
+    alias: [
+      {
+        find: 'three',
+        replacement: 'three/build/three.module.js'
+      },
+      {
+        find: 'three/addons',
+        replacement: 'three/examples/jsm'
+      }
+    ]
   },
   build: {
     target: 'esnext',
-    assetsInlineLimit: 0
+    rollupOptions: {
+      external: ['three', 'three/addons/loaders/FontLoader.js', 'three/addons/geometries/TextGeometry.js']
+    }
   },
-  server: {
-    host: true
+  optimizeDeps: {
+    include: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
   }
 });

@@ -12,11 +12,17 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      'three/examples/jsm/': resolve(__dirname, 'node_modules/three/examples/jsm/'),
-      'three': resolve(__dirname, 'node_modules/three/build/three.module.js')
+      'three': resolve(__dirname, 'node_modules/three/build/three.module.js'),
+      'three/examples/jsm': resolve(__dirname, 'node_modules/three/examples/jsm')
     }
   },
   build: {
-    target: 'esnext'
+    target: 'esnext',
+    rollupOptions: {
+      external: [
+        'three/examples/jsm/loaders/FontLoader.js',
+        'three/examples/jsm/geometries/TextGeometry.js'
+      ]
+    }
   }
 });

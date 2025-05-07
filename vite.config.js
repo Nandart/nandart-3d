@@ -3,15 +3,24 @@ import { resolve } from 'path';
 
 export default defineConfig({
   resolve: {
-    alias: {
-      'three': resolve(__dirname, 'node_modules/three/build/three.module.js'),
-      'three/addons': resolve(__dirname, 'node_modules/three/examples/jsm')
-    }
+    alias: [
+      {
+        find: /^three$/,
+        replacement: 'three/build/three.module.js'
+      },
+      {
+        find: /^three\/examples\/jsm\/(.*)$/,
+        replacement: 'three/examples/jsm/$1'
+      }
+    ]
   },
   build: {
     target: 'esnext',
     rollupOptions: {
-      external: ['three', 'three/addons/loaders/FontLoader', 'three/addons/geometries/TextGeometry']
+      external: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
     }
+  },
+  optimizeDeps: {
+    include: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
   }
 });

@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js';
-import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/Font
+import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/geometries/TextGeometry.js';
 import gsap from 'gsap';
 

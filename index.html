@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NANdART 3D Gallery</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      overflow: hidden;
+      touch-action: none;
+      background-color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      outline: none;
+    }
+    
+    .art-modal {
+      position: fixed;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 15, 15, 0.92);
+      border: 1px solid #c4b582;
+      border-radius: 4px;
+      color: white;
+      width: 140px;
+      padding: 8px;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(3px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .art-modal h3 {
+      color: #c4b582;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    #buy-art {
+      background: #c4b582;
+      color: #1a1a1a;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    
+    #buy-art:active {
+      transform: scale(0.95);
+    }
+    
+    @supports not (backdrop-filter: blur(3px)) {
+      .art-modal {
+        background: rgba(15, 15, 15, 0.98);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  
+  <div class="art-modal">
+    <h3 id="art-title"></h3>
+    <button id="buy-art">Adquirir</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Fallback para browsers sem suporte a modules -->
+  <script nomodule>
+    alert("Seu navegador não suporta recursos necessários. Por favor, atualize para a versão mais recente do Chrome, Firefox ou Edge.");
+  </script>
+</body>
+</html>

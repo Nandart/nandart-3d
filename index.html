@@ -76,27 +76,174 @@
         background: rgba(15, 15, 15, 0.98);
       }
     }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      color: #c4b582;
+      font-size: 1.2rem;
+    }
+    
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid #c4b582;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+      margin-bottom: 16px;
+    }
+    .loader::after {
+      content: '';  
+      box-sizing: border-box;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 3px solid;
+      border-color: #1a1a1a transparent;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader"></div>
+    <p>Carregando galeria...</p>
+  </div>
+
   <canvas id="scene"></canvas>
   
   <div class="art-modal">
     <h3 id="art-title"></h3>
     <button id="buy-art">Adquirir</button>
   </div>
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-      "three/examples/jsm/loaders/FontLoader": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js",
-      "three/examples/jsm/geometries/TextGeometry": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js",
-      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js"
+
+  <!-- Sistema de carregamento híbrido -->
+  <script>
+    // Configuração global para fallback
+    window.assetsLoaded = {
+      three: false,
+      fontLoader: false,
+      textGeometry: false,
+      gsap: false
+    };
+
+    // Verifica se todos os assets carregaram
+    function checkAssetsLoaded() {
+      if (window.assetsLoaded.three && 
+          window.assetsLoaded.fontLoader && 
+          window.assetsLoaded.textGeometry && 
+          window.assetsLoaded.gsap) {
+        document.getElementById('loadingScreen').style.display = 'none';
+      }
     }
-  }
-    </script>
-  
-  <script type="module" src="/src/main.js"></script>
+
+    // Fallback handler
+    function handleLoadError(error) {
+      console.error('Erro no carregamento:', error);
+      document.getElementById('loadingScreen').querySelector('p').textContent = 
+        'Carregando recursos alternativos...';
+      
+      // Carrega via CDN se o módulo falhar
+      if (!window.THREE) {
+        const threeScript = document.createElement('script');
+        threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
+        threeScript.onload = () => {
+          window.assetsLoaded.three = true;
+          checkAssetsLoaded();
+        };
+        document.head.appendChild(threeScript);
+      }
+
+      if (!window.FontLoader) {
+        const fontLoaderScript = document.createElement('script');
+        fontLoaderScript.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/FontLoader.js';
+        fontLoaderScript.onload = () => {
+          window.assetsLoaded.fontLoader = true;
+          checkAssetsLoaded();
+        };
+        document.head.appendChild(fontLoaderScript);
+      }
+
+      if (!window.TextGeometry) {
+        const textGeometryScript = document.createElement('script');
+        textGeometryScript.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/geometries/TextGeometry.js';
+        textGeometryScript.onload = () => {
+          window.assetsLoaded.textGeometry = true;
+          checkAssetsLoaded();
+        };
+        document.head.appendChild(textGeometryScript);
+      }
+
+      if (!window.gsap) {
+        const gsapScript = document.createElement('script');
+        gsapScript.src = 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js';
+        gsapScript.onload = () => {
+          window.assetsLoaded.gsap = true;
+          checkAssetsLoaded();
+        };
+        document.head.appendChild(gsapScript);
+      }
+    }
+
+    // Tenta carregar como módulo primeiro
+    const moduleScript = document.createElement('script');
+    moduleScript.type = 'module';
+    moduleScript.textContent = `
+      try {
+        import('/src/main.js').then(() => {
+          window.assetsLoaded = {
+            three: true,
+            fontLoader: true,
+            textGeometry: true,
+            gsap: true
+          };
+          document.getElementById('loadingScreen').style.display = 'none';
+        }).catch(e => {
+          console.error('Erro no módulo principal:', e);
+          handleLoadError(e);
+        });
+      } catch(e) {
+        handleLoadError(e);
+      }
+    `;
+    document.head.appendChild(moduleScript);
+
+    // Timeout para fallback
+    setTimeout(() => {
+      if (!window.assetsLoaded.three || 
+          !window.assetsLoaded.fontLoader || 
+          !window.assetsLoaded.textGeometry || 
+          !window.assetsLoaded.gsap) {
+        handleLoadError(new Error('Timeout no carregamento'));
+      }
+    }, 10000);
+  </script>
 
   <!-- Fallback para browsers sem suporte a modules -->
   <script nomodule>

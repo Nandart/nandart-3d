@@ -1,17 +1,15 @@
 {
-  "name": "nandart-3d",
-  "version": "1.0.0",
-  "description": "Galeria 3D realista com interatividade, luzes, vitrines e ligação futura à blockchain.",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "vercel-build": "vite build"
-  },
-  "keywords": ["vite", "three.js", "galeria", "NFT", "web3", "arte", "blockchain"],
-  "author": "NANdART",
-  "license": "MIT",
-  "devDependencies": {
-    "vite": "^5.0.0"
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }

@@ -1,18 +1,20 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: '.', // Raiz do projeto
-  base: '/', // Base URL para produção
+  root: '.', // A raiz é o próprio diretório do projeto
+  base: './', // Importante para GitHub Pages e Vercel
   build: {
-    outDir: 'dist', // Pasta de saída
-    emptyOutDir: true,
+    outDir: 'dist',
     target: 'esnext',
-    sourcemap: false
+    sourcemap: true,
+    rollupOptions: {
+      input: './index.html'
+    }
   },
   resolve: {
     alias: {
-      '@': '/src', // Atalho para facilitar imports
-    },
+      '@': '/src'
+    }
   },
   server: {
     port: 3000,

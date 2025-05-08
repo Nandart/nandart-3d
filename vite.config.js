@@ -1,26 +1,19 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
-  resolve: {
-    alias: [
-      {
-        find: /^three$/,
-        replacement: 'three/build/three.module.js'
-      },
-      {
-        find: /^three\/examples\/jsm\/(.*)$/,
-        replacement: 'three/examples/jsm/$1'
-      }
-    ]
-  },
+  plugins: [
+    nodeResolve({
+      browser: true,
+      preferBuiltins: false,
+    }),
+    commonjs()
+  ],
   build: {
     target: 'esnext',
     rollupOptions: {
       external: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
     }
-  },
-  optimizeDeps: {
-    include: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
   }
 });

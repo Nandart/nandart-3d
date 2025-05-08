@@ -3,17 +3,18 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "vercel-build": "vite build"
-}
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "vercel-build": "npx vite build"
+  },
   "dependencies": {
     "three": "^0.158.0",
     "gsap": "^3.12.2"
   },
   "devDependencies": {
-    "vite": "^5.0.0"
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.1"
+    "vite": "^4.4.4",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-commonjs": "^25.0.4"
   }
 }

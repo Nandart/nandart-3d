@@ -100,7 +100,7 @@ scene.add(backWall);
 const createText = () => {
   const loader = new FontLoader();
   loader.load(
-    'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/fonts/helvetiker_regular.typeface.json',
+    'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
     (font) => {
       const textGeometry = new TextGeometry('NANdART', {
         font: font,
@@ -182,12 +182,12 @@ scene.add(ceiling);
 
 // Sistema de obras
 const obraPaths = [
-  "/assets/obras/obra1.jpg",
-  "/assets/obras/obra2.jpg",
-  "/assets/obras/obra3.jpg",
-  "/assets/obras/obra4.jpg", 
-  "/assets/obras/obra5.jpg",
-  "/assets/obras/obra6.jpg"
+  "/assets/obra1.jpg",
+  "/assets/obra2.jpg",
+  "/assets/obra3.jpg",
+  "/assets/obra4.jpg", 
+  "/assets/obra5.jpg",
+  "/assets/obra6.jpg"
 ];
 
 const obrasNormais = [];
@@ -205,7 +205,7 @@ const preloadTextures = async () => {
     });
   }
   textureCache['premium'] = await new Promise(resolve => {
-    loader.load('/assets/premium/premium1.jpg', resolve, undefined, (err) => {
+    loader.load('/assets/premium1.jpg', resolve, undefined, (err) => {
       console.error('Failed to load premium texture:', err);
       resolve(new THREE.Texture());
     });
@@ -291,7 +291,7 @@ const createPremiumArtwork = () => {
   const star = new THREE.Mesh(
     new THREE.PlaneGeometry(0.15, 0.15),
     new THREE.MeshStandardMaterial({
-      map: new THREE.TextureLoader().load('/assets/icons/estrela-premium.png'),
+      map: new THREE.TextureLoader().load('/assets/estrela-premium.png'),
       transparent: true,
       roughness: 0.1,
       metalness: 0.9

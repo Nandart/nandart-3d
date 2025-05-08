@@ -1,19 +1,21 @@
 import { defineConfig } from 'vite';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
-  plugins: [
-    nodeResolve({
-      browser: true,
-      preferBuiltins: false,
-    }),
-    commonjs()
-  ],
+  root: '.', // Raiz do projeto
+  base: '/', // Base URL para produção
   build: {
+    outDir: 'dist', // Pasta de saída
+    emptyOutDir: true,
     target: 'esnext',
-    rollupOptions: {
-      external: ['three', 'three/examples/jsm/loaders/FontLoader', 'three/examples/jsm/geometries/TextGeometry']
-    }
+    sourcemap: false
+  },
+  resolve: {
+    alias: {
+      '@': '/src', // Atalho para facilitar imports
+    },
+  },
+  server: {
+    port: 3000,
+    open: true
   }
 });

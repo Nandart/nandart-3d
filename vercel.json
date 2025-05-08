@@ -5,23 +5,31 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "cleanUrls": true
       }
     }
   ],
   "routes": [
     {
       "src": "/assets/(.*)",
-      "dest": "/assets/$1"
+      "dest": "/dist/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/$1"
+      "dest": "/dist/$1",
+      "headers": {
+        "Cache-Control": "s-maxage=3600, stale-while-revalidate"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/dist/index.html"
     }
   ],
   "rewrites": [
     {
-      "source": "/",
+      "source": "/(.*)",
       "destination": "/dist/index.html"
     }
   ]

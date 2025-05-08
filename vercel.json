@@ -16,15 +16,12 @@
       "dest": "/dist/assets/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/dist/$1",
-      "headers": {
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate"
-      }
+      "src": "/src/main.js",
+      "dest": "/dist/src/main.js"
     },
     {
-      "src": "/",
-      "dest": "/dist/index.html"
+      "src": "/(.*)",
+      "dest": "/dist/$1"
     }
   ],
   "rewrites": [

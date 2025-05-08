@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build --mode production",
-    "preview": "vite preview",
-    "vercel-build": "vite build --mode production"
+    "dev": "npx vite --host 0.0.0.0",
+    "build": "npx vite build --mode production",
+    "preview": "npx vite preview",
+    "vercel-build": "npm install && npx vite build --mode production"
   },
   "dependencies": {
     "three": "^0.158.0",
     "gsap": "^3.12.2"
   },
   "devDependencies": {
-    "vite": "^4.4.4",
+    "vite": "^4.4.9",  // Versão mais recente
     "@rollup/plugin-node-resolve": "^15.2.1",
     "@rollup/plugin-commonjs": "^25.0.4"
   }

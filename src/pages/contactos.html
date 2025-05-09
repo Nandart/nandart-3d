@@ -1,98 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Contact — NANdART</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/styles/index.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <style>
-      body {
-        background-color: #111111;
-        color: #f0f0f0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: 60px 20px;
-        font-family: 'Segoe UI', sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact – NANdART</title>
+  <link rel="stylesheet" href="/src/style/index.css" />
+  <style>
+    body {
+      background-color: #111111;
+      color: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      line-height: 1.7;
+    }
 
-      h1 {
-        font-size: 2.2rem;
-        margin-bottom: 1rem;
-        color: #e0c28d;
-      }
+    h1 {
+      color: #c4b582;
+      font-size: 2rem;
+      margin-bottom: 24px;
+    }
 
-      form {
-        display: flex;
-        flex-direction: column;
-        max-width: 480px;
-        width: 100%;
-        gap: 15px;
-      }
+    section {
+      max-width: 600px;
+      margin-bottom: 24px;
+    }
 
-      input, textarea {
-        padding: 12px;
-        border: none;
-        border-radius: 6px;
-        font-size: 1rem;
-        background-color: #1c1c1c;
-        color: #fff;
-      }
+    h2 {
+      color: #c4b582;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
 
-      input::placeholder, textarea::placeholder {
-        color: #888;
-      }
+    p, a {
+      font-size: 0.95rem;
+      color: #dddddd;
+      text-decoration: none;
+    }
 
-      button {
-        padding: 12px;
-        background-color: #e0c28d;
-        color: #111;
-        font-weight: bold;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
+    a:hover {
+      text-decoration: underline;
+    }
 
-      button:hover {
-        background-color: #d1b073;
-      }
+    .menu-icon, .info-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 32px;
+      height: 32px;
+      z-index: 100;
+      opacity: 0.85;
+      cursor: pointer;
+    }
 
-      a#btnMenu {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-      }
+    .info-icon {
+      top: 12px;
+      width: 30px;
+    }
+  </style>
+</head>
+<body>
 
-      a#btnMenu img {
-        width: 32px;
-        height: auto;
-      }
+  <a href="index.html">
+    <img src="/assets/icones/horizontes.png" alt="Menu" class="menu-icon" />
+  </a>
+  <a href="info.html">
+    <img src="/assets/icones/info.png" alt="Info" class="info-icon" />
+  </a>
 
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 1.6rem;
-        }
+  <h1>Contact</h1>
 
-        input, textarea {
-          font-size: 0.95rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <a href="/index.html" id="btnMenu" title="Back to Gallery">
-      <img src="/assets/icons/horizontes.png" alt="Menu" />
-    </a>
+  <section>
+    <h2>Email</h2>
+    <p><a href="mailto:contact@nandart.com">contact@nandart.com</a></p>
+  </section>
 
-    <h1>Contact NANdART</h1>
-    <form>
-      <input type="text" placeholder="Your Name" required />
-      <input type="email" placeholder="Your Email" required />
-      <textarea rows="5" placeholder="Your Message" required></textarea>
-      <button type="submit">Send Message</button>
-    </form>
-  </body>
+  <section>
+    <h2>Headquarters</h2>
+    <p>Caldas da Rainha / Marinha Grande / Lisbon, Portugal</p>
+  </section>
+
+  <section>
+    <h2>Follow us</h2>
+    <p>
+      <a href="https://twitter.com/nandart" target="_blank">Twitter</a> | 
+      <a href="https://instagram.com/nandart" target="_blank">Instagram</a> | 
+      <a href="https://discord.gg/nandart" target="_blank">Discord</a>
+    </p>
+  </section>
+
+</body>
 </html>

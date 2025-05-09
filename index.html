@@ -87,7 +87,6 @@
     <button id="buy-art">Adquirir</button>
   </div>
 
-  <!-- Configuração de módulos ES atualizada -->
   <script type="importmap">
     {
       "imports": {
@@ -99,11 +98,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
 
-  <script type="module" src="src/main.js"></script>
+  <script type="module" src="/src/main.js"></script>
 
-  <!-- Fallback para navegadores sem suporte a módulos -->
   <script nomodule>
-    alert("Seu navegador não suporta módulos. Por favor, use Chrome, Firefox ou Edge.");
+    alert("Your browser doesn't support modules. Please use Chrome, Firefox or Edge.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

@@ -1,18 +1,13 @@
 {
-  "name": "nandart-3d",
+  "name": "nandart-gallery",
   "version": "1.0.0",
-  "description": "Galeria 3D da NANdART com Vite + Three.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
+    "preview": "vite preview",
     "vercel-build": "vite build"
   },
-  "dependencies": {
-    "gsap": "^3.12.2",
-    "three": "^0.152.2"
-  },
   "devDependencies": {
-    "vite": "^5.0.0"
+    "vite": "^4.4.4"
   }
 }

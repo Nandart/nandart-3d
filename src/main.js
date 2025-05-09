@@ -1,7 +1,6 @@
-const THREE = window.THREE;
-const FontLoader = window.FontLoader || THREE.FontLoader;
-const TextGeometry = window.TextGeometry || THREE.TextGeometry;
-const gsap = window.gsap;
+import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 // Configurações cross-browser
 const isMobile = window.innerWidth < 768;
@@ -24,7 +23,7 @@ let config = getConfig();
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Câmera universal
+// Câmera
 const camera = new THREE.PerspectiveCamera(
   50,
   window.innerWidth / window.innerHeight,
@@ -41,7 +40,7 @@ function updateCamera() {
   camera.updateProjectionMatrix();
 }
 
-// Renderizador cross-browser
+// Renderizador
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
@@ -56,7 +55,7 @@ function updateRenderer() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 }
 
-// Iluminação melhorada
+// Iluminação
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
@@ -69,7 +68,7 @@ directionalLight.shadow.camera.near = 0.5;
 directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
-// Chão com reflexo
+// Chão
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40, 32, 32),
   new THREE.MeshPhongMaterial({
@@ -96,7 +95,7 @@ backWall.position.set(0, 8, -config.wallDistance);
 backWall.receiveShadow = true;
 scene.add(backWall);
 
-// Texto NANdART universal
+// Texto NANdART
 const createText = () => {
   const loader = new FontLoader();
   loader.load(
@@ -140,7 +139,7 @@ const createText = () => {
 
 createText();
 
-// Paredes laterais otimizadas
+// Paredes laterais
 const wallMaterial = new THREE.MeshStandardMaterial({ 
   color: 0x1a1a1a,
   roughness: 0.8,
@@ -166,7 +165,7 @@ rightWall.rotation.y = -Math.PI/3;
 rightWall.receiveShadow = true;
 scene.add(rightWall);
 
-// Teto visível
+// Teto
 const ceiling = new THREE.Mesh(
   new THREE.PlaneGeometry(30, 30, 32, 32),
   new THREE.MeshStandardMaterial({ 

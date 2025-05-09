@@ -182,12 +182,14 @@ scene.add(ceiling);
 
 // Sistema de obras
 const obraPaths = [
-  "/assets/obra1.jpg",
-  "/assets/obra2.jpg",
-  "/assets/obra3.jpg",
-  "/assets/obra4.jpg", 
-  "/assets/obra5.jpg",
-  "/assets/obra6.jpg"
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+   "/assets/obras/obra4.jpg", 
+   "/assets/obras/obra5.jpg",
+   "/assets/obras/obra6.jpg",
+   "/assets/obras/obra6.jpg",
+ "/assets/obras/obra6.jpg"
 ];
 
 const obrasNormais = [];
@@ -212,6 +214,8 @@ const preloadTextures = async () => {
     await Promise.all([
       ...obraPaths.map(path => loadTexture(path).then(tex => { textureCache[path] = tex; })),
       loadTexture('/assets/premium1.jpg').then(tex => { textureCache['premium'] = tex; }),
+      loadTexture('/assets/premium2.jpg').then(tex => { textureCache['premium'] = tex; }),
+      loadTexture('/assets/premium3.jpg').then(tex => { textureCache['premium'] = tex; }),
       loadTexture('/assets/estrela-premium.png').then(tex => { textureCache['star'] = tex; })
     ]);
   } catch (err) {

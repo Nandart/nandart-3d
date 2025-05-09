@@ -89,13 +89,22 @@
       <button id="buy-art">Adquirir</button>
     </div>
 
-    <!-- Carrega as dependências via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/FontLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/geometries/TextGeometry.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+        }
+      }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
 
-    <!-- Seu código principal -->
-    <script src="/src/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
+
+    <script nomodule>
+      alert("Your browser doesn't support modules. Please use Chrome, Firefox or Edge.");
+      window.location.href = "https://www.google.com/chrome/";
+    </script>
   </body>
 </html>

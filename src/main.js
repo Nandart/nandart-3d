@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import gsap from 'gsap';
+const THREE = window.THREE;
+const FontLoader = window.FontLoader || THREE.FontLoader;
+const TextGeometry = window.TextGeometry || THREE.TextGeometry;
+const gsap = window.gsap;
 
 // Configurações cross-browser
 const isMobile = window.innerWidth < 768;

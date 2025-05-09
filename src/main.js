@@ -77,7 +77,6 @@ const circle = new THREE.Mesh(circleGeometry, circleMaterial);
 circle.rotation.x = -Math.PI / 2;
 circle.position.y = 0.01;
 scene.add(circle);
-
 const wallMaterial = new THREE.MeshStandardMaterial({
   color: 0x1a1a1a,
   roughness: 0.8,
@@ -192,7 +191,6 @@ const createText = () => {
 };
 
 createText();
-
 const cubosComGemas = [];
 const texturaGema = new THREE.TextureLoader().load('/assets/gemas/gema-azul.jpg.png');
 
@@ -243,7 +241,7 @@ function criarCuboComGema(x, z) {
   cubosComGemas.push(grupo);
 }
 
-// Posições dos cubos: 2 de cada lado
+// 4 cubos posicionados nos pedestais
 criarCuboComGema(-8, -2);
 criarCuboComGema(-8, 2);
 criarCuboComGema(8, -2);
@@ -299,7 +297,6 @@ function fecharCubo(grupo) {
   grupo.userData.luz.intensity = 1.2;
 }
 
-// Interação por clique
 renderer.domElement.addEventListener('click', (e) => {
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
@@ -318,10 +315,136 @@ renderer.domElement.addEventListener('click', (e) => {
   }
 });
 
-// Animação principal
+const obraPaths = [
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
+];
+
+const obrasNormais = [];
+const textureCache = {};
+
+const loader = new THREE.TextureLoader();
+obraPaths.forEach(path => {
+  textureCache[path] = loader.load(path);
+});
+const starTexture = loader.load('/assets/premium/estrela-premium.png');
+const premiumTexture = loader.load('/assets/premium/premium1.jpg');
+
+function criarObrasNormais() {
+  obraPaths.forEach((src, i) => {
+    const angulo = (i / obraPaths.length) * Math.PI * 2;
+
+    const moldura = new THREE.Mesh(
+      new THREE.BoxGeometry(config.obraSize + 0.08, config.obraSize + 0.08, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.7, metalness: 0.3 })
+    );
+    moldura.castShadow = true;
+    moldura.receiveShadow = true;
+
+    const obra = new THREE.Mesh(
+      new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+      new THREE.MeshStandardMaterial({ map: textureCache[src], roughness: 0.4, metalness: 0.1 })
+    );
+    obra.position.z = 0.05;
+    obra.castShadow = true;
+
+    const grupo = new THREE.Group();
+    grupo.add(moldura);
+    grupo.add(obra);
+    grupo.position.set(
+      Math.cos(angulo) * config.circleRadius,
+      isMobile ? 4 : 4.2,
+      Math.sin(angulo) * config.circleRadius
+    );
+    grupo.rotation.y = -angulo + Math.PI;
+
+    grupo.userData = {
+      tipo: 'normal',
+      obra: obra,
+      index: i,
+      originalPos: grupo.position.clone(),
+      originalRot: grupo.rotation.clone(),
+      originalScale: 1
+    };
+
+    scene.add(grupo);
+    obrasNormais.push(grupo);
+  });
+}
+
+function criarObraPremium() {
+  const moldura = new THREE.Mesh(
+    new THREE.BoxGeometry(config.premiumSize + 0.12, config.premiumSize + 0.12, 0.12),
+    new THREE.MeshStandardMaterial({ color: 0xc4b582, roughness: 0.3, metalness: 0.8, emissive: 0x222222 })
+  );
+  moldura.castShadow = true;
+  moldura.receiveShadow = true;
+
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.premiumSize, config.premiumSize),
+    new THREE.MeshStandardMaterial({ map: premiumTexture, roughness: 0.2, metalness: 0.3 })
+  );
+  obra.position.z = 0.08;
+  obra.castShadow = true;
+
+  const estrela = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.15, 0.15),
+    new THREE.MeshStandardMaterial({ map: starTexture, transparent: true })
+  );
+  estrela.position.set(0.25, 0.25, 0.12);
+
+  const grupo = new THREE.Group();
+  grupo.add(moldura);
+  grupo.add(obra);
+  grupo.add(estrela);
+  grupo.position.set(0, isMobile ? 5.5 : 5.8, 0);
+
+  let floatTime = 0;
+  const animateFloat = () => {
+    floatTime += 0.016;
+    grupo.position.y = (isMobile ? 5.5 : 5.8) + Math.sin(floatTime * 2.2) * 0.22;
+    grupo.rotation.z = Math.sin(floatTime * 1.6) * 0.05;
+    requestAnimationFrame(animateFloat);
+  };
+  animateFloat();
+
+  grupo.userData = {
+    tipo: 'premium',
+    obra: obra,
+    originalPos: grupo.position.clone(),
+    originalRot: grupo.rotation.clone(),
+    originalScale: 1
+  };
+
+  scene.add(grupo);
+  return grupo;
+}
+
+criarObrasNormais();
+const premiumObra = criarObraPremium();
+
 function animate() {
   requestAnimationFrame(animate);
+
+  obrasNormais.forEach((q, i) => {
+    const angulo = Date.now() * -0.00012 + (i / obrasNormais.length) * Math.PI * 2;
+    q.position.x = Math.cos(angulo) * config.circleRadius;
+    q.position.z = Math.sin(angulo) * config.circleRadius;
+    q.rotation.y = -angulo + Math.PI;
+  });
+
   renderer.render(scene, camera);
 }
+
+window.addEventListener('resize', () => {
+  updateCamera();
+  updateRenderer();
+});
 
 animate();

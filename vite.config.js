@@ -1,11 +1,20 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/',
-  publicDir: 'assets',
+  root: '.', // raiz do projeto
+  base: './', // base relativa
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    target: 'esnext',
+    sourcemap: true
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
   }
 });
-

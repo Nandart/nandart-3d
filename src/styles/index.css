@@ -26,7 +26,7 @@ html, body {
   outline: none;
 }
 
-/* Modal da obra de arte (alinhado com o HTML principal) */
+/* Modal da obra de arte */
 .art-modal {
   position: fixed;
   bottom: 10%;
@@ -78,46 +78,6 @@ html, body {
   }
 }
 
-/* Ícone de ajuda flutuante (se necessário) */
-#ajudaIcone {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 45px;
-  height: 45px;
-  z-index: 10;
-  opacity: 0.9;
-  cursor: pointer;
-  animation: flutuar 2.5s ease-in-out infinite;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-#ajudaIcone:hover {
-  transform: scale(1.1);
-}
-
-#ajudaIcone:focus {
-  outline: 2px solid #ffffff;
-}
-
-#ajudaIcone.ocultar {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease;
-}
-
-/* Música invisível (se necessário) */
-audio.hidden {
-  display: none;
-}
-
-/* Animação de flutuação */
-@keyframes flutuar {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
   .art-modal {
@@ -133,25 +93,11 @@ audio.hidden {
     padding: 5px 10px;
     font-size: 0.7rem;
   }
-
-  #ajudaIcone {
-    width: 38px;
-    height: 38px;
-    bottom: 15px;
-    right: 15px;
-  }
 }
 
 @media (max-width: 480px) {
   .art-modal {
     width: 110px;
     bottom: 8%;
-  }
-
-  #ajudaIcone {
-    width: 30px;
-    height: 30px;
-    bottom: 10px;
-    right: 10px;
   }
 }

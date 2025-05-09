@@ -1,6 +1,7 @@
-import * as THREE from 'three';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+// Use global THREE from CDN
+const THREE = window.THREE;
+const FontLoader = THREE.FontLoader;
+const TextGeometry = THREE.TextGeometry;
 
 // Configurações cross-browser
 const isMobile = window.innerWidth < 768;
@@ -514,13 +515,6 @@ const init = async () => {
     window.addEventListener('resize', () => {
       updateCamera();
       updateRenderer();
-    });
-
-    // Handle visibility change
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        // Resume animations if needed
-      }
     });
 
     animate();

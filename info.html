@@ -1,93 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>About NANdART</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/styles/index.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <style>
-      body {
-        background-color: #111111;
-        color: #f3f3f3;
-        font-family: 'Segoe UI', sans-serif;
-        padding: 80px 30px 40px;
-        max-width: 900px;
-        margin: 0 auto;
-        line-height: 1.7;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About NANdART</title>
+  <link rel="stylesheet" href="/src/style/index.css" />
+  <style>
+    body {
+      background-color: #111111;
+      color: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      line-height: 1.7;
+    }
 
-      h1 {
-        font-size: 2.4rem;
-        margin-bottom: 1.5rem;
-        color: #e0c28d;
-      }
+    h1 {
+      color: #c4b582;
+      font-size: 2rem;
+      margin-bottom: 24px;
+    }
 
-      h2 {
-        margin-top: 2rem;
-        font-size: 1.5rem;
-        color: #e0c28d;
-      }
+    section {
+      max-width: 700px;
+      margin-bottom: 32px;
+    }
 
-      p {
-        margin-top: 1rem;
-        color: #d0d0d0;
-      }
+    h2 {
+      color: #c4b582;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
 
-      a#btnMenu {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-      }
+    p {
+      font-size: 0.95rem;
+      text-align: justify;
+    }
 
-      a#btnMenu img {
-        width: 32px;
-        height: auto;
-      }
+    .menu-icon, .info-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 32px;
+      height: 32px;
+      z-index: 100;
+      opacity: 0.85;
+      cursor: pointer;
+    }
 
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 1.8rem;
-        }
+    .info-icon {
+      top: 12px;
+      width: 30px;
+    }
+  </style>
+</head>
+<body>
 
-        h2 {
-          font-size: 1.3rem;
-        }
+  <a href="index.html">
+    <img src="/assets/icones/horizontes.png" alt="Menu" class="menu-icon" />
+  </a>
+  <a href="info.html">
+    <img src="/assets/icones/info.png" alt="Info" class="info-icon" />
+  </a>
 
-        body {
-          padding: 60px 20px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <a href="/index.html" id="btnMenu" title="Back to Gallery">
-      <img src="/assets/icons/horizontes.png" alt="Menu" />
-    </a>
+  <h1>About NANdART</h1>
 
-    <h1>NANdART — A galeria onde a eternidade ganha forma</h1>
-
+  <section>
+    <h2>Our Mission</h2>
     <p>
-      A NANdART é mais do que uma galeria. É um santuário tridimensional onde o tempo abranda e a arte respira em silêncio.
-      Cada obra flutua entre o real e o onírico, sustentada por uma arquitetura pensada para a contemplação e para o renascimento da alma criadora.
+      NANdART is not just a gallery — it is a sanctuary. A place where art transcends format, where memory becomes brushstroke, and identity finds shape in texture and light.
+      Our mission is to elevate the presence of digital and physical artworks into timeless reflections, curated with care and hosted with integrity.
     </p>
+  </section>
 
-    <h2>Missão</h2>
+  <section>
+    <h2>Technology with Soul</h2>
     <p>
-      Honrar a memória da Avó Fernanda, guardiã de sonhos e de resiliências, através de um espaço onde artistas possam eternizar as suas criações.
-      A nossa missão é oferecer uma plataforma descentralizada, transparente e bela, que devolva à arte o seu lugar sagrado no mundo digital.
+      Powered by Web3, built with Three.js, and anchored on the Polygon blockchain, NANdART ensures each artwork remains secure, verifiable and eternally accessible.
+      Our approach blends high-performance rendering with decentralised permanence — because we believe that beauty deserves endurance.
     </p>
+  </section>
 
-    <h2>Tecnologia</h2>
+  <section>
+    <h2>A Vision for the Future</h2>
     <p>
-      A NANdART vive na vanguarda: construída com Three.js, Vite e Web3, repousa na rede Polygon e utiliza armazenamento descentralizado com NFT.Storage.
-      Cada obra pode ser transformada em NFT, com garantia de autenticidade e rastreabilidade eterna.
+      We envision a world where galleries live in the cloud and souls leave their trace in pixels and code. 
+      NANdART is a bridge between past and future, analogue and digital, the intimate and the universal.
+      In every cube, a world. In every crystal, a voice. In every artist, a story that deserves to be remembered.
     </p>
+  </section>
 
-    <h2>Visão</h2>
-    <p>
-      Ser um farol para os criadores do presente e do futuro. Uma galeria viva, que cresce com cada gesto, com cada imagem, com cada silêncio partilhado.
-      Acreditamos numa arte que toca, transforma e permanece. E estamos aqui para moldar esse futuro — um fragmento de cada vez.
-    </p>
-  </body>
+</body>
 </html>

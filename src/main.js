@@ -1,7 +1,8 @@
-// Use global THREE from CDN
-const THREE = window.THREE;
-const FontLoader = THREE.FontLoader;
-const TextGeometry = THREE.TextGeometry;
+// main.js completo - Versão ES Modules com importmap
+
+import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 // Configurações cross-browser
 const isMobile = window.innerWidth < 768;
@@ -185,11 +186,9 @@ const obraPaths = [
   "/assets/obras/obra1.jpg",
   "/assets/obras/obra2.jpg",
   "/assets/obras/obra3.jpg",
-   "/assets/obras/obra4.jpg", 
-   "/assets/obras/obra5.jpg",
-   "/assets/obras/obra6.jpg",
-   "/assets/obras/obra6.jpg",
- "/assets/obras/obra6.jpg"
+  "/assets/obras/obra4.jpg", 
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg"
 ];
 
 const obrasNormais = [];
@@ -214,8 +213,6 @@ const preloadTextures = async () => {
     await Promise.all([
       ...obraPaths.map(path => loadTexture(path).then(tex => { textureCache[path] = tex; })),
       loadTexture('/assets/premium1.jpg').then(tex => { textureCache['premium'] = tex; }),
-      loadTexture('/assets/premium2.jpg').then(tex => { textureCache['premium'] = tex; }),
-      loadTexture('/assets/premium3.jpg').then(tex => { textureCache['premium'] = tex; }),
       loadTexture('/assets/estrela-premium.png').then(tex => { textureCache['star'] = tex; })
     ]);
   } catch (err) {

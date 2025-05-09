@@ -188,7 +188,9 @@ const obraPaths = [
   "/assets/obras/obra3.jpg",
   "/assets/obras/obra4.jpg", 
   "/assets/obras/obra5.jpg",
-  "/assets/obras/obra6.jpg"
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
 ];
 
 const obrasNormais = [];
@@ -212,8 +214,10 @@ const preloadTextures = async () => {
   try {
     await Promise.all([
       ...obraPaths.map(path => loadTexture(path).then(tex => { textureCache[path] = tex; })),
-      loadTexture('/assets/premium1.jpg').then(tex => { textureCache['premium'] = tex; }),
-      loadTexture('/assets/estrela-premium.png').then(tex => { textureCache['star'] = tex; })
+      loadTexture('/assets/premium/premium1.jpg').then(tex => { textureCache['premium'] = tex; }),
+      loadTexture('/assets/premium/premium2.jpg').then(tex => { textureCache['premium'] = tex; }),
+      loadTexture('/assets/premium/premium3.jpg').then(tex => { textureCache['premium'] = tex; }),
+      loadTexture('/assets/premium/estrela-premium.png').then(tex => { textureCache['star'] = tex; })
     ]);
   } catch (err) {
     console.error('Texture loading error:', err);

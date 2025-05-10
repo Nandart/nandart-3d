@@ -1,182 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="Galeria de Arte Virtual NANdART - Experiência 3D imersiva com obras de arte premium">
+  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
   <title>NANdART 3D Gallery</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="/index.css">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      touch-action: none;
-      background-color: #111111;
-      font-family: 'Playfair Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      color: #e0e0e0;
-    }
-
-    #scene {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      outline: none;
-      filter: brightness(1.05) contrast(1.1);
-    }
-
-    /* Ecrã de carregamento otimizado */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #111111;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 1.2s ease-out;
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(196, 181, 130, 0.3);
-      border-radius: 50%;
-      border-top-color: #c4b582;
-      animation: spin 1.2s ease-in-out infinite;
-      margin-bottom: 25px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loading-text {
-      color: #c4b582;
-      font-size: 1.2rem;
-      letter-spacing: 1.5px;
-      margin-top: 20px;
-      opacity: 0.9;
-      text-transform: uppercase;
-    }
-
-    /* Ícones otimizados */
-    .menu-icon, .info-icon, .ajuda-icon {
-      position: absolute;
-      z-index: 200;
-      cursor: pointer;
-      opacity: 0.95;
-      transition: all 0.3s;
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
-    }
-
-    .menu-icon {
-      top: 25px;
-      left: 25px;
-      width: 40px;
-      height: 40px;
-    }
-
-    .info-icon {
-      top: 25px;
-      left: auto;
-      right: 25px;
-      width: 40px;
-      height: 40px;
-    }
-
-    .ajuda-icon {
-      bottom: 25px;
-      right: 25px;
-      width: 48px;
-      height: 48px;
-      opacity: 0.97;
-      animation: fadeInOut 22s forwards;
-    }
-
-    .menu-icon:hover, .info-icon:hover, .ajuda-icon:hover {
-      opacity: 1;
-      transform: scale(1.1);
-      filter: drop-shadow(0 3px 8px rgba(196, 181, 130, 0.5));
-    }
-
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(15px); }
-      5% { opacity: 0.97; transform: translateY(0); }
-      90% { opacity: 0.97; transform: translateY(0); }
-      100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(15px); }
-    }
-
-    /* Responsividade melhorada */
-    @media (max-width: 768px) {
-      .menu-icon, .info-icon {
-        width: 36px;
-        height: 36px;
-      }
-      .ajuda-icon {
-        width: 44px;
-        height: 44px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .menu-icon, .info-icon {
-        width: 34px;
-        height: 34px;
-        top: 20px;
-      }
-      .info-icon {
-        right: 20px;
-      }
-      .ajuda-icon {
-        width: 42px;
-        height: 42px;
-        bottom: 20px;
-        right: 20px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="loading-screen">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Carregando Galeria</div>
-  </div>
-
-  <canvas id="scene"></canvas>
-
-  <a href="info.html" aria-label="Informações sobre a galeria">
-    <img src="/assets/icons/info.png" alt="Informações" class="info-icon" loading="lazy">
-  </a>
-
-  <a href="#menu" aria-label="Abrir menu">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" loading="lazy">
-  </a>
-
-  <a href="como-navegar.html" aria-label="Ajuda para navegação">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy">
-  </a>
-
+  <!-- Import Maps -->
   <script type="importmap">
     {
       "imports": {
@@ -188,33 +25,62 @@
       }
     }
   </script>
+</head>
 
+<body>
+  <!-- Tela de carregamento -->
+  <div class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Gallery</div>
+  </div>
+
+  <!-- Canvas 3D -->
+  <canvas id="scene"></canvas>
+
+  <!-- Ícones de navegação -->
+  <a href="info.html">
+    <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
+  </a>
+
+  <a href="#menu">
+    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
+  </a>
+
+  <a href="como-navegar.html">
+    <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
+  </a>
+
+  <!-- Modal de obra premium -->
+  <div class="art-modal">
+    <div class="premium-badge">★</div>
+    <h3 id="art-title">Artwork Title</h3>
+    <p id="art-description">Description of the selected piece</p>
+    <button id="buy-art">Acquire Artwork</button>
+  </div>
+
+  <!-- Scripts -->
   <script type="module">
-    // Gerenciamento do ecrã de carregamento otimizado
-    const loadingScreen = document.querySelector('.loading-screen');
-    
-    // Esconder o ecrã de carregamento quando tudo estiver pronto
-    window.addEventListener('DOMContentLoaded', () => {
+    // Oculta a tela de carregamento após o carregamento completo
+    window.addEventListener('load', () => {
       setTimeout(() => {
-        loadingScreen.style.opacity = '0';
+        document.querySelector('.loading-screen').style.opacity = '0';
         setTimeout(() => {
-          loadingScreen.style.display = 'none';
+          document.querySelector('.loading-screen').style.display = 'none';
         }, 1200);
       }, 1500);
     });
 
-    // Fallback para conexões lentas
+    // Fallback para ligações lentas
     setTimeout(() => {
-      if (loadingScreen.style.opacity !== '0') {
-        loadingScreen.style.display = 'none';
-      }
+      const loading = document.querySelector('.loading-screen');
+      if (loading) loading.style.display = 'none';
     }, 8000);
   </script>
 
   <script type="module" src="/src/main.js"></script>
 
   <script nomodule>
-    alert("O seu navegador não suporta módulos JavaScript modernos. Por favor atualize para a versão mais recente do Chrome, Firefox, Edge ou Safari.");
+    alert("Your browser does not support JavaScript modules. Please use Chrome, Firefox, or Edge.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

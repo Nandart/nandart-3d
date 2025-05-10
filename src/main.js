@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-//import { gsap } from 'gsap';
-// In your main.js, add this at the beginning:
 import gsap from 'gsap';
 // Importe e registre os plugins necessários
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -110,32 +108,28 @@ circle.rotation.x = -Math.PI / 2;
 circle.position.y = 0.01;
 scene.add(circle);
 
-// Textura para molduras
-const textureLoader = new THREE.TextureLoader();
-const goldTexture = textureLoader.load('/assets/icons/textures/gold_diffuse.jpg');
-const goldRoughness = textureLoader.load('https://threejs.org/assets/icons/textures/gold_roughness.jpg');
-const goldNormal = textureLoader.load('https://threejs.org/assets/icons/textures/gold_normal.jpg');
-
-const molduraMaterial = new THREE.MeshStandardMaterial({
-  map: goldTexture,
-  roughnessMap: goldRoughness,
-  normalMap: goldNormal,
-  roughness: 0.3,
+// Material de ouro procedural (substitui as texturas externas)
+const goldMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf1c40f,
+  roughness: 0.25,
   metalness: 0.9,
-  emissive: 0x222222,
-  emissiveIntensity: 0.2
+  emissive: 0x222200,
+  emissiveIntensity: 0.2,
+  envMapIntensity: 1.0
 });
 
-// Frisos dourados aprimorados
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  map: goldTexture,
-  roughnessMap: goldRoughness,
-  normalMap: goldNormal,
-  roughness: 0.2,
-  metalness: 0.95,
-  emissive: 0x333311,
-  emissiveIntensity: 0.3
-});
+// Material para molduras
+const molduraMaterial = goldMaterial.clone();
+molduraMaterial.roughness = 0.3;
+molduraMaterial.metalness = 0.9;
+molduraMaterial.emissiveIntensity = 0.2;
+
+// Material para frisos (ligeiramente diferente das molduras)
+const frisoMaterial = goldMaterial.clone();
+frisoMaterial.roughness = 0.2;
+frisoMaterial.metalness = 0.95;
+frisoMaterial.emissive = 0x333311;
+frisoMaterial.emissiveIntensity = 0.3;
 
 function adicionarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
   const friso = new THREE.Mesh(
@@ -172,7 +166,8 @@ adicionarFriso(0, 8, -config.wallDistance + 0.01, 10, 10, 0, 0.02); // Painel ce
 adicionarFriso(-10, 8, 0, 0.1, 12, 0); // Painel lateral esquerdo
 adicionarFriso(10, 8, 0, 0.1, 12, 0); // Painel lateral direito
 
-// Texturas
+// Texturas (apenas para elementos que não são de ouro)
+const textureLoader = new THREE.TextureLoader();
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 const premiumTexture = textureLoader.load('/assets/premium/premium1.jpg');
 const starTexture = textureLoader.load('/assets/premium/estrela-premium.png');
@@ -246,8 +241,8 @@ function criarVitrine(x, z) {
     yoyo: true, 
     ease: 'sine.inOut' 
   });
-  gsap.to(gema.material.emissiveIntensity, {
-    value: 1.2,
+  gsap.to(gema.material, {
+    emissiveIntensity: 1.2,
     duration: 2.5,
     repeat: -1,
     yoyo: true,
@@ -457,4 +452,3 @@ function animate() {
 }
 
 animate();
-

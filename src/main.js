@@ -32,7 +32,7 @@ async function initGallery() {
   try {
     // Carregar texturas primeiro
     const [texturaGema, premiumTexture, starTexture] = await Promise.all([
-      loadTextureWithFallback('/assets/gemas/gema-azul.jpg'),
+      loadTextureWithFallback('/assets/gemas/gema-azul.jpg.png'),
       loadTextureWithFallback('/assets/premium/premium1.jpg'),
       loadTextureWithFallback('/assets/premium/estrela-premium.png')
     ]);

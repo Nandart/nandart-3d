@@ -4,10 +4,11 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 //import { gsap } from 'gsap';
 // In your main.js, add this at the beginning:
 import gsap from 'gsap';
-//import { CSSPlugin } from 'gsap/CSSPlugin';
+// Importe e registre os plugins necessários
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
-// Force CSSPlugin to not get tree-shaken away
-//gsap.registerPlugin(CSSPlugin);
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 function getViewportLevel() {
   const largura = window.innerWidth;

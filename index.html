@@ -9,14 +9,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     html, body {
@@ -25,7 +24,7 @@
       overflow: hidden;
       touch-action: none;
       background-color: #111111;
-      font-family: 'Playfair Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Playfair Display', serif;
       color: #e0e0e0;
     }
 
@@ -36,153 +35,10 @@
       width: 100%;
       height: 100%;
       z-index: 1;
-      outline: none;
       filter: brightness(1.05) contrast(1.1);
     }
 
-    /* Modal Premium */
-    .art-modal {
-      position: fixed;
-      bottom: 12%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20, 20, 20, 0.95);
-      border: 1px solid #c4b582;
-      border-radius: 8px;
-      color: white;
-      width: 180px;
-      padding: 14px;
-      z-index: 100;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 
-                  0 0 0 1px rgba(196, 181, 130, 0.3) inset;
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-
-    .art-modal h3 {
-      color: #c4b582;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-      text-align: center;
-      font-weight: 500;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      letter-spacing: 0.5px;
-    }
-
-    .art-modal p {
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-      text-align: center;
-      opacity: 0.9;
-      line-height: 1.4;
-    }
-
-    #buy-art {
-      background: linear-gradient(to bottom, #c4b582, #a8996e);
-      color: #1a1a1a;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: 'Playfair Display', serif;
-    }
-
-    #buy-art:hover {
-      background: linear-gradient(to bottom, #d4c592, #b8a97e);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    #buy-art:active {
-      transform: translateY(0) scale(0.98);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .premium-badge {
-      position: absolute;
-      top: -12px;
-      right: -12px;
-      background: linear-gradient(135deg, #c4b582, #e0d0a0);
-      color: #1a1a1a;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    /* Ícones Premium */
-    .menu-icon, .info-icon {
-      position: absolute;
-      top: 25px;
-      left: 25px;
-      width: 40px;
-      height: 40px;
-      z-index: 200;
-      cursor: pointer;
-      opacity: 0.95;
-      transition: all 0.3s;
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
-    }
-
-    .menu-icon:hover, .info-icon:hover {
-      opacity: 1;
-      transform: scale(1.1);
-      filter: drop-shadow(0 3px 8px rgba(196, 181, 130, 0.5));
-    }
-
-    .info-icon {
-      top: 15px;
-      left: auto;
-      right: 25px;
-      width: 38px;
-    }
-
-    /* Ajuda Premium */
-    .ajuda-icon {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      width: 48px;
-      height: 48px;
-      z-index: 200;
-      cursor: pointer;
-      opacity: 0.97;
-      animation: fadeInOut 22s forwards;
-      transition: all 0.4s;
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
-    }
-
-    .ajuda-icon:hover {
-      opacity: 1;
-      transform: scale(1.15) rotate(15deg);
-      filter: drop-shadow(0 4px 10px rgba(196, 181, 130, 0.6));
-    }
-
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(15px); }
-      5% { opacity: 0.97; transform: translateY(0); }
-      90% { opacity: 0.97; transform: translateY(0); }
-      100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(15px); }
-    }
-
-    /* Tela de Carregamento */
+    /* Ecrã de carregamento */
     .loading-screen {
       position: fixed;
       top: 0;
@@ -195,17 +51,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 1.2s ease-out;
+      transition: opacity 1s ease-out;
     }
 
     .loading-spinner {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border: 4px solid rgba(196, 181, 130, 0.3);
       border-radius: 50%;
       border-top-color: #c4b582;
-      animation: spin 1.2s ease-in-out infinite;
-      margin-bottom: 25px;
+      animation: spin 1.2s linear infinite;
+      margin-bottom: 20px;
     }
 
     @keyframes spin {
@@ -215,74 +71,50 @@
     .loading-text {
       color: #c4b582;
       font-size: 1.2rem;
-      letter-spacing: 1.5px;
-      margin-top: 20px;
-      opacity: 0.9;
+      letter-spacing: 1px;
       text-transform: uppercase;
     }
 
-    /* Responsividade Premium */
-    @media (max-width: 1024px) {
-      .art-modal {
-        width: 160px;
-        padding: 12px;
-      }
-      .art-modal h3 {
-        font-size: 1rem;
-      }
-      #buy-art {
-        padding: 9px 18px;
-      }
+    .menu-icon, .info-icon, .ajuda-icon {
+      position: absolute;
+      z-index: 200;
+      cursor: pointer;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
     }
 
-    @media (max-width: 768px) {
-      .art-modal {
-        width: 150px;
-        padding: 11px;
-      }
-      .art-modal h3 {
-        font-size: 0.95rem;
-      }
-      .menu-icon, .info-icon {
-        width: 36px;
-        height: 36px;
-      }
-      .ajuda-icon {
-        width: 44px;
-        height: 44px;
-      }
+    .menu-icon {
+      top: 25px;
+      left: 25px;
+      width: 40px;
+      height: 40px;
     }
 
-    @media (max-width: 480px) {
-      .art-modal {
-        width: 140px;
-        padding: 10px;
-      }
-      .art-modal h3 {
-        font-size: 0.9rem;
-      }
-      .menu-icon, .info-icon {
-        width: 34px;
-        height: 34px;
-      }
-      .ajuda-icon {
-        width: 42px;
-        height: 42px;
-      }
+    .info-icon {
+      top: 15px;
+      right: 25px;
+      width: 38px;
+      height: 38px;
     }
 
-    @media (max-width: 360px) {
-      .art-modal {
-        width: 130px;
-        padding: 9px;
-      }
-      .art-modal h3 {
-        font-size: 0.85rem;
-      }
-      #buy-art {
-        padding: 8px 16px;
-        font-size: 0.8rem;
-      }
+    .ajuda-icon {
+      bottom: 25px;
+      right: 25px;
+      width: 48px;
+      height: 48px;
+      animation: fadeInOut 22s forwards;
+    }
+
+    .menu-icon:hover, .info-icon:hover, .ajuda-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(10px); }
+      5% { opacity: 0.95; transform: translateY(0); }
+      90% { opacity: 0.95; transform: translateY(0); }
+      100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(10px); }
     }
   </style>
 </head>
@@ -295,57 +127,49 @@
   <canvas id="scene"></canvas>
 
   <a href="info.html">
-    <img src="/assets/icons/info.png" alt="Informações" class="info-icon" />
+    <img src="/assets/icons/info.png" alt="Informações" class="info-icon">
   </a>
 
   <a href="#menu">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
+    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon">
   </a>
 
   <a href="como-navegar.html">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" />
+    <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon">
   </a>
 
-  <div class="art-modal">
-    <div class="premium-badge">★</div>
-    <h3 id="art-title">Obra de Arte</h3>
-    <p id="art-description">Descrição da obra selecionada</p>
-    <button id="buy-art">Adquirir Obra</button>
-  </div>
-
- <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
-"gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
-    "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
       }
     }
   </script>
 
   <script type="module">
-    // Remove loading screen when everything is loaded
     window.addEventListener('load', () => {
       setTimeout(() => {
         document.querySelector('.loading-screen').style.opacity = '0';
         setTimeout(() => {
           document.querySelector('.loading-screen').style.display = 'none';
-        }, 1200);
-      }, 1500);
+        }, 1000);
+      }, 1000);
     });
 
-    // Fallback for slow connections
     setTimeout(() => {
-      document.querySelector('.loading-screen').style.display = 'none';
+      const screen = document.querySelector('.loading-screen');
+      if (screen) screen.style.display = 'none';
     }, 8000);
   </script>
 
   <script type="module" src="/src/main.js"></script>
 
   <script nomodule>
-    alert("Seu navegador não suporta módulos JavaScript. Por favor utilize Chrome, Firefox ou Edge.");
+    alert("O seu navegador não suporta módulos JavaScript. Por favor, utilize um navegador moderno.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

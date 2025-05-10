@@ -111,9 +111,9 @@ scene.add(circle);
 
 // Textura para molduras
 const textureLoader = new THREE.TextureLoader();
-const goldTexture = textureLoader.load('https://threejs.org/examples/icons/textures/gold_diffuse.jpg');
-const goldRoughness = textureLoader.load('https://threejs.org/examples/icons/textures/gold_roughness.jpg');
-const goldNormal = textureLoader.load('https://threejs.org/examples/icons/textures/gold_normal.jpg');
+const goldTexture = textureLoader.load('https://threejs.org/assets/icons/textures/gold_diffuse.jpg');
+const goldRoughness = textureLoader.load('https://threejs.org/assets/icons/textures/gold_roughness.jpg');
+const goldNormal = textureLoader.load('https://threejs.org/assets/icons/textures/gold_normal.jpg');
 
 const molduraMaterial = new THREE.MeshStandardMaterial({
   map: goldTexture,

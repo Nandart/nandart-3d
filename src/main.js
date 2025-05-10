@@ -1,105 +1,44 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { gsap } from 'gsap';
+import { gsap } from 'gsap'; 
 
-// Sistema de Responsividade Avançado
-const responsiveConfig = {
-  breakpoints: [
-    { maxWidth: 480, key: 'XS' },
-    { maxWidth: 768, key: 'SM' }, 
-    { maxWidth: 1024, key: 'MD' },
-    { key: 'LG' } // Default
-  ],
-  settings: {
-    XS: { 
-      cameraZ: 16, obraSize: 0.35, premiumSize: 0.45,
-      circleRadius: 2.5, wallDistance: 8, textSize: 0.4,
-      cameraY: 4.0, obraY: 4.0, premiumY: 5.5
-    },
-    SM: {
-      cameraZ: 14, obraSize: 0.4, premiumSize: 0.5,
-      circleRadius: 3.0, wallDistance: 9, textSize: 0.45,
-      cameraY: 3.8, obraY: 4.1, premiumY: 5.7
-    },
-    MD: {
-      cameraZ: 13, obraSize: 0.45, premiumSize: 0.6,
-      circleRadius: 3.3, wallDistance: 9.5, textSize: 0.5,
-      cameraY: 3.6, obraY: 4.2, premiumY: 5.9
-    },
-    LG: {
-      cameraZ: 12, obraSize: 0.5, premiumSize: 0.65,
-      circleRadius: 3.5, wallDistance: 10, textSize: 0.55,
-      cameraY: 3.5, obraY: 4.3, premiumY: 6.1
-    }
-  },
-  getInterpolatedValue(prop, width) {
-    const points = [];
-    for (const bp of this.breakpoints) {
-      if (this.settings[bp.key][prop] !== undefined) {
-        points.push({ width: bp.maxWidth || Infinity, value: this.settings[bp.key][prop] });
-      }
-    }
-    
-    points.sort((a, b) => a.width - b.width);
-    
-    for (let i = 0; i < points.length - 1; i++) {
-      if (width <= points[i+1].width) {
-        const ratio = (width - points[i].width) / (points[i+1].width - points[i].width);
-        return points[i].value + (points[i+1].value - points[i].value) * ratio;
-      }
-    }
-    return points[points.length-1].value;
-  }
-};
-
-function getConfig() {
-  const width = window.innerWidth;
-  const currentBP = responsiveConfig.breakpoints.find(bp => 
-    !bp.maxWidth || width <= bp.maxWidth
-  ).key;
-  
-  return {
-    ...responsiveConfig.settings[currentBP],
-    // Valores interpolados
-    obraSize: responsiveConfig.getInterpolatedValue('obraSize', width),
-    premiumSize: responsiveConfig.getInterpolatedValue('premiumSize', width),
-    circleRadius: responsiveConfig.getInterpolatedValue('circleRadius', width),
-    isMobile: currentBP === 'XS' || currentBP === 'SM'
-  };
-}
-
-// Configurações iniciais
-let config = getConfig();
+const isMobile = window.innerWidth < 768;
 const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-// Cena
+const getConfig = () => ({
+  obraSize: isMobile ? 0.35 : 0.5,
+  premiumSize: isMobile ? 0.45 : 0.65,
+  circleRadius: isMobile ? 2.5 : 3.5,
+  wallDistance: isMobile ? 8 : 10,
+  cameraZ: isMobile ? 16 : 14,
+  textSize: isMobile ? 0.4 : 0.5
+});
+
+let config = getConfig();
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Câmera
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+updateCamera();
+
 function updateCamera() {
-  const width = window.innerWidth;
   config = getConfig();
-  camera.position.set(
-    0, 
-    responsiveConfig.getInterpolatedValue('cameraY', width),
-    responsiveConfig.getInterpolatedValue('cameraZ', width)
-  );
+  camera.position.set(0, isMobile ? 4 : 3.6, config.cameraZ);
   camera.lookAt(0, 4.5, 0);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
 
-// Renderizador
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
   powerPreference: "high-performance"
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+updateRenderer();
 
 function updateRenderer() {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -107,7 +46,6 @@ function updateRenderer() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 }
 
-// Iluminação (mantida como no original)
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.15);
 scene.add(ambientLight);
 
@@ -121,10 +59,13 @@ spotLight.position.set(0, 10, 3);
 spotLight.castShadow = true;
 scene.add(spotLight);
 
-// Criação de objetos (adaptada para usar config dinâmica)
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40),
-  new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.15, metalness: 0.5 })
+  new THREE.MeshStandardMaterial({
+    color: 0x050505,
+    roughness: 0.15,
+    metalness: 0.5
+  })
 );
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -501,42 +442,9 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Sistema de redimensionamento otimizado
-let resizeTimeout;
 window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    updateCamera();
-    updateRenderer();
-    
-    // Atualize elementos que dependem do tamanho
-    obrasNormais.forEach((obra, i) => {
-      const angulo = (i / obrasNormais.length) * Math.PI * 2;
-      obra.position.y = config.obraY;
-    });
-    
-    if (premiumObra) {
-      premiumObra.position.y = config.premiumY;
-    }
-    
-  }, 100);
+  updateCamera();
+  updateRenderer();
 });
 
-// Animação principal
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!isFocusMode) {
-    obrasNormais.forEach((q, i) => {
-      const angulo = Date.now() * -0.00012 + (i / obrasNormais.length) * Math.PI * 2;
-      q.position.x = Math.cos(angulo) * config.circleRadius;
-      q.position.z = Math.sin(angulo) * config.circleRadius;
-      q.rotation.y = -angulo + Math.PI;
-    });
-  }
-
-  renderer.render(scene, camera);
-}
-
-// Inicialização
-init();
+animate(); 

@@ -1,7 +1,13 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { gsap } from 'gsap';
+//import { gsap } from 'gsap';
+// In your main.js, add this at the beginning:
+import gsap from 'gsap';
+import { CSSPlugin } from 'gsap/CSSPlugin';
+
+// Force CSSPlugin to not get tree-shaken away
+gsap.registerPlugin(CSSPlugin);
 
 function getViewportLevel() {
   const largura = window.innerWidth;

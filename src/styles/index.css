@@ -18,7 +18,7 @@ html, body {
   color: #e0e0e0;
 }
 
-/* Canvas 3D aprimorado */
+/* Canvas 3D */
 #scene {
   position: absolute;
   top: 0;
@@ -30,7 +30,7 @@ html, body {
   filter: brightness(1.05) contrast(1.1);
 }
 
-/* Modal da obra de arte - versão premium */
+/* Modal de obra */
 .art-modal {
   position: fixed;
   bottom: 10%;
@@ -50,7 +50,7 @@ html, body {
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 
               0 0 0 1px rgba(196, 181, 130, 0.3) inset;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.3s ease;
 }
 
 .art-modal h3 {
@@ -79,10 +79,16 @@ html, body {
   cursor: pointer;
   width: 100%;
   font-size: 0.85rem;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.art-modal #buy-art:focus {
+  outline: 2px solid #c4b582;
+  outline-offset: 2px;
 }
 
 .art-modal #buy-art:hover {
@@ -113,7 +119,7 @@ html, body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Ícones fixos no canto superior esquerdo - versão dourada */
+/* Ícones */
 .menu-icon, .info-icon {
   position: absolute;
   top: 20px;
@@ -123,7 +129,7 @@ html, body {
   z-index: 200;
   cursor: pointer;
   opacity: 0.9;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
@@ -136,10 +142,12 @@ html, body {
 
 .info-icon {
   top: 12px;
+  left: auto;
+  right: 20px;
   width: 34px;
 }
 
-/* Ícone de ajuda flutuante - estilo premium */
+/* Ícone ajuda flutuante */
 .ajuda-icon {
   position: fixed;
   bottom: 20px;
@@ -150,7 +158,7 @@ html, body {
   cursor: pointer;
   opacity: 0.95;
   animation: fadeInOut 22s forwards;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
@@ -194,7 +202,7 @@ html, body {
   }
 }
 
-/* Efeito de brilho para elementos dourados */
+/* Efeitos dourados */
 .gold-glow {
   position: absolute;
   width: 100%;
@@ -208,119 +216,7 @@ html, body {
   transition: opacity 0.5s;
 }
 
-/* Responsividade aprimorada */
-@media (max-width: 1200px) {
-  .art-modal {
-    width: 150px;
-    padding: 10px;
-  }
-  .art-modal h3 {
-    font-size: 0.95rem;
-  }
-  .art-modal #buy-art {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .art-modal {
-    width: 140px;
-    padding: 9px;
-  }
-  .art-modal h3 {
-    font-size: 0.9rem;
-  }
-  .art-modal #buy-art {
-    font-size: 0.78rem;
-    padding: 7px 14px;
-  }
-  .menu-icon, .info-icon {
-    width: 34px;
-    height: 34px;
-  }
-  .ajuda-icon {
-    width: 42px;
-    height: 42px;
-  }
-}
-
-@media (max-width: 768px) {
-  .art-modal {
-    width: 130px;
-    padding: 8px;
-    bottom: 9%;
-  }
-  .art-modal h3 {
-    font-size: 0.85rem;
-  }
-  .art-modal #buy-art {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-  }
-  .menu-icon, .info-icon {
-    width: 32px;
-    height: 32px;
-  }
-  .ajuda-icon {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .art-modal {
-    width: 120px;
-    bottom: 8%;
-    padding: 7px;
-  }
-  .art-modal h3 {
-    font-size: 0.8rem;
-  }
-  .art-modal #buy-art {
-    padding: 5px 10px;
-    font-size: 0.7rem;
-  }
-  .menu-icon, .info-icon {
-    width: 30px;
-    height: 30px;
-    top: 15px;
-    left: 15px;
-  }
-  .info-icon {
-    top: 10px;
-  }
-  .ajuda-icon {
-    width: 38px;
-    height: 38px;
-    bottom: 15px;
-    right: 15px;
-  }
-}
-
-@media (max-width: 360px) {
-  .art-modal {
-    width: 110px;
-    bottom: 7%;
-    padding: 6px;
-  }
-  .art-modal h3 {
-    font-size: 0.75rem;
-  }
-  .art-modal #buy-art {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-  }
-  .menu-icon, .info-icon {
-    width: 28px;
-    height: 28px;
-  }
-  .ajuda-icon {
-    width: 36px;
-    height: 36px;
-  }
-}
-
-/* Efeitos de transição para carregamento */
+/* Tela de carregamento */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -356,4 +252,75 @@ html, body {
   letter-spacing: 1px;
   margin-top: 15px;
   opacity: 0.8;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .art-modal {
+    width: 140px;
+    padding: 10px;
+  }
+  .menu-icon, .info-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .ajuda-icon {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .art-modal {
+    width: 130px;
+    bottom: 9%;
+    padding: 9px;
+  }
+  .menu-icon, .info-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .ajuda-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .art-modal {
+    width: 120px;
+    bottom: 8%;
+    padding: 8px;
+  }
+  .menu-icon, .info-icon {
+    width: 30px;
+    height: 30px;
+    top: 15px;
+    left: 15px;
+  }
+  .info-icon {
+    top: 10px;
+  }
+  .ajuda-icon {
+    width: 38px;
+    height: 38px;
+    bottom: 15px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  .art-modal {
+    width: 110px;
+    bottom: 7%;
+    padding: 7px;
+  }
+  .menu-icon, .info-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .ajuda-icon {
+    width: 36px;
+    height: 36px;
+  }
 }

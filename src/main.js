@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import * as gsap from 'gsap';
+import { gsap } from 'gsap'; 
 
 const isMobile = window.innerWidth < 768;
 const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');

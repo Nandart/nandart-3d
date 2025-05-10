@@ -1,10 +1,10 @@
-// main.js atualizado com melhorias aplicadas
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 function getViewportLevel() {
@@ -23,10 +23,13 @@ const configMap = {
 };
 
 let config = configMap[getViewportLevel()];
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
+
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 updateCamera();
+
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.position.set(0, config.cameraY, config.cameraZ);
@@ -38,113 +41,98 @@ function updateCamera() {
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.5;
+
+scene.add(new THREE.AmbientLight(0xfff2cc, 1.2));
 
 const textureLoader = new THREE.TextureLoader();
-const gemaTexture = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
+const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
-// Piso
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(40, 40),
-  new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3, metalness: 0.6 })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
-
-// Luz ambiente
-const ambient = new THREE.AmbientLight(0xffffff, 1.2);
-scene.add(ambient);
-
-// Obras circulares
-const obras = [];
 const obraPaths = [
-  '/assets/obras/obra1.jpg',
-  '/assets/obras/obra2.jpg',
-  '/assets/obras/obra3.jpg',
-  '/assets/obras/obra4.jpg',
-  '/assets/obras/obra5.jpg',
-  '/assets/obras/obra6.jpg',
-  '/assets/obras/obra7.jpg',
-  '/assets/obras/obra8.jpg'
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
 ];
+
+const obrasNormais = [];
 obraPaths.forEach((src, i) => {
   const ang = (i / obraPaths.length) * Math.PI * 2;
-  const obraTex = textureLoader.load(src);
-  const geometry = new THREE.PlaneGeometry(config.obraSize, config.obraSize);
-  const material = new THREE.MeshStandardMaterial({ map: obraTex, side: THREE.DoubleSide });
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(Math.cos(ang) * config.circleRadius, 4.2, Math.sin(ang) * config.circleRadius);
-  mesh.rotation.y = -ang + Math.PI;
-  obras.push({ mesh, angOffset: ang });
-  scene.add(mesh);
+  const textura = textureLoader.load(src);
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshBasicMaterial({ map: textura, side: THREE.DoubleSide })
+  );
+  obra.position.set(Math.cos(ang) * config.circleRadius, 4.2, Math.sin(ang) * config.circleRadius);
+  obra.rotation.y = -ang + Math.PI;
+  scene.add(obra);
+  obrasNormais.push(obra);
 });
 
-// Vitrines com gema real
-function criarVitrine(x, z) {
-  const base = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-  base.position.set(x, 0.5, z);
-  scene.add(base);
+const piso = new THREE.Mesh(
+  new THREE.PlaneGeometry(40, 40),
+  new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.05, metalness: 1 })
+);
+piso.rotation.x = -Math.PI / 2;
+piso.receiveShadow = true;
+scene.add(piso);
 
-  const vidro = new THREE.Mesh(
-    new THREE.BoxGeometry(0.8, 1, 0.8),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xeeeeff,
-      transmission: 1,
-      roughness: 0,
-      metalness: 0.1,
-      ior: 1.52,
-      transparent: true
-    })
-  );
-  vidro.position.set(x, 1.5, z);
-  scene.add(vidro);
+const vitrine = new THREE.Group();
+const vidro = new THREE.Mesh(
+  new THREE.BoxGeometry(0.8, 1, 0.8),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xeeeeff,
+    transmission: 0.95,
+    ior: 1.52,
+    transparent: true,
+    roughness: 0.05,
+    thickness: 0.3,
+    metalness: 0.1,
+    reflectivity: 0.5
+  })
+);
+vidro.position.y = 1.5;
+vitrine.add(vidro);
 
-  const gema = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.5, 0.5),
-    new THREE.MeshBasicMaterial({ map: gemaTexture, transparent: true, side: THREE.DoubleSide })
-  );
-  gema.position.set(x, 1.5, z);
-  gema.rotation.y = Math.PI / 4;
-  scene.add(gema);
-}
-criarVitrine(-8, -2);
-criarVitrine(-8, 2);
-criarVitrine(8, -2);
-criarVitrine(8, 2);
+const gema = new THREE.Mesh(
+  new THREE.SphereGeometry(0.25, 32, 32),
+  new THREE.MeshStandardMaterial({
+    map: texturaGema,
+    roughness: 0.1,
+    metalness: 0.8,
+    emissive: 0x444488,
+    emissiveIntensity: 0.8
+  })
+);
+gema.position.y = 1.5;
+vitrine.add(gema);
 
-// Nome NANdART
-const fontLoader = new FontLoader();
-fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json', font => {
-  const textGeo = new TextGeometry('NANdART', {
-    font,
-    size: config.textSize,
-    height: 0.08,
-    bevelEnabled: true,
-    bevelThickness: 0.02,
-    bevelSize: 0.01,
-    bevelSegments: 5
-  });
-  const mat = new THREE.MeshStandardMaterial({ color: 0xc4b582, metalness: 0.6 });
-  const textMesh = new THREE.Mesh(textGeo, mat);
-  textGeo.computeBoundingBox();
-  const largura = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
-  textMesh.position.set(-largura / 2, 9.5, -config.wallDistance + 0.1);
-  scene.add(textMesh);
-});
-
-function animate() {
-  requestAnimationFrame(animate);
-  obras.forEach((obj, i) => {
-    const ang = Date.now() * -0.0001 + obj.angOffset;
-    obj.mesh.position.x = Math.cos(ang) * config.circleRadius;
-    obj.mesh.position.z = Math.sin(ang) * config.circleRadius;
-    obj.mesh.rotation.y = -ang + Math.PI;
-  });
-  renderer.render(scene, camera);
-}
-animate();
+vitrine.position.set(0, 0, 0);
+scene.add(vitrine);
 
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+function animate() {
+  requestAnimationFrame(animate);
+  const tempo = Date.now() * 0.00012;
+  obrasNormais.forEach((obra, i) => {
+    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    obra.position.x = Math.cos(ang) * config.circleRadius;
+    obra.position.z = Math.sin(ang) * config.circleRadius;
+    obra.rotation.y = -ang + Math.PI;
+  });
+  renderer.render(scene, camera);
+}
+
+animate();
+

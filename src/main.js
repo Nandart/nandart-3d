@@ -120,34 +120,34 @@ const molduraMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.2
 });
 
-// Frisos dourados nas paredes
-function adicionarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xc4b582,
-    metalness: 1,
-    roughness: 0.2,
-    emissive: 0x222211,
-    emissiveIntensity: 0.3
-  });
+// Material para frisos (definido uma única vez)
+const frisoMaterial = new THREE.MeshStandardMaterial({
+  color: 0xc4b582,
+  metalness: 1,
+  roughness: 0.2,
+  emissive: 0x222211,
+  emissiveIntensity: 0.3
+});
+
+// Função para criar frisos (definida uma única vez)
+function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, depth),
-    material
+    frisoMaterial
   );
   friso.position.set(x, y, z);
   friso.rotation.y = rotY;
   friso.castShadow = true;
   scene.add(friso);
+  return friso;
 }
 
-// Frisos principais
-adicionarFriso(0, 13.5, -config.wallDistance + 0.01, 12, 0.15);
-adicionarFriso(0, 2.5, -config.wallDistance + 0.01, 12, 0.15);
-adicionarFriso(-6, 8, -config.wallDistance + 0.01, 0.15, 11);
-adicionarFriso(6, 8, -config.wallDistance + 0.01, 0.15, 11);
-
-// Painel central dourado (camada de fundo)
-adicionarFriso(0, 8, -config.wallDistance + 0.005, 10, 10, 0, 0.02);
-
+// Criar todos os frisos usando a função única
+criarFriso(0, 13.5, -config.wallDistance + 0.01, 12, 0.15);
+criarFriso(0, 2.5, -config.wallDistance + 0.01, 12, 0.15);
+criarFriso(-6, 8, -config.wallDistance + 0.01, 0.15, 11);
+criarFriso(6, 8, -config.wallDistance + 0.01, 0.15, 11);
+criarFriso(0, 8, -config.wallDistance + 0.005, 10, 10, 0, 0.02);
 
 // Criar vitrines com gemas nos pedestais
 function criarVitrine(x, z) {
@@ -237,7 +237,8 @@ obraPaths.forEach((src, i) => {
     new THREE.MeshStandardMaterial({
       map: textureLoader.load(src),
       roughness: 0.2,
-      metalness: 0.05
+      metalness: 0.05,
+      side: THREE.DoubleSide
     })
   );
   obra.position.z = 0.05;
@@ -263,7 +264,8 @@ const quadroPremium = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
     map: premiumTexture,
     roughness: 0.1,
-    metalness: 0.2
+    metalness: 0.2,
+    side: THREE.DoubleSide
   })
 );
 quadroPremium.position.z = 0.08;
@@ -274,7 +276,8 @@ const estrela = new THREE.Mesh(
     map: starTexture,
     transparent: true,
     emissive: 0xffffaa,
-    emissiveIntensity: 0.5
+    emissiveIntensity: 0.5,
+    side: THREE.DoubleSide
   })
 );
 estrela.position.set(0.3, 0.3, 0.13);
@@ -322,7 +325,7 @@ fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helve
       shininess: 100
     })
   );
-  texto.position.set(-largura / 2, 13.65, -config.wallDistance + 0.015); // Alinhado com friso superior
+  texto.position.set(-largura / 2, 13.65, -config.wallDistance + 0.015);
   texto.castShadow = true;
   scene.add(texto);
 
@@ -354,36 +357,6 @@ const rightWall = new THREE.Mesh(paredeGeo, paredeMaterial);
 rightWall.position.set(10, 10, -config.wallDistance / 2);
 rightWall.rotation.y = -Math.PI / 2;
 scene.add(rightWall);
-
-// Frisos dourados subtis nas paredes
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xc4b582,
-  roughness: 0.3,
-  metalness: 1,
-  emissive: 0x333311,
-  emissiveIntensity: 0.25
-});
-
-function adicionarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.02) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, depth),
-    frisoMaterial
-  );
-  friso.position.set(x, y, z);
-  friso.rotation.y = rotY;
-  friso.castShadow = true;
-  scene.add(friso);
-}
-
-// Friso superior horizontal (onde o texto está alinhado)
-adicionarFriso(0, 13.5, -config.wallDistance + 0.01, 12, 0.15);
-
-// Friso inferior horizontal
-adicionarFriso(0, 2.5, -config.wallDistance + 0.01, 12, 0.15);
-
-// Frisos verticais nas extremidades da parede do fundo
-adicionarFriso(-6, 8, -config.wallDistance + 0.01, 0.1, 10);
-adicionarFriso(6, 8, -config.wallDistance + 0.01, 0.1, 10);
 
 // Círculo de luz no chão
 const halo = new THREE.Mesh(

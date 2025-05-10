@@ -40,7 +40,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 const textureLoader = new THREE.TextureLoader();
-const gemaTexture = textureLoader.load('/assets/gemas/gema-azul.jpg');
+const gemaTexture = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
 // Piso
 const floor = new THREE.Mesh(

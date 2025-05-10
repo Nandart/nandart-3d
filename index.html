@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Galeria de Arte Virtual NANdART - Experiência 3D imersiva com obras de arte premium">
   <title>NANdART 3D Gallery</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     html, body {
@@ -20,142 +25,325 @@
       overflow: hidden;
       touch-action: none;
       background-color: #111111;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Playfair Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      color: #e0e0e0;
     }
 
-    canvas {
-      display: block;
-      width: 100vw;
-      height: 100vh;
+    #scene {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
       outline: none;
+      filter: brightness(1.05) contrast(1.1);
     }
 
+    /* Modal Premium */
     .art-modal {
       position: fixed;
-      bottom: 10%;
+      bottom: 12%;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 15, 15, 0.92);
+      background: rgba(20, 20, 20, 0.95);
       border: 1px solid #c4b582;
-      border-radius: 4px;
+      border-radius: 8px;
       color: white;
-      width: 140px;
-      padding: 8px;
+      width: 180px;
+      padding: 14px;
       z-index: 100;
       display: none;
       flex-direction: column;
       align-items: center;
-      backdrop-filter: blur(3px);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 
+                  0 0 0 1px rgba(196, 181, 130, 0.3) inset;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .art-modal h3 {
       color: #c4b582;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
       text-align: center;
       font-weight: 500;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    .art-modal p {
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      text-align: center;
+      opacity: 0.9;
+      line-height: 1.4;
     }
 
     #buy-art {
-      background: #c4b582;
+      background: linear-gradient(to bottom, #c4b582, #a8996e);
       color: #1a1a1a;
       border: none;
-      padding: 6px 12px;
-      border-radius: 3px;
+      padding: 10px 20px;
+      border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
       width: 100%;
-      font-size: 0.8rem;
-      transition: all 0.2s;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    #buy-art:hover {
+      background: linear-gradient(to bottom, #d4c592, #b8a97e);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
 
     #buy-art:active {
-      transform: scale(0.95);
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    @supports not (backdrop-filter: blur(3px)) {
-      .art-modal {
-        background: rgba(15, 15, 15, 0.98);
-      }
+    .premium-badge {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: linear-gradient(135deg, #c4b582, #e0d0a0);
+      color: #1a1a1a;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
+    /* Ícones Premium */
     .menu-icon, .info-icon {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 32px;
-      height: 32px;
-      z-index: 200;
-      cursor: pointer;
-      opacity: 0.85;
-      transition: opacity 0.2s;
-    }
-
-    .menu-icon:hover, .info-icon:hover {
-      opacity: 1;
-    }
-
-    .info-icon {
-      top: 12px;
-      width: 30px;
-    }
-
-    .ajuda-icon {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      top: 25px;
+      left: 25px;
       width: 40px;
       height: 40px;
       z-index: 200;
       cursor: pointer;
-      opacity: 0.9;
+      opacity: 0.95;
+      transition: all 0.3s;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .menu-icon:hover, .info-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+      filter: drop-shadow(0 3px 8px rgba(196, 181, 130, 0.5));
+    }
+
+    .info-icon {
+      top: 15px;
+      left: auto;
+      right: 25px;
+      width: 38px;
+    }
+
+    /* Ajuda Premium */
+    .ajuda-icon {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 48px;
+      height: 48px;
+      z-index: 200;
+      cursor: pointer;
+      opacity: 0.97;
       animation: fadeInOut 22s forwards;
-      transition: opacity 0.3s;
+      transition: all 0.4s;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .ajuda-icon:hover {
+      opacity: 1;
+      transform: scale(1.15) rotate(15deg);
+      filter: drop-shadow(0 4px 10px rgba(196, 181, 130, 0.6));
     }
 
     @keyframes fadeInOut {
-      0% { opacity: 0; }
-      5% { opacity: 0.95; }
-      90% { opacity: 0.95; }
-      100% { opacity: 0; pointer-events: none; visibility: hidden; }
+      0% { opacity: 0; transform: translateY(15px); }
+      5% { opacity: 0.97; transform: translateY(0); }
+      90% { opacity: 0.97; transform: translateY(0); }
+      100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(15px); }
+    }
+
+    /* Tela de Carregamento */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111111;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1.2s ease-out;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(196, 181, 130, 0.3);
+      border-radius: 50%;
+      border-top-color: #c4b582;
+      animation: spin 1.2s ease-in-out infinite;
+      margin-bottom: 25px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #c4b582;
+      font-size: 1.2rem;
+      letter-spacing: 1.5px;
+      margin-top: 20px;
+      opacity: 0.9;
+      text-transform: uppercase;
+    }
+
+    /* Responsividade Premium */
+    @media (max-width: 1024px) {
+      .art-modal {
+        width: 160px;
+        padding: 12px;
+      }
+      .art-modal h3 {
+        font-size: 1rem;
+      }
+      #buy-art {
+        padding: 9px 18px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .art-modal {
+        width: 150px;
+        padding: 11px;
+      }
+      .art-modal h3 {
+        font-size: 0.95rem;
+      }
+      .menu-icon, .info-icon {
+        width: 36px;
+        height: 36px;
+      }
+      .ajuda-icon {
+        width: 44px;
+        height: 44px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .art-modal {
+        width: 140px;
+        padding: 10px;
+      }
+      .art-modal h3 {
+        font-size: 0.9rem;
+      }
+      .menu-icon, .info-icon {
+        width: 34px;
+        height: 34px;
+      }
+      .ajuda-icon {
+        width: 42px;
+        height: 42px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .art-modal {
+        width: 130px;
+        padding: 9px;
+      }
+      .art-modal h3 {
+        font-size: 0.85rem;
+      }
+      #buy-art {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Carregando Galeria</div>
+  </div>
+
   <canvas id="scene"></canvas>
 
   <a href="info.html">
-    <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
+    <img src="/assets/icons/info-dourado.png" alt="Informações" class="info-icon" />
   </a>
 
   <a href="#menu">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
+    <img src="/assets/icons/menu-dourado.png" alt="Menu" class="menu-icon" />
   </a>
 
   <a href="como-navegar.html">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" />
+    <img src="/assets/icons/ajuda-dourado.png" alt="Ajuda" class="ajuda-icon" />
   </a>
 
   <div class="art-modal">
-    <h3 id="art-title"></h3>
-    <button id="buy-art">Adquirir</button>
+    <div class="premium-badge">★</div>
+    <h3 id="art-title">Obra de Arte</h3>
+    <p id="art-description">Descrição da obra selecionada</p>
+    <button id="buy-art">Adquirir Obra</button>
   </div>
 
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/",
-        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js"
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
       }
     }
+  </script>
+
+  <script type="module">
+    // Remove loading screen when everything is loaded
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.querySelector('.loading-screen').style.opacity = '0';
+        setTimeout(() => {
+          document.querySelector('.loading-screen').style.display = 'none';
+        }, 1200);
+      }, 1500);
+    });
+
+    // Fallback for slow connections
+    setTimeout(() => {
+      document.querySelector('.loading-screen').style.display = 'none';
+    }, 8000);
   </script>
 
   <script type="module" src="/src/main.js"></script>
 
   <script nomodule>
-    alert("Your browser doesn't support modules. Please use Chrome, Firefox or Edge.");
+    alert("Seu navegador não suporta módulos JavaScript. Por favor utilize Chrome, Firefox ou Edge.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

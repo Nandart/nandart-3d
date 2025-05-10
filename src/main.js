@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { gsap } from 'gsap';
+//import { gsap } from 'gsap';
 // In your main.js, add this at the beginning:
-//import gsap from 'gsap';
+import gsap from 'gsap';
 //import { CSSPlugin } from 'gsap/CSSPlugin';
 
 // Force CSSPlugin to not get tree-shaken away
@@ -111,9 +111,9 @@ scene.add(circle);
 
 // Textura para molduras
 const textureLoader = new THREE.TextureLoader();
-const goldTexture = textureLoader.load('https://threejs.org/examples/textures/gold/gold_01_diffuse.jpg');
-const goldRoughness = textureLoader.load('https://threejs.org/examples/textures/gold/gold_01_roughness.jpg');
-const goldNormal = textureLoader.load('https://threejs.org/examples/textures/gold/gold_01_normal.jpg');
+const goldTexture = textureLoader.load('https://threejs.org/examples/icons/textures/gold_diffuse.jpg');
+const goldRoughness = textureLoader.load('https://threejs.org/examples/icons/textures/gold_roughness.jpg');
+const goldNormal = textureLoader.load('https://threejs.org/examples/icons/textures/gold_normal.jpg');
 
 const molduraMaterial = new THREE.MeshStandardMaterial({
   map: goldTexture,

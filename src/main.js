@@ -198,18 +198,6 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   scene.add(quadro);
 });
 
-obrasParede.forEach(({ src, x, y, z, rotY }) => {
-  const texture = textureLoader.load(src);
-  const quadro = new THREE.Mesh(
-    new THREE.PlaneGeometry(2, 3),
-    new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
-  );
-  quadro.position.set(x, y, z);
-  quadro.rotation.y = rotY;
-  quadro.castShadow = true;
-  scene.add(quadro);
-});
-
 // Restante código (vitrines, obras suspensas, texto, paredes, etc.) permanece abaixo desta linha...
 
 // [continua com o restante já implementado como animate, resize, obras suspensas, etc.]
@@ -338,7 +326,7 @@ luzQuadroCentral.position.set(0, 10.5, -config.wallDistance + 2);
 luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
-/ Reflexo da obra central no chão
+// Reflexo da obra central no chão
 const reflexoCentral = quadroDecorativoFundo.clone();
 reflexoCentral.scale.y = -1; // inverte verticalmente
 reflexoCentral.position.y = 0.05; // altura do chão

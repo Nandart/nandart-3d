@@ -27,15 +27,15 @@ let config = configMap[getViewportLevel()];
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 100);
-updateCamera(); // posicionamento correto logo ao iniciar
+cconst camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 0.1, 100);
+updateCamera();
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 36;
-  camera.position.set(0, config.cameraY + 2.5, config.cameraZ + 5);
-camera.lookAt(0, 6.2, -config.wallDistance + 0.8);
+  camera.fov = 40; // ligeiramente mais aberto para incluir mais da cena
   camera.aspect = window.innerWidth / window.innerHeight;
+  camera.position.set(0, config.cameraY + 4.5, config.cameraZ + 10); // mais alto e mais longe
+  camera.lookAt(0, 8, -config.wallDistance + 0.5); // ligeiramente mais para cima
   camera.updateProjectionMatrix();
 }
 
@@ -64,26 +64,38 @@ spotsTeto.forEach(x => {
   scene.add(foco);
   scene.add(foco.target);
 });
+// Criar esferas luminosas para simular o reflexo das luzes de teto no chão
+spotsTeto.forEach(x => {
+  const esfera = new THREE.Mesh(
+    new THREE.SphereGeometry(0.12, 16, 16),
+    new THREE.MeshStandardMaterial({
+      emissive: 0xfff3d2,
+      emissiveIntensity: 3,
+      color: 0x000000
+    })
+  );
+  esfera.position.set(x, 13, -config.wallDistance + 1);
+  scene.add(esfera);
+});
 
 import { Reflector } from 'three/addons/objects/Reflector.js';
 
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
 const floor = new Reflector(floorGeometry, {
-  clipBias: 0.003,
+  clipBias: 0.002,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x101010,
-  recursion: 1
+  color: 0x0a0a0a,
+  recursion: 2
 });
 
-floor.material.opacity = 0.5;
-floor.material.roughness = 0.25;
-floor.material.metalness = 0.4;
+floor.material.opacity = 0.9;
+floor.material.roughness = 0.05;
+floor.material.metalness = 0.85;
 floor.material.transparent = true;
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
+floor.material.envMapIntensity = 1;
+floor.material.reflectivity = 0.8;
 
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -110,20 +122,21 @@ gsap.to(luzRasante, {
 
 // Novo círculo de luz no chão: mais fino, elegante e radiante
 const circle = new THREE.Mesh(
-  new THREE.RingGeometry(2.1, 2.6, 72),
+  new THREE.RingGeometry(2.6, 2.75, 100),
   new THREE.MeshStandardMaterial({
-    color: 0xfdf1d2,
-    emissive: 0xffe8bb,
-    emissiveIntensity: 2,
-    metalness: 0.6,
-    roughness: 0.2,
+    color: 0xfdf6dc,
+    emissive: 0xffefc6,
+    emissiveIntensity: 3.5,
+    metalness: 0.7,
+    roughness: 0.15,
     transparent: true,
-    opacity: 0.6,
-    side: THREE.FrontSide
+    opacity: 0.9,
+    side: THREE.DoubleSide
   })
 );
 circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.05;
+circle.position.y = 0.052;
+circle.receiveShadow = true;
 scene.add(circle);
 
 const textureLoader = new THREE.TextureLoader();
@@ -273,76 +286,72 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
 
 // Criar vitrines inspiradas no layout com gemas facetadas
 function criarVitrine(x, z) {
-  // Pedestal retangular com proporção correta
+  // Novo pedestal mais alto e esguio
   const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(1.1, 2.2, 1.1),
+    new THREE.BoxGeometry(0.9, 2.8, 0.9),
     new THREE.MeshStandardMaterial({
       color: 0x111111,
       roughness: 0.6,
       metalness: 0.15
     })
   );
-  // Friso dourado superior do pedestal
-const topoDourado = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.31, 0.31, 0.06, 32),
-  materialDouradoPedestal
-);
-topoDourado.position.set(x, 2.2, z);
-topoDourado.castShadow = true;
-scene.add(topoDourado);
-
-  pedestal.position.set(x, 1.1, z);
+  pedestal.position.set(x, 1.4, z);
   pedestal.castShadow = true;
   scene.add(pedestal);
 
-  // Caixa de vidro com realismo físico
-  const vitrine = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshPhysicalMaterial({
-    color: 0xf8f8f8,
-    metalness: 0.1,
-    roughness: 0.05,
-    transmission: 1,
-    thickness: 0.3,
-    transparent: true,
-    opacity: 0.15,
-    ior: 1.45,
-    reflectivity: 0.6,
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.05
-  })
-);
+  // Tampa dourada mais realista
+  const topoDourado = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.36, 0.36, 0.06, 32),
+    materialDouradoPedestal
+  );
+  topoDourado.position.set(x, 2.85, z);
+  topoDourado.castShadow = true;
+  scene.add(topoDourado);
 
-  vitrine.position.set(x, 2.5, z);
+  // Caixa de vidro mais alta e mais esguia
+  const vitrine = new THREE.Mesh(
+    new THREE.BoxGeometry(0.88, 1.1, 0.88),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xf8f8f8,
+      metalness: 0.1,
+      roughness: 0.05,
+      transmission: 1,
+      thickness: 0.3,
+      transparent: true,
+      opacity: 0.12,
+      ior: 1.45,
+      reflectivity: 0.6,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.05
+    })
+  );
+  vitrine.position.set(x, 3.4, z); // mais alto
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // Objeto facetado com geometria mais rica
-  const objeto = new THREE.Mesh(
+  // Gema ajustada
+  const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.33, 1),
     new THREE.MeshStandardMaterial({
-      color: 0x99ccff,
-      roughness: 0.1,
-      metalness: 0.5,
+      map: texturaGema,
       emissive: 0x3377aa,
-      emissiveIntensity: 0.7,
+      emissiveIntensity: 0.6,
       transparent: true,
       opacity: 0.95
     })
   );
-  objeto.position.set(x, 2.5, z);
-  objeto.castShadow = true;
-  scene.add(objeto);
+  gema.position.set(x, 3.4, z);
+  gema.castShadow = true;
+  scene.add(gema);
 
-  // Iluminação embutida e localizada
-  const luzInterior = new THREE.PointLight(0x99ccff, 2.2, 3);
-  luzInterior.position.set(x, 2.5, z);
+  // Luz interior mais refinada
+  const luzInterior = new THREE.PointLight(0x99ccff, 2.4, 3);
+  luzInterior.position.set(x, 3.4, z);
   scene.add(luzInterior);
 
-  // Animações subtis do brilho da gema
-  gsap.to(objeto.material, {
-    emissiveIntensity: 1.2,
-    duration: 3,
+  gsap.to(gema.material, {
+    emissiveIntensity: 1.1,
+    duration: 4,
     repeat: -1,
     yoyo: true,
     ease: 'sine.inOut'
@@ -350,7 +359,7 @@ scene.add(topoDourado);
 
   gsap.to(luzInterior, {
     intensity: 2.8,
-    duration: 4,
+    duration: 3,
     repeat: -1,
     yoyo: true,
     ease: 'sine.inOut'

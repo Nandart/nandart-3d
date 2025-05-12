@@ -110,7 +110,6 @@ scene.add(circle);
 const textureLoader = new THREE.TextureLoader();
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 const premiumTexture = textureLoader.load('/assets/premium/premium1.jpg');
-const starTexture = textureLoader.load('/assets/premium/estrela-premium.png');
 
 const molduraMaterial = new THREE.MeshStandardMaterial({
   color: 0xf1c40f,
@@ -120,7 +119,7 @@ const molduraMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.2
 });
 
-// Material para frisos (definido uma única vez)
+// Material para frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0xc4b582,
   metalness: 1,
@@ -129,7 +128,7 @@ const frisoMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.3
 });
 
-// Função para criar frisos (definida uma única vez)
+// Função para criar frisos
 function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, depth),
@@ -142,7 +141,7 @@ function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
   return friso;
 }
 
-// Criar todos os frisos usando a função única
+// Criar todos os frisos
 criarFriso(0, 13.5, -config.wallDistance + 0.01, 12, 0.15);
 criarFriso(0, 2.5, -config.wallDistance + 0.01, 12, 0.15);
 criarFriso(-6, 8, -config.wallDistance + 0.01, 0.15, 11);
@@ -253,7 +252,7 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(grupo);
 });
 
-// Obra premium flutuante
+// Obra premium central simplificada
 const molduraPremium = new THREE.Mesh(
   new THREE.BoxGeometry(config.premiumSize + 0.2, config.premiumSize + 0.2, 0.15),
   molduraMaterial
@@ -270,36 +269,12 @@ const quadroPremium = new THREE.Mesh(
 );
 quadroPremium.position.z = 0.08;
 
-const estrela = new THREE.Mesh(
-  new THREE.PlaneGeometry(0.2, 0.2),
-  new THREE.MeshStandardMaterial({
-    map: starTexture,
-    transparent: true,
-    emissive: 0xffffaa,
-    emissiveIntensity: 0.5,
-    side: THREE.DoubleSide
-  })
-);
-estrela.position.set(0.3, 0.3, 0.13);
-
 const grupoPremium = new THREE.Group();
 grupoPremium.add(molduraPremium);
 grupoPremium.add(quadroPremium);
-grupoPremium.add(estrela);
 grupoPremium.position.set(0, 5.8, 0);
 grupoPremium.castShadow = true;
 scene.add(grupoPremium);
-
-// Animação de flutuação da obra premium
-let t = 0;
-function flutuar() {
-  t += 0.016;
-  grupoPremium.position.y = 5.8 + Math.sin(t * 2.2) * 0.22;
-  grupoPremium.rotation.z = Math.sin(t * 1.6) * 0.05;
-  estrela.material.emissiveIntensity = 0.5 + Math.sin(t * 3) * 0.3;
-  requestAnimationFrame(flutuar);
-}
-flutuar();
 
 // Texto NANdART sobre friso
 const fontLoader = new FontLoader();
@@ -357,20 +332,6 @@ const rightWall = new THREE.Mesh(paredeGeo, paredeMaterial);
 rightWall.position.set(10, 10, -config.wallDistance / 2);
 rightWall.rotation.y = -Math.PI / 2;
 scene.add(rightWall);
-
-// Círculo de luz no chão
-const halo = new THREE.Mesh(
-  new THREE.RingGeometry(3.6, 3.8, 64),
-  new THREE.MeshBasicMaterial({
-    color: 0xc4b582,
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.5
-  })
-);
-halo.rotation.x = -Math.PI / 2;
-halo.position.y = 0.011;
-scene.add(halo);
 
 // Atualização de dimensão ao redimensionar a janela
 window.addEventListener('resize', () => {

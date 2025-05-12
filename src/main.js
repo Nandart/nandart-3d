@@ -347,7 +347,7 @@ function criarVitrine(x, z, indice) {
   gema.castShadow = true;
   scene.add(gema);
 
-  // Luz interior com variação de intensidade
+// Luz interior com variação de intensidade será adicionada aqui futuramente
 
 criarVitrine(-9.5, -1.8, 0);
 criarVitrine(-9.5, 1.8, 1);
@@ -410,15 +410,6 @@ luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
 
-// Pulso suave na luz
-gsap.to(pintura.material, {
-  emissiveIntensity: 0.15,
-  duration: 5,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut',
-  onUpdate: () => pintura.material.needsUpdate = true
-});
 
 gsap.to(luzQuadroCentral, {
   intensity: 2.3,
@@ -570,14 +561,15 @@ window.addEventListener('resize', () => {
 // ✨ Reflexos animados subtis nas molduras e gemas
 
 // Moldura do quadro central – animação suave no brilho
-gsap.to(quadroCentral.material.emissiveIntensity, {
-  value: 0.15,
+gsap.to(pintura.material, {
+  emissiveIntensity: 0.15,
   duration: 5,
   repeat: -1,
   yoyo: true,
   ease: 'sine.inOut',
-  onUpdate: () => quadroCentral.material.needsUpdate = true
+  onUpdate: () => pintura.material.needsUpdate = true
 });
+
 
 // Frisos – reflexo pulsante suave
 scene.traverse(obj => {

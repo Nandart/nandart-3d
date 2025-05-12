@@ -32,9 +32,8 @@ const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerH
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.fov = 36; // profundidade forte
-  camera.position.set(0, config.cameraY + 4.8, config.cameraZ + 12); 
-  // z aumentado de 8.3 para 12 para afastar mais
-  camera.lookAt(0, 5.8, 0);
+camera.position.set(0, config.cameraY + 2.8, config.cameraZ + 6);
+camera.lookAt(0, 6.5, -2);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
@@ -498,7 +497,7 @@ const paredeMaterial = new THREE.MeshStandardMaterial({
 const paredeGeo = new THREE.PlaneGeometry(32, 24);
 
 const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-backWall.position.set(0, 12, -config.wallDistance);
+backWall.position.set(0, 10, -config.wallDistance - 4);
 scene.add(backWall);
 
 const leftWall = new THREE.Mesh(paredeGeo, paredeMaterial);

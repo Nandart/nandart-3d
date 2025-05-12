@@ -379,45 +379,6 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
-obrasNormais.forEach((obra, i) => {
-  const ang = Date.now() * -0.00012 + (i / obrasNormais.length) * Math.PI * 2;
-  const x = Math.cos(ang) * config.circleRadius;
-  const z = Math.sin(ang) * config.circleRadius;
-  const ry = -ang + Math.PI;
-
-  obra.position.x = x;
-  obra.position.z = z;
-  obra.rotation.y = ry;
-
-  // Reflexo
-  const reflexo = obra.userData.reflexo;
-  if (reflexo) {
-    reflexo.userData.targetPos.set(x, -0.01, z);
-    reflexo.userData.targetRot.set(0, ry, 0);
-    reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-    reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-  }
-});
-
-    // Interpola posição
-    reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-
-    // Interpola rotação Y suavemente
-    reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-  }
-});
-  
-  obra.position.set(
-    Math.cos(ang) * config.circleRadius, 
-    4.2, 
-    Math.sin(ang) * config.circleRadius
-  );
-  obra.rotation.y = -ang + Math.PI;
-  obra.castShadow = true;
-  scene.add(obra);
-  obrasNormais.push(obra);
-});
-
 // Texto NANdART sobre friso
 const fontLoader = new FontLoader();
 fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json', font => {
@@ -486,11 +447,27 @@ function animate() {
   requestAnimationFrame(animate);
 
   const tempo = Date.now() * -0.00012;
+  function animate() {
+  requestAnimationFrame(animate);
+
+  const tempo = Date.now() * -0.00012;
   obrasNormais.forEach((obra, i) => {
     const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    obra.position.x = Math.cos(ang) * config.circleRadius;
-    obra.position.z = Math.sin(ang) * config.circleRadius;
-    obra.rotation.y = -ang + Math.PI;
+    const x = Math.cos(ang) * config.circleRadius;
+    const z = Math.sin(ang) * config.circleRadius;
+    const ry = -ang + Math.PI;
+
+    obra.position.x = x;
+    obra.position.z = z;
+    obra.rotation.y = ry;
+
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, ry, 0);
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+    }
   });
 
   renderer.render(scene, camera);

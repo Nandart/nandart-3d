@@ -248,23 +248,27 @@ criarVitrine(-8, 2);
 criarVitrine(8, -2);
 criarVitrine(8, 2);
 
-// Quadro central com moldura em relevo e friso dourado
-const quadroCentral = new THREE.Group();
+// Quadro decorativo na parede de fundo (sem iluminação dedicada)
+const quadroDecorativoFundo = new THREE.Group();
+
+// Dimensões fixas do quadro decorativo
+const larguraQuadro = 2;
+const alturaQuadro = 2.5;
 
 // Moldura em relevo
 const moldura = new THREE.Mesh(
-  new THREE.BoxGeometry(config.premiumSize + 0.25, config.premiumSize + 0.25, 0.2),
+  new THREE.BoxGeometry(larguraQuadro + 0.25, alturaQuadro + 0.25, 0.2),
   new THREE.MeshStandardMaterial({
     color: 0x1a1a1a,
     metalness: 0.6,
     roughness: 0.4
   })
 );
-quadroCentral.add(moldura);
+quadroDecorativoFundo.add(moldura);
 
 // Imagem embutida
 const pintura = new THREE.Mesh(
-  new THREE.PlaneGeometry(config.premiumSize, config.premiumSize),
+  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
     map: textureLoader.load('/assets/obras/obra-central.jpg'),
     roughness: 0.2,
@@ -272,11 +276,11 @@ const pintura = new THREE.Mesh(
   })
 );
 pintura.position.z = 0.11;
-quadroCentral.add(pintura);
+quadroDecorativoFundo.add(pintura);
 
 // Friso exterior dourado
 const frisoExterior = new THREE.Mesh(
-  new THREE.BoxGeometry(config.premiumSize + 0.3, config.premiumSize + 0.3, 0.01),
+  new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.01),
   new THREE.MeshStandardMaterial({
     color: 0xc4b582,
     metalness: 1,
@@ -286,43 +290,11 @@ const frisoExterior = new THREE.Mesh(
   })
 );
 frisoExterior.position.z = 0.105;
-quadroCentral.add(frisoExterior);
+quadroDecorativoFundo.add(frisoExterior);
 
 // Posicionamento na parede de fundo
-quadroCentral.position.set(0, 5.8, -config.wallDistance + 0.01);
-scene.add(quadroCentral);
-
-// Foco de luz sobre o quadro central
-const focoCentral = new THREE.SpotLight(0xffe8b3, 2.2, 12, Math.PI / 8, 0.4);
-focoCentral.position.set(0, 11, -config.wallDistance + 2);
-focoCentral.target = quadroCentral;
-focoCentral.castShadow = true;
-focoCentral.shadow.mapSize.set(1024, 1024);
-scene.add(focoCentral);
-scene.add(focoCentral.target);
-
-// Luz adicional de preenchimento para relevo suave
-const luzSuave = new THREE.PointLight(0xfff2cc, 0.6, 6);
-luzSuave.position.set(0, 5.8, -config.wallDistance + 1.5);
-scene.add(luzSuave);
-
-// Animação de pulsação do foco central
-gsap.to(focoCentral, {
-  intensity: 2.6,
-  duration: 3,
-  repeat: -1,
-  yoyo: true,
-  ease: "sine.inOut"
-});
-
-// Pulsação subtil da luz suave
-gsap.to(luzSuave, {
-  intensity: 0.9,
-  duration: 4,
-  repeat: -1,
-  yoyo: true,
-  ease: "sine.inOut"
-});
+quadroDecorativoFundo.position.set(0, 5.8, -config.wallDistance + 0.01);
+scene.add(quadroDecorativoFundo);
 
 // Obras suspensas (sem molduras)
 const obraPaths = [

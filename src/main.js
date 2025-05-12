@@ -350,7 +350,9 @@ quadroDecorativoFundo.add(moldura);
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
-    map: textureLoader.load('/assets/obras/obra-central.jpg'),
+   const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg', () => {
+  pintura.material.needsUpdate = true;
+}, undefined, err => console.error('Erro a carregar obra-central.jpg:', err));
     roughness: 0.15,
     metalness: 0.05
   })
@@ -373,11 +375,14 @@ frisoExterior.position.z = 0.105;
 quadroDecorativoFundo.add(frisoExterior);
 
 // Posicionamento mais elevado na parede
-quadroDecorativoFundo.position.set(0, 6.7, -config.wallDistance - 3.99);
+quadroDecorativoFundo.position.set(0, 6.7, -config.wallDistance - 3.5);
 scene.add(quadroDecorativoFundo);
 // Luz dedicada ao quadro central
 const luzQuadroCentral = new THREE.SpotLight(0xfff3d2, 1.6, 8, Math.PI / 8, 0.5);
-luzQuadroCentral.position.set(0, 10.5, -config.wallDistance - 1.9);
+luzQuadroCentral.position.set(0, 11.5, -config.wallDistance - 1.5);
+luzQuadroCentral.intensity = 2.5;
+luzQuadroCentral.angle = Math.PI / 6;
+luzQuadroCentral.penumbra = 0.5;
 luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);

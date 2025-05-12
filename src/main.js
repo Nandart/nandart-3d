@@ -446,10 +446,6 @@ function animate() {
   requestAnimationFrame(animate);
 
   const tempo = Date.now() * -0.00012;
-  function animate() {
-  requestAnimationFrame(animate);
-
-  const tempo = Date.now() * -0.00012;
   obrasNormais.forEach((obra, i) => {
     const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
     const x = Math.cos(ang) * config.circleRadius;
@@ -468,7 +464,7 @@ function animate() {
       reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
     }
   });
-
+  
   renderer.render(scene, camera);
 }
 

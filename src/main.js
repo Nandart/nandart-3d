@@ -27,7 +27,7 @@ let config = configMap[getViewportLevel()];
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-cconst camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 0.1, 100);
 updateCamera();
 
 function updateCamera() {

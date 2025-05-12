@@ -154,11 +154,42 @@ const frisoMaterial = new THREE.MeshPhysicalMaterial({
   emissiveIntensity: 0.25
 });
 
-function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, depth),
-    frisoMaterial
-  );
+function criarFrisoCurvo(x, y, z, largura, altura, rotY = 0, raio = 0.1, cor = 0xd9b96c) {
+  const frisoShape = new THREE.Shape();
+  const arred = raio;
+
+  frisoShape.moveTo(-largura / 2 + arred, -altura / 2);
+  frisoShape.lineTo(largura / 2 - arred, -altura / 2);
+  frisoShape.quadraticCurveTo(largura / 2, -altura / 2, largura / 2, -altura / 2 + arred);
+  frisoShape.lineTo(largura / 2, altura / 2 - arred);
+  frisoShape.quadraticCurveTo(largura / 2, altura / 2, largura / 2 - arred, altura / 2);
+  frisoShape.lineTo(-largura / 2 + arred, altura / 2);
+  frisoShape.quadraticCurveTo(-largura / 2, altura / 2, -largura / 2, altura / 2 - arred);
+  frisoShape.lineTo(-largura / 2, -altura / 2 + arred);
+  frisoShape.quadraticCurveTo(-largura / 2, -altura / 2, -largura / 2 + arred, -altura / 2);
+
+  const extrudeSettings = {
+    depth: 0.02,
+    bevelEnabled: true,
+    bevelThickness: 0.01,
+    bevelSize: 0.008,
+    bevelSegments: 3,
+    steps: 1
+  };
+
+  const geometry = new THREE.ExtrudeGeometry(frisoShape, extrudeSettings);
+  const material = new THREE.MeshPhysicalMaterial({
+    color: cor,
+    metalness: 1,
+    roughness: 0.1,
+    clearcoat: 1,
+    clearcoatRoughness: 0.1,
+    reflectivity: 0.7,
+    emissive: 0x332100,
+    emissiveIntensity: 0.2
+  });
+
+  const friso = new THREE.Mesh(geometry, material);
   friso.position.set(x, y, z);
   friso.rotation.y = rotY;
   friso.castShadow = true;
@@ -168,71 +199,88 @@ function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
 
 // 🟨 Frisos fiéis ao layout da galeria NANdART
 
+// 🟨 Frisos redesenhados com contornos realistas
+
 // Parede de fundo – moldura interior
-criarFriso(0, 13.5, -config.wallDistance + 0.01, 10, 0.12); // topo
-criarFriso(0, 2.5, -config.wallDistance + 0.01, 10, 0.12); // base
-criarFriso(-5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado esquerdo
-criarFriso(5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado direito
+criarFrisoCurvo(0, 13.5, -config.wallDistance + 0.01, 10, 0.12); // topo
+criarFrisoCurvo(0, 2.5, -config.wallDistance + 0.01, 10, 0.12); // base
+criarFrisoCurvo(-5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado esquerdo
+criarFrisoCurvo(5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado direito
 
 // Parede de fundo – moldura exterior
-criarFriso(0, 15.8, -config.wallDistance + 0.01, 18, 0.12); // topo
-criarFriso(0, 0.8, -config.wallDistance + 0.01, 18, 0.12); // base
-criarFriso(-9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral esquerda
-criarFriso(9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral direita
+criarFrisoCurvo(0, 15.8, -config.wallDistance + 0.01, 18, 0.12); // topo
+criarFrisoCurvo(0, 0.8, -config.wallDistance + 0.01, 18, 0.12); // base
+criarFrisoCurvo(-9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral esquerda
+criarFrisoCurvo(9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral direita
 
 // Parede de fundo – frisos adicionais (acima e abaixo do quadro)
-criarFriso(-6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // esquerda topo
-criarFriso(6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // direita topo
-criarFriso(-6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // esquerda base
-criarFriso(6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // direita base
+criarFrisoCurvo(-6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // esquerda topo
+criarFrisoCurvo(6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // direita topo
+criarFrisoCurvo(-6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // esquerda base
+criarFrisoCurvo(6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // direita base
 
-// Paredes laterais – frisos verticais com curvas superiores
+// Paredes laterais – frisos verticais em duas partes
 const offsetZ = config.wallDistance / 2;
 
-criarFriso(-15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior esquerda
-criarFriso(-15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior esquerda
-criarFriso(15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior direita
-criarFriso(15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior direita
+criarFrisoCurvo(-15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior esquerda
+criarFrisoCurvo(-15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior esquerda
+criarFrisoCurvo(15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior direita
+criarFrisoCurvo(15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior direita
 
 // Paredes laterais – frisos horizontais superiores e inferiores
-criarFriso(-15.4, 18, -offsetZ, 4.5, 0.1); // esquerda topo
-criarFriso(-15.4, 1, -offsetZ, 4.5, 0.1);  // esquerda base
-criarFriso(15.4, 18, -offsetZ, 4.5, 0.1);  // direita topo
-criarFriso(15.4, 1, -offsetZ, 4.5, 0.1);   // direita base
+criarFrisoCurvo(-15.4, 18, -offsetZ, 4.5, 0.1); // esquerda topo
+criarFrisoCurvo(-15.4, 1, -offsetZ, 4.5, 0.1);  // esquerda base
+criarFrisoCurvo(15.4, 18, -offsetZ, 4.5, 0.1);  // direita topo
+criarFrisoCurvo(15.4, 1, -offsetZ, 4.5, 0.1);   // direita base
 
-// Paredes laterais – frisos horizontais junto ao chão e teto (contínuos)
-criarFriso(0, 0.3, -offsetZ, 32, 0.08); // rodapé
-criarFriso(0, 19.5, -offsetZ, 32, 0.08); // teto
+// Paredes laterais – frisos horizontais contínuos junto ao chão e teto
+criarFrisoCurvo(0, 0.3, -offsetZ, 32, 0.08); // rodapé
+criarFrisoCurvo(0, 19.5, -offsetZ, 32, 0.08); // teto
 
-// Opcional: contorno de moldura para os quadros laterais (manual)
-criarFriso(-10.25, 9.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical topo
-criarFriso(-10.25, 2.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical base
-criarFriso(-10.25, 6.1, -1.6, 2.5, 0.08); // esquerda horizontal
+// Molduras dos quadros laterais
+criarFrisoCurvo(-10.25, 9.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical topo
+criarFrisoCurvo(-10.25, 2.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical base
+criarFrisoCurvo(-10.25, 6.1, -1.6, 2.5, 0.08);              // esquerda horizontal
 
-criarFriso(10.25, 9.6, 1.6, 0.08, 3.5, Math.PI / 2); // direita vertical topo
-criarFriso(10.25, 2.6, 1.6, 0.08, 3.5, Math.PI / 2); // direita vertical base
-criarFriso(10.25, 6.1, 1.6, 2.5, 0.08); // direita horizontal
+criarFrisoCurvo(10.25, 9.6, 1.6, 0.08, 3.5, Math.PI / 2);  // direita vertical topo
+criarFrisoCurvo(10.25, 2.6, 1.6, 0.08, 3.5, Math.PI / 2);  // direita vertical base
+criarFrisoCurvo(10.25, 6.1, 1.6, 2.5, 0.08);               // direita horizontal
 
-// Luz dedicada para destacar os frisos frontais
-const luzFrisos = new THREE.SpotLight(0xffeeb3, 1.4, 10, Math.PI / 8, 0.6);
-luzFrisos.position.set(0, 12, -config.wallDistance + 3);
-luzFrisos.target.position.set(0, 8, -config.wallDistance + 0.01);
-scene.add(luzFrisos);
-scene.add(luzFrisos.target);
+// 🟨 Luzes refinadas para destacar os frisos com contorno
 
-// Luz para friso lateral esquerdo
-const luzFrisoEsq = new THREE.SpotLight(0xffeeb3, 1.3, 9, Math.PI / 9, 0.5);
-luzFrisoEsq.position.set(-11.5, 12, -config.wallDistance / 2);
-luzFrisoEsq.target.position.set(-11.5, 8, -config.wallDistance / 2);
-scene.add(luzFrisoEsq);
-scene.add(luzFrisoEsq.target);
+// Luz superior frontal – friso central da parede de fundo
+const luzFrisosTopo = new THREE.SpotLight(0xffeac2, 1.15, 9, Math.PI / 10, 0.5);
+luzFrisosTopo.position.set(0, 13.2, -config.wallDistance + 2);
+luzFrisosTopo.target.position.set(0, 10, -config.wallDistance + 0.01);
+scene.add(luzFrisosTopo, luzFrisosTopo.target);
 
-// Luz para friso lateral direito
-const luzFrisoDir = new THREE.SpotLight(0xffeeb3, 1.3, 9, Math.PI / 9, 0.5);
-luzFrisoDir.position.set(11.5, 12, -config.wallDistance / 2);
-luzFrisoDir.target.position.set(11.5, 8, -config.wallDistance / 2);
-scene.add(luzFrisoDir);
-scene.add(luzFrisoDir.target);
+// Luz inferior frontal – base da parede de fundo
+const luzFrisosBase = new THREE.SpotLight(0xffeac2, 0.9, 7, Math.PI / 12, 0.4);
+luzFrisosBase.position.set(0, 3.2, -config.wallDistance + 2);
+luzFrisosBase.target.position.set(0, 6, -config.wallDistance + 0.01);
+scene.add(luzFrisosBase, luzFrisosBase.target);
+
+// Luz lateral esquerda – frisos verticais e horizontais
+const luzFrisoEsquerdo = new THREE.SpotLight(0xffeac2, 1.2, 9, Math.PI / 10, 0.45);
+luzFrisoEsquerdo.position.set(-13, 10, -config.wallDistance / 2 + 1);
+luzFrisoEsquerdo.target.position.set(-13, 8, -config.wallDistance / 2);
+scene.add(luzFrisoEsquerdo, luzFrisoEsquerdo.target);
+
+// Luz lateral direita – frisos verticais e horizontais
+const luzFrisoDireito = new THREE.SpotLight(0xffeac2, 1.2, 9, Math.PI / 10, 0.45);
+luzFrisoDireito.position.set(13, 10, -config.wallDistance / 2 + 1);
+luzFrisoDireito.target.position.set(13, 8, -config.wallDistance / 2);
+scene.add(luzFrisoDireito, luzFrisoDireito.target);
+
+// Brilho animado muito subtil para sensação de vida
+gsap.to(luzFrisosTopo, {
+  intensity: 1.3,
+  duration: 5,
+  repeat: -1,
+  yoyo: true,
+  ease: 'sine.inOut'
+});
+
 
 const frisosParaIluminar = [
   [-6, 8, -config.wallDistance + 1],  // lateral esquerda

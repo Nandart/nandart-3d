@@ -31,9 +31,9 @@ const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerH
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 36; // profundidade forte
-camera.position.set(0, config.cameraY + 2.8, config.cameraZ + 6);
-camera.lookAt(0, 6.5, -2);
+  camera.fov = 36;
+  camera.position.set(0, config.cameraY, config.cameraZ); // posição recuada e centrada
+  camera.lookAt(0, 6.8, -config.wallDistance); // focar ligeiramente acima e fundo
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }

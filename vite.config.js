@@ -9,9 +9,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        comoNavegar: resolve(__dirname, 'como-navegar.html'),
+ 
         info: resolve(__dirname, 'info.html'),
-        contactos: resolve(__dirname, 'contactos.html')
+   
       }
     }
   },

@@ -348,7 +348,6 @@ function criarVitrine(x, z, indice) {
   scene.add(gema);
 
   // Luz interior com variação de intensidade
-  const
 
 criarVitrine(-9.5, -1.8, 0);
 criarVitrine(-9.5, 1.8, 1);
@@ -412,32 +411,23 @@ scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
 
 // Pulso suave na luz
-gsap.to(luzQuadroCentral, {
-  intensity: 2.5,
-  duration: 4,
+gsap.to(pintura.material, {
+  emissiveIntensity: 0.15,
+  duration: 5,
   repeat: -1,
   yoyo: true,
-  ease: 'sine.inOut'
-});
-s
-
-// Pulso suave na luz para dar vida à obra
-gsap.to(luzQuadroCentral, {
-  intensity: 2.5,
-  duration: 4,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut'
+  ease: 'sine.inOut',
+  onUpdate: () => pintura.material.needsUpdate = true
 });
 
-// Animação suave na intensidade da luz
 gsap.to(luzQuadroCentral, {
-  intensity: 2.1,
+  intensity: 2.3,
   duration: 4,
   repeat: -1,
   yoyo: true,
   ease: 'sine.inOut'
 });
+
 
 // Obras suspensas (sem molduras)
 const obraPaths = [

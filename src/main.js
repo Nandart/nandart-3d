@@ -381,10 +381,6 @@ const moldura = new THREE.Mesh(
 quadroDecorativoFundo.add(moldura);
 
 // Imagem embutida
-const pintura = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-new THREE.MeshStandardMaterial({
- // Imagem embutida
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   () => pintura.material.needsUpdate = true,
@@ -400,9 +396,6 @@ const pintura = new THREE.Mesh(
     metalness: 0.05
   })
 );
-pintura.position.z = 0.11;
-quadroDecorativoFundo.add(pintura);
-
 pintura.position.z = 0.11;
 quadroDecorativoFundo.add(pintura);
 
@@ -423,6 +416,7 @@ quadroDecorativoFundo.add(frisoExterior);
 // Posicionamento mais elevado na parede
 quadroDecorativoFundo.position.set(0, 6.7, -config.wallDistance - 3.5);
 scene.add(quadroDecorativoFundo);
+
 // Luz dedicada ao quadro central
 const luzQuadroCentral = new THREE.SpotLight(0xfff3d2, 1.6, 8, Math.PI / 8, 0.5);
 luzQuadroCentral.position.set(0, 11.5, -config.wallDistance - 1.5);
@@ -432,7 +426,6 @@ luzQuadroCentral.penumbra = 0.5;
 luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
-// Reflexo da obra central no chão
 
 // Animação suave na intensidade da luz
 gsap.to(luzQuadroCentral, {
@@ -442,6 +435,7 @@ gsap.to(luzQuadroCentral, {
   yoyo: true,
   ease: 'sine.inOut'
 });
+
 // Obras suspensas (sem molduras)
 const obraPaths = [
   "/assets/obras/obra1.jpg",

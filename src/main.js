@@ -384,13 +384,22 @@ quadroDecorativoFundo.add(moldura);
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
-   const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg', () => {
-  pintura.material.needsUpdate = true;
-}, undefined, err => console.error('Erro a carregar obra-central.jpg:', err));
+ const texturaCentral = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  () => pintura.material.needsUpdate = true,
+  undefined,
+  err => console.error('Erro a carregar obra-central.jpg:', err)
+);
+
+const pintura = new THREE.Mesh(
+  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
+  new THREE.MeshStandardMaterial({
+    map: texturaCentral,
     roughness: 0.15,
     metalness: 0.05
   })
 );
+
 pintura.position.z = 0.11;
 quadroDecorativoFundo.add(pintura);
 

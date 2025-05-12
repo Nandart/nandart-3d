@@ -87,8 +87,7 @@ const floor = new THREE.Mesh(
     sheenRoughness: 0.1
   })
 );
-  })
-);
+
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
@@ -338,10 +337,32 @@ const obraPaths = [
   "/assets/obras/obra8.jpg"
 ];
 const obrasNormais = [];
-// REFLEXO DA OBRA NO CHÃO
+
+obraPaths.forEach((src, i) => {
+  const texture = textureLoader.load(src);
+  const ang = (i / obraPaths.length) * Math.PI * 2;
+  const x = Math.cos(ang) * config.circleRadius;
+  const z = Math.sin(ang) * config.circleRadius;
+  const ry = -ang + Math.PI;
+
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+  obra.position.set(x, 4.2, z);
+  obra.rotation.y = ry;
+  obra.castShadow = true;
+  scene.add(obra);
+
+  // Reflexo da obra
   const reflexo = obra.clone();
-  reflexo.position.y = -0.01; // ligeiramente abaixo do chão
-  reflexo.scale.y = -1; // inverter verticalmente
+  reflexo.position.y = -0.01;
+  reflexo.scale.y = -1;
   reflexo.material = obra.material.clone();
   reflexo.material.opacity = 0.25;
   reflexo.material.transparent = true;
@@ -351,26 +372,32 @@ const obrasNormais = [];
   reflexo.renderOrder = 1;
   scene.add(reflexo);
 
-obra.userData.reflexo = reflexo;
-reflexo.userData.targetPos = new THREE.Vector3();
-reflexo.userData.targetRot = new THREE.Euler();
+  obra.userData.reflexo = reflexo;
+  reflexo.userData.targetPos = new THREE.Vector3();
+  reflexo.userData.targetRot = new THREE.Euler();
+
+  obrasNormais.push(obra);
+});
 
 obrasNormais.forEach((obra, i) => {
-  const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+  const ang = Date.now() * -0.00012 + (i / obrasNormais.length) * Math.PI * 2;
   const x = Math.cos(ang) * config.circleRadius;
   const z = Math.sin(ang) * config.circleRadius;
   const ry = -ang + Math.PI;
 
-  // Atualiza posição e rotação da obra
   obra.position.x = x;
   obra.position.z = z;
   obra.rotation.y = ry;
 
-  // Reflexo suavizado
+  // Reflexo
   const reflexo = obra.userData.reflexo;
   if (reflexo) {
     reflexo.userData.targetPos.set(x, -0.01, z);
     reflexo.userData.targetRot.set(0, ry, 0);
+    reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+    reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+  }
+});
 
     // Interpola posição
     reflexo.position.lerp(reflexo.userData.targetPos, 0.1);

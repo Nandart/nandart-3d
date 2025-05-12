@@ -383,7 +383,9 @@ quadroDecorativoFundo.add(moldura);
 // Imagem embutida
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-   const texturaCentral = textureLoader.load(
+new THREE.MeshStandardMaterial({
+ // Imagem embutida
+const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   () => pintura.material.needsUpdate = true,
   undefined,
@@ -398,6 +400,8 @@ const pintura = new THREE.Mesh(
     metalness: 0.05
   })
 );
+pintura.position.z = 0.11;
+quadroDecorativoFundo.add(pintura);
 
 pintura.position.z = 0.11;
 quadroDecorativoFundo.add(pintura);

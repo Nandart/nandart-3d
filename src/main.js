@@ -44,7 +44,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.85;
+renderer.toneMappingExposure = 2.2;
 
 scene.add(new THREE.AmbientLight(0xfff7e6, 1.7));
 
@@ -76,9 +76,9 @@ const floor = new Reflector(floorGeometry, {
   recursion: 1
 });
 
-floor.material.opacity = 0.4;
-floor.material.roughness = 0.1;
-floor.material.metalness = 0.7;
+floor.material.opacity = 0.3;
+floor.material.roughness = 0.25;
+floor.material.metalness = 0.4;
 floor.material.transparent = true;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -94,7 +94,10 @@ luzRasante.position.set(0, 4.5, 4);
 luzRasante.target.position.set(0, 0, 0);
 scene.add(luzRasante);
 scene.add(luzRasante.target);
-
+// Luz de fundo para iluminar a parede traseira
+const luzFundoSuave = new THREE.PointLight(0xffeedd, 1.2, 30);
+luzFundoSuave.position.set(0, 5, -config.wallDistance - 4);
+scene.add(luzFundoSuave);
 // Reflexo subtil animado na intensidade
 gsap.to(luzRasante, {
   intensity: 1.6,
@@ -110,12 +113,12 @@ const circle = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
     color: 0xfdf1d2,
     emissive: 0xffe8bb,
-    emissiveIntensity: 4,
-    metalness: 1,
-    roughness: 0.05,
+    emissiveIntensity: 2,
+    metalness: 0.6,
+    roughness: 0.2,
     transparent: true,
-    opacity: 1,
-    side: THREE.DoubleSide
+    opacity: 0.6,
+    side: THREE.FrontSide
   })
 );
 circle.rotation.x = -Math.PI / 2;

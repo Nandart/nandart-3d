@@ -346,7 +346,7 @@ function criarVitrine(x, z, indice) {
   gema.rotation.y = indice * 0.4;
   gema.castShadow = true;
   scene.add(gema);
-
+}
 // Luz interior com variação de intensidade será adicionada aqui futuramente
 
 criarVitrine(-9.5, -1.8, 0);
@@ -579,7 +579,8 @@ scene.traverse(obj => {
     obj.material.emissive &&
     obj.material.emissiveIntensity &&
     obj.material.color &&
-    obj.material.color.getHexString().startsWith('d9b96c') // tom dourado
+   obj.material.color.getHex() === 0xd9b96c
+
   ) {
     gsap.to(obj.material, {
       emissiveIntensity: 0.35,

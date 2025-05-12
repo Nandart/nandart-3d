@@ -102,23 +102,6 @@ html, body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.art-modal .premium-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #c4b582;
-  color: #1a1a1a;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
 /* Ícones */
 .menu-icon, .info-icon {
   position: absolute;
@@ -145,6 +128,37 @@ html, body {
   left: auto;
   right: 20px;
   width: 34px;
+}
+
+/* Menu dropdown */
+.menu-dropdown {
+  position: absolute;
+  top: 70px;
+  left: 20px;
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid #c4b582;
+  border-radius: 6px;
+  padding: 10px 0;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  min-width: 180px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.menu-dropdown a {
+  color: #e0e0e0;
+  text-decoration: none;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.menu-dropdown a:hover {
+  background: rgba(196, 181, 130, 0.2);
+  color: #c4b582;
 }
 
 /* Ícone ajuda flutuante */
@@ -306,6 +320,11 @@ html, body {
     height: 38px;
     bottom: 15px;
     right: 15px;
+  }
+  .menu-dropdown {
+    top: 60px;
+    left: 15px;
+    min-width: 160px;
   }
 }
 

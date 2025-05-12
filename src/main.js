@@ -369,28 +369,16 @@ frisoExterior.position.z = 0.105;
 quadroDecorativoFundo.add(frisoExterior);
 
 // Posicionamento mais elevado na parede
-quadroDecorativoFundo.position.set(0, 6.7, -config.wallDistance + 0.01);
+quadroDecorativoFundo.position.set(0, 6.7, -config.wallDistance - 3.99);
 scene.add(quadroDecorativoFundo);
 // Luz dedicada ao quadro central
 const luzQuadroCentral = new THREE.SpotLight(0xfff3d2, 1.6, 8, Math.PI / 8, 0.5);
-luzQuadroCentral.position.set(0, 10.5, -config.wallDistance + 2);
+luzQuadroCentral.position.set(0, 10.5, -config.wallDistance - 1.9);
 luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
 // Reflexo da obra central no chão
-const reflexoCentral = quadroDecorativoFundo.clone();
-reflexoCentral.scale.y = -1; // inverte verticalmente
-reflexoCentral.position.y = 0.05; // altura do chão
-reflexoCentral.children.forEach(child => {
-  if (child.material) {
-    child.material = child.material.clone();
-    child.material.opacity = 0.22;
-    child.material.transparent = true;
-    child.material.depthWrite = false;
-    child.renderOrder = 1;
-  }
-});
-scene.add(reflexoCentral);
+
 // Animação suave na intensidade da luz
 gsap.to(luzQuadroCentral, {
   intensity: 2.1,
@@ -477,12 +465,12 @@ fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helve
       shininess: 100
     })
   );
-  texto.position.set(-largura / 2, 13.65, -config.wallDistance + 0.015);
+ texto.position.set(-largura / 2, 13.65, -config.wallDistance - 3.985);
   texto.castShadow = true;
   scene.add(texto);
 
   const luzTexto = new THREE.SpotLight(0xfff2cc, 1.5, 10, Math.PI / 8, 0.5);
-  luzTexto.position.set(0, 12, -config.wallDistance + 2);
+luzTexto.position.set(0, 12, -config.wallDistance - 1.9);
   luzTexto.target = texto;
   scene.add(luzTexto);
   scene.add(luzTexto.target);

@@ -73,12 +73,12 @@ const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40),
   new THREE.MeshPhysicalMaterial({
     color: 0x060606, // ligeiramente mais escuro
-    roughness: 0.015, // mais polido
+    roughness: 0.015,
     metalness: 1,
     clearcoat: 1,
-    clearcoatRoughness: 0.005, // ainda mais liso
+    clearcoatRoughness: 0.005,
     reflectivity: 1,
-    transmission: 0.05, // ligeira translucidez artística
+    transmission: 0.05,
     ior: 1.52,
     thickness: 0.3,
     envMapIntensity: 1.2,
@@ -87,7 +87,6 @@ const floor = new THREE.Mesh(
     sheenRoughness: 0.1
   })
 );
-
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);

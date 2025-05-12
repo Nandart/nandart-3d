@@ -27,14 +27,14 @@ let config = configMap[getViewportLevel()];
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
-updateCamera();
+const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 100);
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 36; // ligeiramente mais fechada que 38 para profundidade visual
-  camera.position.set(0, config.cameraY + 4.8, config.cameraZ + 8.3); // mais alta e mais recuada
-  camera.lookAt(0, 5.8, 0); // foco mantido no centro visual da parede
+  camera.fov = 36; // profundidade forte
+  camera.position.set(0, config.cameraY + 4.8, config.cameraZ + 12); 
+  // z aumentado de 8.3 para 12 para afastar mais
+  camera.lookAt(0, 5.8, 0);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
@@ -126,12 +126,16 @@ scene.add(circle);
 const textureLoader = new THREE.TextureLoader();
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xc4b582,
+const frisoMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xd9b96c,
   metalness: 1,
-  roughness: 0.2,
-  emissive: 0x222211,
-  emissiveIntensity: 0.4
+  roughness: 0.1,
+  transmission: 0,
+  reflectivity: 0.65,
+  clearcoat: 0.9,
+  clearcoatRoughness: 0.1,
+  emissive: 0x5a430c,
+  emissiveIntensity: 0.25
 });
 
 function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
@@ -159,6 +163,27 @@ criarFriso(-10, 2.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2);  // verti
 criarFriso(10, 2.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2);   // vertical direita baixo
 criarFriso(-10, 8, -config.wallDistance / 2, 12, 0.12, Math.PI / 2);    // horizontal lateral esquerda
 criarFriso(10, 8, -config.wallDistance / 2, 12, 0.12, Math.PI / 2);     // horizontal lateral direita
+// Luz dedicada para destacar os frisos frontais
+const luzFrisos = new THREE.SpotLight(0xffeeb3, 1.4, 10, Math.PI / 8, 0.6);
+luzFrisos.position.set(0, 12, -config.wallDistance + 3);
+luzFrisos.target.position.set(0, 8, -config.wallDistance + 0.01);
+scene.add(luzFrisos);
+scene.add(luzFrisos.target);
+
+// Luz para friso lateral esquerdo
+const luzFrisoEsq = new THREE.SpotLight(0xffeeb3, 1.3, 9, Math.PI / 9, 0.5);
+luzFrisoEsq.position.set(-11.5, 12, -config.wallDistance / 2);
+luzFrisoEsq.target.position.set(-11.5, 8, -config.wallDistance / 2);
+scene.add(luzFrisoEsq);
+scene.add(luzFrisoEsq.target);
+
+// Luz para friso lateral direito
+const luzFrisoDir = new THREE.SpotLight(0xffeeb3, 1.3, 9, Math.PI / 9, 0.5);
+luzFrisoDir.position.set(11.5, 12, -config.wallDistance / 2);
+luzFrisoDir.target.position.set(11.5, 8, -config.wallDistance / 2);
+scene.add(luzFrisoDir);
+scene.add(luzFrisoDir.target);
+
 const frisosParaIluminar = [
   [-6, 8, -config.wallDistance + 1],  // lateral esquerda
   [6, 8, -config.wallDistance + 1],   // lateral direita
@@ -198,10 +223,16 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   scene.add(quadro);
 });
 
-// Restante código (vitrines, obras suspensas, texto, paredes, etc.) permanece abaixo desta linha...
-
-// [continua com o restante já implementado como animate, resize, obras suspensas, etc.]
-
+const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
+  color: 0xd9b96c,
+  metalness: 1,
+  roughness: 0.1,
+  clearcoat: 0.9,
+  clearcoatRoughness: 0.1,
+  emissive: 0x4a320a,
+  emissiveIntensity: 0.2,
+  reflectivity: 0.5
+});
 
 // Criar vitrines inspiradas no layout com gemas facetadas
 function criarVitrine(x, z) {
@@ -214,27 +245,37 @@ function criarVitrine(x, z) {
       metalness: 0.15
     })
   );
+  // Friso dourado superior do pedestal
+const topoDourado = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.31, 0.31, 0.06, 32),
+  materialDouradoPedestal
+);
+topoDourado.position.set(x, 2.2, z);
+topoDourado.castShadow = true;
+scene.add(topoDourado);
+
   pedestal.position.set(x, 1.1, z);
   pedestal.castShadow = true;
   scene.add(pedestal);
 
   // Caixa de vidro com realismo físico
   const vitrine = new THREE.Mesh(
-    new THREE.BoxGeometry(1.25, 1.25, 1.25),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.1,
-      roughness: 0.05,
-      transmission: 1,
-      thickness: 0.3,
-      ior: 1.45,
-      transparent: true,
-      opacity: 0.38,
-      reflectivity: 1,
-      clearcoat: 1,
-      clearcoatRoughness: 0
-    })
-  );
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xf8f8f8,
+    metalness: 0.1,
+    roughness: 0.05,
+    transmission: 1,
+    thickness: 0.3,
+    transparent: true,
+    opacity: 0.15,
+    ior: 1.45,
+    reflectivity: 0.6,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.05
+  })
+);
+
   vitrine.position.set(x, 2.5, z);
   vitrine.castShadow = true;
   scene.add(vitrine);
@@ -279,10 +320,10 @@ function criarVitrine(x, z) {
   });
 }
 
-criarVitrine(-8, -1.3);
-criarVitrine(-8, 1.3);
-criarVitrine(8, -1.3);
-criarVitrine(8, 1.3);
+criarVitrine(-9.5, -1.8);
+criarVitrine(-9.5, 1.8);
+criarVitrine(9.5, -1.8);
+criarVitrine(9.5, 1.8);
 
 // Quadro decorativo na parede de fundo (em destaque)
 const quadroDecorativoFundo = new THREE.Group();

@@ -33,8 +33,8 @@ updateCamera(); // posicionamento correto logo ao iniciar
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.fov = 36;
-  camera.position.set(0, config.cameraY, config.cameraZ); // posição recuada e centrada
-  camera.lookAt(0, 6.8, -config.wallDistance); // focar ligeiramente acima e fundo
+  camera.position.set(0, config.cameraY + 2.5, config.cameraZ + 5);
+camera.lookAt(0, 6.2, -config.wallDistance + 0.8);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
@@ -47,7 +47,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.2;
 
-scene.add(new THREE.AmbientLight(0xfff7e6, 1.7));
+scene.add(new THREE.AmbientLight(0xfff7e6, 3));
 
 // Luz ambiente mais ampla para iluminar a sala de forma elegante
 const luzAmbienteSuave = new THREE.HemisphereLight(0xfff4e5, 0x080808, 0.7);
@@ -77,7 +77,7 @@ const floor = new Reflector(floorGeometry, {
   recursion: 1
 });
 
-floor.material.opacity = 0.3;
+floor.material.opacity = 0.5;
 floor.material.roughness = 0.25;
 floor.material.metalness = 0.4;
 floor.material.transparent = true;
@@ -123,7 +123,7 @@ const circle = new THREE.Mesh(
   })
 );
 circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.037;
+circle.position.y = 0.05;
 scene.add(circle);
 
 const textureLoader = new THREE.TextureLoader();

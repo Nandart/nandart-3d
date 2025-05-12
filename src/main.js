@@ -16,10 +16,10 @@ function getViewportLevel() {
 }
 
 const configMap = {
-  XS: { obraSize: 0.35, premiumSize: 0.45, circleRadius: 2.4, wallDistance: 8, cameraZ: 13, cameraY: 5.5, textSize: 0.4 },
-  SM: { obraSize: 0.4, premiumSize: 0.5, circleRadius: 2.6, wallDistance: 9, cameraZ: 13, cameraY: 5.5, textSize: 0.45 },
-  MD: { obraSize: 0.45, premiumSize: 0.6, circleRadius: 3.1, wallDistance: 10, cameraZ: 13, cameraY: 5.5, textSize: 0.5 },
-  LG: { obraSize: 0.5, premiumSize: 0.65, circleRadius: 3.5, wallDistance: 10.5, cameraZ: 13, cameraY: 5.5, textSize: 0.55 }
+  XS: { obraSize: 0.35, circleRadius: 2.4, wallDistance: 8, cameraZ: 13, cameraY: 5.5, textSize: 0.4 },
+  SM: { obraSize: 0.4, circleRadius: 2.6, wallDistance: 9, cameraZ: 13, cameraY: 5.5, textSize: 0.45 },
+  MD: { obraSize: 0.45, circleRadius: 3.1, wallDistance: 10, cameraZ: 13, cameraY: 5.5, textSize: 0.5 },
+  LG: { obraSize: 0.5, circleRadius: 3.5, wallDistance: 10.5, cameraZ: 13, cameraY: 5.5, textSize: 0.55 }
 };
 
 let config = configMap[getViewportLevel()];
@@ -109,15 +109,6 @@ scene.add(circle);
 // Texturas e materiais
 const textureLoader = new THREE.TextureLoader();
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
-const premiumTexture = textureLoader.load('/assets/premium/premium1.jpg');
-
-const molduraMaterial = new THREE.MeshStandardMaterial({
-  color: 0xf1c40f,
-  roughness: 0.3,
-  metalness: 0.9,
-  emissive: 0x222200,
-  emissiveIntensity: 0.2
-});
 
 // Material para frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
@@ -212,7 +203,7 @@ criarVitrine(-8, 2);
 criarVitrine(8, -2);
 criarVitrine(8, 2);
 
-// Obras normais suspensas
+// Obras suspensas (sem molduras)
 const obraPaths = [
   "/assets/obras/obra1.jpg",
   "/assets/obras/obra2.jpg",
@@ -227,10 +218,6 @@ const obrasNormais = [];
 
 obraPaths.forEach((src, i) => {
   const ang = (i / obraPaths.length) * Math.PI * 2;
-  const moldura = new THREE.Mesh(
-    new THREE.BoxGeometry(config.obraSize + 0.12, config.obraSize + 0.12, 0.08),
-    molduraMaterial.clone()
-  );
   const obra = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
     new THREE.MeshStandardMaterial({
@@ -240,41 +227,17 @@ obraPaths.forEach((src, i) => {
       side: THREE.DoubleSide
     })
   );
-  obra.position.z = 0.05;
-
-  const grupo = new THREE.Group();
-  grupo.add(moldura);
-  grupo.add(obra);
-  grupo.position.set(Math.cos(ang) * config.circleRadius, 4.2, Math.sin(ang) * config.circleRadius);
-  grupo.rotation.y = -ang + Math.PI;
-  grupo.castShadow = true;
-  scene.add(grupo);
-  obrasNormais.push(grupo);
+  
+  obra.position.set(
+    Math.cos(ang) * config.circleRadius, 
+    4.2, 
+    Math.sin(ang) * config.circleRadius
+  );
+  obra.rotation.y = -ang + Math.PI;
+  obra.castShadow = true;
+  scene.add(obra);
+  obrasNormais.push(obra);
 });
-
-// Obra premium central simplificada
-const molduraPremium = new THREE.Mesh(
-  new THREE.BoxGeometry(config.premiumSize + 0.2, config.premiumSize + 0.2, 0.15),
-  molduraMaterial
-);
-
-const quadroPremium = new THREE.Mesh(
-  new THREE.PlaneGeometry(config.premiumSize, config.premiumSize),
-  new THREE.MeshStandardMaterial({
-    map: premiumTexture,
-    roughness: 0.1,
-    metalness: 0.2,
-    side: THREE.DoubleSide
-  })
-);
-quadroPremium.position.z = 0.08;
-
-const grupoPremium = new THREE.Group();
-grupoPremium.add(molduraPremium);
-grupoPremium.add(quadroPremium);
-grupoPremium.position.set(0, 5.8, 0);
-grupoPremium.castShadow = true;
-scene.add(grupoPremium);
 
 // Texto NANdART sobre friso
 const fontLoader = new FontLoader();
@@ -344,11 +307,11 @@ function animate() {
   requestAnimationFrame(animate);
 
   const tempo = Date.now() * -0.00012;
-  obrasNormais.forEach((grupo, i) => {
+  obrasNormais.forEach((obra, i) => {
     const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    grupo.position.x = Math.cos(ang) * config.circleRadius;
-    grupo.position.z = Math.sin(ang) * config.circleRadius;
-    grupo.rotation.y = -ang + Math.PI;
+    obra.position.x = Math.cos(ang) * config.circleRadius;
+    obra.position.z = Math.sin(ang) * config.circleRadius;
+    obra.rotation.y = -ang + Math.PI;
   });
 
   renderer.render(scene, camera);

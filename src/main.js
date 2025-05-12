@@ -27,12 +27,12 @@ let config = configMap[getViewportLevel()];
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 0.1, 100);
 updateCamera();
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 40; // ligeiramente mais aberto para incluir mais da cena
+  camera.fov = 15; // ligeiramente mais aberto para incluir mais da cena
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.position.set(0, config.cameraY + 4.5, config.cameraZ + 10); // mais alto e mais longe
   camera.lookAt(0, 8, -config.wallDistance + 0.5); // ligeiramente mais para cima

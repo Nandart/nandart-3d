@@ -32,9 +32,9 @@ updateCamera();
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 38; // visão mais aberta, sem distorção
-  camera.position.set(0, config.cameraY + 2.5, config.cameraZ + 3.5);
-  camera.lookAt(0, 6.2, 0);
+  camera.fov = 36; // ligeiramente mais fechada que 38 para profundidade visual
+  camera.position.set(0, config.cameraY + 4.8, config.cameraZ + 8.3); // mais alta e mais recuada
+  camera.lookAt(0, 5.8, 0); // foco mantido no centro visual da parede
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
@@ -205,73 +205,84 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
 
 // Criar vitrines inspiradas no layout com gemas facetadas
 function criarVitrine(x, z) {
-// Pedestal retangular vertical (mais alto que largo)
-const base = new THREE.Mesh(
-  new THREE.BoxGeometry(0.6, 2.2, 0.6),
-  new THREE.MeshStandardMaterial({
-    color: 0x1a1a1a,
-    roughness: 0.6,
-    metalness: 0.2
-  })
-);
-base.position.set(x, 1.1, z); // ajustado para nova altura
-base.castShadow = true;
-scene.add(base);
+  // Pedestal retangular com proporção correta
+  const pedestal = new THREE.Mesh(
+    new THREE.BoxGeometry(1.1, 2.2, 1.1),
+    new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.6,
+      metalness: 0.15
+    })
+  );
+  pedestal.position.set(x, 1.1, z);
+  pedestal.castShadow = true;
+  scene.add(pedestal);
 
-  // Caixa de vidro cúbica
+  // Caixa de vidro com realismo físico
   const vitrine = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.BoxGeometry(1.25, 1.25, 1.25),
     new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
-      metalness: 0,
-      roughness: 0,
+      metalness: 0.1,
+      roughness: 0.05,
       transmission: 1,
-      thickness: 0.2,
+      thickness: 0.3,
+      ior: 1.45,
       transparent: true,
-      opacity: 0.4,
-      ior: 1.5,
+      opacity: 0.38,
       reflectivity: 1,
       clearcoat: 1,
       clearcoatRoughness: 0
     })
   );
-  vitrine.position.set(x, 1.75, z);
+  vitrine.position.set(x, 2.5, z);
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // Gema facetada no interior
-  const gema = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.25),
+  // Objeto facetado com geometria mais rica
+  const objeto = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.33, 1),
     new THREE.MeshStandardMaterial({
-      map: texturaGema,
-      roughness: 0.15,
-      metalness: 0.6,
-      emissive: 0x223366,
-      emissiveIntensity: 1.4
+      color: 0x99ccff,
+      roughness: 0.1,
+      metalness: 0.5,
+      emissive: 0x3377aa,
+      emissiveIntensity: 0.7,
+      transparent: true,
+      opacity: 0.95
     })
   );
-  gema.position.set(x, 1.75, z);
-  gema.castShadow = true;
-  scene.add(gema);
+  objeto.position.set(x, 2.5, z);
+  objeto.castShadow = true;
+  scene.add(objeto);
 
-  // Iluminação interior
-  const luz = new THREE.PointLight(0x88ccff, 1.8, 2);
-  luz.position.set(x, 1.75, z);
-  scene.add(luz);
+  // Iluminação embutida e localizada
+  const luzInterior = new THREE.PointLight(0x99ccff, 2.2, 3);
+  luzInterior.position.set(x, 2.5, z);
+  scene.add(luzInterior);
 
-  gsap.to(gema.material, {
-    emissiveIntensity: 2.2,
+  // Animações subtis do brilho da gema
+  gsap.to(objeto.material, {
+    emissiveIntensity: 1.2,
     duration: 3,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
+
+  gsap.to(luzInterior, {
+    intensity: 2.8,
+    duration: 4,
     repeat: -1,
     yoyo: true,
     ease: 'sine.inOut'
   });
 }
 
-criarVitrine(-8, -2);
-criarVitrine(-8, 2);
-criarVitrine(8, -2);
-criarVitrine(8, 2);
+criarVitrine(-8, -1.3);
+criarVitrine(-8, 1.3);
+criarVitrine(8, -1.3);
+criarVitrine(8, 1.3);
 
 // Quadro decorativo na parede de fundo (em destaque)
 const quadroDecorativoFundo = new THREE.Group();
@@ -443,19 +454,19 @@ const paredeMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.9,
   metalness: 0.1
 });
-const paredeGeo = new THREE.PlaneGeometry(24, 20);
+const paredeGeo = new THREE.PlaneGeometry(32, 24);
 
 const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-backWall.position.set(0, 10, -config.wallDistance);
+backWall.position.set(0, 12, -config.wallDistance);
 scene.add(backWall);
 
 const leftWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-leftWall.position.set(-12, 10, -config.wallDistance / 2);
+leftWall.position.set(-15.5, 12, -config.wallDistance / 2);
 leftWall.rotation.y = Math.PI / 2;
 scene.add(leftWall);
 
 const rightWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-rightWall.position.set(12, 10, -config.wallDistance / 2);
+rightWall.position.set(15.5, 12, -config.wallDistance / 2);
 rightWall.rotation.y = -Math.PI / 2;
 scene.add(rightWall);
 

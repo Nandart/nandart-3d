@@ -153,19 +153,53 @@ function criarFriso(x, y, z, largura, altura, rotY = 0, depth = 0.05) {
   return friso;
 }
 
-// Frisos frontais e laterais
-criarFriso(0, 13.5, -config.wallDistance + 0.01, 12, 0.15);
-criarFriso(0, 2.5, -config.wallDistance + 0.01, 12, 0.15);
-criarFriso(-6, 8, -config.wallDistance + 0.01, 0.15, 11);
-criarFriso(6, 8, -config.wallDistance + 0.01, 0.15, 11);
-criarFriso(0, 8, -config.wallDistance + 0.005, 10, 10, 0, 0.02);
+// 🟨 Frisos fiéis ao layout da galeria NANdART
 
-criarFriso(-10, 13.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2); // vertical esquerda cima
-criarFriso(10, 13.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2);  // vertical direita cima
-criarFriso(-10, 2.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2);  // vertical esquerda baixo
-criarFriso(10, 2.5, -config.wallDistance / 2, 0.15, 11, Math.PI / 2);   // vertical direita baixo
-criarFriso(-10, 8, -config.wallDistance / 2, 12, 0.12, Math.PI / 2);    // horizontal lateral esquerda
-criarFriso(10, 8, -config.wallDistance / 2, 12, 0.12, Math.PI / 2);     // horizontal lateral direita
+// Parede de fundo – moldura interior
+criarFriso(0, 13.5, -config.wallDistance + 0.01, 10, 0.12); // topo
+criarFriso(0, 2.5, -config.wallDistance + 0.01, 10, 0.12); // base
+criarFriso(-5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado esquerdo
+criarFriso(5, 8, -config.wallDistance + 0.01, 0.12, 11); // lado direito
+
+// Parede de fundo – moldura exterior
+criarFriso(0, 15.8, -config.wallDistance + 0.01, 18, 0.12); // topo
+criarFriso(0, 0.8, -config.wallDistance + 0.01, 18, 0.12); // base
+criarFriso(-9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral esquerda
+criarFriso(9, 8, -config.wallDistance + 0.01, 0.12, 15); // lateral direita
+
+// Parede de fundo – frisos adicionais (acima e abaixo do quadro)
+criarFriso(-6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // esquerda topo
+criarFriso(6.2, 10.4, -config.wallDistance + 0.01, 4, 0.08); // direita topo
+criarFriso(-6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // esquerda base
+criarFriso(6.2, 5.1, -config.wallDistance + 0.01, 4, 0.08); // direita base
+
+// Paredes laterais – frisos verticais com curvas superiores
+const offsetZ = config.wallDistance / 2;
+
+criarFriso(-15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior esquerda
+criarFriso(-15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior esquerda
+criarFriso(15.4, 14.5, -offsetZ, 0.12, 7); // vertical superior direita
+criarFriso(15.4, 3.5, -offsetZ, 0.12, 7); // vertical inferior direita
+
+// Paredes laterais – frisos horizontais superiores e inferiores
+criarFriso(-15.4, 18, -offsetZ, 4.5, 0.1); // esquerda topo
+criarFriso(-15.4, 1, -offsetZ, 4.5, 0.1);  // esquerda base
+criarFriso(15.4, 18, -offsetZ, 4.5, 0.1);  // direita topo
+criarFriso(15.4, 1, -offsetZ, 4.5, 0.1);   // direita base
+
+// Paredes laterais – frisos horizontais junto ao chão e teto (contínuos)
+criarFriso(0, 0.3, -offsetZ, 32, 0.08); // rodapé
+criarFriso(0, 19.5, -offsetZ, 32, 0.08); // teto
+
+// Opcional: contorno de moldura para os quadros laterais (manual)
+criarFriso(-10.25, 9.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical topo
+criarFriso(-10.25, 2.6, -1.6, 0.08, 3.5, Math.PI / 2); // esquerda vertical base
+criarFriso(-10.25, 6.1, -1.6, 2.5, 0.08); // esquerda horizontal
+
+criarFriso(10.25, 9.6, 1.6, 0.08, 3.5, Math.PI / 2); // direita vertical topo
+criarFriso(10.25, 2.6, 1.6, 0.08, 3.5, Math.PI / 2); // direita vertical base
+criarFriso(10.25, 6.1, 1.6, 2.5, 0.08); // direita horizontal
+
 // Luz dedicada para destacar os frisos frontais
 const luzFrisos = new THREE.SpotLight(0xffeeb3, 1.4, 10, Math.PI / 8, 0.6);
 luzFrisos.position.set(0, 12, -config.wallDistance + 3);

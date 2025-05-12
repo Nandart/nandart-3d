@@ -42,24 +42,45 @@
     <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
   </a>
 
-  <a href="#menu">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
-  </a>
+  <div class="menu-container">
+    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" />
+    <div class="menu-dropdown" id="menu-dropdown">
+      <a href="contactos.html">Contactos</a>
+      <a href="como-navegar.html">Como Navegar</a>
+      <a href="artistas.html">Artistas</a>
+      <a href="web3.html">Web3 & NFT</a>
+    </div>
+  </div>
 
   <a href="como-navegar.html">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
+    <img src="/assets/ajuda-cubo.jpg" alt="Help" class="ajuda" />
   </a>
 
   <!-- Modal de obra premium -->
   <div class="art-modal">
-    <div class="premium-badge">★</div>
     <h3 id="art-title">Artwork Title</h3>
     <p id="art-description">Description of the selected piece</p>
     <button id="buy-art">Acquire Artwork</button>
   </div>
 
   <!-- Scripts -->
-  <script type="module">
+  <script>
+    // Menu toggle functionality
+    document.getElementById('menu-toggle').addEventListener('click', function(e) {
+      e.preventDefault();
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('menu-dropdown');
+      const menuToggle = document.getElementById('menu-toggle');
+      if (menu.style.display === 'flex' && !menu.contains(e.target) && e.target !== menuToggle) {
+        menu.style.display = 'none';
+      }
+    });
+
     // Oculta a tela de carregamento após o carregamento completo
     window.addEventListener('load', () => {
       setTimeout(() => {

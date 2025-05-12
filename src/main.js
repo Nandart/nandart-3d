@@ -28,6 +28,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 100);
+updateCamera(); // posicionamento correto logo ao iniciar
 
 function updateCamera() {
   config = configMap[getViewportLevel()];

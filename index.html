@@ -29,15 +29,14 @@
 <body>
   <audio id="ambienteAudio" src="/assets/musica/musica.mp3" loop autoplay></audio>
 
- <!-- Canvas 3D -->
-<canvas id="scene"></canvas>
+  <!-- Canvas 3D -->
+  <canvas id="scene"></canvas>
 
-<!-- Tela de carregamento -->
-<div class="loading-screen">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Loading Gallery</div>
-</div>
-
+  <!-- Tela de carregamento -->
+  <div class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Gallery</div>
+  </div>
 
   <!-- Ícones de navegação -->
   <a href="info.html">
@@ -58,12 +57,15 @@
     <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
   </a>
 
-  <!-- Modal de obra premium -->
-  <div class="art-modal">
-    <h3 id="art-title">Artwork Title</h3>
-    <p id="art-description">Description of the selected piece</p>
-    <button id="buy-art">Acquire Artwork</button>
-  </div>
+  <!-- Bloqueio total de scroll -->
+  <script>
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
+    window.addEventListener('scroll', () => {
+      window.scrollTo(0, 0);
+    });
+  </script>
 
   <!-- Scripts -->
   <script>
@@ -83,26 +85,24 @@
       }
     });
 
-    <script>
-  // Oculta a tela de carregamento com segurança
-  window.addEventListener('load', () => {
-    const screen = document.querySelector('.loading-screen');
-    if (!screen) return;
+    // Oculta a tela de carregamento com segurança
+    window.addEventListener('load', () => {
+      const screen = document.querySelector('.loading-screen');
+      if (!screen) return;
 
-    screen.style.opacity = '0';
-    screen.style.transition = 'opacity 1.2s ease';
+      screen.style.opacity = '0';
+      screen.style.transition = 'opacity 1.2s ease';
+      setTimeout(() => {
+        screen.style.display = 'none';
+      }, 1200);
+    });
+
+    // Garantia extra mesmo se o load falhar
     setTimeout(() => {
-      screen.style.display = 'none';
-    }, 1200);
-  });
-
-  // Garantia extra mesmo se o load falhar
-  setTimeout(() => {
-    const screen = document.querySelector('.loading-screen');
-    if (screen) screen.style.display = 'none';
-  }, 7000);
-</script>
-
+      const screen = document.querySelector('.loading-screen');
+      if (screen) screen.style.display = 'none';
+    }, 7000);
+  </script>
 
   <script type="module" src="/src/main.js"></script>
 

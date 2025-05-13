@@ -187,4 +187,7 @@ html, body {
     font-size: 0.9rem;
   }
 }
-
+.loading-screen {
+  opacity: 0 !important;
+  display: none !important;
+}

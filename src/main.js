@@ -8,6 +8,9 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
+// ✅ Declarar o loader de texturas UMA vez no início
+const textureLoader = new THREE.TextureLoader();
+
 // 🔧 Configuração base
 const config = {
   wallDistance: 14.5,
@@ -46,7 +49,6 @@ window.addEventListener('resize', () => {
 scene.background = new THREE.Color(0x111111);
 
 // 🧱 Paredes realistas com textura antracite
-const textureLoader = new THREE.TextureLoader();
 const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
@@ -197,7 +199,6 @@ circle.position.y = 0.052;
 circle.receiveShadow = true;
 scene.add(circle);
 
-const textureLoader = new THREE.TextureLoader();
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
@@ -465,62 +466,6 @@ criarVitrineComGema(-9.5, 1.8, 1);
 criarVitrineComGema(9.5, -1.8, 2);
 criarVitrineComGema(9.5, 1.8, 3);
 
-
-
-// 🖼️ Quadro central com moldura dourada premium e presença simbólica
-
-const quadroCentral = new THREE.Group();
-
-const larguraQuadro = 3.6;
-const alturaQuadro = 4.5;
-
-// 🖼️ Quadro central com moldura própria (imagem com friso incluído)
-
-const texturaCentral = textureLoader.load(
-  '/assets/obras/obra-central.jpg',
-  undefined,
-  undefined,
-  err => console.error('Erro a carregar obra-central.jpg:', err)
-);
-
-const pintura = new THREE.Mesh(
-  new THREE.PlaneGeometry(3.6, 4.5),
-  new THREE.MeshStandardMaterial({
-    map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
-  })
-);
-pintura.position.set(0, 6.9, -config.wallDistance - 3.5);
-pintura.castShadow = true;
-scene.add(pintura);
-
-// Luz dedicada com foco artístico
-const luzQuadroCentral = new THREE.SpotLight(0xfff3d2, 2.1, 10, Math.PI / 7, 0.5);
-luzQuadroCentral.position.set(0, 11.5, -config.wallDistance - 1.5);
-luzQuadroCentral.target = pintura;
-scene.add(luzQuadroCentral);
-scene.add(luzQuadroCentral.target);
-
-// Oscilação subtil de intensidade
-gsap.to(luzQuadroCentral, {
-  intensity: 2.3,
-  duration: 4,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut'
-});
-
-// Reflexo vivo na própria pintura
-gsap.to(pintura.material, {
-  emissiveIntensity: 0.15,
-  duration: 5,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut',
-  onUpdate: () => pintura.material.needsUpdate = true
-});
-
 // 🖼️ Obras suspensas (sem moldura), em rotação circular contínua
 
 const obraPaths = [
@@ -578,36 +523,6 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
-// 🌀 Animação contínua com rotação de todas as obras
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  const tempo = Date.now() * -0.00012;
-  obrasNormais.forEach((obra, i) => {
-    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(ang) * config.circleRadius;
-    const z = Math.sin(ang) * config.circleRadius;
-    const ry = -ang + Math.PI;
-
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = ry;
-
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, ry, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-    }
-  });
-
-  renderer.render(scene, camera);
-}
-
-animate();
-
 // ✨ Texto "NANdART" com presença refinada no topo da parede de fundo
 
 const fontLoader = new FontLoader();
@@ -651,40 +566,6 @@ fontLoader.load(
     scene.add(luzTexto.target);
   }
 );
-
-// 🧱 Parede de fundo corrigida e expandida para cobrir toda a galeria
-
-const paredeGeo = new THREE.PlaneGeometry(40, 30); // largura e altura generosas
-const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
-
-const paredeMaterial = new THREE.MeshStandardMaterial({
-  map: texturaParede,
-  roughness: 0.9,
-  metalness: 0.1,
-  side: THREE.FrontSide
-});
-
-const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-backWall.position.set(0, 13, -config.wallDistance - 4.05); // subida + ligeiro recuo no Z
-backWall.receiveShadow = true;
-scene.add(backWall);
-
-// 🧱 Paredes laterais ajustadas com maior realismo e alinhamento
-
-const paredeLateralGeo = new THREE.PlaneGeometry(30, 28); // ligeiramente mais altas para continuidade
-
-const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-leftWall.position.set(-16.2, 13, -config.wallDistance / 2);
-leftWall.rotation.y = Math.PI / 2;
-leftWall.receiveShadow = true;
-scene.add(leftWall);
-
-const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-rightWall.position.set(16.2, 13, -config.wallDistance / 2);
-rightWall.rotation.y = -Math.PI / 2;
-rightWall.receiveShadow = true;
-scene.add(rightWall);
-
 
 // 🖼️ Quadro central com friso circular dourado embutido
 const quadroDecorativoFundo = new THREE.Group();

@@ -4,6 +4,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import './style/index.css';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

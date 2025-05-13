@@ -7,43 +7,35 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-function getViewportLevel() {
-  const largura = window.innerWidth;
-  if (largura < 480) return 'XS';
-  if (largura < 768) return 'SM';
-  if (largura < 1024) return 'MD';
-  return 'LG';
+// 🟡 Configuração da câmara em modo "contentor"
+const camera = new THREE.PerspectiveCamera();
+updateCamera();
+function updateCamera() {
+  ...
 }
-
-const configMap = {
-  XS: { obraSize: 0.45, circleRadius: 2.4, wallDistance: 8, cameraZ: 13, cameraY: 5.5, textSize: 0.4 },
-  SM: { obraSize: 0.5, circleRadius: 2.6, wallDistance: 9, cameraZ: 13, cameraY: 5.5, textSize: 0.45 },
-  MD: { obraSize: 0.55, circleRadius: 3.1, wallDistance: 10, cameraZ: 13, cameraY: 5.5, textSize: 0.5 },
-  LG: { obraSize: 0.6, circleRadius: 3.5, wallDistance: 10.5, cameraZ: 13, cameraY: 5.5, textSize: 0.55 }
-};
-
-let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera();
-updateCamera();
-function updateCamera() {
-  camera.fov = 55; // Campo de visão mais largo para incluir mais conteúdo lateral e vertical
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, 14.5, 25); // Centro da porta imaginária do contentor
-  camera.lookAt(0, 9, -10); // Centro da galeria (ligeiramente abaixo do topo do quadro central)
-  camera.updateProjectionMatrix();
-}
-
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
+// 🔧 Renderer com definições profissionais
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('scene'),
+  antialias: true
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.2;
+
+// 📐 Atualização da câmara e renderer ao redimensionar
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
 
 // ✨ Luz ambiente radial suave e refinada
 const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 0.6, 50, 2);

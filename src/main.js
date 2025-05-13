@@ -15,16 +15,11 @@ function getViewportLevel() {
   return 'LG';
 }
 
-// Container configuration (20ft by default)
-const is40ft = false; // Set to true for 40ft container
-const containerLength = is40ft ? 12 : 6; // 12m for 40ft, 6m for 20ft
-const containerHeight = 2.6; // Standard container height
-
 const configMap = {
-  XS: { obraSize: 0.45, circleRadius: 2.4, wallDistance: containerLength, cameraZ: is40ft ? 5 : 3, cameraY: containerHeight * 0.6, textSize: 0.4 },
-  SM: { obraSize: 0.5, circleRadius: 2.6, wallDistance: containerLength, cameraZ: is40ft ? 5 : 3, cameraY: containerHeight * 0.6, textSize: 0.45 },
-  MD: { obraSize: 0.55, circleRadius: 3.1, wallDistance: containerLength, cameraZ: is40ft ? 5 : 3, cameraY: containerHeight * 0.6, textSize: 0.5 },
-  LG: { obraSize: 0.6, circleRadius: 3.5, wallDistance: containerLength, cameraZ: is40ft ? 5 : 3, cameraY: containerHeight * 0.6, textSize: 0.55 }
+  XS: { obraSize: 0.45, circleRadius: 2.4, wallDistance: 8, cameraZ: 13, cameraY: 5.5, textSize: 0.4 },
+  SM: { obraSize: 0.5, circleRadius: 2.6, wallDistance: 9, cameraZ: 13, cameraY: 5.5, textSize: 0.45 },
+  MD: { obraSize: 0.55, circleRadius: 3.1, wallDistance: 10, cameraZ: 13, cameraY: 5.5, textSize: 0.5 },
+  LG: { obraSize: 0.6, circleRadius: 3.5, wallDistance: 10.5, cameraZ: 13, cameraY: 5.5, textSize: 0.55 }
 };
 
 let config = configMap[getViewportLevel()];
@@ -34,28 +29,11 @@ scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera();
 updateCamera();
-
 function updateCamera() {
-  config = configMap[getViewportLevel()];
-  // Camera settings for container view
-  camera.fov = 60; // Wide-angle view (equivalent to ~24mm in full-frame)
+  camera.fov = 55;
   camera.aspect = window.innerWidth / window.innerHeight;
-  
-  // Camera position:
-  // - X: 0 (centered)
-  // - Y: ~1.5m height (containerHeight * 0.6)
-  // - Z: 3m for 20ft, 5m for 40ft container from entrance
-  camera.position.set(0, config.cameraY, config.cameraZ);
-  
-  // Camera lookAt:
-  // - X: 0 (centered)
-  // - Y: slightly below center to show more floor
-  // - Z: looking at the back wall
-  camera.lookAt(0, containerHeight * 0.4, -containerLength);
-  
-  // Camera tilt: ~10-15° downward
-  camera.rotation.x = -0.2;
-  
+  camera.position.set(0, 12, 20); // afastada e elevada para capturar toda a galeria
+  camera.lookAt(0, 9, -10);       // centro da galeria
   camera.updateProjectionMatrix();
 }
 
@@ -241,6 +219,7 @@ gsap.to(luzFrisosTopo, {
   ease: 'sine.inOut'
 });
 
+
 const frisosParaIluminar = [
   [-6, 8, -config.wallDistance + 1],  // lateral esquerda
   [6, 8, -config.wallDistance + 1],   // lateral direita
@@ -367,6 +346,7 @@ function criarVitrine(x, z, indice) {
   gema.castShadow = true;
   scene.add(gema);
 }
+// Luz interior com variação de intensidade será adicionada aqui futuramente
 
 criarVitrine(-9.5, -1.8, 0);
 criarVitrine(-9.5, 1.8, 1);
@@ -429,6 +409,7 @@ luzQuadroCentral.target = quadroDecorativoFundo;
 scene.add(luzQuadroCentral);
 scene.add(luzQuadroCentral.target);
 
+
 gsap.to(luzQuadroCentral, {
   intensity: 2.3,
   duration: 4,
@@ -436,6 +417,7 @@ gsap.to(luzQuadroCentral, {
   yoyo: true,
   ease: 'sine.inOut'
 });
+
 
 // Obras suspensas (sem molduras)
 const obraPaths = [
@@ -476,7 +458,7 @@ obraPaths.forEach((src, i) => {
   reflexo.position.y = -0.01;
   reflexo.scale.y = -1;
   reflexo.material = obra.material.clone();
-  reflexo.material.opacity = 0.18;
+ reflexo.material.opacity = 0.18;
   reflexo.material.transparent = true;
   reflexo.material.depthWrite = false;
   reflexo.material.roughness = 0.5;
@@ -499,7 +481,7 @@ fontLoader.load(
   font => {
     const textGeo = new TextGeometry('NANdART', {
       font,
-      size: 0.65,
+      size: 0.65, // ligeiramente maior mas ainda elegante
       height: 0.12,
       curveSegments: 10,
       bevelEnabled: true,
@@ -537,7 +519,7 @@ fontLoader.load(
 
 // 🧱 Parede de fundo corrigida e expandida para cobrir toda a galeria
 
-const paredeGeo = new THREE.PlaneGeometry(40, 30);
+const paredeGeo = new THREE.PlaneGeometry(40, 30); // maior em largura e altura
 
 const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
 
@@ -549,13 +531,13 @@ const paredeMaterial = new THREE.MeshStandardMaterial({
 });
 
 const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-backWall.position.set(0, 13, -config.wallDistance - 4.05);
+backWall.position.set(0, 13, -config.wallDistance - 4.05); // subida + ligeiro ajuste no Z
 backWall.receiveShadow = true;
 scene.add(backWall);
 
 // 🧱 Paredes laterais ajustadas com maior realismo e alinhamento
 
-const paredeLateralGeo = new THREE.PlaneGeometry(30, 28);
+const paredeLateralGeo = new THREE.PlaneGeometry(30, 28); // ligeiramente mais altas
 
 const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
 leftWall.position.set(-16.2, 13, -config.wallDistance / 2);
@@ -569,12 +551,12 @@ rightWall.rotation.y = -Math.PI / 2;
 rightWall.receiveShadow = true;
 scene.add(rightWall);
 
+
 // Atualização de dimensão ao redimensionar a janela
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 // ✨ Reflexos animados subtis nas molduras e gemas
 
 // Moldura do quadro central – animação suave no brilho
@@ -587,6 +569,7 @@ gsap.to(pintura.material, {
   onUpdate: () => pintura.material.needsUpdate = true
 });
 
+
 // Frisos – reflexo pulsante suave
 scene.traverse(obj => {
   if (
@@ -595,7 +578,8 @@ scene.traverse(obj => {
     obj.material.emissive &&
     obj.material.emissiveIntensity &&
     obj.material.color &&
-    obj.material.color.getHex() === 0xd9b96c
+   obj.material.color.getHex() === 0xd9b96c
+
   ) {
     gsap.to(obj.material, {
       emissiveIntensity: 0.35,
@@ -651,6 +635,6 @@ function animate() {
   
   renderer.render(scene, camera);
 }
+  
 
 animate();
-

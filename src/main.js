@@ -30,10 +30,10 @@ scene.background = new THREE.Color(0x111111);
 const camera = new THREE.PerspectiveCamera();
 updateCamera();
 function updateCamera() {
-  camera.fov = 55;
+  camera.fov = 55; // Campo de visão mais largo para incluir mais conteúdo lateral e vertical
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, 12, 20); // afastada e elevada para capturar toda a galeria
-  camera.lookAt(0, 9, -10);       // centro da galeria
+  camera.position.set(0, 14.5, 25); // Centro da porta imaginária do contentor
+  camera.lookAt(0, 9, -10); // Centro da galeria (ligeiramente abaixo do topo do quadro central)
   camera.updateProjectionMatrix();
 }
 

@@ -1,4 +1,4 @@
-o ficheiro que forneceste não está completo conforme o main.js que te mandei, removeste as obras nas paredes laterais, não quero que mexas nas vitrines, sobrecarregaste o site, e este está a travar aplique uma iluminação digna de uma galeria, e torne o chão um pouco mais transparente de resto não mecha em mais nada: import * as THREE from 'three';
+import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { Reflector } from 'three/addons/objects/Reflector.js'; // 

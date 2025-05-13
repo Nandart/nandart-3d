@@ -7,6 +7,13 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
+// 🔧 Configurações de layout e proporções
+const config = {
+  wallDistance: 14.5,
+  circleRadius: 6.5,
+  obraSize: 2.1
+};
+
 // 🟡 Configuração da câmara em modo "contentor"
 const camera = new THREE.PerspectiveCamera();
 updateCamera();

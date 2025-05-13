@@ -25,7 +25,7 @@ camera.lookAt(0, 7.2, 0); // focada no centro vertical das obras suspensas e esp
 
 // 🎨 Cena e fundo
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0x1a1a1a);
 
 // 🖥️ Renderer com qualidade cinematográfica
 const renderer = new THREE.WebGLRenderer({
@@ -52,15 +52,14 @@ scene.background = new THREE.Color(0x111111);
 const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
-  map: texturaParede,
-  roughness: 0.9,
-  metalness: 0.1,
-  side: THREE.FrontSide
+  color: 0x1e1e1e,
+  roughness: 0.7,
+  metalness: 0.15
 });
 
 // Parede de fundo
 const backWall = new THREE.Mesh(new THREE.PlaneGeometry(40, 30), paredeMaterial);
-backWall.position.set(0, 13, -config.wallDistance - 4.05);
+backWall.position.set(0, 13, -config.wallDistance - 5.5);
 backWall.receiveShadow = true;
 scene.add(backWall);
 
@@ -68,13 +67,13 @@ scene.add(backWall);
 const paredeLateralGeo = new THREE.PlaneGeometry(30, 28); // ligeiramente mais altas que o fundo
 
 const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-leftWall.position.set(-16.2, 13, -config.wallDistance / 2);
+leftWall.position.set(-13.2, 13, -config.wallDistance / 2);
 leftWall.rotation.y = Math.PI / 2;
 leftWall.receiveShadow = true;
 scene.add(leftWall);
 
 const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-rightWall.position.set(16.2, 13, -config.wallDistance / 2);
+rightWall.position.set(13.2, 13, -config.wallDistance / 2);
 rightWall.rotation.y = -Math.PI / 2;
 rightWall.receiveShadow = true;
 scene.add(rightWall);
@@ -83,16 +82,16 @@ scene.add(rightWall);
 function criarFrisoEmbutido(x, y, z, largura, altura, rotY = 0, depth = 0.03) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, depth),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xd1b072,
-      metalness: 1,
-      roughness: 0.08,
-      clearcoat: 0.95,
-      clearcoatRoughness: 0.05,
-      emissive: 0x3a2a0a,
-      emissiveIntensity: 0.25,
-      reflectivity: 0.6
-    })
+new THREE.MeshPhysicalMaterial({
+  color: 0xd6b16c,
+  metalness: 1,
+  roughness: 0.03,
+  clearcoat: 1,
+  clearcoatRoughness: 0.03,
+  reflectivity: 1,
+  emissive: 0x2e1c07,
+  emissiveIntensity: 0.3
+})
   );
   friso.position.set(x, y, z);
   friso.rotation.y = rotY;
@@ -119,24 +118,30 @@ criarFrisoEmbutido(0, 0.3, -offsetZ, 36, 0.06); // rodapé
 criarFrisoEmbutido(0, 19.8, -offsetZ, 36, 0.06); // teto
 
 // ✨ Luz ambiente radial suave e refinada
-const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.2, 50, 2);
+const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.8, 50, 2);
 luzAmbienteCentral.position.set(0, 9.5, 0);
 scene.add(luzAmbienteCentral);
 
 // ✨ Luz hemisférica quente para reforço geral do ambiente
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0);
+const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.5);
 scene.add(luzHemisferica);
+// ✨ Luz direcional superior para preenchimento global
+const luzDirecional = new THREE.DirectionalLight(0xffffff, 1.2);
+luzDirecional.position.set(0, 20, 20);
+luzDirecional.castShadow = true;
+scene.add(luzDirecional);
 
-// ✨ Luzes rasantes laterais muito suaves para dar volume às paredes
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff0db, 0.7, 18, Math.PI / 5, 0.5);
-luzRasanteEsquerda.position.set(-12, 5.5, 0);
+// ✨ Luzes rasantes laterais melhoradas para destacar frisos e paredes
+const luzRasanteEsquerda = new THREE.SpotLight(0xfff0db, 1.5, 22, Math.PI / 6, 0.4);
+luzRasanteEsquerda.position.set(-12, 8, 3);
 luzRasanteEsquerda.target.position.set(-12, 5.5, -10);
 scene.add(luzRasanteEsquerda, luzRasanteEsquerda.target);
 
-const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 0.7, 18, Math.PI / 5, 0.5);
-luzRasanteDireita.position.set(12, 5.5, 0);
+const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 1.5, 22, Math.PI / 6, 0.4);
+luzRasanteDireita.position.set(12, 8, 3);
 luzRasanteDireita.target.position.set(12, 5.5, -10);
 scene.add(luzRasanteDireita, luzRasanteDireita.target);
+
 
 // ✨ Chão com reflexo profundo e textura realista tipo obsidiana líquida
 
@@ -212,70 +217,101 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.5
 });
 
-// Criar vitrines inspiradas no layout com gemas facetadas
-function criarVitrine(x, z, indice) {
-  // Altura variável para dar vida visual
-  const alturaGema = 3.3 + (indice % 2 === 0 ? 0.08 : -0.06);
-  const emissivaBase = indice % 2 === 0 ? 0x3366aa : 0x3377cc;
 
-  // Pedestal
+// Gema facetada inspirada no layout, com brilho interno e volume cristalino
+function criarVitrine(x, z, indice) {
+  const alturaPedestal = 2.8;
+  const alturaVitrine = 1.15;
+  const alturaTotal = alturaPedestal + alturaVitrine;
+  const alturaGema = alturaPedestal + 0.65;
+
+  // 🟫 Pedestal escuro
   const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 2.8, 0.9),
+    new THREE.BoxGeometry(0.9, alturaPedestal, 0.9),
     new THREE.MeshStandardMaterial({
       color: 0x111111,
-      roughness: 0.6,
+      roughness: 0.65,
       metalness: 0.15
     })
   );
-  pedestal.position.set(x, 1.4, z);
+  pedestal.position.set(x, alturaPedestal / 2, z);
   pedestal.castShadow = true;
   scene.add(pedestal);
 
-  // Tampa dourada
+  // 🔶 Tampa dourada refinada
   const topoDourado = new THREE.Mesh(
     new THREE.CylinderGeometry(0.36, 0.36, 0.06, 32),
-    materialDouradoPedestal
+    new THREE.MeshPhysicalMaterial({
+      color: 0xd9b96c,
+      metalness: 1,
+      roughness: 0.08,
+      clearcoat: 0.95,
+      clearcoatRoughness: 0.05,
+      emissive: 0x3a2a0a,
+      emissiveIntensity: 0.25,
+      reflectivity: 0.65
+    })
   );
-  topoDourado.position.set(x, 2.85, z);
+  topoDourado.position.set(x, alturaPedestal, z);
   topoDourado.castShadow = true;
   scene.add(topoDourado);
 
-  // Vitrine de vidro
+  // 🟦 Vitrine de vidro realista
   const vitrine = new THREE.Mesh(
-    new THREE.BoxGeometry(0.88, 1.1, 0.88),
+    new THREE.BoxGeometry(0.88, alturaVitrine, 0.88),
     new THREE.MeshPhysicalMaterial({
-      color: 0xf8f8f8,
-      metalness: 0.1,
-      roughness: 0.05,
+      color: 0xffffff,
+      metalness: 0.05,
+      roughness: 0.08,
       transmission: 1,
-      thickness: 0.3,
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.14,
       ior: 1.45,
-      reflectivity: 0.6,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.05
+      reflectivity: 0.7,
+      clearcoat: 0.85
     })
   );
-  vitrine.position.set(x, 3.4, z);
+  vitrine.position.set(x, alturaPedestal + alturaVitrine / 2, z);
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // Gema ligeiramente diferente em rotação, altura e cor emissiva
-  const gema = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.33, 1),
-    new THREE.MeshStandardMaterial({
-      map: texturaGema,
-      emissive: emissivaBase,
-      emissiveIntensity: 0.65,
-      transparent: true,
-      opacity: 0.95
-    })
-  );
+  // 💎 Gema facetada inspirada no layout
+  const geometriaGema = new THREE.OctahedronGeometry(0.36, 2);
+  const materialGema = new THREE.MeshPhysicalMaterial({
+    color: 0x7ebfff,
+    metalness: 0.4,
+    roughness: 0.1,
+    transmission: 1,
+    thickness: 0.5,
+    transparent: true,
+    opacity: 0.95,
+    reflectivity: 0.9,
+    clearcoat: 1,
+    clearcoatRoughness: 0.03,
+    ior: 1.5,
+    emissive: 0x224477,
+    emissiveIntensity: 0.35
+  });
+
+  const gema = new THREE.Mesh(geometriaGema, materialGema);
   gema.position.set(x, alturaGema, z);
   gema.rotation.y = indice * 0.4;
   gema.castShadow = true;
   scene.add(gema);
+
+  // 💡 Luz interior focal na gema
+  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 3.2);
+  luzInterior.position.set(x, alturaGema + 0.07, z);
+  scene.add(luzInterior);
+
+  // ✨ Animação de pulsação para a gema
+  gsap.to(gema.material, {
+    emissiveIntensity: 0.9,
+    duration: 3.2,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
 }
 
 // Criar as quatro vitrines conforme layout
@@ -382,89 +418,6 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   quadro.receiveShadow = true;
   scene.add(quadro);
 });
-
-// Criar vitrines com gemas visíveis e iluminação interna
-function criarVitrineComGema(x, z, indice) {
-  const alturaPedestal = 2.9;
-  const alturaVitrine = 1.25;
-  const alturaTotal = alturaPedestal + alturaVitrine;
-
-  // Pedestal escuro
-  const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(1, alturaPedestal, 1),
-    new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.7,
-      metalness: 0.1
-    })
-  );
-  pedestal.position.set(x, alturaPedestal / 2, z);
-  pedestal.castShadow = true;
-  scene.add(pedestal);
-
-  // Tampa dourada elegante
-  const tampa = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.4, 0.4, 0.06, 32),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xd9b96c,
-      metalness: 1,
-      roughness: 0.1,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.05,
-      emissive: 0x3a2a0a,
-      emissiveIntensity: 0.2
-    })
-  );
-  tampa.position.set(x, alturaTotal, z);
-  tampa.castShadow = true;
-  scene.add(tampa);
-
-  // Vitrine de vidro com transparência realista
-  const vitrine = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, alturaVitrine, 0.95),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      roughness: 0.1,
-      metalness: 0.05,
-      transmission: 1,
-      opacity: 0.15,
-      transparent: true,
-      ior: 1.45,
-      reflectivity: 0.6,
-      clearcoat: 0.8
-    })
-  );
-  vitrine.position.set(x, alturaPedestal + alturaVitrine / 2, z);
-  vitrine.castShadow = true;
-  scene.add(vitrine);
-
-  // Gema facetada animada
-  const gema = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.33, 1),
-    new THREE.MeshStandardMaterial({
-      map: texturaGema,
-      emissive: 0x224477,
-      emissiveIntensity: 0.9,
-      transparent: true,
-      opacity: 0.95
-    })
-  );
-  gema.position.set(x, alturaPedestal + 0.6, z);
-  gema.rotation.y = indice * 0.6;
-  gema.castShadow = true;
-  scene.add(gema);
-
-  // Iluminação interna subtil
-  const luzGema = new THREE.PointLight(0x88ccff, 1.2, 4);
-  luzGema.position.set(x, alturaPedestal + 0.8, z);
-  scene.add(luzGema);
-}
-
-// Quatro vitrines nas posições originais
-criarVitrineComGema(-9.5, -1.8, 0);
-criarVitrineComGema(-9.5, 1.8, 1);
-criarVitrineComGema(9.5, -1.8, 2);
-criarVitrineComGema(9.5, 1.8, 3);
 
 // 🖼️ Obras suspensas (sem moldura), em rotação circular contínua
 

@@ -119,21 +119,21 @@ criarFrisoEmbutido(0, 0.3, -offsetZ, 36, 0.06); // rodapé
 criarFrisoEmbutido(0, 19.8, -offsetZ, 36, 0.06); // teto
 
 // ✨ Luz ambiente radial suave e refinada
-const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 0.6, 50, 2);
+const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.2, 50, 2);
 luzAmbienteCentral.position.set(0, 9.5, 0);
 scene.add(luzAmbienteCentral);
 
 // ✨ Luz hemisférica quente para reforço geral do ambiente
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.5);
+const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0);
 scene.add(luzHemisferica);
 
 // ✨ Luzes rasantes laterais muito suaves para dar volume às paredes
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff0db, 0.35, 18, Math.PI / 5, 0.5);
+const luzRasanteEsquerda = new THREE.SpotLight(0xfff0db, 0.7, 18, Math.PI / 5, 0.5);
 luzRasanteEsquerda.position.set(-12, 5.5, 0);
 luzRasanteEsquerda.target.position.set(-12, 5.5, -10);
 scene.add(luzRasanteEsquerda, luzRasanteEsquerda.target);
 
-const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 0.35, 18, Math.PI / 5, 0.5);
+const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 0.7, 18, Math.PI / 5, 0.5);
 luzRasanteDireita.position.set(12, 5.5, 0);
 luzRasanteDireita.target.position.set(12, 5.5, -10);
 scene.add(luzRasanteDireita, luzRasanteDireita.target);
@@ -162,18 +162,18 @@ floor.receiveShadow = true;
 scene.add(floor);
 
 // Luz rasante para valorizar o reflexo no chão
-const luzRasante = new THREE.SpotLight(0xfff8e0, 1.3, 20, Math.PI / 7, 0.5);
+const luzRasante = new THREE.SpotLight(0xfff8e0, 2.6, 20, Math.PI / 7, 0.5);
 luzRasante.position.set(0, 4.5, 4);
 luzRasante.target.position.set(0, 0, 0);
 scene.add(luzRasante);
 scene.add(luzRasante.target);
 // Luz de fundo para iluminar a parede traseira
-const luzFundoSuave = new THREE.PointLight(0xffeedd, 1.2, 30);
+const luzFundoSuave = new THREE.PointLight(0xffeedd, 2.4, 30);
 luzFundoSuave.position.set(0, 5, -config.wallDistance - 4);
 scene.add(luzFundoSuave);
 // Reflexo subtil animado na intensidade
 gsap.to(luzRasante, {
-  intensity: 1.6,
+   intensity: 3.2,
   duration: 3,
   repeat: -1,
   yoyo: true,
@@ -302,7 +302,7 @@ gsap.to(luzGemas, {
 // 🟨 Luzes refinadas para destacar os frisos com contorno
 
 // Luz superior frontal – friso central da parede de fundo
-const luzFrisosTopo = new THREE.SpotLight(0xffeac2, 1.15, 9, Math.PI / 10, 0.5);
+const luzFrisosTopo = new THREE.SpotLight(0xffeac2, 2.3, 9, Math.PI / 10, 0.5);
 luzFrisosTopo.position.set(0, 13.2, -config.wallDistance + 2);
 luzFrisosTopo.target.position.set(0, 10, -config.wallDistance + 0.01);
 scene.add(luzFrisosTopo, luzFrisosTopo.target);
@@ -327,7 +327,7 @@ scene.add(luzFrisoDireito, luzFrisoDireito.target);
 
 // Brilho animado muito subtil para sensação de vida
 gsap.to(luzFrisosTopo, {
-  intensity: 1.3,
+  intensity: 2.6,
   duration: 5,
   repeat: -1,
   yoyo: true,
@@ -343,7 +343,7 @@ const frisosParaIluminar = [
 ];
 
 frisosParaIluminar.forEach(([x, y, z]) => {
-  const luzFriso = new THREE.SpotLight(0xfff0c0, 1.5, 6, Math.PI / 9, 0.6);
+const luzFriso = new THREE.SpotLight(0xfff0c0, 3.0, 6, Math.PI / 9, 0.6);
   luzFriso.position.set(x, y + 1.5, z + 1.2);
   luzFriso.target.position.set(x, y, z);
   scene.add(luzFriso);

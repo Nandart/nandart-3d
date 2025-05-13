@@ -10,8 +10,15 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 // 🟡 Configuração da câmara em modo "contentor"
 const camera = new THREE.PerspectiveCamera();
 updateCamera();
+
 function updateCamera() {
-  ...
+  camera.fov = 45;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.near = 0.1;
+  camera.far = 100;
+  camera.position.set(0, 8.5, 18);
+  camera.lookAt(0, 7, 0);
+  camera.updateProjectionMatrix();
 }
 
 const scene = new THREE.Scene();

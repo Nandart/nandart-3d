@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js'; // 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
@@ -43,25 +44,6 @@ window.addEventListener('resize', () => {
 });
 // 🎨 Cena já definida acima
 scene.background = new THREE.Color(0x111111);
-
-// 🪞 Chão com reflexo obsidiana
-import { Reflector } from 'three/addons/objects/Reflector.js';
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
-const floor = new Reflector(floorGeometry, {
-  clipBias: 0.001,
-  textureWidth: window.innerWidth * window.devicePixelRatio,
-  textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x0a0a0a,
-  recursion: 2
-});
-floor.material.opacity = 0.82;
-floor.material.roughness = 0.03;
-floor.material.metalness = 0.95;
-floor.material.transparent = true;
-floor.material.reflectivity = 0.92;
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
 
 // 🧱 Paredes realistas com textura antracite
 const textureLoader = new THREE.TextureLoader();
@@ -153,9 +135,6 @@ const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 0.35, 18, Math.PI / 5, 0
 luzRasanteDireita.position.set(12, 5.5, 0);
 luzRasanteDireita.target.position.set(12, 5.5, -10);
 scene.add(luzRasanteDireita, luzRasanteDireita.target);
-
-
-import { Reflector } from 'three/addons/objects/Reflector.js';
 
 // ✨ Chão com reflexo profundo e textura realista tipo obsidiana líquida
 

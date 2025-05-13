@@ -82,22 +82,26 @@
       }
     });
 
-    // Oculta a tela de carregamento após o carregamento completo
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.querySelector('.loading-screen').style.opacity = '0';
-        setTimeout(() => {
-          document.querySelector('.loading-screen').style.display = 'none';
-        }, 1200);
-      }, 1500);
-    });
+    <script>
+  // Oculta a tela de carregamento com segurança
+  window.addEventListener('load', () => {
+    const screen = document.querySelector('.loading-screen');
+    if (!screen) return;
 
-    // Fallback para ligações lentas
+    screen.style.opacity = '0';
+    screen.style.transition = 'opacity 1.2s ease';
     setTimeout(() => {
-      const loading = document.querySelector('.loading-screen');
-      if (loading) loading.style.display = 'none';
-    }, 8000);
-  </script>
+      screen.style.display = 'none';
+    }, 1200);
+  });
+
+  // Garantia extra mesmo se o load falhar
+  setTimeout(() => {
+    const screen = document.querySelector('.loading-screen');
+    if (screen) screen.style.display = 'none';
+  }, 7000);
+</script>
+
 
   <script type="module" src="/src/main.js"></script>
 

@@ -910,7 +910,7 @@ criarFrisoDuplo(-11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4); // later
 criarFrisoDuplo(11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4);  // lateral direita – interior e exterior
 
 // ➕ Friso simples central na parede de fundo (sem camada dupla)
-const frisoCentral = new THREE.Mesh(
+const frisoVerticalCentral = new THREE.Mesh(
   new THREE.CylinderGeometry(0.3, 0.3, 11.8, 32),
   materialFriso
 );
@@ -918,7 +918,7 @@ frisoCentral.position.set(0, 8.2, -config.wallDistance + 0.03);
 scene.add(frisoCentral);
 
 // ➕ Traço subtil horizontal acima do friso central da parede de fundo
-const frisoHorizontalFino = new THREE.Mesh(
+const frisoVerticalCentral = new THREE.Mesh(...);
   new THREE.PlaneGeometry(4.6, 0.05),
   materialFriso
 );

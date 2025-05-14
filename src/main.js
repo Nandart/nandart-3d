@@ -85,12 +85,12 @@ function criarFrisoEmbutido(x, y, z, largura, altura, rotY = 0, depth = 0.03) {
 new THREE.MeshPhysicalMaterial({
   color: 0xf3c97a,
   metalness: 1,
-  roughness: 0.03,
+  roughness: 0.05,
   clearcoat: 1,
-  clearcoatRoughness: 0.03,
+  clearcoatRoughness: 0.02,
   reflectivity: 1,
-  emissive: 0x2e1c07,
-  emissiveIntensity: 0.3
+  emissive: 0x4e3a1d,
+  emissiveIntensity: 0.45
 })
   );
   friso.position.set(x, y, z);
@@ -166,16 +166,13 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// Luz rasante para valorizar o reflexo no chão
-const luzRasante = new THREE.SpotLight(0xfff8e0, 2.6, 20, Math.PI / 7, 0.5);
-luzRasante.position.set(0, 4.5, 4);
+// Luz rasante (reduzida) apenas para ambiente subtil no chão
+const luzRasante = new THREE.SpotLight(0xfff8e0, 0.4, 10, Math.PI / 7, 0.5);
+luzRasante.position.set(0, 1.5, 3);
 luzRasante.target.position.set(0, 0, 0);
 scene.add(luzRasante);
 scene.add(luzRasante.target);
-// Luz de fundo para iluminar a parede traseira
-const luzFundoSuave = new THREE.PointLight(0xffeedd, 2.4, 30);
-luzFundoSuave.position.set(0, 5, -config.wallDistance - 4);
-scene.add(luzFundoSuave);
+
 // Reflexo subtil animado na intensidade
 gsap.to(luzRasante, {
    intensity: 3.2,
@@ -507,7 +504,7 @@ fontLoader.load(
       })
     );
 
-    texto.position.set(-largura / 2, 16.5, -config.wallDistance - 3.985);
+    texto.position.set(-largura / 2, 15.8, -config.wallDistance - 3.985);
     texto.castShadow = true;
     scene.add(texto);
 

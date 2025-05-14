@@ -704,7 +704,7 @@ scene.add(quadroDecorativoFundo);
 let rotacaoPausada = false;
 document.getElementById('fundo-desfocado').style.opacity = '0'; 
 function animate() {
-  reqfunction animate() {
+function animate() {
   requestAnimationFrame(animate);
 
   const tempoAtual = Date.now();

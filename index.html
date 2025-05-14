@@ -2,18 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
+  <meta name="theme-color" content="#111111">
   <title>NANdART 3D Gallery</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-<link rel="stylesheet" href="/src/styles/index.css">
+  <link rel="stylesheet" href="/index.css">
 
-  <!-- Fonts -->
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin>
+  <link rel="preload" href="/src/main.js" as="script">
+  <link rel="preload" href="/assets/texturas/parede-antracite.jpg" as="image">
+  
+  <!-- Fonts with performance optimization -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- Import Maps -->
+  <!-- Import Maps with fallback -->
   <script type="importmap">
     {
       "imports": {
@@ -25,87 +31,155 @@
       }
     }
   </script>
+  
+  <!-- Fallback for non-module browsers -->
+  <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+  
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
+
 <body>
-  <audio id="ambienteAudio" src="/assets/musica/musica.mp3" loop autoplay></audio>
-
-  <!-- Canvas 3D -->
-  <canvas id="scene"></canvas>
-
-  <!-- Tela de carregamento -->
+  <!-- Loading screen with progress indicator -->
   <div class="loading-screen">
     <div class="loading-spinner"></div>
     <div class="loading-text">Loading Gallery</div>
+    <div class="loading-progress">0%</div>
   </div>
 
-  <!-- Ícones de navegação -->
-  <a href="info.html">
-    <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
-  </a>
-
-  <div class="menu-container">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" />
-    <div class="menu-dropdown" id="menu-dropdown">
-      <a href="contactos.html">Contactos</a>
-      <a href="como-navegar.html">Como Navegar</a>
-      <a href="artistas.html">Artistas</a>
-      <a href="web3.html">Web3 & NFT</a>
+  <!-- Canvas 3D with noscript fallback -->
+  <canvas id="scene"></canvas>
+  <noscript>
+    <div class="nojs-message">
+      <h2>JavaScript is required</h2>
+      <p>Please enable JavaScript to experience the NANdART 3D Gallery.</p>
     </div>
+  </noscript>
+
+  <!-- Navigation elements with improved accessibility -->
+  <div class="nav-container">
+    <!-- Info icon -->
+    <a href="info.html" class="nav-icon" aria-label="Information">
+      <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
+      <span class="icon-label">Info</span>
+    </a>
+
+    <!-- Menu with dropdown -->
+    <div class="menu-container">
+      <button id="menu-toggle" class="nav-button" aria-label="Menu" aria-expanded="false" aria-controls="menu-dropdown">
+        <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
+        <span class="icon-label">Menu</span>
+      </button>
+      <div class="menu-dropdown" id="menu-dropdown">
+        <a href="contactos.html" class="menu-item">Contactos</a>
+        <a href="como-navegar.html" class="menu-item">Como Navegar</a>
+        <a href="artistas.html" class="menu-item">Artistas</a>
+        <a href="web3.html" class="menu-item">Web3 & NFT</a>
+      </div>
+    </div>
+
+    <!-- Help icon -->
+    <a href="como-navegar.html" class="nav-icon" aria-label="Help">
+      <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
+      <span class="icon-label">Help</span>
+    </a>
   </div>
 
-  <a href="como-navegar.html">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
-  </a>
+  <!-- Art modal with ARIA attributes -->
+  <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true">
+    <h3 id="art-title">Artwork Title</h3>
+    <p id="art-description">Description of the selected piece</p>
+    <button id="buy-art" aria-label="Acquire Artwork">Acquire Artwork</button>
+  </div>
 
-  <!-- Bloqueio total de scroll -->
+  <!-- Optimized scripts with progressive loading -->
   <script>
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    window.scrollTo(0, 0);
-    window.addEventListener('scroll', () => {
-      window.scrollTo(0, 0);
-    });
-  </script>
-
-  <!-- Scripts -->
-  <script>
-    // Menu toggle functionality
-    document.getElementById('menu-toggle').addEventListener('click', function(e) {
-      e.preventDefault();
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-      const menu = document.getElementById('menu-dropdown');
-      const menuToggle = document.getElementById('menu-toggle');
-      if (menu.style.display === 'flex' && !menu.contains(e.target) && e.target !== menuToggle) {
-        menu.style.display = 'none';
+    // Feature detection and compatibility check
+    function checkCompatibility() {
+      const supported = {
+        webgl: (function() {
+          try {
+            const canvas = document.createElement('canvas');
+            return !!window.WebGLRenderingContext && 
+              (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+          } catch(e) {
+            return false;
+          }
+        })(),
+        modules: 'noModule' in HTMLScriptElement.prototype
+      };
+      
+      if (!supported.webgl) {
+        document.body.innerHTML = `
+          <div class="compatibility-error">
+            <h2>Unsupported Device</h2>
+            <p>Your device doesn't support WebGL which is required for this experience.</p>
+            <p>Please try on a modern desktop or mobile device.</p>
+          </div>
+        `;
+        return false;
       }
-    });
+      return true;
+    }
 
-    // Oculta a tela de carregamento com segurança
-    window.addEventListener('load', () => {
-      const screen = document.querySelector('.loading-screen');
-      if (!screen) return;
+    // Progressive loading with feedback
+    if (checkCompatibility()) {
+      const loadingScreen = document.querySelector('.loading-screen');
+      const progressElement = document.querySelector('.loading-progress');
+      
+      function updateProgress(progress) {
+        progressElement.textContent = `${Math.round(progress * 100)}%`;
+      }
+      
+      // Menu functionality
+      document.getElementById('menu-toggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        const menu = document.getElementById('menu-dropdown');
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        menu.style.display = isExpanded ? 'none' : 'flex';
+        this.setAttribute('aria-expanded', String(!isExpanded));
+      });
 
-      screen.style.opacity = '0';
-      screen.style.transition = 'opacity 1.2s ease';
-      setTimeout(() => {
-        screen.style.display = 'none';
-      }, 1200);
-    });
+      // Close menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const menu = document.getElementById('menu-dropdown');
+        const menuToggle = document.getElementById('menu-toggle');
+        if (menu.style.display === 'flex' && !menu.contains(e.target) && e.target !== menuToggle) {
+          menu.style.display = 'none';
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
 
-    // Garantia extra mesmo se o load falhar
-    setTimeout(() => {
-      const screen = document.querySelector('.loading-screen');
-      if (screen) screen.style.display = 'none';
-    }, 7000);
+      // Load main script after page load
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = '/src/main.js';
+          script.onload = () => {
+            updateProgress(1);
+            setTimeout(() => {
+              loadingScreen.style.opacity = '0';
+              setTimeout(() => {
+                loadingScreen.style.display = 'none';
+              }, 1000);
+            }, 500);
+          };
+          document.body.appendChild(script);
+        }, 500);
+      });
+
+      // Low bandwidth detection
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection) {
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+          document.documentElement.classList.add('low-bandwidth');
+        }
+      }
+    }
   </script>
 
-  <script type="module" src="/src/main.js"></script>
-
+  <!-- Fallback for non-module browsers -->
   <script nomodule>
     alert("Your browser does not support JavaScript modules. Please use Chrome, Firefox, or Edge.");
     window.location.href = "https://www.google.com/chrome/";

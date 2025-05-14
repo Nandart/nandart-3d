@@ -38,7 +38,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.3;
-
+renderer.outputEncoding = THREE.sRGBEncoding;
 // 🔄 Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -397,17 +397,22 @@ const obrasParede = [
 ];
 
 obrasParede.forEach(({ src, x, y, z, rotY }) => {
-  const textura = textureLoader.load(src);
+  const textura = textureLoader.load(src, tex => {
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  tex.encoding = THREE.sRGBEncoding;
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearMipMapLinearFilter;
+});
 
-  const quadro = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.2, 3.2),
-    new THREE.MeshStandardMaterial({
-      map: textura,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.FrontSide
-    })
-  );
+const quadro = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.2, 3.2),
+  new THREE.MeshStandardMaterial({
+    map: textura,
+    roughness: 0.22,
+    metalness: 0.06,
+    side: THREE.FrontSide
+  })
+);
 
   quadro.position.set(x, y, z + 0.001); // ligeiro destaque da parede
   quadro.rotation.y = rotY;
@@ -519,7 +524,12 @@ const alturaQuadro = 4.5;
 // Imagem da obra central
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
-  undefined,
+  texture => {
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    texture.encoding = THREE.sRGBEncoding;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipMapLinearFilter;
+  },
   undefined,
   err => console.error('Erro ao carregar obra-central.jpg:', err)
 );
@@ -528,8 +538,9 @@ const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
     map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
+    roughness: 0.2,
+    metalness: 0.05,
+    side: THREE.FrontSide
   })
 );
 pintura.position.z = 0.01;

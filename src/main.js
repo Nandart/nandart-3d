@@ -297,7 +297,7 @@ function criarVitrine(x, z, indice) {
   scene.add(gema);
 
   // 💡 Luz interior focal na gema
-  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 3.2);
+  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 1.6); // reduzido de 3.2 para 1.6
   luzInterior.position.set(x, alturaGema + 0.07, z);
   scene.add(luzInterior);
 

@@ -2,9 +2,11 @@ import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { Reflector } from 'three/addons/objects/Reflector.js'; // 
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -1028,7 +1030,7 @@ async function buyHandler() {
 }
 
 botaoComprar.addEventListener('click', buyHandler);
-
+function animate() {
   requestAnimationFrame(animate);
-
+}
 animate();

@@ -7,16 +7,16 @@
   <meta name="theme-color" content="#111111">
   <title>NANdART Galeria 3D</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-<link rel="stylesheet" href="/src/styles/index.css">
+  <link rel="stylesheet" href="/index.css">
 
-  <!-- Pré-carregamento de recursos críticos otimizados para mobile -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin="anonymous">
-  <link rel="preload" href="/src/main.js" as="script" crossorigin="anonymous">
+  <!-- Pré-carregamento de recursos críticos -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin>
+  <link rel="preload" href="/src/main.js" as="script">
   <link rel="preload" href="/assets/textures/parede-antracite.jpg" as="image">
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
-  <!-- Fontes com otimização para performance -->
+  <!-- Fontes Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
   <!-- ethers.js -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
-  <!-- Import Maps com fallback -->
+  <!-- Import Maps -->
   <script type="importmap">
     {
       "imports": {
@@ -38,7 +38,6 @@
   </script>
 
   <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
-  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 
 <body>
@@ -92,21 +91,16 @@
     <button id="buy-art" aria-label="Adquirir Obra">Adquirir Obra</button>
   </div>
 
-  <!-- Script de Compatibilidade e Carregamento -->
+  <!-- Script de compatibilidade e carregamento -->
   <script>
     function checkCompatibility() {
       try {
         const canvas = document.createElement('canvas');
         const webgl = !!window.WebGLRenderingContext &&
-                      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
 
         if (!webgl) throw new Error('WebGL não suportado');
-
-        return {
-          webgl: true,
-          touch: 'ontouchstart' in window,
-          lowPower: matchMedia('(prefers-reduced-motion: reduce)').matches
-        };
+        return true;
       } catch(e) {
         document.body.innerHTML = `
           <div class="compatibility-error">
@@ -165,7 +159,7 @@
           const script = document.createElement('script');
           script.type = 'module';
           script.src = '/src/main.js';
-          script.crossOrigin = 'anonymous'; // ✅ Adicionado
+          script.crossOrigin = 'anonymous';
 
           script.onload = () => {
             updateProgress(1);
@@ -213,4 +207,3 @@
   </script>
 </body>
 </html>
-

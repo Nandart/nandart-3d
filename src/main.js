@@ -152,32 +152,30 @@ scene.add(frisoCentral);
 //scene.add(luzAmbienteCentral);
 
 // ✨ Luz hemisférica quente para reforço geral do ambiente
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.5);
+const luzHemisferica = new THREE.HemisphereLight(0xfff8e6, 0x101010, 2.8);
 scene.add(luzHemisferica);
 // ✨ Luz direcional superior para preenchimento global
-const luzDirecional = new THREE.DirectionalLight(0xffffff, 1.8);
-luzDirecional.position.set(0, 18, 15);
+const luzDirecional = new THREE.DirectionalLight(0xfff4e0, 3.2);
+luzDirecional.position.set(0, 20, 12);
 luzDirecional.castShadow = true;
 scene.add(luzDirecional);
 
-for (let i = -2; i <= 2; i += 2) {
-  const foco = new THREE.PointLight(0xfff6e0, 0.6, 6, 2);
-  foco.position.set(i * 4, 19.5, -config.wallDistance + 2);
-  scene.add(foco);
-}
+const luzFrontalParedeFundo = new THREE.SpotLight(0xffead4, 2.5, 35, Math.PI / 4, 0.4);
+luzFrontalParedeFundo.position.set(0, 12, 10);
+luzFrontalParedeFundo.target.position.set(0, 9, -config.wallDistance);
+scene.add(luzFrontalParedeFundo, luzFrontalParedeFundo.target);
 
 
 // ✨ Luzes rasantes laterais melhoradas para destacar frisos e paredes
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff0db, 1.5, 22, Math.PI / 6, 0.4);
-luzRasanteEsquerda.position.set(-12, 8, 3);
-luzRasanteEsquerda.target.position.set(-12, 5.5, -10);
-scene.add(luzRasanteEsquerda, luzRasanteEsquerda.target);
+const luzParedeEsquerda = new THREE.SpotLight(0xffead4, 2.2, 30, Math.PI / 5, 0.3);
+luzParedeEsquerda.position.set(-14, 12, 0);
+luzParedeEsquerda.target.position.set(-13.2, 10, -config.wallDistance / 2);
+scene.add(luzParedeEsquerda, luzParedeEsquerda.target);
 
-const luzRasanteDireita = new THREE.SpotLight(0xfff0db, 1.5, 22, Math.PI / 6, 0.4);
-luzRasanteDireita.position.set(12, 8, 3);
-luzRasanteDireita.target.position.set(12, 5.5, -10);
-scene.add(luzRasanteDireita, luzRasanteDireita.target);
-
+const luzParedeDireita = new THREE.SpotLight(0xffead4, 2.2, 30, Math.PI / 5, 0.3);
+luzParedeDireita.position.set(14, 12, 0);
+luzParedeDireita.target.position.set(13.2, 10, -config.wallDistance / 2);
+scene.add(luzParedeDireita, luzParedeDireita.target);
 
 // ✨ Chão com reflexo profundo e textura realista tipo obsidiana líquida
 

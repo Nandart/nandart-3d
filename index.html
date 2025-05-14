@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="/index.css">
 
   <!-- Pré-carregamento de recursos críticos otimizados para mobile -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin>
-  <link rel="preload" href="/src/main.js" as="script">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="/src/main.js" as="script" crossorigin="anonymous">
   <link rel="preload" href="/assets/texturas/parede-antracite.jpg" as="image">
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
@@ -20,8 +20,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-<!-- Carregamento de ethers.js -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+  <!-- ethers.js -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
   <!-- Import Maps com fallback -->
   <script type="importmap">
@@ -164,6 +165,7 @@
           const script = document.createElement('script');
           script.type = 'module';
           script.src = '/src/main.js';
+          script.crossOrigin = 'anonymous'; // ✅ Adicionado
 
           script.onload = () => {
             updateProgress(1);

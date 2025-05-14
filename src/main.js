@@ -1061,23 +1061,3 @@ botaoComprar.addEventListener('click', buyHandler);
 // Inicia a animação
 animate();
 
-// Cria elementos da UI que são referenciados no código
-document.body.insertAdjacentHTML('beforeend', `
-  <div id="fundo-desfocado" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    backdrop-filter: blur(3px);
-    z-index: 1000;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  "></div>
-  
-  <div id="obra-info" class="obra-info" style="display: none;">
-    <div id="obra-texto"></div>
-    <button id="botao-comprar">Buy</button>
-  </div>
-`);

@@ -53,7 +53,8 @@ scene.background = new THREE.Color(0x0a0a0a);
 const texturaParede = textureLoader.load('/assets/textures/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
-  color: 0x141414, // cinzento escuro
+  map: texturaParede,
+  color: 0x141414, // ainda usado como base
   roughness: 0.7,
   metalness: 0.15
 });

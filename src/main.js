@@ -1058,6 +1058,4 @@ botaoComprar.addEventListener('click', buyHandler);
 
 // Adicione isto no FINAL do arquivo main.js, depois de toda a definição de funções:
 
-// Inicia a animação
-animate();
 

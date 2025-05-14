@@ -352,16 +352,6 @@ luzFrisoDireito.position.set(13, 10, -config.wallDistance / 2 + 1);
 luzFrisoDireito.target.position.set(13, 8, -config.wallDistance / 2);
 scene.add(luzFrisoDireito, luzFrisoDireito.target);
 
-// Brilho animado muito subtil para sensação de vida
-gsap.to(luzFrisosTopo, {
-  intensity: 2.6,
-  duration: 5,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut'
-});
-
-
 const frisosParaIluminar = [
   [-6, 8, -config.wallDistance + 1],  // lateral esquerda
   [6, 8, -config.wallDistance + 1],   // lateral direita

@@ -479,6 +479,8 @@ const fontLoader = new FontLoader();
 fontLoader.load(
   'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
   font => {
+    } // fecha o callback
+); // fecha o método .load
     const textGeo = new TextGeometry('NANdART', {
       font,
       size: 0.65,

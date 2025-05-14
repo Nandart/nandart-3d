@@ -334,12 +334,6 @@ gsap.to(luzGemas, {
 
 // 🟨 Luzes refinadas para destacar os frisos com contorno
 
-// Luz superior frontal – friso central da parede de fundo
-const luzFrisosTopo = new THREE.SpotLight(0xffeac2, 2.3, 9, Math.PI / 10, 0.5);
-luzFrisosTopo.position.set(0, 13.2, -config.wallDistance + 2);
-luzFrisosTopo.target.position.set(0, 10, -config.wallDistance + 0.01);
-scene.add(luzFrisosTopo, luzFrisosTopo.target);
-
 // Luz inferior frontal – base da parede de fundo
 const luzFrisosBase = new THREE.SpotLight(0xffeac2, 0.9, 7, Math.PI / 12, 0.4);
 luzFrisosBase.position.set(0, 3.2, -config.wallDistance + 2);

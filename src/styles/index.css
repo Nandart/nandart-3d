@@ -8,11 +8,14 @@
 html, body {
   width: 100vw;
   height: 100vh;
-  overflow: hidden !important;
+  overflow: hidden;
   font-family: 'Playfair Display', serif;
   background-color: #111111;
   position: relative;
   z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Canvas 3D */
@@ -62,37 +65,63 @@ html, body {
   font-size: 1rem;
 }
 
+.loading-progress {
+  color: #fff2c6;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
 /* Ícone de informação */
 .info-icon {
-  position: fixed;
-  top: 20px;
-  left: 20px;
   width: 48px;
   height: auto;
-  z-index: 100;
   cursor: pointer;
-  pointer-events: auto;
 }
 
 /* Ícone de ajuda */
 .ajuda-icon {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
   width: 45px;
   height: auto;
-  z-index: 100;
   cursor: pointer;
+}
+
+/* Container geral de navegação */
+.nav-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.nav-container * {
   pointer-events: auto;
 }
 
-/* Menu */
+/* Posicionamento individual de ícones */
+.nav-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #fff2c6;
+}
+
+.icon-label {
+  font-size: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+/* Menu principal */
 .menu-container {
-  position: fixed;
-  top: 90px;
-  left: 20px;
-  z-index: 101;
-  pointer-events: auto;
+  position: relative;
+  z-index: 1001;
 }
 
 .menu-icon {
@@ -111,6 +140,8 @@ html, body {
   padding: 12px;
   border-radius: 8px;
   z-index: 102;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .menu-dropdown a {
@@ -122,6 +153,23 @@ html, body {
 
 .menu-dropdown a:hover {
   text-decoration: underline;
+}
+
+/* Modal de obra */
+.art-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 1rem;
+  border-radius: 10px;
+  color: #fff;
 }
 
 /* Responsividade */
@@ -152,7 +200,7 @@ html, body {
   }
 }
 
-/* Oculta forçadamente o loading ao fim de tudo */
+/* Oculta forçadamente o loading ao fim de tudo (segurança extra) */
 .loading-screen {
   opacity: 0 !important;
   display: none !important;

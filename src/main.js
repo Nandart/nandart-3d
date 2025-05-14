@@ -99,7 +99,7 @@ function criarFrisoPlano(pontos, cor = 0xf3c97a) {
 // 🔶 Função para criar frisos arredondados com estilo realista
 function criarFrisoArredondado(width, height, radius, cor = 0xf3c97a) {
   return new THREE.Mesh(
-    new THREE.RoundedBoxGeometry(width, height, 0.04, 6, radius),
+    new RoundedBoxGeometry(width, height, 0.04, 6, radius),
     new THREE.MeshPhysicalMaterial({
       color: cor,
       metalness: 1,
@@ -112,6 +112,7 @@ function criarFrisoArredondado(width, height, radius, cor = 0xf3c97a) {
     })
   );
 }
+
 
 // 🟨 Friso plano à volta do quadro central
 const frisoCentro = criarFrisoPlano([

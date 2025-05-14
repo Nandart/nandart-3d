@@ -48,8 +48,6 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-// 🎨 Cena já definida acima
-scene.background = new THREE.Color(0x0a0a0a);
 
 // 🧱 Paredes realistas com textura antracite
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
@@ -255,7 +253,7 @@ const frisoChaoFrontal = new THREE.Mesh(
 );
 frisoChaoFrontal.rotation.x = -Math.PI / 2;
 frisoChaoFrontal.position.set(0, 0.051, -2.55);
-luzFrisoChao.intensity = 0.7; //o brilho, reduz a intensidade
+luzFrisoChao.intensity = 0.7; 
 frisoChaoFrontal.receiveShadow = true;
 scene.add(frisoChaoFrontal);
 
@@ -501,23 +499,23 @@ obrasLaterais.forEach(({ src, x, y, z, rotY }) => {
 
 
 // 🟨 Frisos laterais duplos à esquerda e à direita
-const frisoEsquerdo1_v2 = criarFrisoArredondado(2.5, 6.5, 0.4);
-const frisoEsquerdo1.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.03);
+const frisoEsquerdo1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+frisoEsquerdo1.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.03);
 frisoEsquerdo1.rotation.y = Math.PI / 2;
 scene.add(frisoEsquerdo1);
 
-const frisoEsquerdo2_v2 = criarFrisoArredondado(1.6, 4.8, 0.3);
-const frisoEsquerdo2.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.05);
+const frisoEsquerdo2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+frisoEsquerdo2.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.05);
 frisoEsquerdo2.rotation.y = Math.PI / 2;
 scene.add(frisoEsquerdo2);
 
-const frisoDireito1_v2 = criarFrisoArredondado(2.5, 6.5, 0.4);
-const frisoDireito1.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.03);
+const frisoDireito1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+frisoDireito1.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.03);
 frisoDireito1.rotation.y = -Math.PI / 2;
 scene.add(frisoDireito1);
 
-const frisoDireito2_v2 = criarFrisoArredondado(1.6, 4.8, 0.3);
-const frisoDireito2.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.05);
+const frisoDireito2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+frisoDireito2.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.05);
 frisoDireito2.rotation.y = -Math.PI / 2;
 scene.add(frisoDireito2);
 

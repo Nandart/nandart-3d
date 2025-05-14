@@ -763,14 +763,15 @@ const texturaCentral = textureLoader.load(
 
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
- new THREE.MeshStandardMaterial({
-  map: texturaCentral,
-  roughness: 0.35,
-  metalness: 0.04,
-  emissive: 0x000000,
-  emissiveIntensity: 0.05,
-  side: THREE.FrontSide
-})
+  new THREE.MeshStandardMaterial({
+    map: texturaCentral,
+    roughness: 0.35,
+    metalness: 0.04,
+    emissive: 0x000000,
+    emissiveIntensity: 0.05,
+    side: THREE.FrontSide
+  })
+);
 
 pintura.position.z = 0.01;
 quadroDecorativoFundo.add(pintura);

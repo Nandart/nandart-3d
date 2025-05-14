@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -41,7 +43,6 @@
   <!-- Fallback para navegadores antigos -->
   <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
 </head>
-
 
 <body>
   <!-- Canvas da Galeria 3D -->
@@ -87,7 +88,7 @@
     <button id="buy-art" aria-label="Adquirir Obra">Adquirir Obra</button>
   </div>
 
-  <!-- Script de compatibilidade e carregamento -->
+  <!-- Script de compatibilidade -->
   <script>
     function checkCompatibility() {
       try {
@@ -110,10 +111,7 @@
     }
 
     if (checkCompatibility()) {
-      const loadingScreen = document.querySelector('.loading-screen');
-      const progressElement = document.querySelector('.loading-progress');
       const isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
-
       if (isMobile) {
         document.documentElement.classList.add('mobile');
         if (window.innerHeight > window.innerWidth) {
@@ -121,9 +119,20 @@
         }
       }
 
-      function updateProgress(progress) {
-        if (progressElement) {
-          progressElement.textContent = `${Math.round(progress * 100)}%`;
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (window.innerHeight > window.innerWidth) {
+            document.documentElement.classList.add('portrait');
+          } else {
+            document.documentElement.classList.remove('portrait');
+          }
+        }, 300);
+      });
+
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection) {
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
+          document.documentElement.classList.add('low-bandwidth');
         }
       }
 
@@ -149,53 +158,11 @@
           }
         });
       }
-
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const script = document.createElement('script');
-          script.type = 'module';
-          script.src = '/src/main.js';
-          script.crossOrigin = 'anonymous';
-
-          script.onload = () => {
-            updateProgress(1);
-            setTimeout(() => {
-              if (loadingScreen) {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                  loadingScreen.style.display = 'none';
-                }, 1000);
-              }
-            }, 500);
-          };
-
-          script.onerror = () => {
-            updateProgress(0);
-            console.error('Falha ao carregar o script principal');
-          };
-
-          document.body.appendChild(script);
-        }, 300);
-      });
-
-      window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-          if (window.innerHeight > window.innerWidth) {
-            document.documentElement.classList.add('portrait');
-          } else {
-            document.documentElement.classList.remove('portrait');
-          }
-        }, 300);
-      });
-
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (connection) {
-        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
-          document.documentElement.classList.add('low-bandwidth');
-        }
-      }
     }
   </script>
+
+  <!-- Carregamento final da aplicação 3D -->
+  <script type="module" src="/src/main.js" crossorigin="anonymous"></script>
 
   <script nomodule>
     alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");

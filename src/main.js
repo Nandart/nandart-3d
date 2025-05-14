@@ -1032,4 +1032,3 @@ botaoComprar.addEventListener('click', buyHandler);
   requestAnimationFrame(animate);
 
 animate();
-

@@ -296,10 +296,25 @@ function criarVitrine(x, z, indice) {
   gema.castShadow = true;
   scene.add(gema);
 
-  // 💡 Luz interior focal na gema
-  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 1.6); // reduzido de 3.2 para 1.6
+    // 💡 Luz interior focal na gema
+  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 1.6);
   luzInterior.position.set(x, alturaGema + 0.07, z);
   scene.add(luzInterior);
+
+  // 🛡️ Bloqueador opaco atrás da gema para impedir reflexo na parede
+  const bloqueador = new THREE.Mesh(
+    new THREE.CircleGeometry(0.5, 32),
+    new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      metalness: 0,
+      roughness: 1
+    })
+  );
+  bloqueador.rotation.y = Math.PI; // virado para a parede de fundo
+  bloqueador.position.set(x, alturaGema + 0.07, z - 0.18); // ligeiramente atrás
+  bloqueador.castShadow = false;
+  bloqueador.receiveShadow = true;
+  scene.add(bloqueador);
 
   // ✨ Animação de pulsação para a gema
   gsap.to(gema.material, {

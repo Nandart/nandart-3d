@@ -15,7 +15,7 @@
   <link rel="preload" href="/assets/texturas/parede-antracite.jpg" as="image">
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
-  
+
   <!-- Fontes com otimização para performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,24 +33,22 @@
       }
     }
   </script>
-  
-  <!-- Fallback para navegadores sem suporte a modules -->
+
   <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
-  
-  <!-- Manifesto PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 
 <body>
-  <!-- Tela de carregamento com feedback visual melhorado -->
+  <!-- Tela de carregamento -->
   <div class="loading-screen">
     <div class="loading-spinner"></div>
     <div class="loading-text">A Carregar Galeria</div>
     <div class="loading-progress">0%</div>
   </div>
 
-  <!-- Canvas 3D com fallback para JavaScript desativado -->
+  <!-- Canvas da Galeria 3D -->
   <canvas id="scene"></canvas>
+
   <noscript>
     <div class="nojs-message">
       <h2>JavaScript Necessário</h2>
@@ -58,15 +56,13 @@
     </div>
   </noscript>
 
-  <!-- Navegação otimizada para mobile -->
+  <!-- Navegação flutuante -->
   <div class="nav-container">
-    <!-- Ícone de informação -->
     <a href="info.html" class="nav-icon" aria-label="Informação">
       <img src="/assets/icons/info.png" alt="Info" class="info-icon" loading="lazy"/>
       <span class="icon-label">Info</span>
     </a>
 
-    <!-- Menu com dropdown acessível -->
     <div class="menu-container">
       <button id="menu-toggle" class="nav-button" aria-label="Menu" aria-expanded="false" aria-controls="menu-dropdown">
         <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" loading="lazy"/>
@@ -80,32 +76,29 @@
       </div>
     </div>
 
-    <!-- Ícone de ajuda -->
     <a href="como-navegar.html" class="nav-icon" aria-label="Ajuda">
       <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy"/>
       <span class="icon-label">Ajuda</span>
     </a>
   </div>
 
-  <!-- Modal de obra com acessibilidade -->
+  <!-- Modal de Obra -->
   <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true">
     <h3 id="art-title">Título da Obra</h3>
     <p id="art-description">Descrição da peça selecionada</p>
     <button id="buy-art" aria-label="Adquirir Obra">Adquirir Obra</button>
   </div>
 
-  <!-- Scripts otimizados para mobile -->
+  <!-- Script de Compatibilidade e Carregamento -->
   <script>
-    // Verificação de compatibilidade melhorada
     function checkCompatibility() {
-      // Deteção de WebGL com fallback
       try {
         const canvas = document.createElement('canvas');
-        const webgl = !!window.WebGLRenderingContext && 
-                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-        
+        const webgl = !!window.WebGLRenderingContext &&
+                      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+
         if (!webgl) throw new Error('WebGL não suportado');
-        
+
         return {
           webgl: true,
           touch: 'ontouchstart' in window,
@@ -123,13 +116,11 @@
       }
     }
 
-    // Carregamento progressivo com deteção de mobile
     if (checkCompatibility()) {
       const loadingScreen = document.querySelector('.loading-screen');
       const progressElement = document.querySelector('.loading-progress');
       const isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
-      
-      // Ativar modo mobile no HTML
+
       if (isMobile) {
         document.documentElement.classList.add('mobile');
         if (window.innerHeight > window.innerWidth) {
@@ -143,7 +134,6 @@
         }
       }
 
-      // Menu otimizado para touch
       const menuToggle = document.getElementById('menu-toggle');
       if (menuToggle) {
         menuToggle.addEventListener('click', function(e) {
@@ -152,8 +142,7 @@
           const isExpanded = this.getAttribute('aria-expanded') === 'true';
           menu.style.display = isExpanded ? 'none' : 'flex';
           this.setAttribute('aria-expanded', String(!isExpanded));
-          
-          // Fechar ao tocar fora (mobile)
+
           if (!isExpanded) {
             setTimeout(() => {
               document.addEventListener('click', function closeMenu(e) {
@@ -168,13 +157,12 @@
         });
       }
 
-      // Carregar main.js com prioridade
       window.addEventListener('load', () => {
         setTimeout(() => {
           const script = document.createElement('script');
           script.type = 'module';
           script.src = '/src/main.js';
-          
+
           script.onload = () => {
             updateProgress(1);
             setTimeout(() => {
@@ -186,17 +174,16 @@
               }
             }, 500);
           };
-          
+
           script.onerror = () => {
             updateProgress(0);
             console.error('Falha ao carregar o script principal');
           };
-          
+
           document.body.appendChild(script);
         }, 300);
       });
 
-      // Deteção de mudança de orientação
       window.addEventListener('orientationchange', () => {
         setTimeout(() => {
           if (window.innerHeight > window.innerWidth) {
@@ -207,7 +194,6 @@
         }, 300);
       });
 
-      // Deteção de conexão lenta
       const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       if (connection) {
         if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
@@ -217,7 +203,6 @@
     }
   </script>
 
-  <!-- Fallback para navegadores antigos -->
   <script nomodule>
     alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
     window.location.href = "https://www.google.com/chrome/";

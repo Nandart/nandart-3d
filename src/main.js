@@ -211,8 +211,8 @@ gsap.to(luzRasante, {
 });
 
 // Novo círculo de luz no chão: mais fino, elegante e radiante
+// Novo círculo de luz no chão: mais fino, elegante e radiante
 const circle = new THREE.Mesh(
-  const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.5, 4.7, 100),
   new THREE.MeshStandardMaterial({
     color: 0xfdf6dc,
@@ -230,8 +230,7 @@ circle.rotation.x = -Math.PI / 2;
 circle.position.y = 0.052;
 circle.receiveShadow = true;
 scene.add(circle);
-/ Friso horizontal embutido no chão (à frente do círculo de luz)
-// Friso horizontal embutido no chão (à frente do círculo de luz)
+
 // 🟨 Friso horizontal dourado embutido no chão (frente ao círculo de luz)
 const frisoChao = new THREE.Mesh(
   new THREE.PlaneGeometry(8, 0.12),

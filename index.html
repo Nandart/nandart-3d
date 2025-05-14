@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="/src/styles/index.css">
 
   <!-- Pré-carregamento de recursos críticos -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin>
-  <link rel="preload" href="/src/main.js" as="script">
-  <link rel="preload" href="/assets/textures/parede-antracite.jpg" as="image">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="/src/main.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="/assets/parede-antracite.jpg" as="image">
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
@@ -41,7 +41,6 @@
 </head>
 
 <body>
-
   <!-- Canvas da Galeria 3D -->
   <canvas id="scene"></canvas>
 
@@ -201,3 +200,4 @@
   </script>
 </body>
 </html>
+

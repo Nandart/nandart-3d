@@ -748,7 +748,8 @@ infoContainer.style.display = 'none';
 infoContainer.innerHTML = `
   <div id="obra-texto"></div>
   <button id="botao-comprar">Buy</button>
-`;t
+`;
+
 document.body.appendChild(infoContainer);
 // Fundo desfocado subtilmente
 const fundoDesfocado = document.createElement('div');
@@ -766,15 +767,31 @@ fundoDesfocado.style.transition = 'opacity 0.5s ease';
 document.body.appendChild(fundoDesfocado);
 const botaoComprar = infoContainer.querySelector('#botao-comprar');
 
-botaoComprar.addEventListener('click', () => {
-  botaoComprar.disabled = true;
-  botaoComprar.textContent = 'A iniciar aquisição...';
+async function buyHandler() {
+  if (typeof window.ethereum === 'undefined') {
+    alert('MetaMask não está instalada. Por favor instala para continuar.');
+    return;
+  }
 
-  // Simulação do processo de aquisição (poderás substituir por Web3 no futuro)
-  console.log('[NANdART] Pedido de aquisição iniciado para:');
-  console.log(document.getElementById('obra-texto').innerText);
+  try {
+    botaoComprar.disabled = true;
+    botaoComprar.textContent = 'A ligar carteira...';
 
-  setTimeout(() => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    console.log("Carteira ligada:", address);
+    botaoComprar.textContent = 'A processar compra...';
+
+    // Transação real (simulada com endereço de teste)
+    const tx = await signer.sendTransaction({
+      to: "0x000000000000000000000000000000000000dead",
+      value: ethers.utils.parseEther("0.01")
+    });
+
+    console.log("Transação enviada:", tx.hash);
     botaoComprar.textContent = 'Adquirido!';
     botaoComprar.style.backgroundColor = '#b0dcb8';
     botaoComprar.style.color = '#111';
@@ -785,7 +802,15 @@ botaoComprar.addEventListener('click', () => {
       botaoComprar.style.backgroundColor = '#fff2c6';
       botaoComprar.style.color = '#111';
     }, 3000);
-  }, 2000);
-});
+
+  } catch (err) {
+    console.error("Erro ao processar compra:", err);
+    alert("A compra foi cancelada ou ocorreu um erro.");
+    botaoComprar.disabled = false;
+    botaoComprar.textContent = 'Buy';
+  }
+}
+
+botaoComprar.addEventListener('click', buyHandler);
 
 

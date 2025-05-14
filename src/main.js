@@ -251,18 +251,18 @@ const frisoChaoFrontal = new THREE.Mesh(
     side: THREE.DoubleSide
   })
 );
-frisoChaoFrontal.rotation.x = -Math.PI / 2;
-frisoChaoFrontal.position.set(0, 0.051, -2.55);
-luzFrisoChao.intensity = 0.7; 
-frisoChaoFrontal.receiveShadow = true;
-scene.add(frisoChaoFrontal);
-
-
 // Luz rasante discreta para iluminar o friso de chão
 const luzFrisoChao = new THREE.SpotLight(0xffeac2, 1.2, 4.2, Math.PI / 10, 0.4);
 luzFrisoChao.position.set(0, 1.6, 3.05); // ligeiramente acima do friso
 luzFrisoChao.target.position.set(0, 0.05, 3.05); // aponta exatamente para o friso
+luzFrisoChao.intensity = 0.7; // o brilho, reduz a intensidade
 scene.add(luzFrisoChao, luzFrisoChao.target);
+
+// Friso horizontal fino e elegante no chão (frente ao círculo de luz)
+frisoChaoFrontal.rotation.x = -Math.PI / 2;
+frisoChaoFrontal.position.set(0, 0.051, -2.55);
+frisoChaoFrontal.receiveShadow = true;
+scene.add(frisoChaoFrontal);
 
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 

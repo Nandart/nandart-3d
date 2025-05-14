@@ -118,9 +118,9 @@ criarFrisoEmbutido(0, 0.3, -offsetZ, 36, 0.06); // rodapé
 criarFrisoEmbutido(0, 19.8, -offsetZ, 36, 0.06); // teto
 
 // ✨ Luz ambiente radial suave e refinada
-const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.8, 50, 2);
-luzAmbienteCentral.position.set(0, 9.5, 0);
-scene.add(luzAmbienteCentral);
+//const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.8, 50, 2);
+//luzAmbienteCentral.position.set(0, 9.5, 0);
+//scene.add(luzAmbienteCentral);
 
 // ✨ Luz hemisférica quente para reforço geral do ambiente
 const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.5);

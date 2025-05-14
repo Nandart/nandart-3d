@@ -39,6 +39,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.3;
 renderer.outputEncoding = THREE.sRGBEncoding;
+
 // 🔄 Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -126,7 +127,7 @@ criarFrisoEmbutido(0, 19.8, -offsetZ, 36, 0.06); // teto
 const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.5);
 scene.add(luzHemisferica);
 // ✨ Luz direcional superior para preenchimento global
-const luzDirecional = new THREE.DirectionalLight(0xffffff, 1.2);
+const luzDirecional = new THREE.DirectionalLight(0xffffff, 0.8);
 luzDirecional.position.set(0, 20, 20);
 luzDirecional.castShadow = true;
 scene.add(luzDirecional);
@@ -350,7 +351,7 @@ gsap.to(luzGemas, {
 // 🟨 Luzes refinadas para destacar os frisos com contorno
 
 // Luz inferior frontal – base da parede de fundo
-const luzFrisosBase = new THREE.SpotLight(0xffeac2, 0.9, 7, Math.PI / 12, 0.4);
+const luzFrisosBase = new THREE.SpotLight(0xffeac2, 0.5, 7, Math.PI / 12, 0.4);
 luzFrisosBase.position.set(0, 3.2, -config.wallDistance + 2);
 luzFrisosBase.target.position.set(0, 6, -config.wallDistance + 0.01);
 scene.add(luzFrisosBase, luzFrisosBase.target);
@@ -527,8 +528,7 @@ const texturaCentral = textureLoader.load(
   texture => {
     texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
     texture.encoding = THREE.sRGBEncoding;
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearMipMapLinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
   },
   undefined,
   err => console.error('Erro ao carregar obra-central.jpg:', err)
@@ -536,11 +536,10 @@ const texturaCentral = textureLoader.load(
 
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-  new THREE.MeshStandardMaterial({
+  new THREE.MeshBasicMaterial({
     map: texturaCentral,
-    roughness: 0.2,
-    metalness: 0.05,
-    side: THREE.FrontSide
+    side: THREE.FrontSide,
+    toneMapped: false // Mantém cores originais
   })
 );
 pintura.position.z = 0.01;

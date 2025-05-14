@@ -172,6 +172,67 @@ html, body {
   color: #fff;
 }
 
+/* Fundo desfocado */
+#fundo-desfocado {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Painel de informações da obra em destaque */
+.obra-info {
+  position: fixed;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 10, 0.7);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  color: #fff2c6;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  animation: fadeInObraInfo 0.5s ease forwards;
+  max-width: 90vw;
+}
+
+@keyframes fadeInObraInfo {
+  from {
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.obra-info button {
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  background-color: #fff2c6;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obra-info button:hover {
+  background-color: #ffe9a9;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .info-icon,
@@ -197,6 +258,18 @@ html, body {
 
   .menu-dropdown a {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .obra-info {
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .obra-info button {
+    font-size: 0.85rem;
+    padding: 5px 12px;
   }
 }
 

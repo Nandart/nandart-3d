@@ -508,14 +508,6 @@ fontLoader.load(
     texto.castShadow = true;
     scene.add(texto);
 
-    // Luz discreta para realçar o texto
-    const luzTexto = new THREE.SpotLight(0xfff1cc, 1.4, 12, Math.PI / 9, 0.5);
-    luzTexto.position.set(0, 18, -config.wallDistance - 2);
-    luzTexto.target = texto;
-    scene.add(luzTexto);
-    scene.add(luzTexto.target);
-  }
-);
 
 // 🖼️ Quadro central com friso circular dourado embutido
 const quadroDecorativoFundo = new THREE.Group();

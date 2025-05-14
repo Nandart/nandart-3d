@@ -436,6 +436,17 @@ const obraPaths = [
 
 const obrasNormais = [];
 
+// Metadados de cada obra — título, artista, ano, preço em ETH
+const dadosObras = [
+  { titulo: "Fragmento de Silêncio", artista: "Nandart", ano: 2024, preco: "1.2" },
+  { titulo: "Luz Interior", artista: "Nandart", ano: 2023, preco: "0.9" },
+  { titulo: "Tempo Suspenso", artista: "Nandart", ano: 2022, preco: "1.0" },
+  { titulo: "Caminho Velado", artista: "Nandart", ano: 2023, preco: "0.7" },
+  { titulo: "Fronteira do Invisível", artista: "Nandart", ano: 2024, preco: "1.8" },
+  { titulo: "Eco de Lume", artista: "Nandart", ano: 2022, preco: "1.1" },
+  { titulo: "Alma Circular", artista: "Nandart", ano: 2023, preco: "1.5" },
+  { titulo: "Aurora Oculta", artista: "Nandart", ano: 2024, preco: "2.0" }
+];
 obraPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
   const ang = (i / obraPaths.length) * Math.PI * 2;
@@ -478,6 +489,124 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
+let obraEmDestaque = null;
+let estadoOriginal = {};
+
+function mostrarInformacoes(index) {
+  const dados = dadosObras[index];
+  const texto = `
+    <strong>${dados.titulo}</strong><br/>
+    ${dados.artista} — ${dados.ano}<br/>
+    <span style="font-size: 0.95rem">${dados.preco} ETH</span>
+  `;
+  document.getElementById('obra-texto').innerHTML = texto;
+  document.getElementById('obra-info').style.display = 'block';
+}
+
+function esconderInformacoes() {
+  document.getElementById('obra-info').style.display = 'none';
+}
+
+function destacarObra(obra, index) {
+  if (obraEmDestaque) return;
+
+  obraEmDestaque = obra;
+
+  // Guardar estado original
+  estadoOriginal = {
+    position: obra.position.clone(),
+    rotation: obra.rotation.y,
+    scale: obra.scale.clone()
+  };
+
+  // Pausar rotação
+  rotacaoPausada = true;
+
+  // Suavizar as restantes obras e reflexos
+  obrasNormais.forEach(o => {
+    if (o !== obra && o.userData.reflexo) {
+      o.material.opacity = 0.1;
+      o.userData.reflexo.material.opacity = 0.05;
+    }
+  });
+
+  // Trazer a obra para o centro
+  gsap.to(obra.position, {
+    x: 0,
+    y: 6,
+    z: 0.5,
+    duration: 1,
+    ease: 'power2.out'
+  });
+
+  gsap.to(obra.scale, {
+    x: 1.5,
+    y: 1.5,
+    duration: 1,
+    ease: 'power2.out'
+  });
+
+  // Mostrar painel de informações
+  mostrarInformacoes(index);
+}
+
+function restaurarObra() {
+  estadoOriginal = {};
+  if (!obraEmDestaque) return;
+
+  // Restaurar posição original
+  gsap.to(obraEmDestaque.position, {
+    x: estadoOriginal.position.x,
+    y: estadoOriginal.position.y,
+    z: estadoOriginal.position.z,
+    duration: 1,
+    ease: 'power2.inOut'
+  });
+
+  gsap.to(obraEmDestaque.scale, {
+    x: estadoOriginal.scale.x,
+    y: estadoOriginal.scale.y,
+    duration: 1,
+    ease: 'power2.inOut'
+  });
+
+  // Restaurar opacidade das outras obras
+  obrasNormais.forEach(o => {
+    if (o.userData.reflexo) {
+      o.material.opacity = 1;
+      o.userData.reflexo.material.opacity = 0.18;
+    }
+  });
+
+  esconderInformacoes();
+  obraEmDestaque = null;
+  rotacaoPausada = false;
+}
+
+// Detectar clique/touch na obra
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function onPointerDown(event) {
+  if (obraEmDestaque) {
+    restaurarObra();
+    return;
+  }
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(obrasNormais);
+
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    destacarObra(obra, index);
+  }
+}
+
+window.addEventListener('pointerdown', onPointerDown);
 // ✨ Texto "NANdART" com presença refinada no topo da parede de fundo
 
 const fontLoader = new FontLoader();
@@ -570,31 +699,60 @@ quadroDecorativoFundo.position.set(0, 8.5, -config.wallDistance - 3.5);
 scene.add(quadroDecorativoFundo);
 
 // Animação contínua com rotação de obras
+  
+
+let rotacaoPausada = false;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  const tempo = Date.now() * -0.00012;
-  obrasNormais.forEach((obra, i) => {
-    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(ang) * config.circleRadius;
-    const z = Math.sin(ang) * config.circleRadius;
-    const ry = -ang + Math.PI;
+  if (!rotacaoPausada) {
+    const tempo = Date.now() * -0.00012;
+    obrasNormais.forEach((obra, i) => {
+      const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+      const x = Math.cos(ang) * config.circleRadius;
+      const z = Math.sin(ang) * config.circleRadius;
+      const ry = -ang + Math.PI;
 
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = ry;
+      obra.position.x = x;
+      obra.position.z = z;
+      obra.rotation.y = ry;
 
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, ry, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-    }
-  });
-  
+      const reflexo = obra.userData.reflexo;
+      if (reflexo) {
+        reflexo.userData.targetPos.set(x, -0.01, z);
+        reflexo.userData.targetRot.set(0, ry, 0);
+        reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+        reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+      }
+    });
+  }
+
   renderer.render(scene, camera);
 }
-  
 
-animate(); 
+// Criação do painel de informações por baixo da obra em destaque
+const infoContainer = document.createElement('div');
+infoContainer.id = 'obra-info';
+infoContainer.style.position = 'fixed';
+infoContainer.style.bottom = '5vh';
+infoContainer.style.left = '50%';
+infoContainer.style.transform = 'translateX(-50%)';
+infoContainer.style.background = 'rgba(10, 10, 10, 0.7)';
+infoContainer.style.padding = '1rem 1.2rem';
+infoContainer.style.borderRadius = '12px';
+infoContainer.style.color = '#fff2c6';
+infoContainer.style.fontFamily = 'Playfair Display, serif';
+infoContainer.style.fontSize = '1rem';
+infoContainer.style.textAlign = 'center';
+infoContainer.style.backdropFilter = 'blur(4px)';
+infoContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.4)';
+infoContainer.style.display = 'none';
+infoContainer.style.zIndex = '2000';
+infoContainer.innerHTML = `
+  <div id="obra-texto"></div>
+  <button id="botao-comprar" style="margin-top: 10px; padding: 6px 14px; font-size: 0.9rem; background-color: #fff2c6; color: #111; border: none; border-radius: 6px; cursor: pointer;">
+    Buy
+  </button>
+`;
+document.body.appendChild(infoContainer);

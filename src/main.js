@@ -46,13 +46,13 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 // 🎨 Cena já definida acima
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0x0a0a0a);
 
 // 🧱 Paredes realistas com textura antracite
 const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
-  color: 0x1e1e1e,
+  color: 0x141414, // cinzento escuro
   roughness: 0.7,
   metalness: 0.15
 });
@@ -83,7 +83,7 @@ function criarFrisoEmbutido(x, y, z, largura, altura, rotY = 0, depth = 0.03) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, depth),
 new THREE.MeshPhysicalMaterial({
-  color: 0xd6b16c,
+  color: 0xf3c97a,
   metalness: 1,
   roughness: 0.03,
   clearcoat: 1,
@@ -566,42 +566,8 @@ frisoExterior.position.z = 0.015;
 quadroDecorativoFundo.add(frisoExterior);
 
 // Posicionamento do grupo do quadro central
-quadroDecorativoFundo.position.set(0, 6.9, -config.wallDistance - 3.5);
+quadroDecorativoFundo.position.set(0, 8.5, -config.wallDistance - 3.5);
 scene.add(quadroDecorativoFundo);
-
-// 💡 Luz artística dedicada ao quadro
-const luzQuadroCentral = new THREE.SpotLight(0xfff3d2, 2.1, 10, Math.PI / 7, 0.5);
-luzQuadroCentral.position.set(0, 11.5, -config.wallDistance - 1.5);
-luzQuadroCentral.target = quadroDecorativoFundo;
-scene.add(luzQuadroCentral);
-scene.add(luzQuadroCentral.target);
-
-// Animação suave de intensidade da luz
-gsap.to(luzQuadroCentral, {
-  intensity: 2.3,
-  duration: 4,
-  repeat: -1,
-  yoyo: true,
-  ease: 'sine.inOut'
-});
-
-// Gemas – brilho mágico oscilante
-scene.traverse(obj => {
-  if (
-    obj.isMesh &&
-    obj.material &&
-    obj.material.emissive &&
-    obj.geometry?.type === 'IcosahedronGeometry'
-  ) {
-    gsap.to(obj.material, {
-      emissiveIntensity: 1.2,
-      duration: 4.5,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-  }
-});
 
 // Animação contínua com rotação de obras
 function animate() {

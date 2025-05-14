@@ -703,7 +703,6 @@ scene.add(quadroDecorativoFundo);
   
 
 let rotacaoPausada = false;
-document.getElementById('fundo-desfocado').style.opacity = '0'; 
 function animate() {
 function animate() {
   requestAnimationFrame(animate);

@@ -511,7 +511,7 @@ function destacarObra(obra, index) {
   if (obraEmDestaque) return;
 
   obraEmDestaque = obra;
-
+document.getElementById('fundo-desfocado').style.opacity = '1';
   // Guardar estado original
   estadoOriginal = {
     position: obra.position.clone(),
@@ -702,31 +702,40 @@ scene.add(quadroDecorativoFundo);
   
 
 let rotacaoPausada = false;
-
+document.getElementById('fundo-desfocado').style.opacity = '0'; 
 function animate() {
+  reqfunction animate() {
   requestAnimationFrame(animate);
 
-  if (!rotacaoPausada) {
-    const tempo = Date.now() * -0.00012;
-    obrasNormais.forEach((obra, i) => {
-      const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-      const x = Math.cos(ang) * config.circleRadius;
-      const z = Math.sin(ang) * config.circleRadius;
-      const ry = -ang + Math.PI;
+  const tempoAtual = Date.now();
+  const tempo = tempoAtual * -0.00012;
 
-      obra.position.x = x;
-      obra.position.z = z;
-      obra.rotation.y = ry;
+  obrasNormais.forEach((obra, i) => {
+    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(ang) * config.circleRadius;
+    const z = Math.sin(ang) * config.circleRadius;
+    const ry = -ang + Math.PI;
 
-      const reflexo = obra.userData.reflexo;
-      if (reflexo) {
-        reflexo.userData.targetPos.set(x, -0.01, z);
-        reflexo.userData.targetRot.set(0, ry, 0);
-        reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-        reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-      }
-    });
-  }
+    // Se estiver em destaque, reduzir drasticamente a rotação
+    const intensidade = (obra === obraEmDestaque) ? 0.005 : 1;
+
+    obra.position.x += (x - obra.position.x) * 0.05 * intensidade;
+    obra.position.z += (z - obra.position.z) * 0.05 * intensidade;
+    obra.rotation.y += (ry - obra.rotation.y) * 0.05 * intensidade;
+
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      const tx = x;
+      const tz = z;
+      const tryy = ry;
+
+      reflexo.userData.targetPos.set(tx, -0.01, tz);
+      reflexo.userData.targetRot.set(0, tryy, 0);
+
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.05 * intensidade);
+      reflexo.rotation.y += (tryy - reflexo.rotation.y) * 0.05 * intensidade;
+    }
+  });
 
   renderer.render(scene, camera);
 }
@@ -734,25 +743,49 @@ function animate() {
 // Criação do painel de informações por baixo da obra em destaque
 const infoContainer = document.createElement('div');
 infoContainer.id = 'obra-info';
-infoContainer.style.position = 'fixed';
-infoContainer.style.bottom = '5vh';
-infoContainer.style.left = '50%';
-infoContainer.style.transform = 'translateX(-50%)';
-infoContainer.style.background = 'rgba(10, 10, 10, 0.7)';
-infoContainer.style.padding = '1rem 1.2rem';
-infoContainer.style.borderRadius = '12px';
-infoContainer.style.color = '#fff2c6';
-infoContainer.style.fontFamily = 'Playfair Display, serif';
-infoContainer.style.fontSize = '1rem';
-infoContainer.style.textAlign = 'center';
-infoContainer.style.backdropFilter = 'blur(4px)';
-infoContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.4)';
+infoContainer.className = 'obra-info';
 infoContainer.style.display = 'none';
-infoContainer.style.zIndex = '2000';
 infoContainer.innerHTML = `
   <div id="obra-texto"></div>
-  <button id="botao-comprar" style="margin-top: 10px; padding: 6px 14px; font-size: 0.9rem; background-color: #fff2c6; color: #111; border: none; border-radius: 6px; cursor: pointer;">
-    Buy
-  </button>
-`;
+  <button id="botao-comprar">Buy</button>
+`;t
 document.body.appendChild(infoContainer);
+// Fundo desfocado subtilmente
+const fundoDesfocado = document.createElement('div');
+fundoDesfocado.id = 'fundo-desfocado';
+fundoDesfocado.style.position = 'fixed';
+fundoDesfocado.style.top = '0';
+fundoDesfocado.style.left = '0';
+fundoDesfocado.style.width = '100vw';
+fundoDesfocado.style.height = '100vh';
+fundoDesfocado.style.backdropFilter = 'blur(3px)';
+fundoDesfocado.style.zIndex = '1000';
+fundoDesfocado.style.pointerEvents = 'none';
+fundoDesfocado.style.opacity = '0';
+fundoDesfocado.style.transition = 'opacity 0.5s ease';
+document.body.appendChild(fundoDesfocado);
+const botaoComprar = infoContainer.querySelector('#botao-comprar');
+
+botaoComprar.addEventListener('click', () => {
+  botaoComprar.disabled = true;
+  botaoComprar.textContent = 'A iniciar aquisição...';
+
+  // Simulação do processo de aquisição (poderás substituir por Web3 no futuro)
+  console.log('[NANdART] Pedido de aquisição iniciado para:');
+  console.log(document.getElementById('obra-texto').innerText);
+
+  setTimeout(() => {
+    botaoComprar.textContent = 'Adquirido!';
+    botaoComprar.style.backgroundColor = '#b0dcb8';
+    botaoComprar.style.color = '#111';
+
+    setTimeout(() => {
+      botaoComprar.disabled = false;
+      botaoComprar.textContent = 'Buy';
+      botaoComprar.style.backgroundColor = '#fff2c6';
+      botaoComprar.style.color = '#111';
+    }, 3000);
+  }, 2000);
+});
+
+

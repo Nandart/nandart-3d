@@ -479,8 +479,6 @@ const fontLoader = new FontLoader();
 fontLoader.load(
   'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
   font => {
-    } // fecha o callback
-); // fecha o método .load
     const textGeo = new TextGeometry('NANdART', {
       font,
       size: 0.65,
@@ -509,6 +507,8 @@ fontLoader.load(
     texto.position.set(-largura / 2, 15.8, -config.wallDistance - 3.985);
     texto.castShadow = true;
     scene.add(texto);
+  }
+);
 
 
 // 🖼️ Quadro central com friso circular dourado embutido

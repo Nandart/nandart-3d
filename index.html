@@ -9,6 +9,19 @@
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css">
 
+  <!-- Import Map deve vir antes de qualquer importação -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
+      }
+    }
+  </script>
+
   <!-- Preload/Preconnect Optimizado -->
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
   <link rel="modulepreload" href="/src/main.js" crossorigin>
@@ -26,19 +39,6 @@
 
   <!-- ethers.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-
-  <!-- Import Maps -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
-        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
-        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
-      }
-    }
-  </script>
 
   <!-- Fallback para navegadores antigos -->
   <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
@@ -158,11 +158,15 @@
           }
         });
       }
+
+      // Carrega o main.js como módulo apenas se for compatível
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = '/src/main.js';
+      script.crossOrigin = 'anonymous';
+      document.body.appendChild(script);
     }
   </script>
-
-  <!-- Carregamento final da aplicação 3D -->
-  <script type="module" src="/src/main.js" crossorigin="anonymous"></script>
 
   <script nomodule>
     alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
@@ -170,4 +174,3 @@
   </script>
 </body>
 </html>
-

@@ -3,6 +3,18 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  /* Variáveis responsivas */
+  --base-size: clamp(14px, 1.5vw, 18px);
+  --icon-size: clamp(32px, 5vw, 48px);
+  --icon-label-size: clamp(0.6rem, 1.2vw, 0.8rem);
+  --menu-font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  --obra-info-font: clamp(0.85rem, 1.8vw, 1.1rem);
+  --button-padding: clamp(5px 12px, 1vw 2vw, 8px 16px);
+  --nav-padding: clamp(0.8rem, 2vw, 1.2rem);
 }
 
 html, body {
@@ -16,6 +28,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: var(--base-size);
 }
 
 /* Canvas 3D */
@@ -71,20 +84,6 @@ html, body {
   margin-top: 4px;
 }
 
-/* Ícone de informação */
-.info-icon {
-  width: 48px;
-  height: auto;
-  cursor: pointer;
-}
-
-/* Ícone de ajuda */
-.ajuda-icon {
-  width: 45px;
-  height: auto;
-  cursor: pointer;
-}
-
 /* Container geral de navegação */
 .nav-container {
   position: absolute;
@@ -95,13 +94,29 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: var(--nav-padding);
   z-index: 1000;
   pointer-events: none;
 }
 
 .nav-container * {
   pointer-events: auto;
+}
+
+/* Ícones de navegação */
+.info-icon,
+.ajuda-icon,
+.menu-icon {
+  width: var(--icon-size);
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.info-icon:hover,
+.ajuda-icon:hover,
+.menu-icon:hover {
+  transform: scale(1.1);
 }
 
 /* Posicionamento individual de ícones */
@@ -111,11 +126,13 @@ html, body {
   align-items: center;
   text-decoration: none;
   color: #fff2c6;
+  gap: 0.3rem;
 }
 
 .icon-label {
-  font-size: 0.7rem;
+  font-size: var(--icon-label-size);
   margin-top: 0.2rem;
+  text-align: center;
 }
 
 /* Menu principal */
@@ -124,35 +141,34 @@ html, body {
   z-index: 1001;
 }
 
-.menu-icon {
-  width: 48px;
-  height: auto;
-  cursor: pointer;
-}
-
 .menu-dropdown {
   display: none;
   flex-direction: column;
   position: absolute;
-  top: 60px;
-  left: 0;
+  top: calc(var(--icon-size) + 10px);
+  right: 0;
   background-color: rgba(17, 17, 17, 0.95);
   padding: 12px;
   border-radius: 8px;
   z-index: 102;
   max-height: 70vh;
   overflow-y: auto;
+  min-width: 150px;
 }
 
 .menu-dropdown a {
   color: #fff2c6;
   text-decoration: none;
   margin-bottom: 10px;
-  font-size: 1rem;
+  font-size: var(--menu-font-size);
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 .menu-dropdown a:hover {
-  text-decoration: underline;
+  background-color: rgba(255, 242, 198, 0.1);
+  text-decoration: none;
 }
 
 /* Modal de obra */
@@ -167,9 +183,21 @@ html, body {
   overflow-y: auto;
   display: none;
   background-color: rgba(0, 0, 0, 0.85);
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 10px;
   color: #fff;
+  width: clamp(300px, 80vw, 800px);
+}
+
+.art-modal h3 {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  margin-bottom: 1rem;
+}
+
+.art-modal p {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
 }
 
 /* Fundo desfocado */
@@ -193,17 +221,18 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   background: rgba(10, 10, 10, 0.7);
-  padding: 1rem 1.2rem;
+  padding: 1rem 1.5rem;
   border-radius: 12px;
   color: #fff2c6;
   font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-size: var(--obra-info-font);
   text-align: center;
   backdrop-filter: blur(4px);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   z-index: 2000;
   animation: fadeInObraInfo 0.5s ease forwards;
-  max-width: 90vw;
+  max-width: min(90vw, 800px);
+  line-height: 1.4;
 }
 
 @keyframes fadeInObraInfo {
@@ -219,8 +248,8 @@ html, body {
 
 .obra-info button {
   margin-top: 10px;
-  padding: 6px 14px;
-  font-size: 0.9rem;
+  padding: var(--button-padding);
+  font-size: var(--icon-label-size);
   background-color: #fff2c6;
   color: #111;
   border: none;
@@ -231,45 +260,46 @@ html, body {
 
 .obra-info button:hover {
   background-color: #ffe9a9;
+  transform: translateY(-2px);
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .info-icon,
-  .ajuda-icon,
-  .menu-icon {
-    width: 40px;
+/* Responsividade Específica */
+@media (max-width: 480px) {
+  .nav-container {
+    flex-wrap: wrap;
+    justify-content: space-around;
   }
-
-  .menu-container {
-    top: 70px;
-    left: 16px;
+  
+  .menu-dropdown {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
-
-  .info-icon {
-    top: 16px;
-    left: 16px;
-  }
-
-  .ajuda-icon {
-    bottom: 16px;
-    left: 16px;
-  }
-
-  .menu-dropdown a {
-    font-size: 0.9rem;
+  
+  .art-modal {
+    padding: 1rem;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-height: 600px) {
   .obra-info {
-    font-size: 0.85rem;
-    padding: 0.8rem 1rem;
+    bottom: 2vh;
+    padding: 0.8rem 1.2rem;
   }
+  
+  .loading-screen {
+    justify-content: flex-start;
+    padding-top: 20vh;
+  }
+}
 
-  .obra-info button {
-    font-size: 0.85rem;
-    padding: 5px 12px;
+@media (min-width: 1920px) {
+  .obra-info {
+    padding: 1.5rem 2rem;
+  }
+  
+  .menu-dropdown {
+    padding: 1rem 1.5rem;
   }
 }
 
@@ -277,4 +307,19 @@ html, body {
 .loading-screen {
   opacity: 0 !important;
   display: none !important;
+}
+
+/* Melhorias de acessibilidade */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Animações suaves para transições de estado */
+button, a {
+  transition: all 0.2s ease;
+}
+
+/* Feedback visual para interações */
+button:active, .nav-icon:active {
+  transform: scale(0.95);
 }

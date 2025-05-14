@@ -140,12 +140,6 @@ scene.add(frisoDireito2);
   emissiveIntensity: 0.6
 });
 
-// 🟨 Friso arredondado em torno do quadro central
-const frisoCentral = criarFrisoArredondado(4.4, 5.4, 0.5);
-frisoCentral.position.set(0, 8.5, -config.wallDistance - 3.55);
-scene.add(frisoCentral);
-
-
 // ✨ Luz ambiente radial suave e refinada
 //const luzAmbienteCentral = new THREE.PointLight(0xfff2dd, 1.8, 50, 2);
 //luzAmbienteCentral.position.set(0, 9.5, 0);
@@ -918,12 +912,13 @@ frisoCentral.position.set(0, 8.2, -config.wallDistance + 0.03);
 scene.add(frisoCentral);
 
 // ➕ Traço subtil horizontal acima do friso central da parede de fundo
-const frisoVerticalCentral = new THREE.Mesh(...);
+const frisoHorizontalFino = new THREE.Mesh(
   new THREE.PlaneGeometry(4.6, 0.05),
   materialFriso
 );
 frisoHorizontalFino.position.set(0, 14.65, -config.wallDistance + 0.01);
 scene.add(frisoHorizontalFino);
+
 
 let rotacaoPausada = false;
 function animate() {

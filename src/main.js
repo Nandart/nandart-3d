@@ -50,7 +50,7 @@ window.addEventListener('resize', () => {
 scene.background = new THREE.Color(0x0a0a0a);
 
 // 🧱 Paredes realistas com textura antracite
-const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
+const texturaParede = textureLoader.load('/assets/textures/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
   color: 0x141414, // cinzento escuro

@@ -1,25 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+  <meta name="description" content="NANdART Virtual Gallery — Experiência Premium de Arte 3D">
   <meta name="theme-color" content="#111111">
-  <title>NANdART 3D Gallery</title>
+  <title>NANdART Galeria 3D</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
   <link rel="stylesheet" href="/index.css">
 
-  <!-- Preload critical resources -->
+  <!-- Pré-carregamento de recursos críticos otimizados para mobile -->
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" as="script" crossorigin>
   <link rel="preload" href="/src/main.js" as="script">
   <link rel="preload" href="/assets/texturas/parede-antracite.jpg" as="image">
+  <link rel="preload" href="/assets/icons/info.png" as="image">
+  <link rel="preload" href="/assets/icons/horizontes.png" as="image">
   
-  <!-- Fonts with performance optimization -->
+  <!-- Fontes com otimização para performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- Import Maps with fallback -->
+  <!-- Import Maps com fallback -->
   <script type="importmap">
     {
       "imports": {
@@ -32,42 +34,42 @@
     }
   </script>
   
-  <!-- Fallback for non-module browsers -->
+  <!-- Fallback para navegadores sem suporte a modules -->
   <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
   
-  <!-- PWA manifest -->
+  <!-- Manifesto PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 
 <body>
-  <!-- Loading screen with progress indicator -->
+  <!-- Tela de carregamento com feedback visual melhorado -->
   <div class="loading-screen">
     <div class="loading-spinner"></div>
-    <div class="loading-text">Loading Gallery</div>
+    <div class="loading-text">A Carregar Galeria</div>
     <div class="loading-progress">0%</div>
   </div>
 
-  <!-- Canvas 3D with noscript fallback -->
+  <!-- Canvas 3D com fallback para JavaScript desativado -->
   <canvas id="scene"></canvas>
   <noscript>
     <div class="nojs-message">
-      <h2>JavaScript is required</h2>
-      <p>Please enable JavaScript to experience the NANdART 3D Gallery.</p>
+      <h2>JavaScript Necessário</h2>
+      <p>Por favor ative o JavaScript para experienciar a Galeria 3D NANdART.</p>
     </div>
   </noscript>
 
-  <!-- Navigation elements with improved accessibility -->
+  <!-- Navegação otimizada para mobile -->
   <div class="nav-container">
-    <!-- Info icon -->
-    <a href="info.html" class="nav-icon" aria-label="Information">
-      <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
+    <!-- Ícone de informação -->
+    <a href="info.html" class="nav-icon" aria-label="Informação">
+      <img src="/assets/icons/info.png" alt="Info" class="info-icon" loading="lazy"/>
       <span class="icon-label">Info</span>
     </a>
 
-    <!-- Menu with dropdown -->
+    <!-- Menu com dropdown acessível -->
     <div class="menu-container">
       <button id="menu-toggle" class="nav-button" aria-label="Menu" aria-expanded="false" aria-controls="menu-dropdown">
-        <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" />
+        <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" loading="lazy"/>
         <span class="icon-label">Menu</span>
       </button>
       <div class="menu-dropdown" id="menu-dropdown">
@@ -78,110 +80,146 @@
       </div>
     </div>
 
-    <!-- Help icon -->
-    <a href="como-navegar.html" class="nav-icon" aria-label="Help">
-      <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
-      <span class="icon-label">Help</span>
+    <!-- Ícone de ajuda -->
+    <a href="como-navegar.html" class="nav-icon" aria-label="Ajuda">
+      <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy"/>
+      <span class="icon-label">Ajuda</span>
     </a>
   </div>
 
-  <!-- Art modal with ARIA attributes -->
+  <!-- Modal de obra com acessibilidade -->
   <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true">
-    <h3 id="art-title">Artwork Title</h3>
-    <p id="art-description">Description of the selected piece</p>
-    <button id="buy-art" aria-label="Acquire Artwork">Acquire Artwork</button>
+    <h3 id="art-title">Título da Obra</h3>
+    <p id="art-description">Descrição da peça selecionada</p>
+    <button id="buy-art" aria-label="Adquirir Obra">Adquirir Obra</button>
   </div>
 
-  <!-- Optimized scripts with progressive loading -->
+  <!-- Scripts otimizados para mobile -->
   <script>
-    // Feature detection and compatibility check
+    // Verificação de compatibilidade melhorada
     function checkCompatibility() {
-      const supported = {
-        webgl: (function() {
-          try {
-            const canvas = document.createElement('canvas');
-            return !!window.WebGLRenderingContext && 
-              (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-          } catch(e) {
-            return false;
-          }
-        })(),
-        modules: 'noModule' in HTMLScriptElement.prototype
-      };
-      
-      if (!supported.webgl) {
+      // Deteção de WebGL com fallback
+      try {
+        const canvas = document.createElement('canvas');
+        const webgl = !!window.WebGLRenderingContext && 
+                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+        
+        if (!webgl) throw new Error('WebGL não suportado');
+        
+        return {
+          webgl: true,
+          touch: 'ontouchstart' in window,
+          lowPower: matchMedia('(prefers-reduced-motion: reduce)').matches
+        };
+      } catch(e) {
         document.body.innerHTML = `
           <div class="compatibility-error">
-            <h2>Unsupported Device</h2>
-            <p>Your device doesn't support WebGL which is required for this experience.</p>
-            <p>Please try on a modern desktop or mobile device.</p>
+            <h2>Dispositivo Não Suportado</h2>
+            <p>O seu dispositivo não suporta WebGL, necessário para esta experiência.</p>
+            <p>Por favor tente num smartphone moderno ou computador.</p>
           </div>
         `;
         return false;
       }
-      return true;
     }
 
-    // Progressive loading with feedback
+    // Carregamento progressivo com deteção de mobile
     if (checkCompatibility()) {
       const loadingScreen = document.querySelector('.loading-screen');
       const progressElement = document.querySelector('.loading-progress');
+      const isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
       
-      function updateProgress(progress) {
-        progressElement.textContent = `${Math.round(progress * 100)}%`;
-      }
-      
-      // Menu functionality
-      document.getElementById('menu-toggle').addEventListener('click', function(e) {
-        e.preventDefault();
-        const menu = document.getElementById('menu-dropdown');
-        const isExpanded = this.getAttribute('aria-expanded') === 'true';
-        menu.style.display = isExpanded ? 'none' : 'flex';
-        this.setAttribute('aria-expanded', String(!isExpanded));
-      });
-
-      // Close menu when clicking outside
-      document.addEventListener('click', function(e) {
-        const menu = document.getElementById('menu-dropdown');
-        const menuToggle = document.getElementById('menu-toggle');
-        if (menu.style.display === 'flex' && !menu.contains(e.target) && e.target !== menuToggle) {
-          menu.style.display = 'none';
-          menuToggle.setAttribute('aria-expanded', 'false');
+      // Ativar modo mobile no HTML
+      if (isMobile) {
+        document.documentElement.classList.add('mobile');
+        if (window.innerHeight > window.innerWidth) {
+          document.documentElement.classList.add('portrait');
         }
-      });
+      }
 
-      // Load main script after page load
+      function updateProgress(progress) {
+        if (progressElement) {
+          progressElement.textContent = `${Math.round(progress * 100)}%`;
+        }
+      }
+
+      // Menu otimizado para touch
+      const menuToggle = document.getElementById('menu-toggle');
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          const menu = document.getElementById('menu-dropdown');
+          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          menu.style.display = isExpanded ? 'none' : 'flex';
+          this.setAttribute('aria-expanded', String(!isExpanded));
+          
+          // Fechar ao tocar fora (mobile)
+          if (!isExpanded) {
+            setTimeout(() => {
+              document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && e.target !== menuToggle) {
+                  menu.style.display = 'none';
+                  menuToggle.setAttribute('aria-expanded', 'false');
+                  document.removeEventListener('click', closeMenu);
+                }
+              }, { once: true });
+            }, 10);
+          }
+        });
+      }
+
+      // Carregar main.js com prioridade
       window.addEventListener('load', () => {
         setTimeout(() => {
           const script = document.createElement('script');
           script.type = 'module';
           script.src = '/src/main.js';
+          
           script.onload = () => {
             updateProgress(1);
             setTimeout(() => {
-              loadingScreen.style.opacity = '0';
-              setTimeout(() => {
-                loadingScreen.style.display = 'none';
-              }, 1000);
+              if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                  loadingScreen.style.display = 'none';
+                }, 1000);
+              }
             }, 500);
           };
+          
+          script.onerror = () => {
+            updateProgress(0);
+            console.error('Falha ao carregar o script principal');
+          };
+          
           document.body.appendChild(script);
-        }, 500);
+        }, 300);
       });
 
-      // Low bandwidth detection
+      // Deteção de mudança de orientação
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (window.innerHeight > window.innerWidth) {
+            document.documentElement.classList.add('portrait');
+          } else {
+            document.documentElement.classList.remove('portrait');
+          }
+        }, 300);
+      });
+
+      // Deteção de conexão lenta
       const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       if (connection) {
-        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
           document.documentElement.classList.add('low-bandwidth');
         }
       }
     }
   </script>
 
-  <!-- Fallback for non-module browsers -->
+  <!-- Fallback para navegadores antigos -->
   <script nomodule>
-    alert("Your browser does not support JavaScript modules. Please use Chrome, Firefox, or Edge.");
+    alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

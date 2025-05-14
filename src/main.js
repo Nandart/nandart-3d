@@ -480,22 +480,22 @@ obrasLaterais.forEach(({ src, x, y, z, rotY }) => {
 
 
 // 🟨 Frisos laterais duplos à esquerda e à direita
-const frisoEsquerdo1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+const frisoEsquerdo1_v2 = criarFrisoArredondado(2.5, 6.5, 0.4);
 frisoEsquerdo1.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.03);
 frisoEsquerdo1.rotation.y = Math.PI / 2;
 scene.add(frisoEsquerdo1);
 
-const frisoEsquerdo2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+const frisoEsquerdo2_v2 = criarFrisoArredondado(1.6, 4.8, 0.3);
 frisoEsquerdo2.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.05);
 frisoEsquerdo2.rotation.y = Math.PI / 2;
 scene.add(frisoEsquerdo2);
 
-const frisoDireito1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+const frisoDireito1_v2 = criarFrisoArredondado(2.5, 6.5, 0.4);
 frisoDireito1.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.03);
 frisoDireito1.rotation.y = -Math.PI / 2;
 scene.add(frisoDireito1);
 
-const frisoDireito2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+const frisoDireito2_v2 = criarFrisoArredondado(1.6, 4.8, 0.3);
 frisoDireito2.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.05);
 frisoDireito2.rotation.y = -Math.PI / 2;
 scene.add(frisoDireito2);

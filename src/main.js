@@ -1,12 +1,14 @@
+// Garanta que todos os imports do three usam o caminho completo
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { Reflector } from 'three/addons/objects/Reflector.js'; // 
+import { Reflector } from 'three/addons/objects/Reflector.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+// Importe o GSAP diretamente da CDN (já mapeado no importmap)
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

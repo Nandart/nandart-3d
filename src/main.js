@@ -359,7 +359,7 @@ const molduraIntEsq = criarFrisoLateral([
 scene.add(molduraIntEsq);
 
 // ➕ Moldura lateral direita (exterior + interior)
-const molduraExtDir = criarFrisoLateral([
+const molduraExtDir = criarFrisoLateral2([
   new THREE.Vector3(15.2, 2.0, -config.wallDistance + 0.021),
   new THREE.Vector3(15.2, 13.8, -config.wallDistance + 0.021),
   new THREE.Vector3(11.2, 13.8, -config.wallDistance + 0.021),
@@ -367,7 +367,7 @@ const molduraExtDir = criarFrisoLateral([
 ], materialMolduraExterior);
 scene.add(molduraExtDir);
 
-const molduraIntDir = criarFrisoLateral([
+const molduraIntDir = criarFrisoLateral2([
   new THREE.Vector3(14.7, 2.6, -config.wallDistance + 0.022),
   new THREE.Vector3(14.7, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(11.8, 13.2, -config.wallDistance + 0.022),

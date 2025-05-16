@@ -458,36 +458,6 @@ circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.set(0, 0.011, 0);
 scene.add(circuloLuz);
 
-// 🟨 Moldura retangular arredondada para parede de fundo
-const formatoFrisoCentral = new THREE.Shape();
-const larguraFriso = 4.0;
-const alturaFriso = 5.0;
-const raio = 0.3;
-
-formatoFrisoCentral.moveTo(-larguraFriso/2 + raio, -alturaFriso/2);
-formatoFrisoCentral.lineTo(larguraFriso/2 - raio, -alturaFriso/2);
-formatoFrisoCentral.quadraticCurveTo(larguraFriso/2, -alturaFriso/2, larguraFriso/2, -alturaFriso/2 + raio);
-formatoFrisoCentral.lineTo(larguraFriso/2, alturaFriso/2 - raio);
-formatoFrisoCentral.quadraticCurveTo(larguraFriso/2, alturaFriso/2, larguraFriso/2 - raio, alturaFriso/2);
-formatoFrisoCentral.lineTo(-larguraFriso/2 + raio, alturaFriso/2);
-formatoFrisoCentral.quadraticCurveTo(-larguraFriso/2, alturaFriso/2, -larguraFriso/2, alturaFriso/2 - raio);
-formatoFrisoCentral.lineTo(-larguraFriso/2, -alturaFriso/2 + raio);
-formatoFrisoCentral.quadraticCurveTo(-larguraFriso/2, -alturaFriso/2, -larguraFriso/2 + raio, -alturaFriso/2);
-
-const extrudeSettings = {
-  depth: 0.04,
-  bevelEnabled: true,
-  bevelThickness: 0.01,
-  bevelSize: 0.015,
-  bevelSegments: 4,
-  steps: 1
-};
-
-const geometriaFriso = new THREE.ExtrudeGeometry(formatoFrisoCentral, extrudeSettings);
-const frisoQuadroCentral = new THREE.Mesh(geometriaFriso, materialMolduraExterior);
-frisoQuadroCentral.position.set(0, 7.8, -config.wallDistance + 0.022);
-scene.add(frisoQuadroCentral);
-
 // 🟧 Função para criar frisos laterais duplos embutidos com TubeGeometry
 function criarFrisoLateral(pontos, material) {
   const curva = new THREE.CatmullRomCurve3(pontos, true);

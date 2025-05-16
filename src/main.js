@@ -468,7 +468,7 @@ function criarFrisoLateral(pontos, material) {
 }
 
 // ➕ Moldura lateral esquerda (exterior + interior)
-const molduraExtEsq = criarFrisoLateral([
+const molduraExtEsq = criarFrisoLateralesq([
   new THREE.Vector3(-15.2, 2.0, -config.wallDistance + 0.021),
   new THREE.Vector3(-15.2, 13.8, -config.wallDistance + 0.021),
   new THREE.Vector3(-11.2, 13.8, -config.wallDistance + 0.021),
@@ -476,7 +476,7 @@ const molduraExtEsq = criarFrisoLateral([
 ], materialMolduraExterior);
 scene.add(molduraExtEsq);
 
-const molduraIntEsq = criarFrisoLateral([
+const molduraIntEsq = criarFrisoLateralesq_([
   new THREE.Vector3(-14.7, 2.6, -config.wallDistance + 0.022),
   new THREE.Vector3(-14.7, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(-11.8, 13.2, -config.wallDistance + 0.022),
@@ -485,7 +485,7 @@ const molduraIntEsq = criarFrisoLateral([
 scene.add(molduraIntEsq);
 
 // ➕ Moldura lateral direita (exterior + interior)
-const molduraExtDir = criarFrisoLateral([
+const molduraExtDir = criarFrisoLateraldir([
   new THREE.Vector3(15.2, 2.0, -config.wallDistance + 0.021),
   new THREE.Vector3(15.2, 13.8, -config.wallDistance + 0.021),
   new THREE.Vector3(11.2, 13.8, -config.wallDistance + 0.021),
@@ -493,7 +493,7 @@ const molduraExtDir = criarFrisoLateral([
 ], materialMolduraExterior);
 scene.add(molduraExtDir);
 
-const molduraIntDir = criarFrisoLateral([
+const molduraIntDir = criarFrisoLateraldir_([
   new THREE.Vector3(14.7, 2.6, -config.wallDistance + 0.022),
   new THREE.Vector3(14.7, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(11.8, 13.2, -config.wallDistance + 0.022),

@@ -39,56 +39,10 @@ html, body {
   pointer-events: none;
 }
 
-/* Ecrã de carregamento */
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 20;
-  width: 100vw;
-  height: 100vh;
-  background-color: #111111;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 1.2s ease;
-}
-
-.loading-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid #fff2c6;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  color: #fff2c6;
-  font-size: 1rem;
-}
-
-.loading-progress {
-  color: #fff2c6;
-  font-size: 0.9rem;
-  margin-top: 4px;
-}
-
 /* Ícone de informação */
-.info-icon {
-  width: var(--icon-size);
-  height: auto;
-  cursor: pointer;
-}
-
-/* Ícone de ajuda */
-.ajuda-icon {
+.info-icon,
+.ajuda-icon,
+.menu-icon {
   width: var(--icon-size);
   height: auto;
   cursor: pointer;
@@ -133,12 +87,6 @@ html, body {
   z-index: 1001;
 }
 
-.menu-icon {
-  width: var(--icon-size);
-  height: auto;
-  cursor: pointer;
-}
-
 .menu-dropdown {
   display: none;
   flex-direction: column;
@@ -164,24 +112,6 @@ html, body {
 
 .menu-dropdown a:hover {
   text-decoration: underline;
-}
-
-/* Modal de obra */
-.art-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  display: none;
-  background-color: rgba(0, 0, 0, 0.85);
-  padding: 1rem;
-  border-radius: 10px;
-  color: #fff;
-  width: min(90vw, 800px);
 }
 
 /* Fundo desfocado */
@@ -265,7 +195,6 @@ html, body {
   }
 }
 
-/* Ajustes para orientação paisagem em mobile */
 @media (orientation: landscape) and (max-height: 600px) {
   .obra-info {
     bottom: 2vh;
@@ -276,10 +205,4 @@ html, body {
   .nav-container {
     padding: 0.5rem;
   }
-}
-
-/* Oculta forçadamente o loading ao fim de tudo (segurança extra) */
-.loading-screen {
-  opacity: 0 !important;
-  display: none !important;
 }

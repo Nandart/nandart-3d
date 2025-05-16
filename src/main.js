@@ -1,13 +1,12 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/objects/Reflector.js';
-import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
-import { RoundedBoxGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/RoundedBoxGeometry.js';
-
+import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/objects/Reflector.js';
+import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/TextGeometry.js';
+import { RoundedBoxGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js';
+import { MotionPathPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/MotionPathPlugin.min.js';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// 🎛️ Configuração Geral da Cena
 const config = {
   wallDistance: 17,
   circleRadius: 6.5,
@@ -15,14 +14,10 @@ const config = {
   maxObras: 15
 };
 
-// Textura Loader
 const textureLoader = new THREE.TextureLoader();
-
-// Criar Cena
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1a1a);
 
-// Configurar Câmara
 const camera = new THREE.PerspectiveCamera(
   42,
   window.innerWidth / window.innerHeight,
@@ -32,7 +27,6 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 9.5, 24);
 camera.lookAt(0, 6.5, 0);
 
-// Configurar Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true
@@ -45,7 +39,6 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.5;
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-// Ajustar renderer e câmara em resize da janela
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -500,3 +493,5 @@ loaderFonte.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.js
   textoMesh.position.set(0, 18.5, -config.wallDistance + 0.01);
   scene.add(textoMesh);
 });
+carregarObras();
+animate();

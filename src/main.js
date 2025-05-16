@@ -314,46 +314,6 @@ const materialPedestal = new THREE.MeshStandardMaterial({
   reflexo.position.y = 0.01;
   scene.add(reflexo);
 });
-// 🟫 Textura e material para paredes laterais e fundo
-const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
-texturaParede.wrapS = texturaParede.wrapT = THREE.RepeatWrapping;
-texturaParede.repeat.set(2, 2);
-texturaParede.encoding = THREE.sRGBEncoding;
-
-const materialParede = new THREE.MeshStandardMaterial({
-  map: texturaParede,
-  roughness: 0.4,
-  metalness: 0.2
-});
-
-const larguraParede = 30;
-const alturaParede = 20;
-
-// 🖼️ Parede esquerda
-const paredeEsquerda = new THREE.Mesh(
-  new THREE.PlaneGeometry(alturaParede, larguraParede),
-  materialParede
-);
-paredeEsquerda.position.set(-15, alturaParede / 2, 0);
-paredeEsquerda.rotation.y = Math.PI / 2;
-scene.add(paredeEsquerda);
-
-// 🖼️ Parede direita
-const paredeDireita = new THREE.Mesh(
-  new THREE.PlaneGeometry(alturaParede, larguraParede),
-  materialParede
-);
-paredeDireita.position.set(15, alturaParede / 2, 0);
-paredeDireita.rotation.y = -Math.PI / 2;
-scene.add(paredeDireita);
-
-// 🖼️ Parede de fundo (mais afastada para maior profundidade)
-const paredeFundo = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraParede, alturaParede),
-  materialParede
-);
-paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance);
-scene.add(paredeFundo);
 
 // 🎨 Materiais para molduras exterior e interior dos frisos laterais
 const materialMolduraExterior = new THREE.MeshStandardMaterial({
@@ -498,55 +458,6 @@ circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.set(0, 0.011, 0);
 scene.add(circuloLuz);
 
-
-// 🟫 PAREDES LATERAIS com textura e iluminação realista
-const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
-texturaParede.wrapS = texturaParede.wrapT = THREE.RepeatWrapping;
-texturaParede.repeat.set(2, 2);
-texturaParede.encoding = THREE.sRGBEncoding;
-
-const materialParede = new THREE.MeshStandardMaterial({
-  map: texturaParede,
-  roughness: 0.4,
-  metalness: 0.2
-});
-
-const larguraParede = 30;
-const alturaParede = 20;
-
-// Parede esquerda
-const paredeEsquerda = new THREE.Mesh(
-  new THREE.PlaneGeometry(alturaParede, larguraParede),
-  materialParede
-);
-paredeEsquerda.position.set(-15, alturaParede / 2, 0);
-paredeEsquerda.rotation.y = Math.PI / 2;
-scene.add(paredeEsquerda);
-
-// Parede direita
-const paredeDireita = new THREE.Mesh(
-  new THREE.PlaneGeometry(alturaParede, larguraParede),
-  materialParede
-);
-paredeDireita.position.set(15, alturaParede / 2, 0);
-paredeDireita.rotation.y = -Math.PI / 2;
-scene.add(paredeDireita);
-
-// Parede de fundo posicionada mais para trás (maior profundidade)
-const paredeFundo = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraParede, alturaParede),
-  materialParede
-);
-paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance);
-scene.add(paredeFundo);
-// 🎨 Materiais das molduras
-const materialMolduraExterior = new THREE.MeshStandardMaterial({
-  color: 0xf3c97a,
-  metalness: 1,
-  roughness: 0.1,
-  emissive: 0x332200,
-  emissiveIntensity: 0.3
-});
 
 const materialMolduraInterior = new THREE.MeshStandardMaterial({
   color: 0xfbe7b2,

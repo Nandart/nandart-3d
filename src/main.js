@@ -267,25 +267,6 @@ planoChao.position.y = 0;
 planoChao.receiveShadow = true;
 scene.add(planoChao);
 
-// 🟫 Teto visível com tom neutro e luz adicional
-const teto = new THREE.Mesh(
-  new THREE.PlaneGeometry(40, 30),
-  new THREE.MeshStandardMaterial({
-    color: 0x1a1a1a,
-    metalness: 0.2,
-    roughness: 0.9,
-    side: THREE.BackSide
-  })
-);
-teto.rotation.x = Math.PI / 2;
-teto.position.y = 26.5;
-scene.add(teto);
-
-const luzTeto = new THREE.RectAreaLight(0xfff7dd, 2.2, 22, 18);
-luzTeto.position.set(0, 25.8, -config.wallDistance / 2);
-luzTeto.lookAt(0, 12, -config.wallDistance / 2);
-scene.add(luzTeto);
-
 // 🎨 Materiais de molduras
 const materialMolduraExterior = new THREE.MeshStandardMaterial({
   color: 0xf3c97a,
@@ -486,6 +467,10 @@ const teto = new THREE.Mesh(geometriaTeto, materialTeto);
 teto.rotation.x = Math.PI / 2;
 teto.position.y = 26.5;
 scene.add(teto);
+const luzTeto = new THREE.RectAreaLight(0xfff7dd, 2.2, 22, 18);
+luzTeto.position.set(0, 25.8, -config.wallDistance / 2);
+luzTeto.lookAt(0, 12, -config.wallDistance / 2);
+scene.add(luzTeto);
 
 // 🟫 PAREDES LATERAIS com textura e iluminação realista
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');

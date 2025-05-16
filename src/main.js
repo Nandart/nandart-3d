@@ -458,48 +458,7 @@ circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.set(0, 0.011, 0);
 scene.add(circuloLuz);
 
-// 🟧 Função para criar frisos laterais duplos embutidos com TubeGeometry
-function criarFrisoLateral(pontos, material) {
-  const curva = new THREE.CatmullRomCurve3(pontos, true);
-  return new THREE.Mesh(
-    new THREE.TubeGeometry(curva, 64, 0.02, 12, true),
-    material
-  );
-}
 
-// ➕ Moldura lateral esquerda (exterior + interior)
-const molduraExtEsq = criarFrisoLateralesq([
-  new THREE.Vector3(-15.2, 2.0, -config.wallDistance + 0.021),
-  new THREE.Vector3(-15.2, 13.8, -config.wallDistance + 0.021),
-  new THREE.Vector3(-11.2, 13.8, -config.wallDistance + 0.021),
-  new THREE.Vector3(-11.2, 2.0, -config.wallDistance + 0.021)
-], materialMolduraExterior);
-scene.add(molduraExtEsq);
-
-const molduraIntEsq = criarFrisoLateralesq_([
-  new THREE.Vector3(-14.7, 2.6, -config.wallDistance + 0.022),
-  new THREE.Vector3(-14.7, 13.2, -config.wallDistance + 0.022),
-  new THREE.Vector3(-11.8, 13.2, -config.wallDistance + 0.022),
-  new THREE.Vector3(-11.8, 2.6, -config.wallDistance + 0.022)
-], materialMolduraInterior);
-scene.add(molduraIntEsq);
-
-// ➕ Moldura lateral direita (exterior + interior)
-const molduraExtDir = criarFrisoLateraldir([
-  new THREE.Vector3(15.2, 2.0, -config.wallDistance + 0.021),
-  new THREE.Vector3(15.2, 13.8, -config.wallDistance + 0.021),
-  new THREE.Vector3(11.2, 13.8, -config.wallDistance + 0.021),
-  new THREE.Vector3(11.2, 2.0, -config.wallDistance + 0.021)
-], materialMolduraExterior);
-scene.add(molduraExtDir);
-
-const molduraIntDir = criarFrisoLateraldir_([
-  new THREE.Vector3(14.7, 2.6, -config.wallDistance + 0.022),
-  new THREE.Vector3(14.7, 13.2, -config.wallDistance + 0.022),
-  new THREE.Vector3(11.8, 13.2, -config.wallDistance + 0.022),
-  new THREE.Vector3(11.8, 2.6, -config.wallDistance + 0.022)
-], materialMolduraInterior);
-scene.add(molduraIntDir);
 // 🔷 Geometria e material da gema (cristal azul translúcido)
 const texturaGema = textureLoader.load('/assets/gema-azul.jpg.png');
 const geometriaGema = new THREE.OctahedronGeometry(0.4, 2);

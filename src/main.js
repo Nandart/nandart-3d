@@ -661,3 +661,4 @@ molduraCentral.position.set(0, 7.8, -config.wallDistance / 2 - 1.98); // Ligeira
 scene.add(molduraCentral);
 
 // Removidas quaisquer luzes direcionais ou spot específicas para o quadro central para evitar iluminação direta
+

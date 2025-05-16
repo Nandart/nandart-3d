@@ -5,59 +5,49 @@
   box-sizing: border-box;
 }
 
-/* Variáveis de tamanho responsivo */
 :root {
   --icon-size: clamp(32px, 5vw, 48px);
   --icon-label-size: clamp(0.6rem, 1.5vw, 0.8rem);
   --menu-font-size: clamp(0.9rem, 1.8vw, 1.1rem);
-  --obra-info-font: clamp(0.85rem, 2vw, 1.1rem);
   --nav-padding: clamp(0.8rem, 2vw, 1.2rem);
+  --cor-fundo: #111111;
+  --cor-dourado: #f3c97a;
+  --cor-tipo: #fff2c6;
 }
 
+/* Corpo da página */
 html, body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   font-family: 'Playfair Display', serif;
-  background-color: #111111;
-  position: relative;
-  z-index: 0;
+  background-color: var(--cor-fundo);
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
-/* Canvas 3D */
+/* Canvas da cena 3D */
 #scene {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1;
+  z-index: 0;
   display: block;
-  pointer-events: none;
 }
 
-/* Ícone de informação */
-.info-icon,
-.ajuda-icon,
-.menu-icon {
-  width: var(--icon-size);
-  height: auto;
-  cursor: pointer;
-}
-
-/* Container geral de navegação */
+/* Navegação flutuante */
 .nav-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
-  height: auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: var(--nav-padding);
   z-index: 1000;
   pointer-events: none;
@@ -67,21 +57,31 @@ html, body {
   pointer-events: auto;
 }
 
-/* Posicionamento individual de ícones */
-.nav-icon {
+/* Ícones principais */
+.nav-icon,
+.nav-button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: var(--cor-tipo);
+  background: none;
+  border: none;
+  cursor: pointer;
   text-decoration: none;
-  color: #fff2c6;
+}
+
+.nav-icon img,
+.nav-button img {
+  width: var(--icon-size);
+  height: auto;
 }
 
 .icon-label {
   font-size: var(--icon-label-size);
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
 }
 
-/* Menu principal */
+/* Menu dropdown */
 .menu-container {
   position: relative;
   z-index: 1001;
@@ -100,10 +100,11 @@ html, body {
   max-height: 70vh;
   overflow-y: auto;
   min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
 .menu-dropdown a {
-  color: #fff2c6;
+  color: var(--cor-tipo);
   text-decoration: none;
   margin-bottom: 10px;
   font-size: var(--menu-font-size);
@@ -114,96 +115,41 @@ html, body {
   text-decoration: underline;
 }
 
-/* Fundo desfocado */
-#fundo-desfocado {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  backdrop-filter: blur(3px);
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-/* Painel de informações da obra em destaque */
-.obra-info {
-  position: fixed;
-  bottom: 5vh;
+/* Painel para no-JavaScript */
+.nojs-message {
+  position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(10, 10, 10, 0.7);
-  padding: 1rem 1.2rem;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  color: var(--cor-dourado);
+  padding: 2rem;
   border-radius: 12px;
-  color: #fff2c6;
-  font-family: 'Playfair Display', serif;
-  font-size: var(--obra-info-font);
+  font-size: 1.2rem;
   text-align: center;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   z-index: 2000;
-  animation: fadeInObraInfo 0.5s ease forwards;
-  max-width: 90vw;
 }
 
-@keyframes fadeInObraInfo {
-  from {
-    transform: translateX(-50%) translateY(10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
-
-.obra-info button {
-  margin-top: 10px;
-  padding: 8px 16px;
-  font-size: var(--icon-label-size);
-  background-color: #fff2c6;
-  color: #111;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.obra-info button:hover {
-  background-color: #ffe9a9;
-}
-
-/* Responsividade */
+/* Responsividade extra */
 @media (max-width: 768px) {
   .menu-container {
-    top: 70px;
-    left: 16px;
+    left: auto;
+    right: 16px;
   }
 
   .menu-dropdown {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 0;
+    left: auto;
   }
 }
 
 @media (max-width: 600px) {
-  .obra-info {
-    padding: 0.8rem 1rem;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 600px) {
-  .obra-info {
-    bottom: 2vh;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
   .nav-container {
-    padding: 0.5rem;
+    padding: 0.6rem;
+  }
+
+  .menu-dropdown {
+    font-size: 0.9rem;
   }
 }
 

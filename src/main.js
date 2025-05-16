@@ -251,69 +251,6 @@ gsap.to(luzChao, {
   scene.add(interior);
 });
 
-// 🔷 Geometria da gema
-const texturaGema = textureLoader.load('/assets/gema-azul.jpg.png');
-const geometriaGema = new THREE.OctahedronGeometry(0.4, 2);
-const materialGema = new THREE.MeshStandardMaterial({
-  map: texturaGema,
-  metalness: 0.9,
-  roughness: 0.05,
-  emissive: 0x224477,
-  emissiveIntensity: 0.35,
-  transparent: true,
-  opacity: 0.95
-});
-
-// 🟥 Geometria da vitrine de vidro
-const geometriaVitrine = new THREE.CylinderGeometry(0.6, 0.6, 1.1, 32);
-const materialVidro = new THREE.MeshPhysicalMaterial({
-  color: 0xccccff,
-  metalness: 0,
-  roughness: 0.1,
-  transparent: true,
-  opacity: 0.25,
-  transmission: 1.0,
-  thickness: 0.1,
-  envMapIntensity: 0.6
-});
-
-// 🟫 Geometria do pedestal
-const geometriaPedestal = new THREE.CylinderGeometry(0.65, 0.65, 0.4, 24);
-const materialPedestal = new THREE.MeshStandardMaterial({
-  color: 0x444444,
-  metalness: 0.3,
-  roughness: 0.6
-});
-
-// 📍 Criar pedestais, vitrines e gemas
-[
-  { x: -9.5, z: -1.8 },
-  { x: -9.5, z: 1.8 },
-  { x: 9.5, z: -1.8 },
-  { x: 9.5, z: 1.8 }
-].forEach((pos) => {
-  const pedestal = new THREE.Mesh(geometriaPedestal, materialPedestal);
-  pedestal.position.set(pos.x, 0.2, pos.z);
-  pedestal.receiveShadow = true;
-  scene.add(pedestal);
-
-  const vitrine = new THREE.Mesh(geometriaVitrine, materialVidro);
-  vitrine.position.set(pos.x, 1.2, pos.z);
-  scene.add(vitrine);
-
-  const gema = new THREE.Mesh(geometriaGema, materialGema);
-  gema.position.set(pos.x, 1.2, pos.z);
-  gema.castShadow = true;
-  scene.add(gema);
-
-  const reflexo = gema.clone();
-  reflexo.scale.y = -1;
-  reflexo.material = gema.material.clone();
-  reflexo.material.opacity = 0.3;
-  reflexo.material.emissiveIntensity = 0.2;
-  reflexo.position.y = 0.01;
-  scene.add(reflexo);
-});
 
 // 🎨 Materiais para molduras exterior e interior dos frisos laterais
 const materialMolduraExterior = new THREE.MeshStandardMaterial({

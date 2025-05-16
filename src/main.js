@@ -1,7 +1,9 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
 import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/objects/Reflector.js';
 import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/TextGeometry.js';
 import { RoundedBoxGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/RoundedBoxGeometry.js';
+import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
 import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js';
 import { MotionPathPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/MotionPathPlugin.min.js';
 

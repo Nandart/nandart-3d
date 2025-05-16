@@ -458,15 +458,6 @@ circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.set(0, 0.011, 0);
 scene.add(circuloLuz);
 
-
-const materialMolduraInterior = new THREE.MeshStandardMaterial({
-  color: 0xfbe7b2,
-  metalness: 0.8,
-  roughness: 0.2,
-  emissive: 0x4e3a1d,
-  emissiveIntensity: 0.35
-});
-
 // 🟨 Moldura retangular arredondada para parede de fundo
 const formatoFrisoCentral = new THREE.Shape();
 const larguraFriso = 4.0;

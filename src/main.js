@@ -53,6 +53,7 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 // 🖼️ Estruturas de dados
 const obrasNormais = [];
 const obrasSubstitutas = [];
@@ -88,6 +89,7 @@ async function carregarObras() {
     console.error('Erro ao carregar obras.json:', e);
   }
 }
+
 function criarObraCircular(nome, index) {
   const textura = textureLoader.load(`/assets/obras/${nome}`, tex => {
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -136,9 +138,10 @@ function criarObraCircular(nome, index) {
   obrasNormais.push(obra);
   reflexos.push(reflexo);
 }
+
 let rotacaoPausada = false;
 let tempoAnterior = Date.now();
-let indiceSubstituicao = 0;
+let obraEmDestaque = null;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -196,7 +199,6 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-animate();
 // 📸 Reposicionamento da câmara para visão ampla e imersiva
 camera.position.set(0, 8, 20);
 camera.lookAt(0, 6.5, 0);
@@ -283,6 +285,7 @@ const luzTeto = new THREE.RectAreaLight(0xfff7dd, 2.2, 22, 18);
 luzTeto.position.set(0, 25.8, -config.wallDistance / 2);
 luzTeto.lookAt(0, 12, -config.wallDistance / 2);
 scene.add(luzTeto);
+
 // 🎨 Materiais de molduras
 const materialMolduraExterior = new THREE.MeshStandardMaterial({
   color: 0xf3c97a,
@@ -372,64 +375,7 @@ const molduraIntDir = criarFrisoLateral([
   new THREE.Vector3(11.8, 2.6, -config.wallDistance / 2 + 0.022)
 ], materialMolduraInterior);
 scene.add(molduraIntDir);
-let rotacaoPausada = false;
-let obraEmDestaque = null;
-let indiceSubstituicao = 0;
 
-function animate() {
-  requestAnimationFrame(animate);
-
-  const tempo = Date.now() * -0.00012;
-
-  obrasNormais.forEach((obra, i) => {
-    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(angulo) * config.circleRadius;
-    const z = Math.sin(angulo) * config.circleRadius;
-    const ry = -angulo + Math.PI;
-
-    const intensidade = (obra === obraEmDestaque) ? 0.005 : 1;
-
-    if (!rotacaoPausada || obra !== obraEmDestaque) {
-      // Atualizar posição e rotação da obra
-      obra.position.x += (x - obra.position.x) * 0.05 * intensidade;
-      obra.position.z += (z - obra.position.z) * 0.05 * intensidade;
-      obra.rotation.y += (ry - obra.rotation.y) * 0.05 * intensidade;
-
-      // Reflexo sincronizado
-      const reflexo = obra.userData.reflexo;
-      if (reflexo) {
-        reflexo.userData.targetPos.set(x, -0.01, z);
-        reflexo.userData.targetRot.set(0, ry, 0);
-
-        reflexo.position.lerp(reflexo.userData.targetPos, 0.05 * intensidade);
-        reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.05 * intensidade;
-      }
-
-      // 🔄 Verifica se a obra passou para trás
-      const passouPeloFundo = z > config.circleRadius - 0.5 && x < 1.0 && x > -1.0;
-
-      if (passouPeloFundo && obrasSubstitutas.length > 0) {
-        const substituta = obrasSubstitutas[indiceSubstituicao % obrasSubstitutas.length];
-        obra.material.map = substituta.textura;
-        obra.material.needsUpdate = true;
-        obra.userData.nome = substituta.nome;
-
-        const reflexo = obra.userData.reflexo;
-        if (reflexo) {
-          reflexo.material.map = substituta.textura;
-          reflexo.material.needsUpdate = true;
-        }
-
-        // Rotatividade contínua
-        indiceSubstituicao++;
-      }
-    }
-  });
-
-  renderer.render(scene, camera);
-}
-
-animate();
 // 🔷 Geometria e material da gema
 const texturaGema = textureLoader.load('/assets/gema-azul.jpg.png');
 const geometriaGema = new THREE.OctahedronGeometry(0.4, 2);
@@ -502,6 +448,7 @@ posicoes.forEach((pos) => {
   reflexo.position.y = 0.01;
   scene.add(reflexo);
 });
+
 // 🟫 CHÃO com reflexo subtil (obsidiana líquida)
 const geometriaChao = new THREE.PlaneGeometry(50, 40);
 const materialChao = new THREE.MeshStandardMaterial({
@@ -580,6 +527,7 @@ const paredeFundo = new THREE.Mesh(
 );
 paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance / 2);
 scene.add(paredeFundo);
+
 // ✍️ Nome NANdART em relevo elegante na parede de fundo
 const loaderFonte = new FontLoader();
 loaderFonte.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function (fonte) {
@@ -608,6 +556,7 @@ loaderFonte.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.js
   textoMesh.position.set(0, 18.5, -config.wallDistance / 2 + 0.01);
   scene.add(textoMesh);
 });
+
 // 🚀 Iniciar carregamento das obras e arrancar animação
 carregarObras().then(() => {
   animate();

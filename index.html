@@ -1,104 +1,42 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NANdART Gallery</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            overflow: hidden;
-            font-family: 'Helvetica', Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-        }
-        
-        #container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-        
-        #scene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            outline: none;
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.2rem;
-            color: #f3c97a;
-            z-index: 100;
-            transition: opacity 1s;
-        }
-        
-        #info {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background-color: rgba(26, 26, 26, 0.7);
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            max-width: 300px;
-            border-left: 3px solid #f3c97a;
-        }
-        
-        @media (max-width: 768px) {
-            #info {
-                bottom: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="container">
-        <canvas id="scene"></canvas>
-        <div id="loading">Carregando galeria...</div>
-        <div id="info" style="display: none;">
-            <strong>NANdART Gallery</strong><br>
-            As obras de arte giram continuamente. Passe o mouse sobre uma obra para destacá-la.
+    <div id="app-container">
+        <canvas id="gallery-scene"></canvas>
+        
+        <div id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Inicializando galeria...</p>
+        </div>
+        
+        <div id="ui-controls">
+            <button id="info-btn" aria-label="Informações">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            </button>
+            <button id="fullscreen-btn" aria-label="Tela cheia">
+                <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
+        </div>
+        
+        <div id="info-panel" class="hidden">
+            <h2>NANdART Gallery</h2>
+            <p>Galeria de arte virtual com obras em rotação contínua. Passe o mouse sobre uma obra para visualizar detalhes.</p>
+            <div id="artwork-info"></div>
+            <button id="close-info">Fechar</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
-    <script src="main.js"></script>
-    
-    <script>
-        // Hide loading when scene is ready
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loading').style.opacity = '0';
-                document.getElementById('info').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                }, 1000);
-            }, 1500);
-        });
-        
-        // Handle mouse events for artwork highlighting
-        let hoverTimeout;
-        document.addEventListener('mousemove', (event) => {
-            clearTimeout(hoverTimeout);
-            // You can add interaction logic here later
-        });
-    </script>
+    <script src="main.js" type="module"></script>
 </body>
 </html>

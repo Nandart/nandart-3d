@@ -355,7 +355,7 @@ const molduraIntEsq = criarFrisoLateral([
   new THREE.Vector3(-14.7, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(-11.8, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(-11.8, 2.6, -config.wallDistance + 0.022)
-], materialMolduraInterior);
+], materialMolduraInterioresquerda);
 scene.add(molduraIntEsq);
 
 // ➕ Moldura lateral direita (exterior + interior)
@@ -372,7 +372,7 @@ const molduraIntDir = criarFrisoLateral([
   new THREE.Vector3(14.7, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(11.8, 13.2, -config.wallDistance + 0.022),
   new THREE.Vector3(11.8, 2.6, -config.wallDistance + 0.022)
-], materialMolduraInterior);
+], materialMolduraInteriordireita);
 scene.add(molduraIntDir);
 
 // 🟨 Moldura retangular arredondada da parede central (friso quadro central)

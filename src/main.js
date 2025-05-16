@@ -654,11 +654,5 @@ const paredeFundo = new THREE.Mesh(
 paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance / 2 - 2); // Empurrar mais para trás para profundidade
 scene.add(paredeFundo);
 
-// Moldura do quadro central (retangular com cantos arredondados)
-const geometriaMolduraCentral = new THREE.ExtrudeGeometry(formatoFrisoCentral, extrudeSettings);
-const molduraCentral = new THREE.Mesh(geometriaMolduraCentral, materialMolduraExterior);
-molduraCentral.position.set(0, 7.8, -config.wallDistance / 2 - 1.98); // Ligeiramente à frente da parede, mas sem luz direta
-scene.add(molduraCentral);
-
 // Removidas quaisquer luzes direcionais ou spot específicas para o quadro central para evitar iluminação direta
 

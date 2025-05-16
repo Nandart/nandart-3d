@@ -5,50 +5,97 @@
   box-sizing: border-box;
 }
 
-:root {
-  --icon-size: clamp(32px, 5vw, 48px);
-  --icon-label-size: clamp(0.6rem, 1.5vw, 0.8rem);
-  --menu-font-size: clamp(0.9rem, 1.8vw, 1.1rem);
-  --nav-padding: clamp(0.8rem, 2vw, 1.2rem);
-  --cor-fundo: #111111;
-  --cor-dourado: #f3c97a;
-  --cor-tipo: #fff2c6;
-}
-
-/* Corpo da página */
 html, body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   font-family: 'Playfair Display', serif;
-  background-color: var(--cor-fundo);
+  background-color: #111111;
+  position: relative;
+  z-index: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
 }
 
-/* Canvas da cena 3D */
+/* Canvas 3D */
 #scene {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
+  z-index: 1;
   display: block;
+  pointer-events: none;
 }
 
-/* Navegação flutuante */
+/* Ecrã de carregamento */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 100vw;
+  height: 100vh;
+  background-color: #111111;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1.2s ease;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #fff2c6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #fff2c6;
+  font-size: 1rem;
+}
+
+.loading-progress {
+  color: #fff2c6;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Ícone de informação */
+.info-icon {
+  width: 48px;
+  height: auto;
+  cursor: pointer;
+}
+
+/* Ícone de ajuda */
+.ajuda-icon {
+  width: 45px;
+  height: auto;
+  cursor: pointer;
+}
+
+/* Container geral de navegação */
 .nav-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
+  height: auto;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: var(--nav-padding);
+  align-items: center;
+  padding: 1rem;
   z-index: 1000;
   pointer-events: none;
 }
@@ -57,99 +104,177 @@ html, body {
   pointer-events: auto;
 }
 
-/* Ícones principais */
-.nav-icon,
-.nav-button {
+/* Posicionamento individual de ícones */
+.nav-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--cor-tipo);
-  background: none;
-  border: none;
-  cursor: pointer;
   text-decoration: none;
-}
-
-.nav-icon img,
-.nav-button img {
-  width: var(--icon-size);
-  height: auto;
+  color: #fff2c6;
 }
 
 .icon-label {
-  font-size: var(--icon-label-size);
-  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  margin-top: 0.2rem;
 }
 
-/* Menu dropdown */
+/* Menu principal */
 .menu-container {
   position: relative;
   z-index: 1001;
+}
+
+.menu-icon {
+  width: 48px;
+  height: auto;
+  cursor: pointer;
 }
 
 .menu-dropdown {
   display: none;
   flex-direction: column;
   position: absolute;
-  top: calc(var(--icon-size) + 10px);
-  right: 0;
+  top: 60px;
+  left: 0;
   background-color: rgba(17, 17, 17, 0.95);
   padding: 12px;
   border-radius: 8px;
   z-index: 102;
   max-height: 70vh;
   overflow-y: auto;
-  min-width: 160px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
 .menu-dropdown a {
-  color: var(--cor-tipo);
+  color: #fff2c6;
   text-decoration: none;
   margin-bottom: 10px;
-  font-size: var(--menu-font-size);
-  white-space: nowrap;
+  font-size: 1rem;
 }
 
 .menu-dropdown a:hover {
   text-decoration: underline;
 }
 
-/* Painel para no-JavaScript */
-.nojs-message {
-  position: absolute;
+/* Modal de obra */
+.art-modal {
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #1a1a1a;
-  color: var(--cor-dourado);
-  padding: 2rem;
+  z-index: 999;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 1rem;
+  border-radius: 10px;
+  color: #fff;
+}
+
+/* Fundo desfocado */
+#fundo-desfocado {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Painel de informações da obra em destaque */
+.obra-info {
+  position: fixed;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 10, 0.7);
+  padding: 1rem 1.2rem;
   border-radius: 12px;
-  font-size: 1.2rem;
+  color: #fff2c6;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
   text-align: center;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   z-index: 2000;
+  animation: fadeInObraInfo 0.5s ease forwards;
+  max-width: 90vw;
 }
 
-/* Responsividade extra */
+@keyframes fadeInObraInfo {
+  from {
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.obra-info button {
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  background-color: #fff2c6;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obra-info button:hover {
+  background-color: #ffe9a9;
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
+  .info-icon,
+  .ajuda-icon,
+  .menu-icon {
+    width: 40px;
+  }
+
   .menu-container {
-    left: auto;
-    right: 16px;
+    top: 70px;
+    left: 16px;
   }
 
-  .menu-dropdown {
-    right: 0;
-    left: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .nav-container {
-    padding: 0.6rem;
+  .info-icon {
+    top: 16px;
+    left: 16px;
   }
 
-  .menu-dropdown {
+  .ajuda-icon {
+    bottom: 16px;
+    left: 16px;
+  }
+
+  .menu-dropdown a {
     font-size: 0.9rem;
   }
 }
 
+@media (max-width: 600px) {
+  .obra-info {
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .obra-info button {
+    font-size: 0.85rem;
+    padding: 5px 12px;
+  }
+}
+
+/* Oculta forçadamente o loading ao fim de tudo (segurança extra) */
+.loading-screen {
+  opacity: 0 !important;
+  display: none !important;
+}

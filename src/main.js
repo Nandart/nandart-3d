@@ -57,7 +57,6 @@ window.addEventListener('resize', () => {
 const obrasNormais = [];
 const obrasSubstitutas = [];
 const reflexos = [];
-let obraEmDestaque = null;
 let indiceSubstituicao = 0;
 
 // 🔄 Carregar obras a partir do ficheiro JSON

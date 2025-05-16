@@ -498,24 +498,7 @@ circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.set(0, 0.011, 0);
 scene.add(circuloLuz);
 
-// ⬛ TETO visível com iluminação suave e tom neutro
-const geometriaTeto = new THREE.PlaneGeometry(50, 40);
-const materialTeto = new THREE.MeshStandardMaterial({
-  color: 0x1a1a1a,
-  roughness: 0.8,
-  metalness: 0.1,
-  side: THREE.BackSide
-});
-const teto = new THREE.Mesh(geometriaTeto, materialTeto);
-teto.rotation.x = Math.PI / 2;
-teto.position.y = 26.5;
-scene.add(teto);
 
-// 💡 Luz suave e ampla no teto para iluminar a galeria
-const luzTeto = new THREE.RectAreaLight(0xfff7dd, 2.2, 22, 18);
-luzTeto.position.set(0, 25.8, -config.wallDistance);
-luzTeto.lookAt(0, 12, -config.wallDistance);
-scene.add(luzTeto);
 // 🟫 PAREDES LATERAIS com textura e iluminação realista
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
 texturaParede.wrapS = texturaParede.wrapT = THREE.RepeatWrapping;
@@ -754,7 +737,11 @@ const teto = new THREE.Mesh(geometriaTeto, materialTeto);
 teto.rotation.x = Math.PI / 2;
 teto.position.y = 26.5;
 scene.add(teto);
-
+// 💡 Luz suave e ampla no teto para iluminar a galeria
+const luzTeto = new THREE.RectAreaLight(0xfff7dd, 2.2, 22, 18);
+luzTeto.position.set(0, 25.8, -config.wallDistance);
+luzTeto.lookAt(0, 12, -config.wallDistance);
+scene.add(luzTeto);
 // 🟫 Paredes laterais com textura realista, repetição suave, e iluminação adaptada
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
 texturaParede.wrapS = texturaParede.wrapT = THREE.RepeatWrapping;

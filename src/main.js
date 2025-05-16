@@ -222,6 +222,7 @@ scene.add(circleLight);
 const frisoChaoFrontal = new THREE.Mesh(
   new THREE.PlaneGeometry(7.2, 0.04),
   new THREE.MeshStandardMaterial({
+    
     color: 0xf3c97a,
     metalness: 1,
     roughness: 0.05,
@@ -565,24 +566,6 @@ function criarFrisoDuplo(x, y, z, alturaExterna, alturaInterna, offset = 0.01, r
 criarFrisoDuplo(-11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4); // esquerda
 criarFrisoDuplo(11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4);  // direita
 
-// ✨ Círculo de luz aumentado — conforme layout original (≈40% da largura do chão)
-const circle = new THREE.Mesh(
-  new THREE.RingGeometry(7.0, 7.35, 120),
-  new THREE.MeshStandardMaterial({
-    color: 0xfdf6dc,
-    emissive: 0xffefc6,
-    emissiveIntensity: 3.5,
-    metalness: 0.7,
-    roughness: 0.15,
-    transparent: true,
-    opacity: 0.92,
-    side: THREE.DoubleSide
-  })
-);
-circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.052;
-circle.receiveShadow = true;
-scene.add(circle);
 
 // ✨ Friso horizontal fino e elegante no chão (frente ao círculo de luz)
 const frisoChaoFrontal = new THREE.Mesh(

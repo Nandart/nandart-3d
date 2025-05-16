@@ -9,10 +9,9 @@
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css">
 
-  <!-- Preload/Preconnect Optimizado -->
-  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
-  <link rel="modulepreload" href="/src/main.js" crossorigin>
+  <!-- Preload de recursos -->
   <link rel="preload" href="/assets/parede-antracite.jpg" as="image" type="image/jpeg">
+  <link rel="preload" href="/assets/gema-azul.jpg.png" as="image" type="image/png">
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
@@ -20,34 +19,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-  </noscript>
-
-  <!-- ethers.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-
-  <!-- Import Maps -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
-        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
-        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
-      }
-    }
-  </script>
 
   <!-- Fallback para navegadores antigos -->
-  <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+  <script nomodule>
+    alert("O seu navegador não suporta módulos JavaScript. Use Chrome, Firefox ou Edge.");
+    window.location.href = "https://www.google.com/chrome/";
+  </script>
 </head>
 
 <body>
-  <!-- Canvas da Galeria 3D -->
+  <!-- Canvas da cena 3D -->
   <canvas id="scene"></canvas>
 
+  <!-- Mensagem caso JavaScript esteja desativado -->
   <noscript>
     <div class="nojs-message">
       <h2>JavaScript Necessário</h2>
@@ -74,96 +58,20 @@
         <a href="web3.html" class="menu-item">Web3 & NFT</a>
       </div>
     </div>
-
-    <a href="como-navegar.html" class="nav-icon" aria-label="Ajuda">
-      <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy"/>
-      <span class="icon-label">Ajuda</span>
-    </a>
   </div>
 
-  <!-- Fundo desfocado -->
-  <div id="fundo-desfocado"></div>
-
-  <!-- Script de compatibilidade -->
+  <!-- Script do menu -->
   <script>
-    function checkCompatibility() {
-      try {
-        const canvas = document.createElement('canvas');
-        const webgl = !!window.WebGLRenderingContext &&
-                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-
-        if (!webgl) throw new Error('WebGL não suportado');
-        return true;
-      } catch(e) {
-        document.body.innerHTML = `
-          <div class="compatibility-error">
-            <h2>Dispositivo Não Suportado</h2>
-            <p>O seu dispositivo não suporta WebGL, necessário para esta experiência.</p>
-            <p>Por favor tente num smartphone moderno ou computador.</p>
-          </div>
-        `;
-        return false;
-      }
-    }
-
-    if (checkCompatibility()) {
-      const isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
-      if (isMobile) {
-        document.documentElement.classList.add('mobile');
-        if (window.innerHeight > window.innerWidth) {
-          document.documentElement.classList.add('portrait');
-        }
-      }
-
-      window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-          if (window.innerHeight > window.innerWidth) {
-            document.documentElement.classList.add('portrait');
-          } else {
-            document.documentElement.classList.remove('portrait');
-          }
-        }, 300);
-      });
-
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (connection) {
-        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
-          document.documentElement.classList.add('low-bandwidth');
-        }
-      }
-
-      const menuToggle = document.getElementById('menu-toggle');
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          const menu = document.getElementById('menu-dropdown');
-          const isExpanded = this.getAttribute('aria-expanded') === 'true';
-          menu.style.display = isExpanded ? 'none' : 'flex';
-          this.setAttribute('aria-expanded', String(!isExpanded));
-
-          if (!isExpanded) {
-            setTimeout(() => {
-              document.addEventListener('click', function closeMenu(e) {
-                if (!menu.contains(e.target) && e.target !== menuToggle) {
-                  menu.style.display = 'none';
-                  menuToggle.setAttribute('aria-expanded', 'false');
-                  document.removeEventListener('click', closeMenu);
-                }
-              }, { once: true });
-            }, 10);
-          }
-        });
-      }
-    }
+    const toggle = document.getElementById('menu-toggle');
+    toggle.addEventListener('click', () => {
+      const dropdown = document.getElementById('menu-dropdown');
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      dropdown.style.display = expanded ? 'none' : 'flex';
+      toggle.setAttribute('aria-expanded', !expanded);
+    });
   </script>
 
-  <!-- Carregamento final da aplicação 3D -->
-  <script type="module" src="/src/main.js" crossorigin="anonymous"></script>
-
-  <script nomodule>
-    alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
-    window.location.href = "https://www.google.com/chrome/";
-  </script>
+  <!-- Carregamento do main.js -->
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
-

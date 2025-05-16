@@ -1,11 +1,11 @@
-import * as THREE from 
-import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/objects/Reflector.js';
-import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/TextGeometry.js';
-import { RoundedBoxGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/geometries/RoundedBoxGeometry.js';
-import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js';
-import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js';
-import { MotionPathPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/MotionPathPlugin.min.js';
+import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'; // 
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

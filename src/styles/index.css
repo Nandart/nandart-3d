@@ -1,280 +1,61 @@
-/* Reset básico */
+/* Reset e base */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
 html, body {
-  width: 100vw;
-  height: 100vh;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #1a1a1a;
+  color: #f3c97a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
-  font-family: 'Playfair Display', serif;
-  background-color: #111111;
-  position: relative;
-  z-index: 0;
+}
+
+/* Container do canvas */
+body {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
-/* Canvas 3D */
-#scene {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* Canvas ocupa todo o ecrã */
+canvas#scene {
   width: 100vw;
   height: 100vh;
-  z-index: 1;
   display: block;
-  pointer-events: none;
+  outline: none;
+  touch-action: none;
+  background-color: #1a1a1a;
 }
 
-/* Ecrã de carregamento */
-.loading-screen {
+/* Foco acessível para canvas (se usares teclado para navegação) */
+canvas#scene:focus {
+  outline: 2px solid #f3c97a;
+  outline-offset: 3px;
+}
+
+/* Estilo para mensagens, alertas, ou futuramente UI sobre a galeria */
+#ui-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 20;
-  width: 100vw;
-  height: 100vh;
-  background-color: #111111;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 1.2s ease;
-}
-
-.loading-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid #fff2c6;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  color: #fff2c6;
+  top: 20px;
+  left: 20px;
+  color: #f3c97a;
   font-size: 1rem;
+  z-index: 10;
+  user-select: none;
 }
 
-.loading-progress {
-  color: #fff2c6;
-  font-size: 0.9rem;
-  margin-top: 4px;
-}
-
-/* Ícone de informação */
-.info-icon {
-  width: 48px;
-  height: auto;
-  cursor: pointer;
-}
-
-/* Ícone de ajuda */
-.ajuda-icon {
-  width: 45px;
-  height: auto;
-  cursor: pointer;
-}
-
-/* Container geral de navegação */
-.nav-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.nav-container * {
-  pointer-events: auto;
-}
-
-/* Posicionamento individual de ícones */
-.nav-icon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: #fff2c6;
-}
-
-.icon-label {
-  font-size: 0.7rem;
-  margin-top: 0.2rem;
-}
-
-/* Menu principal */
-.menu-container {
-  position: relative;
-  z-index: 1001;
-}
-
-.menu-icon {
-  width: 48px;
-  height: auto;
-  cursor: pointer;
-}
-
-.menu-dropdown {
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  top: 60px;
-  left: 0;
-  background-color: rgba(17, 17, 17, 0.95);
-  padding: 12px;
-  border-radius: 8px;
-  z-index: 102;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.menu-dropdown a {
-  color: #fff2c6;
-  text-decoration: none;
-  margin-bottom: 10px;
-  font-size: 1rem;
-}
-
-.menu-dropdown a:hover {
-  text-decoration: underline;
-}
-
-/* Modal de obra */
-.art-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  display: none;
-  background-color: rgba(0, 0, 0, 0.85);
-  padding: 1rem;
-  border-radius: 10px;
-  color: #fff;
-}
-
-/* Fundo desfocado */
-#fundo-desfocado {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  backdrop-filter: blur(3px);
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-/* Painel de informações da obra em destaque */
-.obra-info {
-  position: fixed;
-  bottom: 5vh;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(10, 10, 10, 0.7);
-  padding: 1rem 1.2rem;
-  border-radius: 12px;
-  color: #fff2c6;
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
-  text-align: center;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-  z-index: 2000;
-  animation: fadeInObraInfo 0.5s ease forwards;
-  max-width: 90vw;
-}
-
-@keyframes fadeInObraInfo {
-  from {
-    transform: translateX(-50%) translateY(10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
-
-.obra-info button {
-  margin-top: 10px;
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  background-color: #fff2c6;
-  color: #111;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.obra-info button:hover {
-  background-color: #ffe9a9;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .info-icon,
-  .ajuda-icon,
-  .menu-icon {
-    width: 40px;
-  }
-
-  .menu-container {
-    top: 70px;
-    left: 16px;
-  }
-
-  .info-icon {
-    top: 16px;
-    left: 16px;
-  }
-
-  .ajuda-icon {
-    bottom: 16px;
-    left: 16px;
-  }
-
-  .menu-dropdown a {
-    font-size: 0.9rem;
-  }
-}
-
+/* Responsividade para ecrãs pequenos */
 @media (max-width: 600px) {
-  .obra-info {
-    font-size: 0.85rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .obra-info button {
-    font-size: 0.85rem;
-    padding: 5px 12px;
+  canvas#scene {
+    width: 100vw;
+    height: 100vh;
   }
 }
 
-/* Oculta forçadamente o loading ao fim de tudo (segurança extra) */
-.loading-screen {
   opacity: 0 !important;
   display: none !important;
 }

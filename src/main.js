@@ -443,7 +443,7 @@ paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance / 2 - 2);
 scene.add(paredeFundo);
 
 // 🔷 Gemas e vitrines
-const texturaGema = textureLoader.load('/assets//gemas/gema-azul.jpg.png');
+const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 const geometriaGema = new THREE.OctahedronGeometry(0.4, 2);
 const materialGema = new THREE.MeshStandardMaterial({
   map: texturaGema,

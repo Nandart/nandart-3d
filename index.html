@@ -1,40 +1,1537 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
-<head>
+este é o meu html: <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NANdART - Galeria 3D</title>
-  <meta name="description" content="Galeria de Arte 3D NANdART, ambiente imersivo com obras circulantes e elementos realistas." />
-  <link rel="icon" href="/favicon.ico" />
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
-      background-color: #1a1a1a;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #f3c97a;
-    }
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    canvas#scene {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-      outline: none;
-      touch-action: none;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="scene" tabindex="0" aria-label="Cena 3D da galeria NANdART"></canvas>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="NANdART Virtual Gallery — Experiência Premium de Arte 3D">
+  <meta name="theme-color" content="#111111">
+  <title>NANdART Galeria 3D</title>
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/src/styles/index.css">
 
-  <script src="/src/main.js" type="module"></script>
+  <!-- Preload/Preconnect Optimizado -->
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
+  <link rel="modulepreload" href="/src/main.js" crossorigin>
+  <link rel="preload" href="/assets/parede-antracite.jpg" as="image" type="image/jpeg">
+  <link rel="preload" href="/assets/icons/info.png" as="image">
+  <link rel="preload" href="/assets/icons/horizontes.png" as="image">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- ethers.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+  <!-- Import Maps -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js"
+      }
+    }
+  </script>
+
+  <!-- Fallback para navegadores antigos -->
+  <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+</head>
+
+
+<body>
+  <!-- Canvas da Galeria 3D -->
+  <canvas id="scene"></canvas>
+
+  <noscript>
+    <div class="nojs-message">
+      <h2>JavaScript Necessário</h2>
+      <p>Por favor ative o JavaScript para experienciar a Galeria 3D NANdART.</p>
+    </div>
+  </noscript>
+
+  <!-- Navegação flutuante -->
+  <div class="nav-container">
+    <a href="info.html" class="nav-icon" aria-label="Informação">
+      <img src="/assets/icons/info.png" alt="Info" class="info-icon" loading="lazy"/>
+      <span class="icon-label">Info</span>
+    </a>
+
+    <div class="menu-container">
+      <button id="menu-toggle" class="nav-button" aria-label="Menu" aria-expanded="false" aria-controls="menu-dropdown">
+        <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" loading="lazy"/>
+        <span class="icon-label">Menu</span>
+      </button>
+      <div class="menu-dropdown" id="menu-dropdown">
+        <a href="contactos.html" class="menu-item">Contactos</a>
+        <a href="como-navegar.html" class="menu-item">Como Navegar</a>
+        <a href="artistas.html" class="menu-item">Artistas</a>
+        <a href="web3.html" class="menu-item">Web3 & NFT</a>
+      </div>
+    </div>
+
+    <a href="como-navegar.html" class="nav-icon" aria-label="Ajuda">
+      <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy"/>
+      <span class="icon-label">Ajuda</span>
+    </a>
+  </div>
+
+  <!-- Modal de Obra -->
+  <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true">
+    <h3 id="art-title">Título da Obra</h3>
+    <p id="art-description">Descrição da peça selecionada</p>
+    <button id="buy-art" aria-label="Adquirir Obra">Adquirir Obra</button>
+  </div>
+
+  <!-- Script de compatibilidade e carregamento -->
+  <script>
+    function checkCompatibility() {
+      try {
+        const canvas = document.createElement('canvas');
+        const webgl = !!window.WebGLRenderingContext &&
+                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+
+        if (!webgl) throw new Error('WebGL não suportado');
+        return true;
+      } catch(e) {
+        document.body.innerHTML = `
+          <div class="compatibility-error">
+            <h2>Dispositivo Não Suportado</h2>
+            <p>O seu dispositivo não suporta WebGL, necessário para esta experiência.</p>
+            <p>Por favor tente num smartphone moderno ou computador.</p>
+          </div>
+        `;
+        return false;
+      }
+    }
+
+    if (checkCompatibility()) {
+      const loadingScreen = document.querySelector('.loading-screen');
+      const progressElement = document.querySelector('.loading-progress');
+      const isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        document.documentElement.classList.add('mobile');
+        if (window.innerHeight > window.innerWidth) {
+          document.documentElement.classList.add('portrait');
+        }
+      }
+
+      function updateProgress(progress) {
+        if (progressElement) {
+          progressElement.textContent = `${Math.round(progress * 100)}%`;
+        }
+      }
+
+      const menuToggle = document.getElementById('menu-toggle');
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          const menu = document.getElementById('menu-dropdown');
+          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          menu.style.display = isExpanded ? 'none' : 'flex';
+          this.setAttribute('aria-expanded', String(!isExpanded));
+
+          if (!isExpanded) {
+            setTimeout(() => {
+              document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && e.target !== menuToggle) {
+                  menu.style.display = 'none';
+                  menuToggle.setAttribute('aria-expanded', 'false');
+                  document.removeEventListener('click', closeMenu);
+                }
+              }, { once: true });
+            }, 10);
+          }
+        });
+      }
+
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = '/src/main.js';
+          script.crossOrigin = 'anonymous';
+
+          script.onload = () => {
+            updateProgress(1);
+            setTimeout(() => {
+              if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                  loadingScreen.style.display = 'none';
+                }, 1000);
+              }
+            }, 500);
+          };
+
+          script.onerror = () => {
+            updateProgress(0);
+            console.error('Falha ao carregar o script principal');
+          };
+
+          document.body.appendChild(script);
+        }, 300);
+      });
+
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (window.innerHeight > window.innerWidth) {
+            document.documentElement.classList.add('portrait');
+          } else {
+            document.documentElement.classList.remove('portrait');
+          }
+        }, 300);
+      });
+
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection) {
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g' || connection.saveData) {
+          document.documentElement.classList.add('low-bandwidth');
+        }
+      }
+    }
+  </script>
+
+  <script nomodule>
+    alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
+    window.location.href = "https://www.google.com/chrome/";
+  </script>
 </body>
-</html>
+</html>                             o meu main: import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js'; // 
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
+
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+// ✅ Declarar o loader de texturas UMA vez no início
+const textureLoader = new THREE.TextureLoader();
+
+// 🔧 Configuração base
+const config = {
+  wallDistance: 14.5,
+  circleRadius: 6.5,
+  obraSize: 2.1
+};
+
+// 🎥 Câmara com profundidade total da galeria
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 6.5, 16);
+camera.lookAt(0, 6, 0);
+
+// 🎨 Cena e fundo
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a1a);
+
+// 🖥️ Renderer com qualidade cinematográfica
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('scene'),
+  antialias: true
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 2.3;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+// 🔄 Resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// 🧱 Paredes realistas com textura antracite
+const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
+
+const paredeMaterial = new THREE.MeshPhysicalMaterial({
+  map: texturaParede,
+  color: 0x1a1a1a,
+  metalness: 0.25,
+  roughness: 0.5,
+  reflectivity: 0.3,
+  clearcoat: 0.1,
+  clearcoatRoughness: 0.2
+});
+
+// Parede de fundo
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(40, 30), paredeMaterial);
+backWall.position.set(0, 13, -config.wallDistance - 5.5);
+backWall.receiveShadow = true;
+scene.add(backWall);
+
+// 🧱 Paredes laterais com textura antracite e realismo espacial
+const paredeLateralGeo = new THREE.PlaneGeometry(30, 28); // ligeiramente mais altas que o fundo
+
+const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
+leftWall.position.set(-13.2, 13, -config.wallDistance / 2);
+leftWall.rotation.y = Math.PI / 2;
+leftWall.receiveShadow = true;
+scene.add(leftWall);
+
+const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
+rightWall.position.set(13.2, 13, -config.wallDistance / 2);
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.receiveShadow = true;
+scene.add(rightWall);
+
+function criarFrisoPlano(pontos, cor = 0xf3c97a) {
+  const curva = new THREE.CatmullRomCurve3(pontos, true);
+  const geometria = new THREE.TubeGeometry(curva, 60, 0.012, 6, true);
+  const material = new THREE.MeshStandardMaterial({
+    color: cor,
+    metalness: 1,
+    roughness: 0.05,
+    emissive: 0x3a1f0f,
+    emissiveIntensity: 0.25
+  });
+  return new THREE.Mesh(geometria, material);
+}
+
+// 🔶 Função para criar frisos arredondados com estilo realista
+function criarFrisoArredondado(width, height, radius, cor = 0xf3c97a) {
+  return new THREE.Mesh(
+    new THREE.RoundedBoxGeometry(width, height, 0.04, 6, radius),
+    new THREE.MeshPhysicalMaterial({
+      color: cor,
+      metalness: 1,
+      roughness: 0.05,
+      emissive: 0x4e3a1d,
+      emissiveIntensity: 0.4,
+      reflectivity: 1,
+      clearcoat: 1,
+      clearcoatRoughness: 0.02
+    })
+  );
+}
+
+// 🟨 Friso plano à volta do quadro central
+const frisoCentro = criarFrisoPlano([
+  new THREE.Vector3(-2.4, 5.4, -config.wallDistance + 0.01),
+  new THREE.Vector3(-2.4, 11.6, -config.wallDistance + 0.01),
+  new THREE.Vector3(2.4, 11.6, -config.wallDistance + 0.01),
+  new THREE.Vector3(2.4, 5.4, -config.wallDistance + 0.01)
+]);
+scene.add(frisoCentro);
+
+
+// 🟨 Friso plano lateral esquerdo
+const frisoEsq = criarFrisoPlano([
+  new THREE.Vector3(-15.2, 2.4, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-15.2, 12.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-11.8, 12.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-11.8, 2.4, -config.wallDistance / 2 + 0.02)
+]);
+scene.add(frisoEsq);
+
+// 🟨 Friso plano lateral direito
+const frisoDir = criarFrisoPlano([
+  new THREE.Vector3(15.2, 2.4, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(15.2, 12.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(11.8, 12.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(11.8, 2.4, -config.wallDistance / 2 + 0.02)
+]);
+scene.add(frisoDir);
+
+
+ const frisoMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf3c97a,
+  metalness: 1,
+  roughness: 0.05,
+  emissive: 0x4e3a1d,
+  emissiveIntensity: 0.6
+});
+
+// ✨ Luz ambiente radial suave e refinada
+const luzAmbiente = new THREE.AmbientLight(0xffffff, 0.6);
+luzAmbiente.position.set(0, 9.5, 0);
+scene.add(luzAmbiente);
+
+// ✨ Luz hemisférica quente para reforço geral do ambiente
+const luzHemisferica = new THREE.HemisphereLight(0xfff8e6, 0x101010, 2.8);
+scene.add(luzHemisferica);
+// ✨ Luz direcional superior para preenchimento global
+const luzDirecional = new THREE.DirectionalLight(0xfff4e0, 3.2);
+luzDirecional.position.set(0, 20, 12);
+luzDirecional.castShadow = true;
+scene.add(luzDirecional);
+
+const luzFrontalParedeFundo = new THREE.SpotLight(0xffead4, 1.8, 35, Math.PI / 4, 0.45);
+luzFrontalParedeFundo.position.set(0, 12, 10);
+luzFrontalParedeFundo.target.position.set(0, 9, -config.wallDistance);
+scene.add(luzFrontalParedeFundo, luzFrontalParedeFundo.target);
+
+
+// ✨ Luzes rasantes laterais melhoradas para destacar frisos e paredes
+const luzParedeEsquerda = new THREE.SpotLight(0xffead4, 2.2, 30, Math.PI / 5, 0.3);
+luzParedeEsquerda.position.set(-14, 12, 0);
+luzParedeEsquerda.target.position.set(-13.2, 10, -config.wallDistance / 2);
+scene.add(luzParedeEsquerda, luzParedeEsquerda.target);
+
+const luzParedeDireita = new THREE.SpotLight(0xffead4, 2.2, 30, Math.PI / 5, 0.3);
+luzParedeDireita.position.set(14, 12, 0);
+luzParedeDireita.target.position.set(13.2, 10, -config.wallDistance / 2);
+scene.add(luzParedeDireita, luzParedeDireita.target);
+
+// ✨ Chão com reflexo profundo e textura realista tipo obsidiana líquida
+
+const floorGeometry = new THREE.PlaneGeometry(40, 40);
+
+const floor = new Reflector(floorGeometry, {
+  clipBias: 0.001,
+  textureWidth: window.innerWidth * window.devicePixelRatio,
+  textureHeight: window.innerHeight * window.devicePixelRatio,
+  color: 0x0a0a0a,
+  recursion: 2
+});
+
+floor.material.opacity = 0.82;
+floor.material.roughness = 0.03;
+floor.material.metalness = 0.95;
+floor.material.transparent = true;
+floor.material.envMapIntensity = 1.2;
+floor.material.reflectivity = 0.92;
+
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Luz rasante (reduzida) apenas para ambiente subtil no chão
+const luzRasante = new THREE.SpotLight(0xfff8e0, 0.4, 10, Math.PI / 7, 0.5);
+luzRasante.position.set(0, 1.5, 3);
+luzRasante.target.position.set(0, 0, 0);
+scene.add(luzRasante);
+scene.add(luzRasante.target);
+
+// Reflexo subtil animado na intensidade
+gsap.to(luzRasante, {
+   intensity: 3.2,
+  duration: 3,
+  repeat: -1,
+  yoyo: true,
+  ease: 'sine.inOut'
+});
+
+// Círculo de luz aumentado — conforme layout (40% da largura do chão)
+const circle = new THREE.Mesh(
+  new THREE.RingGeometry(7.0, 7.35, 120),
+  new THREE.MeshStandardMaterial({
+    color: 0xfdf6dc,
+    emissive: 0xffefc6,
+    emissiveIntensity: 3.5,
+    metalness: 0.7,
+    roughness: 0.15,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide
+  })
+);
+circle.rotation.x = -Math.PI / 2;
+circle.position.y = 0.052;
+circle.receiveShadow = true;
+scene.add(circle);
+
+// Friso horizontal fino e elegante no chão (frente ao círculo de luz)
+const frisoChaoFrontal = new THREE.Mesh(
+  new THREE.PlaneGeometry(7.2, 0.04),
+  new THREE.MeshStandardMaterial({
+    color: 0xf3c97a,
+    metalness: 1,
+    roughness: 0.05,
+    emissive: 0x3a240f,
+    emissiveIntensity: 0.2,
+    side: THREE.DoubleSide
+  })
+);
+frisoChaoFrontal.rotation.x = -Math.PI / 2;
+frisoChaoFrontal.position.set(0, 0.051, -2.55);
+luzFrisoChao.intensity = 0.7; 
+frisoChaoFrontal.receiveShadow = true;
+scene.add(frisoChaoFrontal);
+
+
+// Luz rasante discreta para iluminar o friso de chão
+const luzFrisoChao = new THREE.SpotLight(0xffeac2, 1.2, 4.2, Math.PI / 10, 0.4);
+luzFrisoChao.position.set(0, 1.6, 3.05); // ligeiramente acima do friso
+luzFrisoChao.target.position.set(0, 0.05, 3.05); // aponta exatamente para o friso
+scene.add(luzFrisoChao, luzFrisoChao.target);
+
+const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
+
+const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
+  color: 0xd9b96c,
+  metalness: 1,
+  roughness: 0.1,
+  clearcoat: 0.9,
+  clearcoatRoughness: 0.1,
+  emissive: 0x4a320a,
+  emissiveIntensity: 0.2,
+  reflectivity: 0.5
+});
+
+function criarVitrine(x, z, indice) {
+  const alturaPedestal = 2.8;
+  const alturaVitrine = 1.15;
+  const alturaTotal = alturaPedestal + alturaVitrine;
+  const alturaGema = alturaPedestal + 0.65;
+
+// 🟫 Pedestal escuro metálico com reflexo polido
+const pedestal = new THREE.Mesh(
+  new THREE.BoxGeometry(0.88, alturaPedestal, 0.88),
+  new THREE.MeshPhysicalMaterial({
+    color: 0x1f1f1f,
+    metalness: 1,
+    roughness: 0.28,
+    reflectivity: 0.4,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.15
+  })
+);
+pedestal.position.set(x, alturaPedestal / 2, z);
+pedestal.castShadow = true;
+scene.add(pedestal);
+
+  // 🔶 Tampa dourada refinada
+  const topoDourado = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.36, 0.36, 0.06, 32),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xd9b96c,
+      metalness: 1,
+      roughness: 0.08,
+      clearcoat: 0.95,
+      clearcoatRoughness: 0.05,
+      emissive: 0x3a2a0a,
+      emissiveIntensity: 0.25,
+      reflectivity: 0.65
+    })
+  );
+  topoDourado.position.set(x, alturaPedestal, z);
+  topoDourado.castShadow = true;
+  scene.add(topoDourado);
+
+// 🟦 Vitrine de vidro visível e elegante
+const vitrine = new THREE.Mesh(
+  new THREE.BoxGeometry(0.88, alturaVitrine, 0.88),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0.1,
+    roughness: 0.15,
+    transmission: 1,
+    transparent: true,
+    opacity: 0.32,
+    ior: 1.3,
+    reflectivity: 0.6,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.05
+  })
+);
+vitrine.position.set(x, alturaPedestal + alturaVitrine / 2, z);
+vitrine.castShadow = true;
+scene.add(vitrine);
+
+  // 💎 Gema facetada inspirada no layout
+ const geometriaGema = new THREE.OctahedronGeometry(0.36, 2);
+const materialGema = new THREE.MeshPhysicalMaterial({
+  color: 0x9bcaff,
+  metalness: 0.3,
+  roughness: 0.05,
+  transmission: 1,
+  thickness: 0.7,
+  transparent: true,
+  opacity: 1,
+  reflectivity: 0.95,
+  clearcoat: 1,
+  clearcoatRoughness: 0.02,
+  ior: 1.52,
+  emissive: 0x1c3d66,
+  emissiveIntensity: 0.42
+});
+
+  const gema = new THREE.Mesh(geometriaGema, materialGema);
+  gema.position.set(x, alturaGema, z);
+  gema.rotation.y = indice * 0.4;
+  gema.castShadow = true;
+  scene.add(gema);
+
+  // 💡 Luz interior focal na gema
+  const luzInterior = new THREE.PointLight(0x88bbff, 1.5, 1.6);
+  luzInterior.position.set(x, alturaGema + 0.07, z);
+  scene.add(luzInterior);
+  // 💡 Luz suave ascendente sob a gema
+const luzInferiorGema = new THREE.SpotLight(0x8fcfff, 0.8, 1.8, Math.PI / 6, 0.4);
+luzInferiorGema.position.set(x, alturaGema - 0.2, z);
+luzInferiorGema.target.position.set(x, alturaGema, z);
+scene.add(luzInferiorGema, luzInferiorGema.target);
+
+
+  // 🛡️ Bloqueador opaco atrás da gema para impedir reflexo na parede
+  const bloqueador = new THREE.Mesh(
+    new THREE.CircleGeometry(0.5, 32),
+    new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      metalness: 0,
+      roughness: 1
+    })
+  );
+  bloqueador.rotation.y = Math.PI;
+  bloqueador.position.set(x, alturaGema + 0.07, z - 0.18);
+  bloqueador.castShadow = false;
+  bloqueador.receiveShadow = true;
+  scene.add(bloqueador);
+
+  // ✨ Animação de pulsação para a gema
+  gsap.to(gema.material, {
+    emissiveIntensity: 0.9,
+    duration: 3.2,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
+}
+
+// Criar as quatro vitrines conforme layout
+criarVitrine(-9.5, -1.8, 0);
+criarVitrine(-9.5, 1.8, 1);
+criarVitrine(9.5, -1.8, 2);
+criarVitrine(9.5, 1.8, 3);
+
+// ✨ Iluminação cenográfica dedicada às gemas
+const luzGemas = new THREE.SpotLight(0xcedfff, 1.7, 8, Math.PI / 7, 0.4);
+luzGemas.position.set(0, 5.8, 0);
+luzGemas.target.position.set(0, 3.4, 0);
+scene.add(luzGemas, luzGemas.target);
+
+// Brilho animado subtil para dar vida às gemas
+gsap.to(luzGemas, {
+  intensity: 2,
+  duration: 4,
+  repeat: -1,
+  yoyo: true,
+  ease: 'sine.inOut'
+});
+
+// 🟨 Luzes refinadas para destacar os frisos com contorno
+
+// Luz inferior frontal – base da parede de fundo
+const luzFrisosBase = new THREE.SpotLight(0xffeac2, 0.5, 7, Math.PI / 12, 0.4);
+luzFrisosBase.position.set(0, 3.2, -config.wallDistance + 2);
+luzFrisosBase.target.position.set(0, 6, -config.wallDistance + 0.01);
+scene.add(luzFrisosBase, luzFrisosBase.target);
+
+// Luz lateral esquerda – frisos verticais e horizontais
+const luzFrisoEsquerdo = new THREE.SpotLight(0xffeac2, 1.2, 9, Math.PI / 10, 0.45);
+luzFrisoEsquerdo.position.set(-13, 10, -config.wallDistance / 2 + 1);
+luzFrisoEsquerdo.target.position.set(-13, 8, -config.wallDistance / 2);
+scene.add(luzFrisoEsquerdo, luzFrisoEsquerdo.target);
+
+// Luz lateral direita – frisos verticais e horizontais
+const luzFrisoDireito = new THREE.SpotLight(0xffeac2, 1.2, 9, Math.PI / 10, 0.45);
+luzFrisoDireito.position.set(13, 10, -config.wallDistance / 2 + 1);
+luzFrisoDireito.target.position.set(13, 8, -config.wallDistance / 2);
+scene.add(luzFrisoDireito, luzFrisoDireito.target);
+
+const frisosParaIluminar = [
+  [-6, 8, -config.wallDistance + 1],  // lateral esquerda
+  [6, 8, -config.wallDistance + 1],   // lateral direita
+  [0, 13.6, -config.wallDistance + 1], // friso superior
+  [0, 2.5, -config.wallDistance + 1],  // friso inferior
+];
+
+frisosParaIluminar.forEach(([x, y, z]) => {
+const luzFriso = new THREE.SpotLight(0xfff0c0, 3.0, 6, Math.PI / 9, 0.6);
+  luzFriso.position.set(x, y + 1.5, z + 1.2);
+  luzFriso.target.position.set(x, y, z);
+  scene.add(luzFriso);
+  scene.add(luzFriso.target);
+});
+
+// 🖼️ Quadros laterais centrados dentro das molduras duplas
+
+const obrasLaterais = [
+  {
+    src: '/assets/obras/obra-lateral-esquerda.jpg',
+    x: -11.8,
+    y: 8.2,
+    z: -config.wallDistance / 2 + 0.071,
+    rotY: Math.PI / 2
+  },
+  {
+    src: '/assets/obras/obra-lateral-direita.jpg',
+    x: 11.8,
+    y: 8.2,
+    z: -config.wallDistance / 2 + 0.071,
+    rotY: -Math.PI / 2
+  }
+];
+
+
+obrasLaterais.forEach(({ src, x, y, z, rotY }) => {
+  const textura = textureLoader.load(src, tex => {
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    tex.encoding = THREE.sRGBEncoding;
+    tex.magFilter = THREE.LinearFilter;
+    tex.minFilter = THREE.LinearMipMapLinearFilter;
+  });
+
+  const quadro = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.2, 3.2),
+    new THREE.MeshStandardMaterial({
+      map: textura,
+      roughness: 0.2,
+      metalness: 0.06,
+      side: THREE.FrontSide
+    })
+  );
+
+  quadro.position.set(x, y, z);
+  quadro.rotation.y = rotY;
+  quadro.castShadow = true;
+  scene.add(quadro);
+});
+
+
+// 🟨 Frisos laterais duplos à esquerda e à direita
+const frisoEsquerdo1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+frisoEsquerdo1.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.03);
+frisoEsquerdo1.rotation.y = Math.PI / 2;
+scene.add(frisoEsquerdo1);
+
+const frisoEsquerdo2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+frisoEsquerdo2.position.set(-15.48, 6.1, -config.wallDistance / 2 + 0.05);
+frisoEsquerdo2.rotation.y = Math.PI / 2;
+scene.add(frisoEsquerdo2);
+
+const frisoDireito1 = criarFrisoArredondado(2.5, 6.5, 0.4);
+frisoDireito1.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.03);
+frisoDireito1.rotation.y = -Math.PI / 2;
+scene.add(frisoDireito1);
+
+const frisoDireito2 = criarFrisoArredondado(1.6, 4.8, 0.3);
+frisoDireito2.position.set(15.48, 6.1, -config.wallDistance / 2 + 0.05);
+frisoDireito2.rotation.y = -Math.PI / 2;
+scene.add(frisoDireito2);
+
+// 🖼️ Obras suspensas (sem moldura), em rotação circular contínua
+
+const obraPaths = [
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
+];
+
+const obrasNormais = [];
+
+// Metadados de cada obra — título, artista, ano, preço em ETH
+const dadosObras = [
+  { titulo: "Fragmento de Silêncio", artista: "Nandart", ano: 2024, preco: "1.2" },
+  { titulo: "Luz Interior", artista: "Nandart", ano: 2023, preco: "0.9" },
+  { titulo: "Tempo Suspenso", artista: "Nandart", ano: 2022, preco: "1.0" },
+  { titulo: "Caminho Velado", artista: "Nandart", ano: 2023, preco: "0.7" },
+  { titulo: "Fronteira do Invisível", artista: "Nandart", ano: 2024, preco: "1.8" },
+  { titulo: "Eco de Lume", artista: "Nandart", ano: 2022, preco: "1.1" },
+  { titulo: "Alma Circular", artista: "Nandart", ano: 2023, preco: "1.5" },
+  { titulo: "Aurora Oculta", artista: "Nandart", ano: 2024, preco: "2.0" }
+];
+obraPaths.forEach((src, i) => {
+  const texture = textureLoader.load(src);
+  const ang = (i / obraPaths.length) * Math.PI * 2;
+  const x = Math.cos(ang) * config.circleRadius;
+  const z = Math.sin(ang) * config.circleRadius;
+  const ry = -ang + Math.PI;
+
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+
+  obra.position.set(x, 4.2, z);
+  obra.rotation.y = ry;
+  obra.castShadow = true;
+  scene.add(obra);
+
+  // Reflexo invertido no chão
+  const reflexo = obra.clone();
+  reflexo.position.y = -0.01;
+  reflexo.scale.y = -1;
+  reflexo.material = obra.material.clone();
+  reflexo.material.opacity = 0.18;
+  reflexo.material.transparent = true;
+  reflexo.material.depthWrite = false;
+  reflexo.material.roughness = 0.5;
+  reflexo.material.metalness = 0.6;
+  reflexo.renderOrder = 1;
+  scene.add(reflexo);
+
+  obra.userData.reflexo = reflexo;
+  reflexo.userData.targetPos = new THREE.Vector3();
+  reflexo.userData.targetRot = new THREE.Euler();
+
+  obrasNormais.push(obra);
+});
+
+let obraEmDestaque = null;
+let estadoOriginal = {};
+
+function mostrarInformacoes(index) {
+  const dados = dadosObras[index];
+  const texto = `
+    <strong>${dados.titulo}</strong><br/>
+    ${dados.artista} — ${dados.ano}<br/>
+    <span style="font-size: 0.95rem">${dados.preco} ETH</span>
+  `;
+  document.getElementById('obra-texto').innerHTML = texto;
+  document.getElementById('obra-info').style.display = 'block';
+}
+
+function esconderInformacoes() {
+  document.getElementById('obra-info').style.display = 'none';
+}
+
+function destacarObra(obra, index) {
+  if (obraEmDestaque) return;
+
+  obraEmDestaque = obra;
+document.getElementById('fundo-desfocado').style.opacity = '1';
+  // Guardar estado original
+  estadoOriginal = {
+    position: obra.position.clone(),
+    rotation: obra.rotation.y,
+    scale: obra.scale.clone()
+  };
+
+  // Pausar rotação
+  rotacaoPausada = true;
+
+  // Suavizar as restantes obras e reflexos
+  obrasNormais.forEach(o => {
+    if (o !== obra && o.userData.reflexo) {
+      o.material.opacity = 0.1;
+      o.userData.reflexo.material.opacity = 0.05;
+    }
+  });
+
+  // Trazer a obra para o centro
+  gsap.to(obra.position, {
+    x: 0,
+    y: 6,
+    z: 0.5,
+    duration: 1,
+    ease: 'power2.out'
+  });
+
+  gsap.to(obra.scale, {
+    x: 1.5,
+    y: 1.5,
+    duration: 1,
+    ease: 'power2.out'
+  });
+
+  // Mostrar painel de informações
+  mostrarInformacoes(index);
+}
+
+function restaurarObra() {
+  estadoOriginal = {};
+  if (!obraEmDestaque) return;
+
+  // Restaurar posição original
+  gsap.to(obraEmDestaque.position, {
+    x: estadoOriginal.position.x,
+    y: estadoOriginal.position.y,
+    z: estadoOriginal.position.z,
+    duration: 1,
+    ease: 'power2.inOut'
+  });
+
+  gsap.to(obraEmDestaque.scale, {
+    x: estadoOriginal.scale.x,
+    y: estadoOriginal.scale.y,
+    duration: 1,
+    ease: 'power2.inOut'
+  });
+
+  // Restaurar opacidade das outras obras
+  obrasNormais.forEach(o => {
+    if (o.userData.reflexo) {
+      o.material.opacity = 1;
+      o.userData.reflexo.material.opacity = 0.18;
+    }
+  });
+
+  esconderInformacoes();
+  obraEmDestaque = null;
+  rotacaoPausada = false;
+}
+
+// Detectar clique/touch na obra
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function onPointerDown(event) {
+  if (obraEmDestaque) {
+    restaurarObra();
+    return;
+  }
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(obrasNormais);
+
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    destacarObra(obra, index);
+  }
+}
+
+window.addEventListener('pointerdown', onPointerDown);
+// ✨ Texto "NANdART" com presença refinada no topo da parede de fundo
+
+const fontLoader = new FontLoader();
+fontLoader.load(
+  'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
+  font => {
+    const textGeo = new TextGeometry('NANdART', {
+      font,
+      size: 0.65,
+      height: 0.12,
+      curveSegments: 10,
+      bevelEnabled: true,
+      bevelThickness: 0.02,
+      bevelSize: 0.015,
+      bevelSegments: 5
+    });
+
+    textGeo.computeBoundingBox();
+    const largura = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
+
+    const texto = new THREE.Mesh(
+      textGeo,
+      new THREE.MeshStandardMaterial({
+        color: 0xc4b582,
+        metalness: 0.9,
+        roughness: 0.3,
+        emissive: 0x302a19,
+        emissiveIntensity: 0.4
+      })
+    );
+
+    texto.position.set(-largura / 2, 15.8, -config.wallDistance - 3.985);
+    texto.castShadow = true;
+    scene.add(texto);
+  }
+);
+
+
+// 🖼️ Quadro central com friso circular dourado embutido
+const quadroDecorativoFundo = new THREE.Group();
+
+const larguraQuadro = 3.6;
+const alturaQuadro = 4.5;
+
+// Imagem da obra central
+const texturaCentral = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  texture => {
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    texture.encoding = THREE.sRGBEncoding;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+  },
+  undefined,
+  err => console.error('Erro ao carregar obra-central.jpg:', err)
+);
+
+const pintura = new THREE.Mesh(
+  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
+  new THREE.MeshStandardMaterial({
+    map: texturaCentral,
+    roughness: 0.35,
+    metalness: 0.04,
+    emissive: 0x000000,
+    emissiveIntensity: 0.05,
+    side: THREE.FrontSide
+  })
+);
+
+pintura.position.z = 0.01;
+quadroDecorativoFundo.add(pintura);
+
+// Moldura anelar exterior dourada
+const frisoExterior = new THREE.Mesh(
+  new THREE.RingGeometry(
+    larguraQuadro / 2 + 0.12,
+    larguraQuadro / 2 + 0.18,
+    64
+  ),
+  new THREE.MeshStandardMaterial({
+    color: 0xc4b582,
+    metalness: 1,
+    roughness: 0.05,
+    emissive: 0x2a1f0f,
+    emissiveIntensity: 0.2,
+    side: THREE.DoubleSide
+  })
+);
+frisoExterior.rotation.x = Math.PI / 2;
+frisoExterior.position.z = 0.015;
+quadroDecorativoFundo.add(frisoExterior);
+
+// Posicionamento do grupo do quadro central
+quadroDecorativoFundo.position.set(0, 8.5, -config.wallDistance - 3.5);
+scene.add(quadroDecorativoFundo);
+
+// 🟨 Molduras decorativas com dupla camada nas paredes laterais e moldura simples na parede de fundo
+function criarMolduraDecorativa(points, material) {
+  const curve = new THREE.CatmullRomCurve3(points, true);
+  const geometry = new THREE.TubeGeometry(curve, 100, 0.025, 8, true);
+  return new THREE.Mesh(geometry, material);
+}
+
+const molduraMaterialExterior = new THREE.MeshStandardMaterial({
+  color: 0xf3c97a,
+  metalness: 1,
+  roughness: 0.05,
+  emissive: 0x4e3a1d,
+  emissiveIntensity: 0.35
+});
+
+const molduraMaterialInterior = new THREE.MeshStandardMaterial({
+  color: 0xf5e5bb,
+  metalness: 0.9,
+  roughness: 0.1,
+  emissive: 0x2a1d0a,
+  emissiveIntensity: 0.2
+});
+
+// 📐 Moldura dupla lateral esquerda
+const molduraExtEsq = criarMolduraDecorativa([
+  new THREE.Vector3(-15.2, 1.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-15.2, 13.5, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-11.3, 13.5, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(-11.3, 1.8, -config.wallDistance / 2 + 0.02)
+], molduraMaterialExterior);
+scene.add(molduraExtEsq);
+
+const molduraIntEsq = criarMolduraDecorativa([
+  new THREE.Vector3(-14.7, 2.4, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(-14.7, 12.8, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(-11.8, 12.8, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(-11.8, 2.4, -config.wallDistance / 2 + 0.021)
+], molduraMaterialInterior);
+scene.add(molduraIntEsq);
+
+// 📐 Moldura dupla lateral direita
+const molduraExtDir = criarMolduraDecorativa([
+  new THREE.Vector3(15.2, 1.8, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(15.2, 13.5, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(11.3, 13.5, -config.wallDistance / 2 + 0.02),
+  new THREE.Vector3(11.3, 1.8, -config.wallDistance / 2 + 0.02)
+], molduraMaterialExterior);
+scene.add(molduraExtDir);
+
+const molduraIntDir = criarMolduraDecorativa([
+  new THREE.Vector3(14.7, 2.4, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(14.7, 12.8, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(11.8, 12.8, -config.wallDistance / 2 + 0.021),
+  new THREE.Vector3(11.8, 2.4, -config.wallDistance / 2 + 0.021)
+], molduraMaterialInterior);
+scene.add(molduraIntDir);
+
+// 📐 Moldura central simples da parede de fundo
+const molduraCentral = criarMolduraDecorativa([
+  new THREE.Vector3(-6.5, 2.8, -config.wallDistance + 0.01),
+  new THREE.Vector3(-6.5, 14.2, -config.wallDistance + 0.01),
+  new THREE.Vector3(6.5, 14.2, -config.wallDistance + 0.01),
+  new THREE.Vector3(6.5, 2.8, -config.wallDistance + 0.01)
+], molduraMaterialExterior);
+scene.add(molduraCentral);
+
+// 📏 Traço subtil no topo da parede de fundo (acima da moldura central)
+const frisoSuperiorSubtil = new THREE.Mesh(
+  new THREE.PlaneGeometry(13.2, 0.04),
+  new THREE.MeshStandardMaterial({
+    color: 0xf3c97a,
+    metalness: 1,
+    roughness: 0.1,
+    emissive: 0x4a2a0a,
+    emissiveIntensity: 0.25,
+    side: THREE.DoubleSide
+  })
+);
+frisoSuperiorSubtil.position.set(0, 15.3, -config.wallDistance + 0.015);
+scene.add(frisoSuperiorSubtil);
+
+// 🟨 Frisos decorativos laterais com estrutura dupla (inspirados no layout original)
+
+// Material dourado realista
+const materialFriso = new THREE.MeshStandardMaterial({
+  color: 0xf3c97a,
+  metalness: 1,
+  roughness: 0.05,
+  emissive: 0x4e3a1d,
+  emissiveIntensity: 0.35
+});
+
+// Função para criar frisos duplos verticais (um dentro do outro)
+function criarFrisoDuplo(x, y, z, alturaExterna, alturaInterna, offset = 0.2, rotY = 0) {
+  const larguraExterna = 0.35;
+  const larguraInterna = 0.18;
+
+  // Friso exterior
+  const frisoExterno = new THREE.Mesh(
+    new THREE.CylinderGeometry(larguraExterna, larguraExterna, alturaExterna, 32),
+    materialFriso
+  );
+  frisoExterno.position.set(x, y, z);
+  frisoExterno.rotation.y = rotY;
+  frisoExterno.castShadow = true;
+  scene.add(frisoExterno);
+
+  // Friso interior
+  const frisoInterno = new THREE.Mesh(
+    new THREE.CylinderGeometry(larguraInterna, larguraInterna, alturaInterna, 32),
+    materialFriso
+  );
+  frisoInterno.position.set(x, y, z + 0.01);
+  frisoInterno.rotation.y = rotY;
+  frisoInterno.castShadow = true;
+  scene.add(frisoInterno);
+}
+
+// ➕ Frisos duplos nas paredes laterais (esquerda e direita)
+criarFrisoDuplo(-11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4); // lateral esquerda – interior e exterior
+criarFrisoDuplo(11.8, 8.2, -config.wallDistance / 2 + 0.01, 12, 11.4);  // lateral direita – interior e exterior
+
+// ➕ Friso simples central na parede de fundo (sem camada dupla)
+const frisoVerticalCentral = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.3, 0.3, 11.8, 32),
+  materialFriso
+);
+const frisoCentral = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.3, 0.3, 11.8, 32),
+  materialFriso
+);
+frisoCentral.position.set(0, 8.2, -config.wallDistance + 0.03);
+scene.add(frisoCentral);
+
+// ➕ Traço subtil horizontal acima do friso central da parede de fundo
+const frisoHorizontalFino = new THREE.Mesh(
+  new THREE.PlaneGeometry(4.6, 0.05),
+  materialFriso
+);
+frisoHorizontalFino.position.set(0, 14.65, -config.wallDistance + 0.01);
+scene.add(frisoHorizontalFino);
+
+
+let rotacaoPausada = false;
+function animate() {
+  requestAnimationFrame(animate);
+
+  const tempoAtual = Date.now();
+  const tempo = tempoAtual * -0.00012;
+
+  obrasNormais.forEach((obra, i) => {
+    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(ang) * config.circleRadius;
+    const z = Math.sin(ang) * config.circleRadius;
+    const ry = -ang + Math.PI;
+
+    // Se estiver em destaque, reduzir drasticamente a rotação
+    const intensidade = (obra === obraEmDestaque) ? 0.005 : 1;
+
+    obra.position.x += (x - obra.position.x) * 0.05 * intensidade;
+    obra.position.z += (z - obra.position.z) * 0.05 * intensidade;
+    obra.rotation.y += (ry - obra.rotation.y) * 0.05 * intensidade;
+
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      const tx = x;
+      const tz = z;
+      const tryy = ry;
+
+      reflexo.userData.targetPos.set(tx, -0.01, tz);
+      reflexo.userData.targetRot.set(0, tryy, 0);
+
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.05 * intensidade);
+      reflexo.rotation.y += (tryy - reflexo.rotation.y) * 0.05 * intensidade;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+// Criação do painel de informações por baixo da obra em destaque
+const infoContainer = document.createElement('div');
+infoContainer.id = 'obra-info';
+infoContainer.className = 'obra-info';
+infoContainer.style.display = 'none';
+infoContainer.innerHTML = `
+  <div id="obra-texto"></div>
+  <button id="botao-comprar">Buy</button>
+`;
+
+document.body.appendChild(infoContainer);
+// Fundo desfocado subtilmente
+const fundoDesfocado = document.createElement('div');
+fundoDesfocado.id = 'fundo-desfocado';
+fundoDesfocado.style.position = 'fixed';
+fundoDesfocado.style.top = '0';
+fundoDesfocado.style.left = '0';
+fundoDesfocado.style.width = '100vw';
+fundoDesfocado.style.height = '100vh';
+fundoDesfocado.style.backdropFilter = 'blur(3px)';
+fundoDesfocado.style.zIndex = '1000';
+fundoDesfocado.style.pointerEvents = 'none';
+fundoDesfocado.style.opacity = '0';
+fundoDesfocado.style.transition = 'opacity 0.5s ease';
+document.body.appendChild(fundoDesfocado);
+const botaoComprar = infoContainer.querySelector('#botao-comprar');
+
+async function buyHandler() {
+  if (typeof window.ethereum === 'undefined') {
+    alert('MetaMask não está instalada. Por favor instala para continuar.');
+    return;
+  }
+
+  try {
+    botaoComprar.disabled = true;
+    botaoComprar.textContent = 'A ligar carteira...';
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    console.log("Carteira ligada:", address);
+    botaoComprar.textContent = 'A processar compra...';
+
+    // Transação real (simulada com endereço de teste)
+    const tx = await signer.sendTransaction({
+      to: "0x000000000000000000000000000000000000dead",
+      value: ethers.utils.parseEther("0.01")
+    });
+
+    console.log("Transação enviada:", tx.hash);
+    botaoComprar.textContent = 'Adquirido!';
+    botaoComprar.style.backgroundColor = '#b0dcb8';
+    botaoComprar.style.color = '#111';
+
+    setTimeout(() => {
+      botaoComprar.disabled = false;
+      botaoComprar.textContent = 'Buy';
+      botaoComprar.style.backgroundColor = '#fff2c6';
+      botaoComprar.style.color = '#111';
+    }, 3000);
+
+  } catch (err) {
+    console.error("Erro ao processar compra:", err);
+    alert("A compra foi cancelada ou ocorreu um erro.");
+    botaoComprar.disabled = false;
+    botaoComprar.textContent = 'Buy';
+  }
+}
+
+botaoComprar.addEventListener('click', buyHandler);                 e o meu index.css : /* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Playfair Display', serif;
+  background-color: #111111;
+  position: relative;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Canvas 3D */
+#scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+/* Ecrã de carregamento */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 100vw;
+  height: 100vh;
+  background-color: #111111;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1.2s ease;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #fff2c6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #fff2c6;
+  font-size: 1rem;
+}
+
+.loading-progress {
+  color: #fff2c6;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Ícone de informação */
+.info-icon {
+  width: 48px;
+  height: auto;
+  cursor: pointer;
+}
+
+/* Ícone de ajuda */
+.ajuda-icon {
+  width: 45px;
+  height: auto;
+  cursor: pointer;
+}
+
+/* Container geral de navegação */
+.nav-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.nav-container * {
+  pointer-events: auto;
+}
+
+/* Posicionamento individual de ícones */
+.nav-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #fff2c6;
+}
+
+.icon-label {
+  font-size: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+/* Menu principal */
+.menu-container {
+  position: relative;
+  z-index: 1001;
+}
+
+.menu-icon {
+  width: 48px;
+  height: auto;
+  cursor: pointer;
+}
+
+.menu-dropdown {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  background-color: rgba(17, 17, 17, 0.95);
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 102;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.menu-dropdown a {
+  color: #fff2c6;
+  text-decoration: none;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.menu-dropdown a:hover {
+  text-decoration: underline;
+}
+
+/* Modal de obra */
+.art-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 1rem;
+  border-radius: 10px;
+  color: #fff;
+}
+
+/* Fundo desfocado */
+#fundo-desfocado {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Painel de informações da obra em destaque */
+.obra-info {
+  position: fixed;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 10, 0.7);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  color: #fff2c6;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  animation: fadeInObraInfo 0.5s ease forwards;
+  max-width: 90vw;
+}
+
+@keyframes fadeInObraInfo {
+  from {
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.obra-info button {
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  background-color: #fff2c6;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obra-info button:hover {
+  background-color: #ffe9a9;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .info-icon,
+  .ajuda-icon,
+  .menu-icon {
+    width: 40px;
+  }
+
+  .menu-container {
+    top: 70px;
+    left: 16px;
+  }
+
+  .info-icon {
+    top: 16px;
+    left: 16px;
+  }
+
+  .ajuda-icon {
+    bottom: 16px;
+    left: 16px;
+  }
+
+  .menu-dropdown a {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .obra-info {
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .obra-info button {
+    font-size: 0.85rem;
+    padding: 5px 12px;
+  }
+}
+
+/* Oculta forçadamente o loading ao fim de tudo (segurança extra) */
+.loading-screen {
+  opacity: 0 !important;
+  display: none !important;
+}

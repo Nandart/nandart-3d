@@ -6,9 +6,7 @@
   <title>NANdART - Galeria 3D</title>
   <meta name="description" content="Galeria de Arte 3D NANdART, ambiente imersivo com obras circulantes e elementos realistas." />
   <link rel="icon" href="/favicon.ico" />
-
   <style>
-    /* Reset básico e estilos para ocupar eixos */
     html, body {
       margin: 0;
       padding: 0;
@@ -35,10 +33,10 @@
   </style>
 </head>
 <body>
-  <!-- Canvas para renderização da cena 3D -->
   <canvas id="scene" tabindex="0" aria-label="Cena 3D da galeria NANdART"></canvas>
-
-  <!-- Script principal da galeria (deves garantir que o caminho está correto) -->
-  <script type="module" src="/src/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script src="/src/main.js" type="module"></script>
 </body>
 </html>

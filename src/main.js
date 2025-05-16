@@ -199,8 +199,7 @@ gsap.to(luzRasante, {
   ease: 'sine.inOut'
 });
 
-// 🔆 Círculo de luz central
-const circle = new THREE.Mesh(
+const circleLight = new THREE.Mesh(
   new THREE.RingGeometry(7.0, 7.35, 120),
   new THREE.MeshStandardMaterial({
     color: 0xfdf6dc,
@@ -213,10 +212,11 @@ const circle = new THREE.Mesh(
     side: THREE.DoubleSide
   })
 );
-circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.052;
-circle.receiveShadow = true;
-scene.add(circle);
+circleLight.rotation.x = -Math.PI / 2;
+circleLight.position.y = 0.052;
+circleLight.receiveShadow = true;
+scene.add(circleLight);
+
 
 // Friso horizontal no chão (frente ao círculo de luz)
 const frisoChaoFrontal = new THREE.Mesh(

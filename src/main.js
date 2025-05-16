@@ -17,11 +17,14 @@ const config = {
   maxObras: 15
 };
 
+// Textura Loader
 const textureLoader = new THREE.TextureLoader();
+
+// Criar Cena
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1a1a);
 
-// 🎥 Câmara
+// Configurar Câmara
 const camera = new THREE.PerspectiveCamera(
   42,
   window.innerWidth / window.innerHeight,
@@ -31,7 +34,7 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 9.5, 24);
 camera.lookAt(0, 6.5, 0);
 
-// 🖥️ Renderer
+// Configurar Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true
@@ -44,13 +47,12 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.5;
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-// 🔁 Responsive resize
+// Ajustar renderer e câmara em resize da janela
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 const obrasNormais = [];
 const obrasSubstitutas = [];
 const reflexos = [];
@@ -106,7 +108,8 @@ function criarObraCircular(nome, index) {
   obra.userData.nome = nome;
   obra.castShadow = true;
 
-  const angulo = (index / config.maxObras) * Math.PI * 2;
+  // Posicionar em círculo sentido contrário ao relógio
+  const angulo = (index / config.maxObras) * Math.PI * -2; // negativo para contrarrelógio
   const x = Math.cos(angulo) * config.circleRadius;
   const z = Math.sin(angulo) * config.circleRadius;
   const ry = -angulo + Math.PI;
@@ -114,6 +117,7 @@ function criarObraCircular(nome, index) {
   obra.position.set(x, 6.3, z);
   obra.rotation.y = ry;
 
+  // Reflexo no chão
   const reflexo = obra.clone();
   reflexo.scale.y *= -1;
   reflexo.material = material.clone();
@@ -139,7 +143,7 @@ function animate() {
   tempoAnterior = tempoAtual;
 
   obrasNormais.forEach((obra, i) => {
-    const angulo = delta + (i / config.maxObras) * Math.PI * 2;
+    const angulo = delta + (i / config.maxObras) * Math.PI * -2; // negativo para contrarrelógio
     const x = Math.cos(angulo) * config.circleRadius;
     const z = Math.sin(angulo) * config.circleRadius;
     const ry = -angulo + Math.PI;
@@ -161,6 +165,7 @@ function animate() {
       }
     }
 
+    // Substituição subtil da obra no fundo do círculo
     const passouRetaguarda = z > config.circleRadius - 0.5 && Math.abs(x) < 1.0;
     if (passouRetaguarda && obrasSubstitutas.length > 0) {
       const substituta = obrasSubstitutas[indiceSubstituicao % obrasSubstitutas.length];
@@ -180,8 +185,7 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-
-// 💡 Luzes
+// 💡 Luzes principais
 const luzAmbiente = new THREE.AmbientLight(0xffffff, 1.6);
 scene.add(luzAmbiente);
 
@@ -194,6 +198,7 @@ luzDirecional.castShadow = true;
 luzDirecional.shadow.mapSize.set(2048, 2048);
 scene.add(luzDirecional);
 
+// 🌑 Luz direcional suave para sombras das obras circulantes no chão
 const luzSombraObras = new THREE.DirectionalLight(0xffffff, 1.2);
 luzSombraObras.position.set(0, 15, 10);
 luzSombraObras.target.position.set(0, 6.3, 0);
@@ -211,6 +216,7 @@ luzSombraObras.shadow.radius = 3;
 scene.add(luzSombraObras);
 scene.add(luzSombraObras.target);
 
+// 💠 Luz pulsante central no chão
 const luzChao = new THREE.SpotLight(0xfff4cc, 2.2, 20, Math.PI / 6, 0.4);
 luzChao.position.set(0, 6, 0);
 luzChao.target.position.set(0, 0, 0);
@@ -224,6 +230,7 @@ gsap.to(luzChao, {
   ease: 'sine.inOut'
 });
 
+// ✨ Spots e pontos de luz sobre vitrines e gemas
 [
   { x: -9.5, z: -1.8 },
   { x: -9.5, z: 1.8 },
@@ -244,7 +251,7 @@ gsap.to(luzChao, {
   scene.add(interior);
 });
 
-// 🎨 Materiais
+// 🎨 Materiais de molduras exteriores e interiores
 const materialMolduraExterior = new THREE.MeshStandardMaterial({
   color: 0xf3c97a,
   metalness: 1,
@@ -261,7 +268,7 @@ const materialMolduraInterior = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.35
 });
 
-// 🟧 Frisos
+// 🟧 Frisos laterais duplos embutidos (externo + interno)
 function criarFrisoLateral(pontos, material) {
   const curva = new THREE.CatmullRomCurve3(pontos, true);
   return new THREE.Mesh(
@@ -302,7 +309,7 @@ const molduraIntDir = criarFrisoLateral([
 ], materialMolduraInterior);
 scene.add(molduraIntDir);
 
-// 🟨 Friso central
+// 🟨 Friso central retangular com cantos arredondados
 const formatoFrisoCentral = new THREE.Shape();
 const larguraFriso = 4.0;
 const alturaFriso = 5.0;
@@ -332,36 +339,7 @@ const frisoQuadroCentral = new THREE.Mesh(geometriaFrisoCentral, materialMoldura
 frisoQuadroCentral.position.set(0, 7.8, -config.wallDistance + 0.022);
 scene.add(frisoQuadroCentral);
 
-// ✍️ Texto NANdART
-const loaderFonte = new FontLoader();
-loaderFonte.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function (fonte) {
-  const geometriaTexto = new TextGeometry('NANdART', {
-    font: fonte,
-    size: 1.4,
-    height: 0.15,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.03,
-    bevelSize: 0.02,
-    bevelSegments: 5
-  });
-
-  const materialTexto = new THREE.MeshStandardMaterial({
-    color: 0xf3c97a,
-    metalness: 0.9,
-    roughness: 0.25,
-    emissive: 0x2c1e0d,
-    emissiveIntensity: 0.25
-  });
-
-  const textoMesh = new THREE.Mesh(geometriaTexto, materialTexto);
-  geometriaTexto.center();
-
-  textoMesh.position.set(0, 18.5, -config.wallDistance + 0.01);
-  scene.add(textoMesh);
-});
-
-// 🟫 Chão
+// 🟫 Chão reflexivo obsidiana líquida
 const geometriaChao = new THREE.PlaneGeometry(50, 40);
 const materialChao = new THREE.MeshStandardMaterial({
   color: 0x111111,
@@ -374,19 +352,7 @@ chao.position.y = 0;
 chao.receiveShadow = true;
 scene.add(chao);
 
-// 🔵 Círculo de luz
-const circuloLuzGeometry = new THREE.CircleGeometry(4, 64);
-const circuloLuzMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffe0,
-  opacity: 0.12,
-  transparent: true
-});
-const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
-circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.set(0, 0.011, 0);
-scene.add(circuloLuz);
-
-// ⬛ Teto
+// ⬛ Teto visível
 const geometriaTeto = new THREE.PlaneGeometry(50, 40);
 const materialTeto = new THREE.MeshStandardMaterial({
   color: 0x1a1a1a,
@@ -404,7 +370,7 @@ luzTeto.position.set(0, 25.8, -config.wallDistance);
 luzTeto.lookAt(0, 12, -config.wallDistance);
 scene.add(luzTeto);
 
-// 🟫 Paredes
+// 🟫 Paredes texturizadas
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
 texturaParede.wrapS = texturaParede.wrapT = THREE.RepeatWrapping;
 texturaParede.repeat.set(2, 2);
@@ -442,7 +408,7 @@ const paredeFundo = new THREE.Mesh(
 paredeFundo.position.set(0, alturaParede / 2, -config.wallDistance / 2 - 2);
 scene.add(paredeFundo);
 
-// 🔷 Gemas e vitrines
+// 🔷 Gemas, vitrines e pedestais
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 const geometriaGema = new THREE.OctahedronGeometry(0.4, 2);
 const materialGema = new THREE.MeshStandardMaterial({
@@ -508,7 +474,31 @@ posicoes.forEach((pos) => {
   scene.add(reflexo);
 });
 
-// 🚀 Iniciar
-carregarObras().then(() => {
-  animate();
+// ✍️ Texto NANdART em relevo na parede de fundo
+const loaderFonte = new FontLoader();
+loaderFonte.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function (fonte) {
+  const geometriaTexto = new TextGeometry('NANdART', {
+    font: fonte,
+    size: 1.4,
+    height: 0.15,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02,
+    bevelSegments: 5
+  });
+
+  const materialTexto = new THREE.MeshStandardMaterial({
+    color: 0xf3c97a,
+    metalness: 0.9,
+    roughness: 0.25,
+    emissive: 0x2c1e0d,
+    emissiveIntensity: 0.25
+  });
+
+  const textoMesh = new THREE.Mesh(geometriaTexto, materialTexto);
+  geometriaTexto.center();
+
+  textoMesh.position.set(0, 18.5, -config.wallDistance + 0.01);
+  scene.add(textoMesh);
 });

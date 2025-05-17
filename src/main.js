@@ -137,6 +137,19 @@ frisoInferiorDireito.position.set(16.2, 0.62, -config.wallDistance / 2);
 frisoInferiorDireito.rotation.y = -Math.PI / 2;
 scene.add(frisoInferiorDireito);
 
+// 🪞 Plano do chão com reflexo
+const floor = new Reflector(
+  new THREE.PlaneGeometry(100, 100),
+  {
+    textureWidth: 1024,
+    textureHeight: 1024,
+    color: 0x111111
+  }
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = 0.01;
+scene.add(floor);
+
 // 🌫️ Chão mais reflexivo e translúcido
 floor.material.opacity = 0.75;
 floor.material.roughness = 0.015;
@@ -145,70 +158,6 @@ floor.material.transparent = true;
 floor.material.reflectivity = 1.0;
 floor.material.envMapIntensity = 1.6;
 
-// 💡 Iluminação suave e cálida para a obra central
-const luzObraCentral = new THREE.SpotLight(0xfff1dd, 0.65, 12, Math.PI / 8, 0.3);
-luzObraCentral.position.set(0, 14, -config.wallDistance + 2);
-luzObraCentral.target = quadroDecorativoFundo;
-scene.add(luzObraCentral);
-scene.add(luzObraCentral.target);
-// 🖼️ Quadros laterais — aumentados e com moldura saliente
-const obrasParede = [
-  {
-    src: '/assets/obras/obra-lateral-esquerda.jpg',
-    x: -14.55, y: 6.1, z: -config.wallDistance / 2,
-    rotY: Math.PI / 2
-  },
-  {
-    src: '/assets/obras/obra-lateral-direita.jpg',
-    x: 14.55, y: 6.1, z: -config.wallDistance / 2,
-    rotY: -Math.PI / 2
-  }
-];
-
-obrasParede.forEach(({ src, x, y, z, rotY }) => {
-  const textura = textureLoader.load(src);
-
-  const largura = 4.4;
-  const altura = 6.4;
-  const espessura = 0.12;
-
-  // Moldura 3D saliente
-  const moldura = new THREE.Mesh(
-    new THREE.BoxGeometry(largura + 0.2, altura + 0.2, espessura),
-    new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0x8a5c20),
-      metalness: 1,
-      roughness: 0.15,
-      emissive: new THREE.Color(0x2a1a08),
-      emissiveIntensity: 0.35
-    })
-  );
-  moldura.position.set(x, y, z);
-  moldura.rotation.y = rotY;
-  scene.add(moldura);
-
-  // Obra dentro da moldura
-  const quadro = new THREE.Mesh(
-    new THREE.PlaneGeometry(largura, altura),
-    new THREE.MeshStandardMaterial({
-      map: textura,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.FrontSide
-    })
-  );
-  quadro.position.set(x, y, z + 0.065);
-  quadro.rotation.y = rotY;
-  quadro.castShadow = true;
-  scene.add(quadro);
-
-  // Luz suave para a obra lateral
-  const focoObra = new THREE.SpotLight(0xfff3d0, 0.5, 6, Math.PI / 9, 0.4);
-  focoObra.position.set(x, y + 3.5, z + (rotY > 0 ? 2 : -2));
-  focoObra.target = quadro;
-  scene.add(focoObra);
-  scene.add(focoObra.target);
-});
 // ✨ Nome NANdART com dourado vivo e relevo iluminado
 fontLoader.load(
   'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
@@ -273,6 +222,49 @@ luzObraDireita.target.position.set(14.5, 6.2, -config.wallDistance / 2 + 0.1);
 scene.add(luzObraDireita);
 scene.add(luzObraDireita.target);
 // 🔄 Animação contínua das obras suspensas e respetivos reflexos
+const obrasNormais = [];
+const numeroObras = 8;
+
+for (let i = 1; i <= numeroObras; i++) {
+  const texturaObra = textureLoader.load(`/assets/obras/obra${i}.jpg`);
+  const largura = config.obraSize * 0.75;
+  const altura = config.obraSize;
+
+  const planoObra = new THREE.Mesh(
+    new THREE.PlaneGeometry(largura, altura),
+    new THREE.MeshStandardMaterial({
+      map: texturaObra,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+  planoObra.castShadow = true;
+  planoObra.receiveShadow = false;
+
+  // Reflexo invertido no chão
+  const reflexo = new THREE.Mesh(
+    new THREE.PlaneGeometry(largura, altura),
+    new THREE.MeshStandardMaterial({
+      map: texturaObra,
+      opacity: 0.45,
+      transparent: true,
+      roughness: 0.6,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+  reflexo.rotation.x = Math.PI;
+  reflexo.scale.y = 0.3;
+  reflexo.position.y = -0.01;
+  reflexo.userData.targetPos = new THREE.Vector3();
+  reflexo.userData.targetRot = new THREE.Euler();
+  planoObra.userData.reflexo = reflexo;
+
+  scene.add(planoObra);
+  scene.add(reflexo);
+  obrasNormais.push(planoObra);
+}
 
 function animate() {
   requestAnimationFrame(animate);

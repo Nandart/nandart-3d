@@ -1,9 +1,3 @@
-// Debug inicial
-console.log('Three.js version:', THREE.REVISION);
-console.log('WebGL supported:', THREE.WebGLRenderer.isSupported());
-if (!THREE.WebGLRenderer.isSupported()) {
-  alert('Seu navegador não suporta WebGL. Atualize ou use Chrome/Firefox.');
-}
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';

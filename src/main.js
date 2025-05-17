@@ -221,12 +221,18 @@ scene.add(quadroDecorativoFundo);
 textureLoader.load(
   '/assets/parede-antracite.jpg',
   texturaParede => {
+    console.log('✅ Textura da parede carregada:', texturaParede);
+
     const paredeMaterial = new THREE.MeshStandardMaterial({
       map: texturaParede,
-      roughness: 0.9,
-      metalness: 0.1,
+      color: 0xffffff, // reforça brilho da textura
+      emissive: new THREE.Color(0x111111), // brilho subtil
+      emissiveIntensity: 0.25,
+      roughness: 0.65,
+      metalness: 0.15,
       side: THREE.FrontSide
     });
+
 
     const paredeGeo = new THREE.PlaneGeometry(40, 30);
 

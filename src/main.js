@@ -519,7 +519,8 @@ scene.traverse(obj => {
   obj.material.emissiveIntensity &&
   obj.material.color instanceof THREE.Color &&
   obj.material.color.getHex() === 0xf3cc80
-){
+)
+  {
     gsap.to(obj.material, {
       emissiveIntensity: 0.4,
       duration: 6,

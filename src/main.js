@@ -49,29 +49,33 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.2;
 
-// ✨ Luz ambiente dupla para iluminação geral reforçada
-const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 0.55);
-const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 0.55);
+// Luz ambiente reforçada
+const luzAmbiente1 = new THREE.AmbientLight(0xfff7e6, 0.85);
+const luzAmbiente2 = new THREE.AmbientLight(0xfff7e6, 0.85);
 scene.add(luzAmbiente1, luzAmbiente2);
 
-// Luz hemisférica suave para variação cromática geral
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.4);
+// Luz hemisférica suave
+const luzHemisferica = new THREE.HemisphereLight(0xfff3e0, 0x080808, 0.5);
 scene.add(luzHemisferica);
 
-// Luz rasante lateral esquerda
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.7);
-luzRasanteEsquerda.position.set(-10, 8, 0);
-luzRasanteEsquerda.angle = Math.PI / 6;
-luzRasanteEsquerda.penumbra = 0.3;
-luzRasanteEsquerda.decay = 2;
-luzRasanteEsquerda.distance = 25;
-luzRasanteEsquerda.castShadow = true;
-luzRasanteEsquerda.shadow.mapSize.width = 1024;
-luzRasanteEsquerda.shadow.mapSize.height = 1024;
-luzRasanteEsquerda.shadow.bias = -0.0005;
-scene.add(luzRasanteEsquerda);
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
+// Luz direcional sobre quadros laterais e central (sem ofuscar)
+const luzQuadroEsq = new THREE.SpotLight(0xfff2dd, 1.2, 12, Math.PI / 7, 0.3);
+luzQuadroEsq.position.set(-13.5, 10, -config.wallDistance / 2);
+luzQuadroEsq.target.position.set(-14.5, 6, -config.wallDistance / 2);
+scene.add(luzQuadroEsq, luzQuadroEsq.target);
 
+const luzQuadroDir = new THREE.SpotLight(0xfff2dd, 1.2, 12, Math.PI / 7, 0.3);
+luzQuadroDir.position.set(13.5, 10, -config.wallDistance / 2);
+luzQuadroDir.target.position.set(14.5, 6, -config.wallDistance / 2);
+scene.add(luzQuadroDir, luzQuadroDir.target);
+
+const luzQuadroCentro = new THREE.SpotLight(0xfff2dd, 1.1, 13, Math.PI / 9, 0.4);
+luzQuadroCentro.position.set(0, 11.5, -config.wallDistance + 1);
+luzQuadroCentro.target.position.set(0, 6.8, -config.wallDistance + 0.01);
+scene.add(luzQuadroCentro, luzQuadroCentro.target);
+
+// Chão mais reflexivo e transparente
+const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
@@ -80,119 +84,93 @@ const floor = new Reflector(floorGeometry, {
   recursion: 2
 });
 
-floor.material.opacity = 0.88;
-floor.material.roughness = 0.02;
-floor.material.metalness = 0.98;
+floor.material.opacity = 0.92;
+floor.material.roughness = 0.015;
+floor.material.metalness = 0.99;
 floor.material.transparent = true;
-floor.material.envMapIntensity = 1.3;
-floor.material.reflectivity = 0.95;
+floor.material.envMapIntensity = 1.5;
+floor.material.reflectivity = 0.97;
 
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+// Cor dourada fiel ao layout (imagem "dourado para friso.png")
+const corDouradoFriso = new THREE.Color('#8a5c20');
 
-// Círculo de luz ampliado
-const circle = new THREE.Mesh(
-  new THREE.RingGeometry(4.3, 4.55, 100),
-  new THREE.MeshStandardMaterial({
-    color: 0xfdf6dc,
-    emissive: 0xffefc6,
-    emissiveIntensity: 3.8,
-    metalness: 0.75,
-    roughness: 0.1,
-    transparent: true,
-    opacity: 0.92,
-    side: THREE.DoubleSide
-  })
-);
-circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.051;
-circle.receiveShadow = true;
-scene.add(circle);
-
-// Friso horizontal dourado vivo após o círculo de luz
-const frisoChao = new THREE.Mesh(
-  new THREE.BoxGeometry(36, 0.06, 0.03),
-  new THREE.MeshStandardMaterial({
-    color: 0xd8b26c,
-    metalness: 1,
-    roughness: 0.05,
-    emissive: 0x3a2a0a,
-    emissiveIntensity: 0.25
-  })
-);
-frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
-scene.add(frisoChao);
-
-// Material comum para frisos
+// Material geral para todos os frisos embutidos
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xf3cc80,
+  color: corDouradoFriso,
   metalness: 1,
   roughness: 0.08,
   emissive: 0x3a240a,
-  emissiveIntensity: 0.3
+  emissiveIntensity: 0.35
 });
 
-function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, 0.02),
-    frisoMaterial
-  );
-  friso.position.set(x, y, z);
-  friso.rotation.y = rotY;
-  friso.castShadow = false;
-  scene.add(friso);
-  return friso;
+// Função para criar frisos arredondados com TubeGeometry
+function criarFrisoContorno(pontos, radius = 0.025) {
+  const curva = new THREE.CatmullRomCurve3(pontos);
+  const geometry = new THREE.TubeGeometry(curva, 120, radius, 12, true);
+  const mesh = new THREE.Mesh(geometry, frisoMaterial);
+  mesh.castShadow = false;
+  scene.add(mesh);
+  return mesh;
 }
 
-function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
-  const group = new THREE.Group();
-  const espessura = 0.06;
+// Friso central com contorno arredondado à volta do quadro central
+const alturaCentro = 6.9;
+const larguraFriso = 4.4;
+const alturaFriso = 5.4;
+const raioCurva = 0.3;
+const zFriso = -config.wallDistance + 0.015;
 
-  const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
-  topo.position.set(0, altura / 2, 0);
-  group.add(topo);
+// Cálculo dos pontos arredondados
+const pontosFrisoCentral = [
+  new THREE.Vector3(-larguraFriso / 2 + raioCurva, alturaCentro + alturaFriso / 2, zFriso),
+  new THREE.Vector3(larguraFriso / 2 - raioCurva, alturaCentro + alturaFriso / 2, zFriso),
+  new THREE.Vector3(larguraFriso / 2, alturaCentro + alturaFriso / 2 - raioCurva, zFriso),
+  new THREE.Vector3(larguraFriso / 2, alturaCentro - alturaFriso / 2 + raioCurva, zFriso),
+  new THREE.Vector3(larguraFriso / 2 - raioCurva, alturaCentro - alturaFriso / 2, zFriso),
+  new THREE.Vector3(-larguraFriso / 2 + raioCurva, alturaCentro - alturaFriso / 2, zFriso),
+  new THREE.Vector3(-larguraFriso / 2, alturaCentro - alturaFriso / 2 + raioCurva, zFriso),
+  new THREE.Vector3(-larguraFriso / 2, alturaCentro + alturaFriso / 2 - raioCurva, zFriso),
+  new THREE.Vector3(-larguraFriso / 2 + raioCurva, alturaCentro + alturaFriso / 2, zFriso) // Fecha o laço
+];
 
-  const base = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
-  base.position.set(0, -altura / 2, 0);
-  group.add(base);
+criarFrisoContorno(pontosFrisoCentral);
 
-  const esquerda = new THREE.Mesh(new THREE.BoxGeometry(espessura, altura, 0.02), frisoMaterial);
-  esquerda.position.set(-largura / 2, 0, 0);
-  group.add(esquerda);
+// Linha horizontal interna no friso central (ligeiramente abaixo do topo)
+const linhaInterna = new THREE.Mesh(
+  new THREE.BoxGeometry(3.2, 0.06, 0.02),
+  frisoMaterial
+);
+linhaInterna.position.set(0, alturaCentro + alturaFriso / 2 - 0.35, zFriso + 0.001);
+scene.add(linhaInterna);
 
-  const direita = new THREE.Mesh(new THREE.BoxGeometry(espessura, altura, 0.02), frisoMaterial);
-  direita.position.set(largura / 2, 0, 0);
-  group.add(direita);
+// Frisos horizontais inferiores da parede de fundo (não no chão)
+const frisoInferiorParede = new THREE.Mesh(
+  new THREE.BoxGeometry(36, 0.05, 0.02),
+  frisoMaterial
+);
+frisoInferiorParede.position.set(0, 1.1, -config.wallDistance + 0.015);
+scene.add(frisoInferiorParede);
 
-  group.position.set(x, y, z);
-  group.rotation.y = rotY;
-  scene.add(group);
-  return group;
-}
-// Friso central da parede de fundo (quadrado com linha horizontal)
-const frisoCentral = criarFrisoRect(0, 6.9, -config.wallDistance + 0.01, 4.4, 5.4);
+// Continuação do friso inferior nas laterais — esquerda e direita
+const frisoInferiorEsquerda = new THREE.Mesh(
+  new THREE.BoxGeometry(10.2, 0.05, 0.02),
+  frisoMaterial
+);
+frisoInferiorEsquerda.position.set(-14.6 + 5.1, 1.1, -config.wallDistance / 2);
+frisoInferiorEsquerda.rotation.y = Math.PI / 2;
+scene.add(frisoInferiorEsquerda);
 
-// Linha horizontal superior do friso central
-criarFrisoLinha(0, 9.65, -config.wallDistance + 0.015, 3.2);
-
-// Frisos laterais embutidos com contorno duplo
-// Esquerda - externo
-criarFrisoRect(-7.6, 6.9, -config.wallDistance + 0.01, 2.2, 6.8);
-// Esquerda - interno
-criarFrisoRect(-7.6, 6.9, -config.wallDistance + 0.012, 1.2, 5.5);
-
-// Direita - externo
-criarFrisoRect(7.6, 6.9, -config.wallDistance + 0.01, 2.2, 6.8);
-// Direita - interno
-criarFrisoRect(7.6, 6.9, -config.wallDistance + 0.012, 1.2, 5.5);
-
-// Frisos horizontais inferiores contínuos — atravessam a parede de fundo e continuam nas laterais
-criarFrisoLinha(0, 0.3, -config.wallDistance + 0.01, 36); // parede de fundo
-criarFrisoLinha(-16.2, 0.3, -config.wallDistance / 2, 2.2); // esquerda
-criarFrisoLinha(16.2, 0.3, -config.wallDistance / 2, 2.2);  // direita
-
-// 🖼️ Quadro central ajustado e posicionado no centro do friso
+const frisoInferiorDireita = new THREE.Mesh(
+  new THREE.BoxGeometry(10.2, 0.05, 0.02),
+  frisoMaterial
+);
+frisoInferiorDireita.position.set(14.6 - 5.1, 1.1, -config.wallDistance / 2);
+frisoInferiorDireita.rotation.y = -Math.PI / 2;
+scene.add(frisoInferiorDireita);
+// 🖼️ Quadro central – agora maior e perfeitamente centrado no novo friso
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   undefined,
@@ -201,67 +179,101 @@ const texturaCentral = textureLoader.load(
 );
 
 const quadroDecorativoFundo = new THREE.Group();
-const larguraQuadro = 3.6;
-const alturaQuadro = 4.5;
+const larguraQuadro = 3.85;
+const alturaQuadro = 4.8;
 
 const pintura = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
     map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
+    roughness: 0.12,
+    metalness: 0.12
   })
 );
-pintura.position.z = 0.01;
+pintura.position.z = 0.012;
 quadroDecorativoFundo.add(pintura);
 
 quadroDecorativoFundo.position.set(0, 6.9, -config.wallDistance + 0.001);
 scene.add(quadroDecorativoFundo);
-// 🧱 Parede de fundo — com textura garantida e sem preload
-textureLoader.load(
-  '/assets/parede-antracite.jpg',
-  texturaParede => {
-    console.log('✅ Textura da parede carregada:', texturaParede);
 
-    const paredeMaterial = new THREE.MeshStandardMaterial({
-      map: texturaParede,
-      color: 0xffffff, // reforça brilho da textura
-      emissive: new THREE.Color(0x111111), // brilho subtil
-      emissiveIntensity: 0.25,
-      roughness: 0.65,
-      metalness: 0.15,
+// 🖼️ Quadros laterais com aumento proporcional e maior presença visual
+const obrasParede = [
+  {
+    src: '/assets/obras/obra-lateral-esquerda.jpg',
+    x: -14.55, y: 6.2, z: -config.wallDistance / 2,
+    rotY: Math.PI / 2
+  },
+  {
+    src: '/assets/obras/obra-lateral-direita.jpg',
+    x: 14.55, y: 6.2, z: -config.wallDistance / 2,
+    rotY: -Math.PI / 2
+  }
+];
+
+obrasParede.forEach(({ src, x, y, z, rotY }) => {
+  const textura = textureLoader.load(src);
+
+  const quadro = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.4, 3.5),
+    new THREE.MeshStandardMaterial({
+      map: textura,
+      roughness: 0.17,
+      metalness: 0.05,
       side: THREE.FrontSide
+    })
+  );
+
+  quadro.position.set(x, y, z + 0.001);
+  quadro.rotation.y = rotY;
+  quadro.receiveShadow = true;
+  scene.add(quadro);
+});
+
+// ✨ Texto NANdART com dourado mais vivo e iluminação dedicada
+const fontLoader = new FontLoader();
+fontLoader.load(
+  'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
+  font => {
+    const textGeo = new TextGeometry('NANdART', {
+      font,
+      size: 0.75,
+      height: 0.12,
+      curveSegments: 12,
+      bevelEnabled: true,
+      bevelThickness: 0.025,
+      bevelSize: 0.018,
+      bevelSegments: 6
     });
 
+    textGeo.computeBoundingBox();
+    const largura = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
 
-    const paredeGeo = new THREE.PlaneGeometry(40, 30);
+    const texto = new THREE.Mesh(
+      textGeo,
+      new THREE.MeshStandardMaterial({
+        color: 0xf8d189,
+        metalness: 0.95,
+        roughness: 0.15,
+        emissive: 0x6c4718,
+        emissiveIntensity: 0.5
+      })
+    );
 
-    const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-    backWall.position.set(0, 13, -config.wallDistance - 4.05);
-    backWall.receiveShadow = true;
-    scene.add(backWall);
+    texto.position.set(-largura / 2, 16.4, -config.wallDistance - 3.985);
+    texto.castShadow = true;
+    scene.add(texto);
 
-    // 🧱 Paredes laterais com a mesma textura
-    const paredeLateralGeo = new THREE.PlaneGeometry(30, 28);
-
-    const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-    leftWall.position.set(-14.6, 13, -config.wallDistance / 2);
-    leftWall.rotation.y = Math.PI / 2;
-    leftWall.receiveShadow = true;
-    scene.add(leftWall);
-
-    const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-    rightWall.position.set(14.6, 13, -config.wallDistance / 2);
-    rightWall.rotation.y = -Math.PI / 2;
-    rightWall.receiveShadow = true;
-    scene.add(rightWall);
-  },
-  undefined,
-  err => {
-    console.error('Erro ao carregar a textura da parede:', err);
+    const luzTexto = new THREE.SpotLight(0xfff1cc, 1.5, 13, Math.PI / 9, 0.5);
+    luzTexto.position.set(0, 18, -config.wallDistance - 2);
+    luzTexto.target = texto;
+    scene.add(luzTexto);
+    scene.add(luzTexto.target);
   }
 );
-// Material dourado para topo do pedestal
+// Textura da gema azul original
+const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
+
+// Material dourado realista para a tampa dos pedestais
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
@@ -273,17 +285,14 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.6
 });
 
-// Textura da gema
-const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
-
-// Função para criar vitrines e pedestais fiéis ao layout
+// Função para criar vitrine com pedestal e gema luminosa
 function criarVitrine(x, z, indice) {
   const alturaPedestal = 3.6;
   const alturaGema = alturaPedestal + 1.0;
   const emissivaBase = 0x3377cc;
   const intensidade = 1.9;
 
-  // Pedestal alto e sólido
+  // Pedestal escuro e sóbrio
   const pedestal = new THREE.Mesh(
     new THREE.BoxGeometry(1.05, alturaPedestal, 1.05),
     new THREE.MeshStandardMaterial({
@@ -296,7 +305,7 @@ function criarVitrine(x, z, indice) {
   pedestal.castShadow = true;
   scene.add(pedestal);
 
-  // Tampa dourada (não entra na vitrine)
+  // Tampa dourada
   const topoDourado = new THREE.Mesh(
     new THREE.CylinderGeometry(0.4, 0.4, 0.06, 32),
     materialDouradoPedestal
@@ -305,7 +314,7 @@ function criarVitrine(x, z, indice) {
   topoDourado.castShadow = true;
   scene.add(topoDourado);
 
-  // Vitrine realista
+  // Vitrine transparente e espessa
   const vitrine = new THREE.Mesh(
     new THREE.BoxGeometry(1.0, 1.15, 1.0),
     new THREE.MeshPhysicalMaterial({
@@ -326,7 +335,7 @@ function criarVitrine(x, z, indice) {
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // Objeto facetado dentro da vitrine com brilho
+  // Gema facetada com brilho suave
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.4, 1),
     new THREE.MeshStandardMaterial({
@@ -343,86 +352,32 @@ function criarVitrine(x, z, indice) {
   scene.add(gema);
 }
 
-// Criar quatro vitrines
+// Criar vitrines — duas de cada lado conforme layout
 criarVitrine(-9.5, -1.8, 0);
 criarVitrine(-9.5, 1.8, 1);
 criarVitrine(9.5, -1.8, 2);
 criarVitrine(9.5, 1.8, 3);
-// Quadros laterais embutidos nas paredes
-const obrasParede = [
-  {
-    src: '/assets/obras/obra-lateral-esquerda.jpg',
-    x: -14.55, y: 6.1, z: -config.wallDistance / 2,
-    rotY: Math.PI / 2
-  },
-  {
-    src: '/assets/obras/obra-lateral-direita.jpg',
-    x: 14.55, y: 6.1, z: -config.wallDistance / 2,
-    rotY: -Math.PI / 2
-  }
-];
 
-obrasParede.forEach(({ src, x, y, z, rotY }) => {
-  const textura = textureLoader.load(src);
-
-  const quadro = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.2, 3.2),
-    new THREE.MeshStandardMaterial({
-      map: textura,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.FrontSide
-    })
-  );
-
-  quadro.position.set(x, y, z + 0.001);
-  quadro.rotation.y = rotY;
-  quadro.receiveShadow = true;
-  scene.add(quadro);
-});
-
-// Texto NANdART com luz dedicada e presença elegante
-const fontLoader = new FontLoader();
-fontLoader.load(
-  'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
-  font => {
-    const textGeo = new TextGeometry('NANdART', {
-      font,
-      size: 0.65,
-      height: 0.12,
-      curveSegments: 10,
-      bevelEnabled: true,
-      bevelThickness: 0.02,
-      bevelSize: 0.015,
-      bevelSegments: 5
-    });
-
-    textGeo.computeBoundingBox();
-    const largura = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
-
-    const texto = new THREE.Mesh(
-      textGeo,
-      new THREE.MeshStandardMaterial({
-        color: 0xc4b582,
-        metalness: 0.9,
-        roughness: 0.3,
-        emissive: 0x302a19,
-        emissiveIntensity: 0.4
-      })
-    );
-
-    texto.position.set(-largura / 2, 16.5, -config.wallDistance - 3.985);
-    texto.castShadow = true;
-    scene.add(texto);
-
-    const luzTexto = new THREE.SpotLight(0xfff1cc, 1.4, 12, Math.PI / 9, 0.5);
-    luzTexto.position.set(0, 18, -config.wallDistance - 2);
-    luzTexto.target = texto;
-    scene.add(luzTexto);
-    scene.add(luzTexto.target);
-  }
+// Círculo de luz no chão – dimensão e brilho subtis
+const circle = new THREE.Mesh(
+  new THREE.RingGeometry(4.3, 4.55, 100),
+  new THREE.MeshStandardMaterial({
+    color: 0xfdf6dc,
+    emissive: 0xffefc6,
+    emissiveIntensity: 3.8,
+    metalness: 0.75,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide
+  })
 );
-// Obras circulantes (suspensas, sem molduras) com tamanho duplicado
+circle.rotation.x = -Math.PI / 2;
+circle.position.y = 0.051;
+circle.receiveShadow = true;
+scene.add(circle);
+
+// Obras suspensas normais – tamanho duplicado e reflexo animado
 const obraPaths = [
   "/assets/obras/obra1.jpg",
   "/assets/obras/obra2.jpg",
@@ -443,7 +398,7 @@ obraPaths.forEach((src, i) => {
   const ry = -ang + Math.PI;
 
   const obra = new THREE.Mesh(
-    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.PlaneGeometry(config.obraSize * 2, config.obraSize * 2),
     new THREE.MeshStandardMaterial({
       map: texture,
       roughness: 0.2,
@@ -474,15 +429,15 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
-
-// Atualização de dimensão ao redimensionar a janela
+// Redimensionamento automático do renderer e da câmara
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 // ✨ Reflexos animados subtis nas molduras e gemas
 
-// Moldura do quadro central – animação suave no brilho
+// Moldura do quadro central – brilho pulsante
 gsap.to(pintura.material, {
   emissiveIntensity: 0.15,
   duration: 5,
@@ -492,18 +447,17 @@ gsap.to(pintura.material, {
   onUpdate: () => pintura.material.needsUpdate = true
 });
 
-// Frisos – reflexo pulsante suave
+// Frisos dourados – pulsação suave e contínua
 scene.traverse(obj => {
   if (
     obj.isMesh &&
     obj.material &&
     obj.material.emissive &&
-    obj.material.emissiveIntensity &&
     obj.material.color &&
-    obj.material.color.getHex() === 0xf3cc80
+    obj.material.color.getHexString() === '8a5c20'
   ) {
     gsap.to(obj.material, {
-      emissiveIntensity: 0.4,
+      emissiveIntensity: 0.45,
       duration: 6,
       repeat: -1,
       yoyo: true,
@@ -512,7 +466,7 @@ scene.traverse(obj => {
   }
 });
 
-// Gemas – brilho mágico oscilante
+// Gemas – brilho mágico e oscilante
 scene.traverse(obj => {
   if (
     obj.isMesh &&
@@ -521,7 +475,7 @@ scene.traverse(obj => {
     obj.geometry?.type === 'IcosahedronGeometry'
   ) {
     gsap.to(obj.material, {
-      emissiveIntensity: 2.0,
+      emissiveIntensity: 2.2,
       duration: 4.5,
       repeat: -1,
       yoyo: true,
@@ -530,7 +484,7 @@ scene.traverse(obj => {
   }
 });
 
-// ✨ Animação contínua das obras suspensas e seus reflexos
+// ✨ Animação contínua das obras suspensas e reflexos sincronizados
 function animate() {
   requestAnimationFrame(animate);
 

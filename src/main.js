@@ -118,3 +118,320 @@ const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
 backWall.position.set(0, 13, -config.wallDistance - 4.05);
 backWall.receiveShadow = true;
 scene.add(backWall);
+// 🧱 Painel central com contornos arredondados e linha superior
+const painelCentralForma = new THREE.Shape();
+const w = 6, h = 6, r = 0.6;
+painelCentralForma.moveTo(-w / 2 + r, -h / 2);
+painelCentralForma.lineTo(w / 2 - r, -h / 2);
+painelCentralForma.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+painelCentralForma.lineTo(w / 2, h / 2 - r);
+painelCentralForma.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+painelCentralForma.lineTo(-w / 2 + r, h / 2);
+painelCentralForma.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+painelCentralForma.lineTo(-w / 2, -h / 2 + r);
+painelCentralForma.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+
+const painelCentral = new THREE.Mesh(
+  new THREE.ShapeGeometry(painelCentralForma),
+  new THREE.MeshStandardMaterial({
+    color: 0x2b2b2b,
+    roughness: 0.65,
+    metalness: 0.1
+  })
+);
+painelCentral.position.set(0, 13, -config.wallDistance - 4.04);
+scene.add(painelCentral);
+
+// ➖ Linha horizontal subtil próxima do topo
+const linhaSuperior = new THREE.Mesh(
+  new THREE.BoxGeometry(3.2, 0.05, 0.01),
+  new THREE.MeshStandardMaterial({
+    color: 0x3b3b3b,
+    roughness: 0.45
+  })
+);
+linhaSuperior.position.set(0, 15.9, -config.wallDistance - 4.03);
+scene.add(linhaSuperior);
+
+// 🧭 Função para painéis laterais com friso embutido duplo
+function criarPainelLateralComFriso(x) {
+  const grupo = new THREE.Group();
+
+  // Painel com contorno
+  const forma = new THREE.Shape();
+  const wp = 3, hp = 12, rp = 0.5;
+  forma.moveTo(-wp / 2 + rp, -hp / 2);
+  forma.lineTo(wp / 2 - rp, -hp / 2);
+  forma.quadraticCurveTo(wp / 2, -hp / 2, wp / 2, -hp / 2 + rp);
+  forma.lineTo(wp / 2, hp / 2 - rp);
+  forma.quadraticCurveTo(wp / 2, hp / 2, wp / 2 - rp, hp / 2);
+  forma.lineTo(-wp / 2 + rp, hp / 2);
+  forma.quadraticCurveTo(-wp / 2, hp / 2, -wp / 2, hp / 2 - rp);
+  forma.lineTo(-wp / 2, -hp / 2 + rp);
+  forma.quadraticCurveTo(-wp / 2, -hp / 2, -wp / 2 + rp, -hp / 2);
+
+  const painel = new THREE.Mesh(
+    new THREE.ShapeGeometry(forma),
+    new THREE.MeshStandardMaterial({
+      color: 0x2a2a2a,
+      roughness: 0.6,
+      metalness: 0.1
+    })
+  );
+  grupo.add(painel);
+
+  // Friso exterior dourado subtil (camada 1)
+  const frisoExterior = new THREE.Mesh(
+    new THREE.BoxGeometry(2.8, 11.5, 0.01),
+    new THREE.MeshStandardMaterial({
+      color: 0xd2b272,
+      roughness: 0.25,
+      metalness: 0.85,
+      emissive: 0x3a2a0a,
+      emissiveIntensity: 0.15
+    })
+  );
+  frisoExterior.position.z = 0.01;
+  grupo.add(frisoExterior);
+
+  // Friso interior ligeiramente mais pequeno (camada 2)
+  const frisoInterior = new THREE.Mesh(
+    new THREE.BoxGeometry(2.2, 10.2, 0.01),
+    new THREE.MeshStandardMaterial({
+      color: 0x9c8351,
+      roughness: 0.3,
+      metalness: 0.75,
+      emissive: 0x2a1b0a,
+      emissiveIntensity: 0.1
+    })
+  );
+  frisoInterior.position.z = 0.02;
+  grupo.add(frisoInterior);
+
+  grupo.position.set(x, 13, -config.wallDistance - 4.03);
+  scene.add(grupo);
+}
+
+criarPainelLateralComFriso(-8);
+criarPainelLateralComFriso(8);
+
+// 🔻 Frisos horizontais contínuos no rodapé que se estendem nas paredes laterais
+function criarFrisoInferiorContínuo(offsetY) {
+  const friso = new THREE.Mesh(
+    new THREE.BoxGeometry(60, 0.05, 0.01),
+    new THREE.MeshStandardMaterial({
+      color: 0xd2b272,
+      metalness: 0.85,
+      roughness: 0.2,
+      emissive: 0x3a2a0a,
+      emissiveIntensity: 0.12
+    })
+  );
+  friso.position.set(0, offsetY, -config.wallDistance - 4.02);
+  scene.add(friso);
+}
+criarFrisoInferiorContínuo(0.3);
+criarFrisoInferiorContínuo(0.6);
+// 🎨 Material dourado refinado para topo dos pedestais
+const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
+  color: 0xd9b96c,
+  metalness: 1,
+  roughness: 0.08,
+  clearcoat: 0.95,
+  clearcoatRoughness: 0.06,
+  emissive: 0x4a320a,
+  emissiveIntensity: 0.25,
+  reflectivity: 0.6
+});
+
+// 🧱 Função para criar pedestal completo com vitrine e gema central
+function criarVitrineCompleta(x, z, indice) {
+  const grupo = new THREE.Group();
+  const alturaTotal = 4.8;
+  const alturaVidro = 1.4;
+  const raioGema = 0.36;
+
+  // Pedestal sólido elevado
+  const pedestal = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.5, 0.6, alturaTotal - alturaVidro, 32),
+    new THREE.MeshStandardMaterial({
+      color: 0x151515,
+      roughness: 0.6,
+      metalness: 0.2
+    })
+  );
+  pedestal.position.set(x, (alturaTotal - alturaVidro) / 2, z);
+  pedestal.castShadow = true;
+  grupo.add(pedestal);
+
+  // Topo dourado — tampa do pedestal
+  const topoDourado = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.42, 0.42, 0.05, 32),
+    materialDouradoPedestal
+  );
+  topoDourado.position.set(x, alturaTotal - alturaVidro - 0.03, z);
+  topoDourado.castShadow = true;
+  grupo.add(topoDourado);
+
+  // Vitrine em vidro realista
+  const vitrine = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.38, 0.38, alturaVidro, 64, 1, true),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xf8f8f8,
+      metalness: 0.1,
+      roughness: 0.04,
+      transmission: 1,
+      thickness: 0.45,
+      transparent: true,
+      opacity: 0.08,
+      ior: 1.52,
+      reflectivity: 0.7,
+      clearcoat: 0.85,
+      clearcoatRoughness: 0.04,
+      side: THREE.DoubleSide
+    })
+  );
+  vitrine.position.set(x, alturaTotal - alturaVidro / 2, z);
+  vitrine.castShadow = true;
+  grupo.add(vitrine);
+
+  // Gema facetada com brilho suave
+  const gema = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(raioGema, 1),
+    new THREE.MeshStandardMaterial({
+      map: texturaGema,
+      emissive: indice % 2 === 0 ? 0x3366aa : 0x4466bb,
+      emissiveIntensity: 0.6,
+      transparent: true,
+      opacity: 0.95,
+      metalness: 0.3,
+      roughness: 0.1
+    })
+  );
+  gema.position.set(x, alturaTotal - alturaVidro + raioGema * 0.6, z);
+  gema.rotation.y = indice * 0.5;
+  gema.castShadow = true;
+  grupo.add(gema);
+
+  scene.add(grupo);
+}
+
+// 💎 Criar as 4 vitrines simétricas
+criarVitrineCompleta(-9.5, -1.8, 0);
+criarVitrineCompleta(-9.5, 1.8, 1);
+criarVitrineCompleta(9.5, -1.8, 2);
+criarVitrineCompleta(9.5, 1.8, 3);
+// 🎨 Textura da obra central
+const texturaCentral = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  undefined,
+  undefined,
+  err => console.error('Erro ao carregar obra-central.jpg:', err)
+);
+
+// 🖼️ Obra central ajustada e sem frisos ou auréolas
+const quadroCentral = new THREE.Mesh(
+  new THREE.PlaneGeometry(3.2, 4.2),
+  new THREE.MeshStandardMaterial({
+    map: texturaCentral,
+    roughness: 0.15,
+    metalness: 0.08,
+    transparent: true
+  })
+);
+
+// 📍 Centralizada dentro do painel central (e não destacada para a frente)
+quadroCentral.position.set(0, 13, -config.wallDistance - 4.029);
+quadroCentral.castShadow = true;
+scene.add(quadroCentral);
+// 📷 Câmara — posição reconfigurada para capturar a composição completa
+const camera = new THREE.PerspectiveCamera();
+updateCamera();
+
+function updateCamera() {
+  config = configMap[getViewportLevel()];
+  camera.fov = 34;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.position.set(0, config.cameraY + 4.5, config.cameraZ + 18); // mais baixa e afastada
+  camera.lookAt(0, 6.8, -config.wallDistance - 2.5); // ligeiramente mais abaixo e profundo
+  camera.updateProjectionMatrix();
+}
+// ✨ Animações subtis de brilho nas molduras e gemas
+gsap.to(pintura.material, {
+  emissiveIntensity: 0.15,
+  duration: 5,
+  repeat: -1,
+  yoyo: true,
+  ease: 'sine.inOut',
+  onUpdate: () => pintura.material.needsUpdate = true
+});
+
+// Molduras douradas com brilho oscilante
+scene.traverse(obj => {
+  if (
+    obj.isMesh &&
+    obj.material &&
+    obj.material.emissive &&
+    obj.material.emissiveIntensity &&
+    obj.material.color &&
+    obj.material.color.getHex() === 0xd9b96c
+  ) {
+    gsap.to(obj.material, {
+      emissiveIntensity: 0.35,
+      duration: 6,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+});
+
+// Gemas com brilho pulsante
+scene.traverse(obj => {
+  if (
+    obj.isMesh &&
+    obj.material &&
+    obj.material.emissive &&
+    obj.geometry?.type === 'IcosahedronGeometry'
+  ) {
+    gsap.to(obj.material, {
+      emissiveIntensity: 1.2,
+      duration: 4.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+});
+// 🌟 Animação suave de rotação contínua das obras suspensas
+function animate() {
+  requestAnimationFrame(animate);
+  const tempo = Date.now() * -0.00012;
+
+  obrasNormais.forEach((obra, i) => {
+    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(ang) * config.circleRadius;
+    const z = Math.sin(ang) * config.circleRadius;
+    const ry = -ang + Math.PI;
+
+    obra.position.x = x;
+    obra.position.z = z;
+    obra.rotation.y = ry;
+
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, ry, 0);
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+animate();
+// 🔄 Responsividade da câmara e renderer
+window.addEventListener('resize', () => {
+  updateCamera();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});

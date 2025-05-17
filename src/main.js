@@ -390,61 +390,7 @@ scene.traverse(obj => {
     });
   }
 });
-// 🎨 Caminhos para as obras circulantes
-const obraPaths = [
-  "/assets/obras/obra1.jpg",
-  "/assets/obras/obra2.jpg",
-  "/assets/obras/obra3.jpg",
-  "/assets/obras/obra4.jpg",
-  "/assets/obras/obra5.jpg",
-  "/assets/obras/obra6.jpg",
-  "/assets/obras/obra7.jpg",
-  "/assets/obras/obra8.jpg"
-];
 
-const obrasNormais = [];
-
-obraPaths.forEach((src, i) => {
-  const texture = textureLoader.load(src);
-  const ang = (i / obraPaths.length) * Math.PI * 2;
-  const x = Math.cos(ang) * config.circleRadius;
-  const z = Math.sin(ang) * config.circleRadius;
-  const ry = -ang + Math.PI;
-
-  // Obra suspensa principal
-  const obra = new THREE.Mesh(
-    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-    new THREE.MeshStandardMaterial({
-      map: texture,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.DoubleSide
-    })
-  );
-  obra.position.set(x, 4.2, z);
-  obra.rotation.y = ry;
-  obra.castShadow = true;
-  scene.add(obra);
-
-  // Reflexo subtil no chão
-  const reflexo = obra.clone();
-  reflexo.position.y = -0.01;
-  reflexo.scale.y = -1;
-  reflexo.material = obra.material.clone();
-  reflexo.material.opacity = 0.18;
-  reflexo.material.transparent = true;
-  reflexo.material.depthWrite = false;
-  reflexo.material.roughness = 0.5;
-  reflexo.material.metalness = 0.6;
-  reflexo.renderOrder = 1;
-  scene.add(reflexo);
-
-  obra.userData.reflexo = reflexo;
-  reflexo.userData.targetPos = new THREE.Vector3();
-  reflexo.userData.targetRot = new THREE.Euler();
-
-  obrasNormais.push(obra);
-});
 // 🎨 Caminhos para as obras circulantes
 const obraPaths = [
   "/assets/obras/obra1.jpg",

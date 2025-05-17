@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTr
 import { MotionPathPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
-
+main.js:73 Uncaught SyntaxError: Identifier 'Reflector' has already been declared (at main.js:73:10)
 function getViewportLevel() {
   const largura = window.innerWidth;
   if (largura < 480) return 'XS';
@@ -69,8 +69,6 @@ luzRasanteEsquerda.shadow.mapSize.width = 1024;
 luzRasanteEsquerda.shadow.mapSize.height = 1024;
 luzRasanteEsquerda.shadow.bias = -0.0005;
 scene.add(luzRasanteEsquerda);
-
-import { Reflector } from 'three/addons/objects/Reflector.js';
 
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 

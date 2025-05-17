@@ -48,7 +48,7 @@ html, body {
   align-items: center;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6),
               0 0 0 1px rgba(196, 181, 130, 0.3) inset;
   transition: all 0.3s ease;
 }

@@ -220,22 +220,31 @@ quadroDecorativoFundo.add(pintura);
 
 quadroDecorativoFundo.position.set(0, 6.9, -config.wallDistance + 0.001);
 scene.add(quadroDecorativoFundo);
-// Textura de parede
-const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
+// 🧱 Parede de fundo — com textura garantida e sem preload
+const textureLoader = new THREE.TextureLoader();
 
-const paredeGeo = new THREE.PlaneGeometry(40, 30);
-const paredeMaterial = new THREE.MeshStandardMaterial({
-  map: texturaParede,
-  roughness: 0.9,
-  metalness: 0.1,
-  side: THREE.FrontSide
-});
+textureLoader.load(
+  '/assets/parede-antracite.jpg',
+  texturaParede => {
+    const paredeMaterial = new THREE.MeshStandardMaterial({
+      map: texturaParede,
+      roughness: 0.9,
+      metalness: 0.1,
+      side: THREE.FrontSide
+    });
 
-// 🧱 Parede de fundo
-const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
-backWall.position.set(0, 13, -config.wallDistance - 4.05);
-backWall.receiveShadow = true;
-scene.add(backWall);
+    const paredeGeo = new THREE.PlaneGeometry(40, 30);
+
+    const backWall = new THREE.Mesh(paredeGeo, paredeMaterial);
+    backWall.position.set(0, 13, -config.wallDistance - 4.05);
+    backWall.receiveShadow = true;
+    scene.add(backWall);
+  },
+  undefined,
+  err => {
+    console.error('Erro ao carregar a textura da parede:', err);
+  }
+);
 
 // 🧱 Paredes laterais aproximadas dos pedestais (baseado no layout)
 const paredeLateralGeo = new THREE.PlaneGeometry(30, 28);

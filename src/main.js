@@ -50,7 +50,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.2;
-
 // 💡 Luz ambiente geral (triplicada)
 const luzAmbiente = new THREE.PointLight(0xfff2dd, 1.8, 50, 2);
 luzAmbiente.position.set(0, 9.5, 0);
@@ -103,9 +102,10 @@ gsap.to(luzChao, {
   ease: 'sine.inOut'
 });
 
-// 🎨 Textura antracite nas paredes
+// 🎨 Texturas base
 const textureLoader = new THREE.TextureLoader();
 const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
+const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
 // 🧱 Parede de fundo texturizada com antracite
 const paredeGeo = new THREE.PlaneGeometry(40, 30);
@@ -143,7 +143,7 @@ const painelCentral = new THREE.Mesh(
 painelCentral.position.set(0, 13, -config.wallDistance - 4.04);
 scene.add(painelCentral);
 
-// ➖ Linha horizontal subtil próxima do topo
+// ➖ Linha horizontal subtil próxima do topo do painel central
 const linhaSuperior = new THREE.Mesh(
   new THREE.BoxGeometry(3.2, 0.05, 0.01),
   new THREE.MeshStandardMaterial({
@@ -154,16 +154,16 @@ const linhaSuperior = new THREE.Mesh(
 linhaSuperior.position.set(0, 15.9, -config.wallDistance - 4.03);
 scene.add(linhaSuperior);
 
-// 🧭 Função para painéis laterais com friso embutido duplo
+// 🧭 Função para painéis laterais com friso embutido duplo (estrutura interior e exterior)
 function criarPainelLateralComFriso(x) {
   const grupo = new THREE.Group();
 
-  // Painel com contorno
+  // Painel base arredondado
   const forma = new THREE.Shape();
   const wp = 3, hp = 12, rp = 0.5;
   forma.moveTo(-wp / 2 + rp, -hp / 2);
   forma.lineTo(wp / 2 - rp, -hp / 2);
-  forma.quadraticCurveTo(wp / 2, -hp / 2, wp / 2, -hp / 2 + rp);
+  forma.quadraticCurveTo(wp / 2, -hp / 2, w / 2, -hp / 2 + rp);
   forma.lineTo(wp / 2, hp / 2 - rp);
   forma.quadraticCurveTo(wp / 2, hp / 2, wp / 2 - rp, hp / 2);
   forma.lineTo(-wp / 2 + rp, hp / 2);
@@ -181,7 +181,7 @@ function criarPainelLateralComFriso(x) {
   );
   grupo.add(painel);
 
-  // Friso exterior dourado subtil (camada 1)
+  // Friso exterior dourado
   const frisoExterior = new THREE.Mesh(
     new THREE.BoxGeometry(2.8, 11.5, 0.01),
     new THREE.MeshStandardMaterial({
@@ -195,7 +195,7 @@ function criarPainelLateralComFriso(x) {
   frisoExterior.position.z = 0.01;
   grupo.add(frisoExterior);
 
-  // Friso interior ligeiramente mais pequeno (camada 2)
+  // Friso interior menor
   const frisoInterior = new THREE.Mesh(
     new THREE.BoxGeometry(2.2, 10.2, 0.01),
     new THREE.MeshStandardMaterial({
@@ -215,7 +215,6 @@ function criarPainelLateralComFriso(x) {
 
 criarPainelLateralComFriso(-8);
 criarPainelLateralComFriso(8);
-
 // 🔻 Frisos horizontais contínuos no rodapé que se estendem nas paredes laterais
 function criarFrisoInferiorContínuo(offsetY) {
   const friso = new THREE.Mesh(
@@ -233,6 +232,7 @@ function criarFrisoInferiorContínuo(offsetY) {
 }
 criarFrisoInferiorContínuo(0.3);
 criarFrisoInferiorContínuo(0.6);
+
 // 🎨 Material dourado refinado para topo dos pedestais
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
@@ -330,7 +330,7 @@ const texturaCentral = textureLoader.load(
   err => console.error('Erro ao carregar obra-central.jpg:', err)
 );
 
-// 🖼️ Obra central ajustada e sem frisos ou auréolas
+// 🖼️ Obra central ajustada, sem frisos nem auréola
 const quadroCentral = new THREE.Mesh(
   new THREE.PlaneGeometry(3.2, 4.2),
   new THREE.MeshStandardMaterial({
@@ -341,30 +341,27 @@ const quadroCentral = new THREE.Mesh(
   })
 );
 
-// 📍 Centralizada dentro do painel central (e não destacada para a frente)
+// 📍 Posicionada com precisão dentro do painel central (não à frente dele)
 quadroCentral.position.set(0, 13, -config.wallDistance - 4.029);
 quadroCentral.castShadow = true;
 scene.add(quadroCentral);
-
-// ✨ Animações subtis de brilho nas molduras e gemas
-gsap.to(pintura.material, {
+// ✨ Animação subtil de brilho pulsante na obra central
+gsap.to(quadroCentral.material, {
   emissiveIntensity: 0.15,
   duration: 5,
   repeat: -1,
   yoyo: true,
   ease: 'sine.inOut',
-  onUpdate: () => pintura.material.needsUpdate = true
+  onUpdate: () => (quadroCentral.material.needsUpdate = true)
 });
 
-// Molduras douradas com brilho oscilante
+// ✨ Molduras douradas com brilho oscilante
 scene.traverse(obj => {
   if (
     obj.isMesh &&
     obj.material &&
     obj.material.emissive &&
-    obj.material.emissiveIntensity &&
-    obj.material.color &&
-    obj.material.color.getHex() === 0xd9b96c
+    obj.material.color?.getHex?.() === 0xd9b96c
   ) {
     gsap.to(obj.material, {
       emissiveIntensity: 0.35,
@@ -376,7 +373,7 @@ scene.traverse(obj => {
   }
 });
 
-// Gemas com brilho pulsante
+// ✨ Gemas com brilho pulsante
 scene.traverse(obj => {
   if (
     obj.isMesh &&
@@ -393,33 +390,161 @@ scene.traverse(obj => {
     });
   }
 });
-// 🌟 Animação suave de rotação contínua das obras suspensas
-function animate() {
-  requestAnimationFrame(animate);
-  const tempo = Date.now() * -0.00012;
+// 🎨 Caminhos para as obras circulantes
+const obraPaths = [
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
+];
 
-  obrasNormais.forEach((obra, i) => {
-    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(ang) * config.circleRadius;
-    const z = Math.sin(ang) * config.circleRadius;
-    const ry = -ang + Math.PI;
+const obrasNormais = [];
 
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = ry;
+obraPaths.forEach((src, i) => {
+  const texture = textureLoader.load(src);
+  const ang = (i / obraPaths.length) * Math.PI * 2;
+  const x = Math.cos(ang) * config.circleRadius;
+  const z = Math.sin(ang) * config.circleRadius;
+  const ry = -ang + Math.PI;
 
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, ry, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-    }
-  });
+  // Obra suspensa principal
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+  obra.position.set(x, 4.2, z);
+  obra.rotation.y = ry;
+  obra.castShadow = true;
+  scene.add(obra);
 
-  renderer.render(scene, camera);
-}
-animate();
+  // Reflexo subtil no chão
+  const reflexo = obra.clone();
+  reflexo.position.y = -0.01;
+  reflexo.scale.y = -1;
+  reflexo.material = obra.material.clone();
+  reflexo.material.opacity = 0.18;
+  reflexo.material.transparent = true;
+  reflexo.material.depthWrite = false;
+  reflexo.material.roughness = 0.5;
+  reflexo.material.metalness = 0.6;
+  reflexo.renderOrder = 1;
+  scene.add(reflexo);
+
+  obra.userData.reflexo = reflexo;
+  reflexo.userData.targetPos = new THREE.Vector3();
+  reflexo.userData.targetRot = new THREE.Euler();
+
+  obrasNormais.push(obra);
+});
+// 🎨 Caminhos para as obras circulantes
+const obraPaths = [
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
+];
+
+const obrasNormais = [];
+
+obraPaths.forEach((src, i) => {
+  const texture = textureLoader.load(src);
+  const ang = (i / obraPaths.length) * Math.PI * 2;
+  const x = Math.cos(ang) * config.circleRadius;
+  const z = Math.sin(ang) * config.circleRadius;
+  const ry = -ang + Math.PI;
+
+  // Obra suspensa principal
+  const obra = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  );
+  obra.position.set(x, 4.2, z);
+  obra.rotation.y = ry;
+  obra.castShadow = true;
+  scene.add(obra);
+
+  // Reflexo subtil no chão
+  const reflexo = obra.clone();
+  reflexo.position.y = -0.01;
+  reflexo.scale.y = -1;
+  reflexo.material = obra.material.clone();
+  reflexo.material.opacity = 0.18;
+  reflexo.material.transparent = true;
+  reflexo.material.depthWrite = false;
+  reflexo.material.roughness = 0.5;
+  reflexo.material.metalness = 0.6;
+  reflexo.renderOrder = 1;
+  scene.add(reflexo);
+
+  obra.userData.reflexo = reflexo;
+  reflexo.userData.targetPos = new THREE.Vector3();
+  reflexo.userData.targetRot = new THREE.Euler();
+
+  obrasNormais.push(obra);
+});
+// ✨ Animação subtil de brilho na obra central
+gsap.to(quadroCentral.material, {
+  emissiveIntensity: 0.15,
+  duration: 5,
+  repeat: -1,
+  yoyo: true,
+  ease: 'sine.inOut',
+  onUpdate: () => (quadroCentral.material.needsUpdate = true)
+});
+
+// ✨ Molduras douradas com brilho oscilante
+scene.traverse(obj => {
+  if (
+    obj.isMesh &&
+    obj.material &&
+    obj.material.emissive &&
+    obj.material.color?.getHex?.() === 0xd9b96c
+  ) {
+    gsap.to(obj.material, {
+      emissiveIntensity: 0.35,
+      duration: 6,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+});
+
+// ✨ Gemas com brilho pulsante
+scene.traverse(obj => {
+  if (
+    obj.isMesh &&
+    obj.material &&
+    obj.material.emissive &&
+    obj.geometry?.type === 'IcosahedronGeometry'
+  ) {
+    gsap.to(obj.material, {
+      emissiveIntensity: 1.2,
+      duration: 4.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+});
 // 🔄 Responsividade da câmara e renderer
 window.addEventListener('resize', () => {
   updateCamera();

@@ -31,6 +31,8 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera();
+updateCamera();
+
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.fov = 34;
@@ -39,7 +41,6 @@ function updateCamera() {
   camera.lookAt(0, 7, -config.wallDistance + 0.8);
   camera.updateProjectionMatrix();
 }
-updateCamera();
 
 // 🧱 Renderer
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
@@ -344,18 +345,7 @@ const quadroCentral = new THREE.Mesh(
 quadroCentral.position.set(0, 13, -config.wallDistance - 4.029);
 quadroCentral.castShadow = true;
 scene.add(quadroCentral);
-// 📷 Câmara — posição reconfigurada para capturar a composição completa
-const camera = new THREE.PerspectiveCamera();
-updateCamera();
 
-function updateCamera() {
-  config = configMap[getViewportLevel()];
-  camera.fov = 34;
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, config.cameraY + 4.5, config.cameraZ + 18); // mais baixa e afastada
-  camera.lookAt(0, 6.8, -config.wallDistance - 2.5); // ligeiramente mais abaixo e profundo
-  camera.updateProjectionMatrix();
-}
 // ✨ Animações subtis de brilho nas molduras e gemas
 gsap.to(pintura.material, {
   emissiveIntensity: 0.15,

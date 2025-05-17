@@ -512,13 +512,14 @@ gsap.to(pintura.material, {
 
 scene.traverse(obj => {
   if (
-    obj.isMesh &&
-    obj.material &&
-    obj.material.emissive &&
-    obj.material.emissiveIntensity &&
-    obj.material.color &&
-    obj.material.color.getHex() === 0xf3cc80
-  ) {
+   if (
+  obj.isMesh &&
+  obj.material &&
+  obj.material.emissive &&
+  obj.material.emissiveIntensity &&
+  obj.material.color instanceof THREE.Color &&
+  obj.material.color.getHex() === 0xf3cc80
+){
     gsap.to(obj.material, {
       emissiveIntensity: 0.4,
       duration: 6,

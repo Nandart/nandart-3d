@@ -211,7 +211,7 @@ quadroDecorativoFundo.add(pintura);
 quadroDecorativoFundo.position.set(0, 6.9, -config.wallDistance + 0.001);
 scene.add(quadroDecorativoFundo);
 // Textura de parede
-const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
+const texturaParede = textureLoader.load('/assets/parede-antracite.jpg');
 
 const paredeGeo = new THREE.PlaneGeometry(40, 30);
 const paredeMaterial = new THREE.MeshStandardMaterial({

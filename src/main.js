@@ -512,7 +512,6 @@ gsap.to(pintura.material, {
 
 scene.traverse(obj => {
   if (
-   if (
   obj.isMesh &&
   obj.material &&
   obj.material.emissive &&

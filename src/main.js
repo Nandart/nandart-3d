@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTr
 import { MotionPathPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
-main.js:73 Uncaught SyntaxError: Identifier 'Reflector' has already been declared (at main.js:73:10)
+
 function getViewportLevel() {
   const largura = window.innerWidth;
   if (largura < 480) return 'XS';

@@ -522,7 +522,7 @@ fontLoader.load(
 
 const paredeGeo = new THREE.PlaneGeometry(40, 30); // maior em largura e altura
 
-const texturaParede = textureLoader.load('/assets/texturas/parede-antracite.jpg');
+const texturaParede = textureLoader.load('/assets/textures/parede-antracite.jpg');
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
   map: texturaParede,

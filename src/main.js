@@ -56,7 +56,17 @@ const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.4);
 scene.add(luzHemisferica);
 
 // Luz rasante lateral esquerda
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff
+const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.7);
+luzRasanteEsquerda.position.set(-10, 8, 0);
+luzRasanteEsquerda.angle = Math.PI / 6;
+luzRasanteEsquerda.penumbra = 0.3;
+luzRasanteEsquerda.decay = 2;
+luzRasanteEsquerda.distance = 25;
+luzRasanteEsquerda.castShadow = true;
+luzRasanteEsquerda.shadow.mapSize.width = 1024;
+luzRasanteEsquerda.shadow.mapSize.height = 1024;
+luzRasanteEsquerda.shadow.bias = -0.0005;
+scene.add(luzRasanteEsquerda);
 
 import { Reflector } from 'three/addons/objects/Reflector.js';
 

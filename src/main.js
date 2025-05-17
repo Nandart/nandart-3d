@@ -195,7 +195,6 @@ criarFrisoLinha(-16.2, 0.3, -config.wallDistance / 2, 2.2, 0); // esquerda
 criarFrisoLinha(16.2, 0.3, -config.wallDistance / 2, 2.2, 0);  // direita
 
 // 🖼️ Quadro central ajustado e posicionado no centro do friso
-const textureLoader = new THREE.TextureLoader();
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   undefined,

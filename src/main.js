@@ -199,29 +199,70 @@ fontLoader.load(
     scene.add(luzTexto.target);
   }
 );
-// ✨ Iluminação suave e direcional para as obras principais
-
-// Obra central — luz dedicada ajustada para foco subtil e quente
+// 💡 Iluminação suave e cálida para a obra central
 const luzObraCentral = new THREE.SpotLight(0xfff1dd, 0.7, 13, Math.PI / 9, 0.4);
 luzObraCentral.position.set(0, 13.2, -config.wallDistance + 1.5);
 luzObraCentral.target = quadroDecorativoFundo;
 scene.add(luzObraCentral);
 scene.add(luzObraCentral.target);
 
-// Obra lateral esquerda — luz inclinada e difusa
-const luzObraEsquerda = new THREE.SpotLight(0xfff2c7, 0.85, 11, Math.PI / 10, 0.5);
-luzObraEsquerda.position.set(-12.5, 10, -config.wallDistance / 2 + 1.2);
-luzObraEsquerda.target.position.set(-14.5, 6.2, -config.wallDistance / 2 + 0.1);
-scene.add(luzObraEsquerda);
-scene.add(luzObraEsquerda.target);
+// 🖼️ Quadros laterais — aumentados e com moldura saliente
+const obrasParede = [
+  {
+    src: '/assets/obras/obra-lateral-esquerda.jpg',
+    x: -14.55, y: 6.1, z: -config.wallDistance / 2,
+    rotY: Math.PI / 2
+  },
+  {
+    src: '/assets/obras/obra-lateral-direita.jpg',
+    x: 14.55, y: 6.1, z: -config.wallDistance / 2,
+    rotY: -Math.PI / 2
+  }
+];
 
-// Obra lateral direita — simétrica à esquerda
-const luzObraDireita = new THREE.SpotLight(0xfff2c7, 0.85, 11, Math.PI / 10, 0.5);
-luzObraDireita.position.set(12.5, 10, -config.wallDistance / 2 + 1.2);
-luzObraDireita.target.position.set(14.5, 6.2, -config.wallDistance / 2 + 0.1);
-scene.add(luzObraDireita);
-scene.add(luzObraDireita.target);
-// 🔄 Animação contínua das obras suspensas e respetivos reflexos
+obrasParede.forEach(({ src, x, y, z, rotY }) => {
+  const textura = textureLoader.load(src);
+
+  const largura = 4.4;
+  const altura = 6.4;
+  const espessura = 0.12;
+
+  const moldura = new THREE.Mesh(
+    new THREE.BoxGeometry(largura + 0.2, altura + 0.2, espessura),
+    new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x8a5c20),
+      metalness: 1,
+      roughness: 0.15,
+      emissive: new THREE.Color(0x2a1a08),
+      emissiveIntensity: 0.35
+    })
+  );
+  moldura.position.set(x, y, z);
+  moldura.rotation.y = rotY;
+  scene.add(moldura);
+
+  const quadro = new THREE.Mesh(
+    new THREE.PlaneGeometry(largura, altura),
+    new THREE.MeshStandardMaterial({
+      map: textura,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.FrontSide
+    })
+  );
+  quadro.position.set(x, y, z + 0.065);
+  quadro.rotation.y = rotY;
+  quadro.castShadow = true;
+  scene.add(quadro);
+
+  const focoObra = new THREE.SpotLight(0xfff3d0, 0.5, 6, Math.PI / 9, 0.4);
+  focoObra.position.set(x, y + 3.5, z + (rotY > 0 ? 2 : -2));
+  focoObra.target = quadro;
+  scene.add(focoObra);
+  scene.add(focoObra.target);
+});
+
+// 🌀 Obras suspensas em círculo com reflexos no chão
 const obrasNormais = [];
 const numeroObras = 8;
 
@@ -240,9 +281,7 @@ for (let i = 1; i <= numeroObras; i++) {
     })
   );
   planoObra.castShadow = true;
-  planoObra.receiveShadow = false;
 
-  // Reflexo invertido no chão
   const reflexo = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -271,31 +310,30 @@ function animate() {
 
   const tempo = Date.now() * -0.00012;
 
-  if (typeof obrasNormais !== 'undefined' && Array.isArray(obrasNormais)) {
-    obrasNormais.forEach((obra, i) => {
-      const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-      const x = Math.cos(ang) * config.circleRadius;
-      const z = Math.sin(ang) * config.circleRadius;
-      const ry = -ang + Math.PI;
+  obrasNormais.forEach((obra, i) => {
+    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(ang) * config.circleRadius;
+    const z = Math.sin(ang) * config.circleRadius;
+    const ry = -ang + Math.PI;
 
-      obra.position.set(x, 4.2, z);
-      obra.rotation.y = ry;
+    obra.position.set(x, 4.2, z);
+    obra.rotation.y = ry;
 
-      const reflexo = obra.userData?.reflexo;
-      if (reflexo) {
-        reflexo.userData.targetPos.set(x, -0.01, z);
-        reflexo.userData.targetRot.set(0, ry, 0);
+    const reflexo = obra.userData?.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, ry, 0);
 
-        reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-        reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
-      }
-    });
-  }
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+    }
+  });
 
   renderer.render(scene, camera);
 }
 
 animate();
+
 // ✨ Reflexos vivos e pulsação subtil nas gemas, frisos e molduras
 
 // Moldura da obra central – brilho oscilante suave

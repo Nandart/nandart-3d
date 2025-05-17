@@ -1,20 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
-  <title>NANdART 3D Gallery</title>
-  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="NANdART Virtual Gallery — Experiência Premium de Arte 3D">
+  <meta name="theme-color" content="#111111">
+  <title>NANdART Galeria 3D</title>
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css">
 
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
+  <link rel="modulepreload" href="/src/main.js" crossorigin>
+  <link rel="preload" href="/assets/parede-antracite.jpg" as="image" type="image/jpeg">
+  <link rel="preload" href="/assets/icons/info.png" as="image">
+  <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  </noscript>
 
-  <!-- Import Maps -->
+  <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
   <script type="importmap">
     {
       "imports": {
@@ -26,82 +35,100 @@
       }
     }
   </script>
-</head>
-<body>
-  <!-- Tela de carregamento -->
-  <div class="loading-screen">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Loading Gallery</div>
-  </div>
 
-  <!-- Canvas 3D -->
+  <script nomodule src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+</head>
+
+<body>
   <canvas id="scene"></canvas>
 
-  <!-- Ícones de navegação -->
-  <a href="info.html">
-    <img src="/assets/icons/info.png" alt="Info" class="info-icon" />
-  </a>
-
-  <div class="menu-container">
-    <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" />
-    <div class="menu-dropdown" id="menu-dropdown">
-      <a href="contactos.html">Contactos</a>
-      <a href="como-navegar.html">Como Navegar</a>
-      <a href="artistas.html">Artistas</a>
-      <a href="web3.html">Web3 & NFT</a>
+  <noscript>
+    <div class="nojs-message">
+      <h2>JavaScript Necessário</h2>
+      <p>Por favor ative o JavaScript para experienciar a Galeria 3D NANdART.</p>
     </div>
+  </noscript>
+
+  <div class="nav-container">
+    <a href="info.html" class="nav-icon" aria-label="Informação">
+      <img src="/assets/icons/info.png" alt="Info" class="info-icon" loading="lazy"/>
+      <span class="icon-label">Info</span>
+    </a>
+
+    <div class="menu-container">
+      <button id="menu-toggle" class="nav-button" aria-label="Menu" aria-expanded="false" aria-controls="menu-dropdown">
+        <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" loading="lazy"/>
+        <span class="icon-label">Menu</span>
+      </button>
+      <div class="menu-dropdown" id="menu-dropdown">
+        <a href="contactos.html" class="menu-item">Contactos</a>
+        <a href="como-navegar.html" class="menu-item">Como Navegar</a>
+        <a href="artistas.html" class="menu-item">Artistas</a>
+        <a href="web3.html" class="menu-item">Web3 & NFT</a>
+      </div>
+    </div>
+
+    <a href="como-navegar.html" class="nav-icon" aria-label="Ajuda">
+      <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" loading="lazy"/>
+      <span class="icon-label">Ajuda</span>
+    </a>
   </div>
 
-  <a href="como-navegar.html">
-    <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" />
-  </a>
-
-  <!-- Modal de obra premium -->
-  <div class="art-modal">
-    <h3 id="art-title">Artwork Title</h3>
-    <p id="art-description">Description of the selected piece</p>
-    <button id="buy-art">Acquire Artwork</button>
-  </div>
-
-  <!-- Scripts -->
   <script>
-    // Menu toggle functionality
-    document.getElementById('menu-toggle').addEventListener('click', function(e) {
-      e.preventDefault();
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-      const menu = document.getElementById('menu-dropdown');
-      const menuToggle = document.getElementById('menu-toggle');
-      if (menu.style.display === 'flex' && !menu.contains(e.target) && e.target !== menuToggle) {
-        menu.style.display = 'none';
+    function checkCompatibility() {
+      try {
+        const canvas = document.createElement('canvas');
+        const webgl = !!window.WebGLRenderingContext &&
+                     (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+        if (!webgl) throw new Error('WebGL não suportado');
+        return true;
+      } catch(e) {
+        document.body.innerHTML = `
+          <div class="compatibility-error">
+            <h2>Dispositivo Não Suportado</h2>
+            <p>O seu dispositivo não suporta WebGL, necessário para esta experiência.</p>
+            <p>Por favor tente num smartphone moderno ou computador.</p>
+          </div>
+        `;
+        return false;
       }
-    });
+    }
 
-    // Oculta a tela de carregamento após o carregamento completo
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.querySelector('.loading-screen').style.opacity = '0';
+    if (checkCompatibility()) {
+      window.addEventListener('load', () => {
         setTimeout(() => {
-          document.querySelector('.loading-screen').style.display = 'none';
-        }, 1200);
-      }, 1500);
-    });
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = '/src/main.js';
+          script.crossOrigin = 'anonymous';
 
-    // Fallback para ligações lentas
-    setTimeout(() => {
-      const loading = document.querySelector('.loading-screen');
-      if (loading) loading.style.display = 'none';
-    }, 8000);
+          script.onerror = () => {
+            console.error('Falha ao carregar o script principal');
+          };
+
+          document.body.appendChild(script);
+        }, 300);
+      });
+
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (window.innerHeight > window.innerWidth) {
+            document.documentElement.classList.add('portrait');
+          } else {
+            document.documentElement.classList.remove('portrait');
+          }
+        }, 300);
+      });
+
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection && (connection.effectiveType === 'slow-2g' || connection.saveData)) {
+        document.documentElement.classList.add('low-bandwidth');
+      }
+    }
   </script>
 
-  <script type="module" src="/src/main.js"></script>
-
   <script nomodule>
-    alert("Your browser does not support JavaScript modules. Please use Chrome, Firefox, or Edge.");
+    alert("O seu navegador não suporta módulos JavaScript. Por favor use Chrome, Firefox ou Edge modernos.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

@@ -70,7 +70,6 @@ luzRasanteEsquerda.shadow.mapSize.width = 1024;
 luzRasanteEsquerda.shadow.mapSize.height = 1024;
 luzRasanteEsquerda.shadow.bias = -0.0005;
 scene.add(luzRasanteEsquerda);
-
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
 const floor = new Reflector(floorGeometry, {
@@ -125,7 +124,7 @@ const frisoChao = new THREE.Mesh(
 frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
 scene.add(frisoChao);
 
-// Preparação dos frisos embutidos – funções utilitárias
+// Material comum para frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
   metalness: 1,
@@ -190,14 +189,11 @@ criarFrisoRect(7.6, 6.9, -config.wallDistance + 0.012, 1.2, 5.5);
 
 // Frisos horizontais inferiores contínuos — atravessam a parede de fundo e continuam nas laterais
 criarFrisoLinha(0, 0.3, -config.wallDistance + 0.01, 36); // parede de fundo
-
-// Continuação para as paredes laterais (laterais assumem Z constante do centro)
-criarFrisoLinha(-16.2, 0.3, -config.wallDistance / 2, 2.2, 0); // esquerda
-criarFrisoLinha(16.2, 0.3, -config.wallDistance / 2, 2.2, 0);  // direita
+criarFrisoLinha(-16.2, 0.3, -config.wallDistance / 2, 2.2); // esquerda
+criarFrisoLinha(16.2, 0.3, -config.wallDistance / 2, 2.2);  // direita
 
 // 🖼️ Quadro central ajustado e posicionado no centro do friso
-const textureLoader = new THREE.TextureLoader();
-const texturaCentral = textureLoader.load(...);
+const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   undefined,
   undefined,
@@ -222,8 +218,6 @@ quadroDecorativoFundo.add(pintura);
 quadroDecorativoFundo.position.set(0, 6.9, -config.wallDistance + 0.001);
 scene.add(quadroDecorativoFundo);
 // 🧱 Parede de fundo — com textura garantida e sem preload
-const textureLoader = new THREE.TextureLoader();
-
 textureLoader.load(
   '/assets/parede-antracite.jpg',
   texturaParede => {
@@ -240,28 +234,27 @@ textureLoader.load(
     backWall.position.set(0, 13, -config.wallDistance - 4.05);
     backWall.receiveShadow = true;
     scene.add(backWall);
+
+    // 🧱 Paredes laterais com a mesma textura
+    const paredeLateralGeo = new THREE.PlaneGeometry(30, 28);
+
+    const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
+    leftWall.position.set(-14.6, 13, -config.wallDistance / 2);
+    leftWall.rotation.y = Math.PI / 2;
+    leftWall.receiveShadow = true;
+    scene.add(leftWall);
+
+    const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
+    rightWall.position.set(14.6, 13, -config.wallDistance / 2);
+    rightWall.rotation.y = -Math.PI / 2;
+    rightWall.receiveShadow = true;
+    scene.add(rightWall);
   },
   undefined,
   err => {
     console.error('Erro ao carregar a textura da parede:', err);
   }
 );
-
-// 🧱 Paredes laterais aproximadas dos pedestais (baseado no layout)
-const paredeLateralGeo = new THREE.PlaneGeometry(30, 28);
-
-const leftWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-leftWall.position.set(-14.6, 13, -config.wallDistance / 2);
-leftWall.rotation.y = Math.PI / 2;
-leftWall.receiveShadow = true;
-scene.add(leftWall);
-
-const rightWall = new THREE.Mesh(paredeLateralGeo, paredeMaterial);
-rightWall.position.set(14.6, 13, -config.wallDistance / 2);
-rightWall.rotation.y = -Math.PI / 2;
-rightWall.receiveShadow = true;
-scene.add(rightWall);
-
 // Material dourado para topo do pedestal
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
@@ -423,7 +416,6 @@ fontLoader.load(
     scene.add(luzTexto.target);
   }
 );
-
 // Obras circulantes (suspensas, sem molduras) com tamanho duplicado
 const obraPaths = [
   "/assets/obras/obra1.jpg",
@@ -476,12 +468,12 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
+
 // Atualização de dimensão ao redimensionar a janela
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 // ✨ Reflexos animados subtis nas molduras e gemas
 
 // Moldura do quadro central – animação suave no brilho
@@ -560,4 +552,3 @@ function animate() {
 }
 
 animate();
-

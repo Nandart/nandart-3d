@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="description" content="NANdART Virtual Gallery — Experiência Premium de Arte 3D">
+  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
   <meta name="theme-color" content="#111111">
-  <title>NANdART Galeria 3D</title>
+  <title>NANdART 3D Gallery</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css">
 
-  <!-- Preload/Preconnect Optimizado -->
+  <!-- Preload/Preconnect Optimised -->
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
   <link rel="modulepreload" href="/src/main.js" crossorigin>
   <link rel="preload" href="/assets/icons/info.png" as="image">
@@ -43,36 +43,36 @@
   <!-- Canvas 3D -->
   <canvas id="scene"></canvas>
 
-  <!-- Ícones de navegação -->
+  <!-- Navigation Icons -->
   <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
   <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
-  <img src="/assets/icons/ajuda-flutuante.png" alt="Ajuda" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Ajuda">
+  <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Help">
 
-  <!-- Menu Dropdown -->
+  <!-- Dropdown Menu -->
   <div class="menu-dropdown" id="menu-dropdown">
-    <a href="contactos.html">Contactos</a>
-    <a href="como-navegar.html">Como Navegar</a>
-    <a href="artistas.html">Artistas</a>
+    <a href="contactos.html">Contacts</a>
+    <a href="como-navegar.html">How to Navigate</a>
+    <a href="artists.html">Artists</a>
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Modal de obra -->
+  <!-- Artwork Modal -->
   <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true" style="display:none;">
-    <h3 id="art-title">Título da Obra</h3>
-    <p id="art-description">Descrição da peça selecionada</p>
-    <p id="art-artist">Artista</p>
+    <h3 id="art-title">Artwork Title</h3>
+    <p id="art-description">Selected piece description</p>
+    <p id="art-artist">Artist</p>
     <p id="art-year">2025</p>
     <p id="art-price">0.3 ETH</p>
-    <button id="buy-art" class="buy-button" aria-label="Adquirir Obra">Adquirir Obra</button>
+    <button id="buy-art" class="buy-button" aria-label="Buy Artwork">Buy Artwork</button>
   </div>
 
-  <!-- Ecrã de carregamento -->
+  <!-- Loading Screen -->
   <div class="loading-screen">
     <div class="loading-spinner"></div>
-    <div class="loading-text">A carregar...</div>
+    <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Script de carregamento dinâmico -->
+  <!-- Dynamic Script Loader -->
   <script>
     document.getElementById('menu-toggle').addEventListener('click', () => {
       const menu = document.getElementById('menu-dropdown');
@@ -94,7 +94,7 @@
         };
 
         script.onerror = () => {
-          console.error('Erro ao carregar main.js');
+          console.error('Failed to load main.js');
         };
 
         document.body.appendChild(script);
@@ -102,9 +102,9 @@
     });
   </script>
 
-  <!-- Fallback para navegadores sem suporte a módulos -->
+  <!-- Fallback for Non-Module Browsers -->
   <script nomodule>
-    alert("O seu navegador não suporta módulos JavaScript. Por favor use um navegador moderno.");
+    alert("Your browser does not support JavaScript modules. Please use a modern browser.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>

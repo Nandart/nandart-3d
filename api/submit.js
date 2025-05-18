@@ -1,90 +1,90 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
+const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const { Octokit } = require('@octokit/rest');
 
-  const {
-    titulo,
-    artista,
-    estilo,
-    tecnica,
-    ano,
-    dimensoes,
-    materiais,
-    local,
-    descricao,
-    imagem,
-    tipo = "normal"
-  } = req.body;
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
-  if (!titulo || !artista || !descricao || !ano || !imagem || !local) {
-    return res.status(400).json({ message: "Missing required fields." });
-  }
+// Configurações do GitHub
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN,
+});
+const owner = 'Nandart';
+const repo = 'nandart-3d';
 
-  const githubToken = process.env.GITHUB_TOKEN;
-  const repo = "nandart-3d";
-  const owner = "Nandart";
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
-
-  const title = `🖼️ Submission: ${titulo} by ${artista}`;
-  const body = `
-### 🧑‍🎨 Artist
-${artista}
-
-### 🖌️ Title
-${titulo}
-
-### 🎨 Style
-${estilo}
-
-### 🧪 Technique
-${tecnica}
-
-### 🗓️ Year
-${ano}
-
-### 📐 Dimensions
-${dimensoes}
-
-### 🧱 Materials
-${materiais}
-
-### 🏞️ Place of Creation
-${local}
-
-### 📝 Description
-${descricao}
-
-### 🌐 Image
-![Artwork](${imagem})
-
-### 🏷️ Type
-${tipo}
-`;
-
+// Submissão do formulário
+router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
   try {
-    const githubResponse = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${githubToken}`,
-        Accept: "application/vnd.github+json"
-      },
-      body: JSON.stringify({
-        title,
-        body,
-        labels: ["submission", "pending review"]
-      })
-    });
+    const {
+      artistName,
+      artTitle,
+      artYear,
+      artPrice,
+      highlight,
+    } = req.body;
 
-    if (!githubResponse.ok) {
-      const errorText = await githubResponse.text();
-      return res.status(500).json({ message: "GitHub issue creation failed.", error: errorText });
+    const file = req.file;
+    const termsAccepted = true;
+    const termsAcceptedAt = new Date().toISOString();
+
+    if (!artistName || !artTitle || !artYear || !artPrice || !file || !highlight) {
+      return res.status(400).send('Missing fields');
     }
 
-    const result = await githubResponse.json();
-    return res.status(200).json({ message: "Submission received.", issueUrl: result.html_url });
+    // Criação do corpo do issue no GitHub
+    const issueTitle = `New Submission: ${artTitle} by ${artistName}`;
+    const issueBody = `
+**Artist Name:** ${artistName}
+**Title:** ${artTitle}
+**Year:** ${artYear}
+**Price (ETH):** ${artPrice}
+**Display Preference:** ${highlight}
+**Terms Accepted:** ${termsAccepted}
+**Terms Accepted At:** ${termsAcceptedAt}
+**Submitted At:** ${new Date().toISOString()}
+`;
+
+    await octokit.rest.issues.create({
+      owner,
+      repo,
+      title: issueTitle,
+      body: issueBody,
+      labels: ['submission', highlight === 'premium' ? 'premium' : 'standard'],
+    });
+
+    // Gravação do JSON com os dados da submissão
+    const submissionData = {
+      artistName,
+      artTitle,
+      artYear,
+      artPrice,
+      highlight,
+      termsAccepted,
+      termsAcceptedAt,
+      submittedAt: new Date().toISOString()
+    };
+
+    const safeName = (str) => str.replace(/[^\w\-]/g, '_');
+    const fileName = `${termsAcceptedAt.replace(/[-:]/g, '').replace('T', '_').slice(0, 15)}_${safeName(artTitle)}_${safeName(artistName)}.json`;
+    const jsonFolder = path.join(__dirname, '../submissoes-json');
+
+    if (!fs.existsSync(jsonFolder)) {
+      fs.mkdirSync(jsonFolder);
+    }
+
+    const filePath = path.join(jsonFolder, fileName);
+    fs.writeFileSync(filePath, JSON.stringify(submissionData, null, 2), 'utf-8');
+
+    // Elimina o ficheiro da imagem (não armazenado neste endpoint)
+    fs.unlinkSync(file.path);
+
+    res.status(200).send('Submission received successfully.');
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ message: "Internal server error.", error: error.message });
+    console.error('Error during submission:', error);
+    res.status(500).send('An error occurred while processing the submission.');
   }
-}
+});
+
+module.exports = router;

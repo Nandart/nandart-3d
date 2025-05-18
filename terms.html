@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Artist Terms and Royalties – NANdART Virtual Gallery">
+  <meta name="theme-color" content="#111111">
+  <title>Artist Terms & Royalties | NANdART</title>
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/src/styles/index.css">
+</head>
+<body class="terms-page">
+
+  <!-- Ícones de navegação -->
+  <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
+  <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
+
+  <!-- Menu Dropdown -->
+  <div class="menu-dropdown" id="menu-dropdown">
+    <a href="index.html">Gallery</a>
+    <a href="artistas.html">Artists</a>
+    <a href="web3.html">Web3 & NFT</a>
+    <a href="contactos.html">Contact</a>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <main class="terms-content">
+    <h1>Artist Terms & Royalties</h1>
+    <p class="intro">
+      Every masterpiece submitted to NANdART enters a sacred pact — one that honours the creator’s voice and ensures timeless reward. This page outlines the principles we follow to protect and celebrate the rights of each artist within our curated gallery.
+    </p>
+
+    <section>
+      <h2>1. First Sale</h2>
+      <p>
+        When your artwork is accepted by the NANdART curators and minted as a certified NFT, it enters the premium marketplace. Upon its first sale:
+      </p>
+      <ul>
+        <li><strong>You receive 90%</strong> of the full amount, directly to your connected wallet.</li>
+        <li><strong>NANdART receives 10%</strong> to sustain the gallery’s infrastructure, curatorship and public presence.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. Secondary Market Sales</h2>
+      <p>
+        When your NFT is resold in the future, the smart contract ensures that:
+      </p>
+      <ul>
+        <li><strong>You receive 6%</strong> from every resale — eternally.</li>
+        <li><strong>NANdART receives 4%</strong> to continue supporting the platform and maintaining visibility for all artists.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Your Responsibilities as an Artist</h2>
+      <p>By submitting a piece to NANdART, you affirm that:</p>
+      <ul>
+        <li>You are the original creator and hold all rights to the work.</li>
+        <li>Your work does not include AI-generated or plagiarised content.</li>
+        <li>Your submission reflects artistic integrity and does not violate ethical or legal norms.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. NANdART Commitments to You</h2>
+      <ul>
+        <li>We honour your vision by curating with respect and aesthetic fidelity.</li>
+        <li>We ensure transparency and immutability through blockchain minting.</li>
+        <li>We never claim ownership of your work — only the right to exhibit it within our curated structure.</li>
+        <li>We protect your royalties through every transaction, present and future.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>5. Premium Visibility (Optional)</h2>
+      <p>
+        If you choose the <strong>Premium Placement</strong> service, your approved work will be displayed prominently in the central visual circle of the gallery — visible to all visitors, collectors, and curators.
+      </p>
+      <p>
+        Standard approved submissions appear only on the <a href="web3.html">Web3 & NFT</a> page.
+      </p>
+    </section>
+
+    <p class="closing">
+      At NANdART, we believe in eternal echoes. Your art, your rights — always preserved.
+    </p>
+  </main>
+
+  <!-- Script de menu -->
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+  </script>
+</body>
+</html>

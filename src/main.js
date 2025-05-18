@@ -739,13 +739,13 @@ const modalAno = modal.querySelector('.ano');
 const modalPreco = modal.querySelector('.preco');
 const botaoComprar = modal.querySelector('.buy-button');
 
-function abrirModal(obra, index) {
+function abrirModal(dados, obra) {
   obraSelecionada = obra;
 
-  modalTitulo.textContent = `Obra ${index + 1}`;
-  modalArtista.textContent = `Artista ${index + 1}`;
-  modalAno.textContent = `2025`;
-  modalPreco.textContent = `0.3 ETH`;
+  modalTitulo.textContent = dados.titulo;
+  modalArtista.textContent = dados.artista;
+  modalAno.textContent = dados.ano;
+  modalPreco.textContent = `${dados.preco} ETH`;
 
   modal.style.display = 'flex';
 
@@ -759,8 +759,8 @@ function abrirModal(obra, index) {
   });
 }
 
-// Fechar ao clicar fora da obra ou modal
-window.addEventListener('click', e => {
+// Fechar ao clicar fora da obra/modal
+window.addEventListener('pointerdown', e => {
   if (obraSelecionada && !modal.contains(e.target)) {
     gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
     updateCamera();
@@ -769,8 +769,8 @@ window.addEventListener('click', e => {
   }
 });
 
-// Detectar clique ou toque numa obra suspensa
-window.addEventListener('pointerdown', e => {
+// Detetar clique/tap numa obra suspensa
+renderer.domElement.addEventListener('pointerdown', e => {
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -778,10 +778,12 @@ window.addEventListener('pointerdown', e => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  const intersecoes = raycaster.intersectObjects(obrasNormais);
-  if (intersecoes.length > 0) {
-    const indice = obrasNormais.indexOf(intersecoes[0].object);
-    abrirModal(intersecoes[0].object, indice);
+  const intersects = raycaster.intersectObjects(obrasNormais);
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    const dados = dadosObras[index];
+    abrirModal(dados, obra);
   }
 });
 
@@ -793,23 +795,18 @@ async function buyHandler(dados) {
   }
 
   try {
-    // Solicitar contas ao utilizador
     await window.ethereum.request({ method: 'eth_requestAccounts' });
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    // Converter preço para wei
     const valorETH = ethers.parseEther(dados.preco);
 
-    // Transação fictícia para endereço da galeria
     const tx = await signer.sendTransaction({
-      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // Substituir pelo endereço real da galeria
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12',
       value: valorETH
     });
 
     alert(`Transação enviada!\nHash: ${tx.hash}`);
-
-    // Esperar confirmação
     await tx.wait();
     alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
   } catch (err) {
@@ -817,40 +814,13 @@ async function buyHandler(dados) {
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 }
-// Modal HTML
-const modal = document.querySelector('.art-modal');
-const tituloEl = document.getElementById('art-title');
-const descricaoEl = document.getElementById('art-description');
-const botaoCompra = document.getElementById('buy-art');
-renderer.domElement.addEventListener('pointerdown', event => {
-  const mouse = new THREE.Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
 
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(obrasNormais);
-  if (intersects.length > 0) {
-    const obra = intersects[0].object;
-    const index = obrasNormais.indexOf(obra);
+botaoComprar.addEventListener('click', () => {
+  if (obraSelecionada) {
+    const index = obrasNormais.indexOf(obraSelecionada);
     const dados = dadosObras[index];
-
-    if (dados) {
-      // Preencher modal
-      tituloEl.textContent = dados.titulo;
-      descricaoEl.textContent = `${dados.artista} • ${dados.ano} • ${dados.preco} ETH`;
-      botaoCompra.onclick = () => buyHandler(dados);
-
-      // Mostrar modal
-      modal.classList.add('visible');
-    }
+    buyHandler(dados);
   }
 });
-window.addEventListener('pointerdown', e => {
-  if (modal.classList.contains('visible') && !modal.contains(e.target)) {
-    modal.classList.remove('visible');
-  }
-});
+
 animate();

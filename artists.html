@@ -29,20 +29,22 @@
     }
 
     .navigation-bar a {
-      background: #c4b582;
-      color: #111111;
-      border: none;
-      padding: 8px 14px;
-      font-weight: bold;
+      background-color: rgba(196, 181, 130, 0.1);
+      border: 1px solid #c4b582;
+      color: #c4b582;
+      padding: 8px 12px;
       border-radius: 4px;
       text-decoration: none;
       font-size: 0.85rem;
       font-family: inherit;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .navigation-bar a:hover {
-      background: #d6c68a;
+      background-color: rgba(196, 181, 130, 0.3);
+      color: #ffffff;
     }
 
     .anchor-nav {
@@ -50,6 +52,7 @@
       justify-content: center;
       gap: 20px;
       margin: 100px 0 40px;
+      flex-wrap: wrap;
     }
 
     .anchor-nav a {
@@ -86,6 +89,44 @@
       line-height: 1.6;
     }
 
+    form.artist-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    form.artist-form label {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    form.artist-form input,
+    form.artist-form select {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+
+    form.artist-form button {
+      background: #c4b582;
+      color: #111;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+
+    form.artist-form button:hover {
+      background: #d1c08f;
+    }
+
     @media (max-width: 768px) {
       .anchor-nav {
         flex-direction: column;
@@ -95,6 +136,18 @@
       .section {
         margin: 0 16px 40px;
         padding: 24px;
+      }
+
+      .navigation-bar {
+        flex-direction: column;
+        top: 12px;
+        right: 12px;
+        gap: 10px;
+      }
+
+      .navigation-bar a {
+        font-size: 0.82rem;
+        padding: 6px 10px;
       }
     }
   </style>

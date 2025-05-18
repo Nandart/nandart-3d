@@ -1,1 +1,141 @@
-<button onclick="history.back()">Back to Menu</button>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>NANdART | Navigation Menu</title>
+  <meta name="description" content="Navigate through the NANdART gallery, artist submissions and Web3 sections" />
+  <meta name="theme-color" content="#111111" />
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #111111;
+      color: #e0e0e0;
+      font-family: 'Playfair Display', serif;
+      overflow-y: auto;
+    }
+
+    .menu-wrapper {
+      max-width: 600px;
+      margin: 100px auto 40px;
+      padding: 30px;
+      background-color: rgba(20, 20, 20, 0.9);
+      border: 1px solid #c4b582;
+      border-radius: 8px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #c4b582;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .menu-buttons a {
+      text-decoration: none;
+      background: #c4b582;
+      color: #111;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .menu-buttons a:hover {
+      background: #d6c68a;
+      transform: scale(1.03);
+    }
+
+    .navigation-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 12px;
+    }
+
+    .navigation-bar a {
+      background-color: rgba(196, 181, 130, 0.1);
+      color: #c4b582;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      text-align: center;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border: 1px solid #c4b582;
+      backdrop-filter: blur(6px);
+    }
+
+    .navigation-bar a:hover {
+      background-color: rgba(196, 181, 130, 0.3);
+      color: #ffffff;
+    }
+
+    @media (max-width: 600px) {
+      .menu-wrapper {
+        margin: 80px 16px 40px;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 0.95rem;
+      }
+
+      .menu-buttons a {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
+
+      .navigation-bar {
+        top: 12px;
+        right: 12px;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navigation-bar">
+    <a href="index.html">Return to Gallery</a>
+  </div>
+
+  <div class="menu-wrapper">
+    <h1>Welcome to the Menu</h1>
+    <p>Select your destination within the NANdART world. Explore, submit, or learn more about the gallery’s Web3 dimension.</p>
+
+    <div class="menu-buttons">
+      <a href="artists.html">Submit Your Artwork</a>
+      <a href="web3.html">Web3 & NFT Area</a>
+      <a href="terms.html">Terms & Responsibilities</a>
+      <a href="contactos.html">Contact Us</a>
+      <a href="como-navegar.html">How to Navigate</a>
+    </div>
+  </div>
+</body>
+</html>

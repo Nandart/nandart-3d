@@ -5,6 +5,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { ethers } from 'ethers';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -729,9 +730,9 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
-import { ethers } from 'ethers';
 
 let obraSelecionada = null;
+
 const modal = document.querySelector('.art-modal');
 const modalTitulo = modal.querySelector('.titulo');
 const modalArtista = modal.querySelector('.artista');
@@ -759,7 +760,7 @@ function abrirModal(dados, obra) {
   });
 }
 
-// Fechar ao clicar fora da obra/modal
+// Fechar modal ao clicar fora da obra/modal
 window.addEventListener('pointerdown', e => {
   if (obraSelecionada && !modal.contains(e.target)) {
     gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
@@ -802,7 +803,7 @@ async function buyHandler(dados) {
     const valorETH = ethers.parseEther(dados.preco);
 
     const tx = await signer.sendTransaction({
-      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12',
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // Substituir pelo endereço real da galeria
       value: valorETH
     });
 

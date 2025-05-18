@@ -788,47 +788,40 @@ window.addEventListener('pointerdown', e => {
 // Função real de compra com ethers.js e MetaMask
 async function buyHandler(dados) {
   if (!window.ethereum) {
-    alert('Precisas da MetaMask para continuar.');
+    alert('Instala a MetaMask para poder adquirir esta obra.');
     return;
   }
 
   try {
-    const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
+    // Solicitar contas ao utilizador
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
 
-    const valorETH = parseFloat(dados.preco);
-    if (isNaN(valorETH)) {
-      alert('Preço inválido.');
-      return;
-    }
+    // Converter preço para wei
+    const valorETH = ethers.parseEther(dados.preco);
 
+    // Transação fictícia para endereço da galeria
     const tx = await signer.sendTransaction({
-      to: '0xSEU_ENDERECO_WALLET', // Substitui por endereço real da galeria
-      value: ethers.utils.parseEther(valorETH.toString())
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // Substituir pelo endereço real da galeria
+      value: valorETH
     });
 
-    alert(`Transação enviada! Hash:\n${tx.hash}\nAguardando confirmação...`);
+    alert(`Transação enviada!\nHash: ${tx.hash}`);
 
+    // Esperar confirmação
     await tx.wait();
-    alert('Compra concluída com sucesso!');
-
-    // Ocultar modal após sucesso
-    document.querySelector('.art-modal').style.display = 'none';
-
-  } catch (erro) {
-    console.error('Erro na compra:', erro);
-    alert('Houve um erro durante a compra. Verifica a MetaMask.');
+    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
+  } catch (err) {
+    console.error('Erro ao comprar a obra:', err);
+    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 }
-    
 // Modal HTML
 const modal = document.querySelector('.art-modal');
 const tituloEl = document.getElementById('art-title');
 const descricaoEl = document.getElementById('art-description');
 const botaoCompra = document.getElementById('buy-art');
-
-// Evento de clique/tap numa obra circulante
 renderer.domElement.addEventListener('pointerdown', event => {
   const mouse = new THREE.Vector2(
     (event.clientX / window.innerWidth) * 2 - 1,
@@ -855,8 +848,6 @@ renderer.domElement.addEventListener('pointerdown', event => {
     }
   }
 });
-
-// Fechar modal ao clicar fora
 window.addEventListener('pointerdown', e => {
   if (modal.classList.contains('visible') && !modal.contains(e.target)) {
     modal.classList.remove('visible');

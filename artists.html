@@ -9,15 +9,28 @@
   <link rel="stylesheet" href="/src/styles/index.css" />
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #111111;
+      color: #e0e0e0;
+      font-family: 'Playfair Display', serif;
+    }
+
+    body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 60px;
+    }
+
     .artist-container {
       max-width: 600px;
-      margin: 80px auto;
+      margin: 100px auto 40px;
       padding: 20px;
       background-color: rgba(20, 20, 20, 0.9);
       border: 1px solid #c4b582;
       border-radius: 8px;
-      color: #e0e0e0;
-      font-family: 'Playfair Display', serif;
       backdrop-filter: blur(10px);
     }
 
@@ -48,11 +61,12 @@
 
     .artist-container input,
     .artist-container select {
-      padding: 8px;
+      padding: 10px;
       border-radius: 4px;
       border: none;
       background: #222;
       color: #e0e0e0;
+      font-size: 1rem;
     }
 
     .artist-container input[type="file"] {
@@ -68,6 +82,7 @@
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
+      font-size: 1rem;
     }
 
     .artist-container button:hover {
@@ -96,6 +111,33 @@
     .artist-nav button:hover {
       background-color: rgba(196, 181, 130, 0.1);
     }
+
+    @media (max-width: 768px) {
+      .artist-container {
+        margin: 80px 16px 40px;
+        padding: 16px;
+      }
+
+      .artist-container h1 {
+        font-size: 1.5rem;
+      }
+
+      .artist-container p {
+        font-size: 0.95rem;
+      }
+
+      .artist-nav {
+        flex-direction: column;
+        top: 10px;
+        right: 10px;
+        gap: 6px;
+      }
+
+      .artist-nav button {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -106,8 +148,12 @@
 
   <div class="artist-container">
     <h1>Welcome, Visionary Artist</h1>
-    <p>Join NANdART — a curated virtual sanctuary where your art transcends borders. Submit your creation for review by our curatorial team and, if accepted, see it shine among timeless works of digital wonder.</p>
-        <form action="/api/submit-artwork" method="POST" enctype="multipart/form-data">
+    <p>
+      Join <strong>NANdART</strong> — a curated virtual sanctuary where your art transcends borders.
+      Submit your creation for review by our curatorial team and, if accepted, see it shine among timeless works of digital wonder.
+    </p>
+
+    <form action="/api/submit-artwork" method="POST" enctype="multipart/form-data">
       <label for="artist-name">Artist Name</label>
       <input type="text" id="artist-name" name="artistName" required />
 

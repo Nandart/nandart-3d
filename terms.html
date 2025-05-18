@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>NANdART | Terms & Responsibilities</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css" />
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Playfair Display', serif;
       background-color: #111111;
       color: #e0e0e0;
-      font-family: 'Playfair Display', serif;
-      padding: 40px 20px 80px;
-      line-height: 1.6;
-      max-width: 800px;
+    }
+
+    body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 100px 20px 80px;
+      max-width: 840px;
       margin: auto;
+      line-height: 1.7;
+      font-size: 1rem;
     }
 
     h1, h2 {
       color: #c4b582;
       margin-top: 40px;
       margin-bottom: 20px;
+      line-height: 1.3;
     }
 
     p {
       margin-bottom: 16px;
-      font-size: 1rem;
     }
 
     ul {
@@ -51,6 +60,7 @@
       border-radius: 4px;
       cursor: pointer;
       font-family: inherit;
+      font-size: 0.88rem;
       transition: background 0.3s ease;
     }
 
@@ -58,16 +68,37 @@
       background: #d6c68a;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       body {
-        padding: 30px 15px 60px;
+        padding: 90px 16px 60px;
+        font-size: 0.95rem;
       }
 
       .navigation-bar {
-        top: 15px;
-        right: 15px;
+        top: 12px;
+        right: 12px;
         flex-direction: column;
         gap: 10px;
+      }
+
+      .navigation-bar button {
+        padding: 6px 12px;
+        font-size: 0.82rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 80px 14px 60px;
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      h2 {
+        font-size: 1.1rem;
       }
     }
   </style>
@@ -97,7 +128,8 @@
     <li><strong>6%</strong> of the resale value goes to the original artist.</li>
     <li><strong>4%</strong> is sent to NANdART to support the gallery's curation and infrastructure.</li>
   </ul>
-    <h2>4. Responsibilities of the Artist</h2>
+
+  <h2>4. Responsibilities of the Artist</h2>
   <p>By submitting an artwork, the artist agrees to:</p>
   <ul>
     <li>Guarantee full authorship and originality of the submitted work.</li>
@@ -127,6 +159,5 @@
   <p>NANdART reserves the right to remove any artwork or NFT from the platform in the event of proven infringement, fraud, or misconduct. The artist may request removal of their work at any time, provided no NFT has yet been sold or minted.</p>
 
   <p>By continuing to use the platform and submit works, the artist acknowledges these terms and accepts the shared values of transparency, respect, and artistic integrity.</p>
-
 </body>
 </html>

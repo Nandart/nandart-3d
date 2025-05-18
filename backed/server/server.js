@@ -2,35 +2,40 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
-const submitRouter = require("./submit");
+const submitRouter = require('./submit'); // rota da submissão
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 1. Servir o frontend estático da pasta /public (fora da pasta /backed)
-app.use(express.static(path.join(__dirname, "../../public")));
+// 1. Servir ficheiros estáticos diretamente da raiz do projeto
+app.use(express.static(path.join(__dirname, '../../'))); // NOTA: estamos em /backed/server
 
-// 2. Integrar a rota de submissão de obras
-app.use("/api", submitRouter);
+// 2. Servir o index.html para rotas diretas como /terms.html, /artists.html, etc.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../index.html'));
+});
 
-// 3. Credenciais de administrador e JWT
+// 3. Rotas de API
+app.use('/api', submitRouter);
+
 const ADMIN_CREDENTIALS = {
   username: process.env.ADMIN_USERNAME || "meu-usuario-admin",
   password: process.env.ADMIN_PASSWORD || "minha-senha-segura",
 };
+
 const JWT_SECRET = process.env.JWT_SECRET || "minha-chave-secreta";
 
-// 4. Limitar tentativas de login
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Limite por IP
-  message: { message: "Muitas tentativas. Tente novamente em 15 minutos." },
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: {
+    message: "Muitas tentativas de login. Tente novamente após 15 minutos.",
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// 5. Rota para login de administrador
 app.post("/api/admin-login", loginLimiter, (req, res) => {
   const { username, password } = req.body;
 
@@ -41,21 +46,25 @@ app.post("/api/admin-login", loginLimiter, (req, res) => {
     const token = jwt.sign({ username, role: "admin" }, JWT_SECRET, {
       expiresIn: "1h",
     });
+
     return res.json({ token });
   } else {
     return res.status(401).json({ message: "Credenciais inválidas" });
   }
 });
 
-// 6. Verificação de token JWT para acesso administrativo
 app.get("/api/verify-admin", (req, res) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(403).json({ isAdmin: false });
+
+  if (!authHeader) {
+    return res.status(403).json({ isAdmin: false });
+  }
 
   const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+
     if (decoded.role === "admin") {
       return res.json({ isAdmin: true });
     } else {
@@ -66,12 +75,5 @@ app.get("/api/verify-admin", (req, res) => {
   }
 });
 
-// 7. Redirecionar todas as rotas desconhecidas para index.html (SPA ou fallback)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../public/index.html"));
-});
-
-// 8. Iniciar o servidor na porta 3000
-app.listen(3000, () => {
-  console.log("Servidor da NANdART a correr em http://localhost:3000");
-});
+// Iniciar o servidor
+app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

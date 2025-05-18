@@ -99,6 +99,7 @@ floor.material.reflectivity = 0.985;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+
 // ✨ Círculo de luz com brilho forte e aparência de luz pousada
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -131,7 +132,6 @@ const frisoChao = new THREE.Mesh(
 );
 frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
 scene.add(frisoChao);
-
 // Material dourado vivo usado em todos os frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
@@ -154,7 +154,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   return friso;
 }
 
-// Função para frisos rectangulares sem bicos (com topo/base separados das laterais)
+// Função para frisos rectangulares (com laterais e topo/base separadas)
 function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
@@ -180,6 +180,7 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   scene.add(group);
   return group;
 }
+
 // 🟡 Friso central redesenhado com margem generosa para a obra
 const frisoCentral = criarFrisoRect(
   0,               // x
@@ -189,54 +190,26 @@ const frisoCentral = criarFrisoRect(
   7.0              // altura total
 );
 
-// Friso horizontal interior — alinhado paralelamente ao topo do friso central
+// Friso horizontal interior — alinhado acima do quadro
 criarFrisoLinha(
   0,                // x
-  13.1,             // y — nova posição acima do quadro
+  13.1,             // y
   -config.wallDistance + 0.012,
-  4.5               // largura da linha
+  4.5
 );
 
-// 🟡 Frisos laterais (duplos), agora próximos do friso central e com topo alinhado
-const posXFrisoLateral = 6.7; // menor distância horizontal entre friso central e lateral
+// 🟡 Frisos laterais duplos — externos e internos
+const posXFrisoLateral = 6.7;
 const alturaFrisoExt = 8.8;
 const alturaFrisoInt = 7.1;
 
-// Lado esquerdo — externo
-criarFrisoRect(
-  -posXFrisoLateral,
-  10.3,
-  -config.wallDistance + 0.01,
-  3.2,
-  alturaFrisoExt
-);
+// Lado esquerdo
+criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
+criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// Lado esquerdo — interno
-criarFrisoRect(
-  -posXFrisoLateral,
-  10.3,
-  -config.wallDistance + 0.012,
-  1.6,
-  alturaFrisoInt
-);
-
-// Lado direito — externo
-criarFrisoRect(
-  posXFrisoLateral,
-  10.3,
-  -config.wallDistance + 0.01,
-  3.2,
-  alturaFrisoExt
-);
-
-// Lado direito — interno
-criarFrisoRect(
-  posXFrisoLateral,
-  10.3,
-  -config.wallDistance + 0.012,
-  1.6,
-  alturaFrisoInt
-);
+// Lado direito
+criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
+criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
 // 🟡 Frisos horizontais inferiores contínuos entre as paredes
 criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);     // fundo superior
@@ -245,7 +218,7 @@ criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. su
 criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
 criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
 criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
-// 🖼️ Quadro central — centrado com margem generosa dentro do friso redesenhado
+// 🖼️ Textura da obra central com fallback de erro
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   undefined,
@@ -255,11 +228,11 @@ const texturaCentral = textureLoader.load(
 
 const quadroCentralGrupo = new THREE.Group();
 
-// Dimensões da obra (sem moldura)
+// Dimensões reais da pintura (sem moldura)
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
 
-// 🟫 Moldura escura saliente com relevo
+// 🟫 Moldura escura saliente com profundidade e brilho subtil
 const molduraCentral = new THREE.Mesh(
   new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
   new THREE.MeshStandardMaterial({
@@ -270,10 +243,10 @@ const molduraCentral = new THREE.Mesh(
     emissiveIntensity: 0.15
   })
 );
-molduraCentral.position.z = -0.1; // destaca-se ligeiramente
+molduraCentral.position.z = -0.1; // ligeiro relevo
 quadroCentralGrupo.add(molduraCentral);
 
-// 🖼️ Pintura real central
+// 🖼️ Pintura central com leve metalização
 const pinturaCentral = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
@@ -285,43 +258,43 @@ const pinturaCentral = new THREE.Mesh(
 pinturaCentral.position.z = 0.01; // camada frontal
 quadroCentralGrupo.add(pinturaCentral);
 
-// Posicionamento final do grupo (centrado dentro do friso)
+// Posicionamento final do grupo — centrado dentro do friso
 quadroCentralGrupo.position.set(
-  0, // X
-  10.3, // Y igual ao centro do friso
-  -config.wallDistance + 0.001 // ligeiramente à frente da parede
+  0, // X — centro da parede
+  10.3, // Y — mesmo centro vertical do friso
+  -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
 );
 scene.add(quadroCentralGrupo);
-// 🧱 Geometrias das paredes
+// 🧱 Geometrias base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
-// Função para aplicar a textura nas três paredes
+// Função utilitária para aplicar textura realista às paredes
 const aplicarTexturaParede = textura => {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura,
-    color: 0xffffff, // realce do brilho da textura
-    emissive: new THREE.Color(0x111111),
+    color: 0xffffff, // realce dos tons claros da textura
+    emissive: new THREE.Color(0x111111), // brilho suave nos tons escuros
     emissiveIntensity: 0.25,
     roughness: 0.65,
     metalness: 0.15,
     side: THREE.FrontSide
   });
 
-  // 🧱 Parede de fundo
+  // Parede de fundo — central
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
   paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // 🧱 Parede lateral esquerda
+  // Parede lateral esquerda
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // 🧱 Parede lateral direita
+  // Parede lateral direita
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
@@ -329,7 +302,7 @@ const aplicarTexturaParede = textura => {
   scene.add(paredeDireita);
 };
 
-// Carregamento da textura com fallback automático
+// Carregamento da textura antracite com fallback remoto automático
 textureLoader.load(
   '/assets/antracite-realista.jpg',
   texturaLocal => {
@@ -343,11 +316,11 @@ textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
       texturaRemota => aplicarTexturaParede(texturaRemota),
       undefined,
-      err => console.error('❌ Erro ao carregar a textura remota:', err)
+      err => console.error('❌ Erro ao carregar textura remota:', err)
     );
   }
 );
-// 🖼️ Quadros laterais com moldura saliente e dimensões fiéis ao layout
+// 🖼️ Quadros laterais com moldura saliente e proporções realistas
 const obrasParede = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
@@ -378,7 +351,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
 
   const grupoQuadro = new THREE.Group();
 
-  // Moldura escura com relevo e profundidade
+  // Moldura escura com relevo e volume
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
     new THREE.MeshStandardMaterial({
@@ -392,7 +365,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   moldura.position.z = -0.1;
   grupoQuadro.add(moldura);
 
-  // Pintura principal com textura
+  // Pintura com textura individual
   const quadro = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -405,12 +378,12 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   quadro.position.z = 0.01;
   grupoQuadro.add(quadro);
 
-  // Posicionamento final na parede lateral
+  // Posicionamento final na parede correspondente
   grupoQuadro.position.set(x, y, z + 0.01);
   grupoQuadro.rotation.y = rotY;
   scene.add(grupoQuadro);
 });
-// Material dourado para o topo dos pedestais (reutilizável)
+// Material dourado realista para o topo dos pedestais
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
@@ -425,7 +398,7 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
 // Textura da gema facetada azul
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
-// Função para criar vitrines fiéis ao layout com gema no interior
+// Função para criar uma vitrine completa com pedestal e gema
 function criarVitrine(x, z, indice) {
   const alturaPedestal = 4.6;
   const alturaVitrine = 1.6;
@@ -433,7 +406,7 @@ function criarVitrine(x, z, indice) {
   const emissivaBase = 0x3377cc;
   const intensidade = 2.4;
 
-  // Pedestal escuro e robusto
+  // Pedestal negro com volume robusto
   const pedestal = new THREE.Mesh(
     new THREE.BoxGeometry(1.05, alturaPedestal, 1.05),
     new THREE.MeshStandardMaterial({
@@ -455,7 +428,7 @@ function criarVitrine(x, z, indice) {
   topoDourado.castShadow = true;
   scene.add(topoDourado);
 
-  // Vitrine transparente repousada
+  // Vitrine de vidro translúcido
   const vitrine = new THREE.Mesh(
     new THREE.BoxGeometry(1.0, alturaVitrine, 1.0),
     new THREE.MeshPhysicalMaterial({
@@ -476,7 +449,7 @@ function criarVitrine(x, z, indice) {
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // Gema facetada visível e suspensa
+  // Gema facetada azul flutuante
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.4, 1),
     new THREE.MeshStandardMaterial({
@@ -520,7 +493,7 @@ fontLoader.load(
     const texto = new THREE.Mesh(
       textGeo,
       new THREE.MeshStandardMaterial({
-        color: 0xc49b42, // Tom dourado do layout fornecido
+        color: 0xc49b42, // Tom dourado inspirado no layout
         metalness: 1,
         roughness: 0.25,
         emissive: 0x2c1d07,
@@ -540,16 +513,15 @@ fontLoader.load(
     scene.add(luzTexto.target);
   }
 );
-
-// ✨ Reflexos animados subtis — molduras e frisos
+// ✨ Reflexos animados subtis — frisos, molduras e gemas
 scene.traverse(obj => {
+  // Frisos dourados com brilho pulsante
   if (
     obj.isMesh &&
     obj.material &&
     obj.material.emissive &&
     obj.material.emissiveIntensity &&
-    obj.material.color &&
-    obj.material.color.getHex() === 0xf3cc80
+    obj.material.color?.getHex() === 0xf3cc80
   ) {
     gsap.to(obj.material, {
       emissiveIntensity: 0.45,
@@ -560,7 +532,7 @@ scene.traverse(obj => {
     });
   }
 
-  // Molduras escuras
+  // Molduras escuras com brilho suave
   if (
     obj.isMesh &&
     obj.material?.emissive &&
@@ -575,7 +547,7 @@ scene.traverse(obj => {
     });
   }
 
-  // Gemas
+  // Gemas com emissão pulsante intensa
   if (
     obj.isMesh &&
     obj.material?.emissive &&
@@ -590,34 +562,35 @@ scene.traverse(obj => {
     });
   }
 });
-
-// ✨ Animação contínua das obras suspensas e dos reflexos
+// ✨ Animação contínua das obras circulantes e respetivos reflexos
 function animate() {
   requestAnimationFrame(animate);
 
   const tempo = Date.now() * -0.00012;
-  obrasNormais.forEach((obra, i) => {
-    const ang = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(ang) * config.circleRadius;
-    const z = Math.sin(ang) * config.circleRadius;
-    const ry = -ang + Math.PI;
 
+  obrasNormais.forEach((obra, i) => {
+    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(angulo) * config.circleRadius;
+    const z = Math.sin(angulo) * config.circleRadius;
+    const rotacaoY = -angulo + Math.PI;
+
+    // Atualizar posição e orientação da obra
     obra.position.x = x;
     obra.position.z = z;
-    obra.rotation.y = ry;
+    obra.rotation.y = rotacaoY;
 
+    // Atualizar reflexo correspondente
     const reflexo = obra.userData.reflexo;
     if (reflexo) {
       reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, ry, 0);
+      reflexo.userData.targetRot.set(0, rotacaoY, 0);
       reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (ry - reflexo.rotation.y) * 0.1;
+      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
     }
   });
 
   renderer.render(scene, camera);
 }
-
 // 🖼️ Obras circulantes suspensas (sem moldura) com reflexo no chão
 const obraPaths = [
   "/assets/obras/obra1.jpg",
@@ -629,6 +602,7 @@ const obraPaths = [
   "/assets/obras/obra7.jpg",
   "/assets/obras/obra8.jpg"
 ];
+
 // Dados reais das obras para o modal
 const dadosObras = [
   {
@@ -688,6 +662,7 @@ const dadosObras = [
     imagem: "/assets/obras/obra8.jpg"
   }
 ];
+
 const obrasNormais = [];
 
 obraPaths.forEach((src, i) => {
@@ -730,7 +705,6 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
-
 let obraSelecionada = null;
 
 const modal = document.querySelector('.art-modal');
@@ -787,7 +761,6 @@ renderer.domElement.addEventListener('pointerdown', e => {
     abrirModal(dados, obra);
   }
 });
-
 // Função real de compra com ethers.js e MetaMask
 async function buyHandler(dados) {
   if (!window.ethereum) {
@@ -796,18 +769,24 @@ async function buyHandler(dados) {
   }
 
   try {
+    // Solicitar autorização à carteira do utilizador
     await window.ethereum.request({ method: 'eth_requestAccounts' });
+
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
+    // Converter o preço para wei
     const valorETH = ethers.parseEther(dados.preco);
 
+    // Enviar transação para o endereço da galeria
     const tx = await signer.sendTransaction({
       to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // Substituir pelo endereço real da galeria
       value: valorETH
     });
 
     alert(`Transação enviada!\nHash: ${tx.hash}`);
+
+    // Aguardar confirmação da transação
     await tx.wait();
     alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
   } catch (err) {
@@ -815,7 +794,7 @@ async function buyHandler(dados) {
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 }
-
+// Evento de clique no botão "Comprar" do modal
 botaoComprar.addEventListener('click', () => {
   if (obraSelecionada) {
     const index = obrasNormais.indexOf(obraSelecionada);
@@ -824,4 +803,5 @@ botaoComprar.addEventListener('click', () => {
   }
 });
 
+// Iniciar a animação contínua da cena
 animate();

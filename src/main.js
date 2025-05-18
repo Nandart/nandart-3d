@@ -628,7 +628,65 @@ const obraPaths = [
   "/assets/obras/obra7.jpg",
   "/assets/obras/obra8.jpg"
 ];
-
+// Dados reais das obras para o modal
+const dadosObras = [
+  {
+    titulo: "Fragmento da Eternidade",
+    artista: "Inês Duarte",
+    ano: "2023",
+    preco: "0.8",
+    imagem: "/assets/obras/obra1.jpg"
+  },
+  {
+    titulo: "Sombras de Luz",
+    artista: "Miguel Costa",
+    ano: "2024",
+    preco: "0.5",
+    imagem: "/assets/obras/obra2.jpg"
+  },
+  {
+    titulo: "Horizonte Partilhado",
+    artista: "Clara Mendonça",
+    ano: "2022",
+    preco: "1.2",
+    imagem: "/assets/obras/obra3.jpg"
+  },
+  {
+    titulo: "Memórias de Silêncio",
+    artista: "Rui Valente",
+    ano: "2023",
+    preco: "0.6",
+    imagem: "/assets/obras/obra4.jpg"
+  },
+  {
+    titulo: "Ritmo Contido",
+    artista: "Joana Serra",
+    ano: "2025",
+    preco: "0.75",
+    imagem: "/assets/obras/obra5.jpg"
+  },
+  {
+    titulo: "Flutuação Interior",
+    artista: "André Luz",
+    ano: "2023",
+    preco: "1.0",
+    imagem: "/assets/obras/obra6.jpg"
+  },
+  {
+    titulo: "Verso Encoberto",
+    artista: "Sofia Rocha",
+    ano: "2024",
+    preco: "0.4",
+    imagem: "/assets/obras/obra7.jpg"
+  },
+  {
+    titulo: "Silhueta do Amanhã",
+    artista: "Tiago Faria",
+    ano: "2025",
+    preco: "0.9",
+    imagem: "/assets/obras/obra8.jpg"
+  }
+];
 const obrasNormais = [];
 
 obraPaths.forEach((src, i) => {
@@ -740,3 +798,43 @@ botaoComprar.addEventListener('click', async () => {
     const signer = await
     
 animate();
+// Modal HTML
+const modal = document.querySelector('.art-modal');
+const tituloEl = document.getElementById('art-title');
+const descricaoEl = document.getElementById('art-description');
+const botaoCompra = document.getElementById('buy-art');
+
+// Evento de clique/tap numa obra circulante
+renderer.domElement.addEventListener('pointerdown', event => {
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(obrasNormais);
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    const dados = dadosObras[index];
+
+    if (dados) {
+      // Preencher modal
+      tituloEl.textContent = dados.titulo;
+      descricaoEl.textContent = `${dados.artista} • ${dados.ano} • ${dados.preco} ETH`;
+      botaoCompra.onclick = () => buyHandler(dados);
+
+      // Mostrar modal
+      modal.classList.add('visible');
+    }
+  }
+});
+
+// Fechar modal ao clicar fora
+window.addEventListener('pointerdown', e => {
+  if (modal.classList.contains('visible') && !modal.contains(e.target)) {
+    modal.classList.remove('visible');
+  }
+});

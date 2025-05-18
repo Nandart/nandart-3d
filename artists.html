@@ -2,73 +2,91 @@
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NANdART | Artists</title>
-  <link rel="stylesheet" href="/src/styles/index.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Join NANdART – A Timeless Web3 Gallery for Visionary Artists">
+  <meta name="theme-color" content="#111111">
+  <title>NANdART – Become a Featured Artist</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/src/styles/index.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  </noscript>
 </head>
 <body>
-  <main class="artists-page">
-    <h1 class="page-title">Welcome, Artists of the New Dawn</h1>
+  <!-- Navigation bar -->
+  <div class="navigation-bar">
+    <button onclick="window.location.href='index.html'">Return to Gallery</button>
+    <button onclick="window.location.href='javascript:history.back()'">Back to Menu</button>
+  </div>
 
-    <section class="intro-section">
-      <p>
-        You are invited to join NANdART — a sanctuary for digital masterpieces. Here, your work can transcend the screen and be embraced by a global audience.
-      </p>
-      <p>
-        Submit your creation for curatorial review and decide whether to shine at the heart of our 3D gallery as a premium highlight.
-      </p>
-    </section>
+  <!-- Page header -->
+  <section class="artist-intro">
+    <h1>Welcome to NANdART</h1>
+    <p class="artist-description">
+      A sanctuary for digital visionaries. Submit your artwork and join a curated gallery that breathes elegance, depth and innovation. Whether you choose the premium spotlight or the curated collection, every masterpiece here speaks to the eternity of art.
+    </p>
+  </section>
+    <!-- Submission Form -->
+  <section class="artist-form">
+    <form id="submission-form">
+      <label for="artist-name">Artist Name</label>
+      <input type="text" id="artist-name" name="artist" required placeholder="Your full name">
 
-    <section class="form-section">
-      <h2>Submit Your Artwork</h2>
-      <form action="/api/submit-artwork" method="POST" enctype="multipart/form-data" class="submission-form">
-        <label for="artist-name">Artist Name</label>
-        <input type="text" id="artist-name" name="artist" required />
+      <label for="art-title">Artwork Title</label>
+      <input type="text" id="art-title" name="title" required placeholder="Title of your artwork">
 
-        <label for="art-title">Artwork Title</label>
-        <input type="text" id="art-title" name="title" required />
+      <label for="art-year">Year</label>
+      <input type="number" id="art-year" name="year" required min="1900" max="2099" placeholder="e.g. 2025">
 
-        <label for="year">Year</label>
-        <input type="number" id="year" name="year" min="1900" max="2100" required />
+      <label for="art-price">Suggested Price (ETH)</label>
+      <input type="number" id="art-price" name="price" required step="0.01" min="0" placeholder="e.g. 0.8">
 
-        <label for="medium">Medium / Technique</label>
-        <input type="text" id="medium" name="medium" required />
+      <label for="art-image">Upload Image</label>
+      <input type="file" id="art-image" name="image" accept="image/*" required>
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
+      <label for="premium-choice">Do you wish to feature your artwork in the central gallery circle?</label>
+      <select id="premium-choice" name="premium" required>
+        <option value="" disabled selected>Select one</option>
+        <option value="yes">Yes – Premium Placement (Paid)</option>
+        <option value="no">No – Standard Listing</option>
+      </select>
 
-        <label for="file">Upload Artwork Image (.jpg or .png)</label>
-        <input type="file" id="file" name="file" accept=".jpg,.png" required />
+      <button type="submit" class="submit-button">Submit Artwork</button>
+    </form>
+  </section>
+    <!-- Side Panel Info -->
+  <aside class="artist-info-panel">
+    <h3>About NANdART Curation</h3>
+    <p>All submitted artworks will be reviewed by our curators. Approved pieces will be minted as NFTs on the Polygon blockchain.</p>
 
-        <fieldset>
-          <legend>Would you like to opt for Premium Placement?</legend>
-          <label><input type="radio" name="premium" value="yes" required /> Yes</label>
-          <label><input type="radio" name="premium" value="no" required /> No</label>
-        </fieldset>
+    <h4>Premium Spotlight</h4>
+    <p>By choosing the Premium service, your artwork will be visually featured at the heart of the 3D Gallery in a rotating spotlight position.</p>
+    <p>This is ideal for artists seeking higher visibility and immediate impact.</p>
 
-        <button type="submit" class="submit-button">Submit Artwork</button>
-      </form>
-    </section>
+    <h4>Royalties & Sales</h4>
+    <p>Artists retain full ownership of their work. Each first sale guarantees:</p>
+    <ul>
+      <li><strong>90%</strong> to the artist</li>
+      <li><strong>10%</strong> to NANdART</li>
+    </ul>
+    <p>On all future resales:</p>
+    <ul>
+      <li><strong>6%</strong> to the artist</li>
+      <li><strong>4%</strong> to NANdART</li>
+    </ul>
 
-    <section class="premium-info">
-      <h2>Premium Placement</h2>
-      <p>
-        By selecting the Premium Placement Service, your artwork will appear at the centre of our rotating gallery circle — highly visible and symbolically elevated.
-      </p>
-      <p>
-        The cost for this service is <strong>0.2 ETH</strong>. Payment will only be requested upon approval.
-      </p>
-    </section>
+    <p class="terms-link"><a href="terms.html">See Full Terms & Responsibilities</a></p>
+  </aside>
+    <!-- Navegação superior fixa -->
+  <div class="navigation-bar">
+    <button onclick="window.location.href='index.html'">Return to Gallery</button>
+    <button onclick="window.location.href='menu.html'">Back to Menu</button>
+  </div>
 
-    <section class="submission-notes">
-      <h3>Important Notes</h3>
-      <ul>
-        <li>All submissions will be reviewed by our curatorial team within 72 hours.</li>
-        <li>Non-premium approved artworks will appear exclusively on the <a href="web3.html">Web3 & NFT</a> page.</li>
-        <li>We accept digital artworks in .jpg or .png formats, maximum size: 5MB.</li>
-      </ul>
-    </section>
-  </main>
 </body>
 </html>

@@ -1,98 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="description" content="Artist Terms and Royalties – NANdART Virtual Gallery">
-  <meta name="theme-color" content="#111111">
-  <title>Artist Terms & Royalties | NANdART</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NANdART | Terms & Responsibilities</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="/src/styles/index.css">
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <style>
+    body {
+      background-color: #111111;
+      color: #e0e0e0;
+      font-family: 'Playfair Display', serif;
+      padding: 40px 20px 80px;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      color: #c4b582;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .navigation-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 12px;
+    }
+
+    .navigation-bar button {
+      background: #c4b582;
+      color: #111111;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.3s ease;
+    }
+
+    .navigation-bar button:hover {
+      background: #d6c68a;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 30px 15px 60px;
+      }
+
+      .navigation-bar {
+        top: 15px;
+        right: 15px;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
-<body class="terms-page">
-
-  <!-- Ícones de navegação -->
-  <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
-  <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
-
-  <!-- Menu Dropdown -->
-  <div class="menu-dropdown" id="menu-dropdown">
-    <a href="index.html">Gallery</a>
-    <a href="artistas.html">Artists</a>
-    <a href="web3.html">Web3 & NFT</a>
-    <a href="contactos.html">Contact</a>
+<body>
+  <div class="navigation-bar">
+    <button onclick="window.location.href='index.html'">Return to Gallery</button>
+    <button onclick="window.location.href='menu.html'">Back to Menu</button>
   </div>
 
-  <!-- Conteúdo principal -->
-  <main class="terms-content">
-    <h1>Artist Terms & Royalties</h1>
-    <p class="intro">
-      Every masterpiece submitted to NANdART enters a sacred pact — one that honours the creator’s voice and ensures timeless reward. This page outlines the principles we follow to protect and celebrate the rights of each artist within our curated gallery.
-    </p>
+  <h1>Terms & Responsibilities</h1>
+  <p>Welcome to NANdART. These terms establish the responsibilities, rights, and revenue sharing rules between the artists and the gallery. By submitting a work of art, the artist agrees to the following conditions:</p>
 
-    <section>
-      <h2>1. First Sale</h2>
-      <p>
-        When your artwork is accepted by the NANdART curators and minted as a certified NFT, it enters the premium marketplace. Upon its first sale:
-      </p>
-      <ul>
-        <li><strong>You receive 90%</strong> of the full amount, directly to your connected wallet.</li>
-        <li><strong>NANdART receives 10%</strong> to sustain the gallery’s infrastructure, curatorship and public presence.</li>
-      </ul>
-    </section>
+  <h2>1. Ownership and Copyright</h2>
+  <p>All artworks remain the sole intellectual property of the artist. By submitting a work to NANdART, the artist grants the gallery a non-exclusive right to exhibit, mint, and sell the artwork as an NFT on their behalf.</p>
 
-    <section>
-      <h2>2. Secondary Market Sales</h2>
-      <p>
-        When your NFT is resold in the future, the smart contract ensures that:
-      </p>
-      <ul>
-        <li><strong>You receive 6%</strong> from every resale — eternally.</li>
-        <li><strong>NANdART receives 4%</strong> to continue supporting the platform and maintaining visibility for all artists.</li>
-      </ul>
-    </section>
+  <h2>2. Primary Sales</h2>
+  <p>For the initial sale of any artwork:</p>
+  <ul>
+    <li><strong>90%</strong> of the sale value is sent directly to the artist’s wallet.</li>
+    <li><strong>10%</strong> is retained by NANdART as a platform commission.</li>
+  </ul>
 
-    <section>
-      <h2>3. Your Responsibilities as an Artist</h2>
-      <p>By submitting a piece to NANdART, you affirm that:</p>
-      <ul>
-        <li>You are the original creator and hold all rights to the work.</li>
-        <li>Your work does not include AI-generated or plagiarised content.</li>
-        <li>Your submission reflects artistic integrity and does not violate ethical or legal norms.</li>
-      </ul>
-    </section>
+  <h2>3. Secondary Sales (Resales)</h2>
+  <p>In the event of future resales of the NFT through compatible platforms, the following royalties apply:</p>
+  <ul>
+    <li><strong>6%</strong> of the resale value goes to the original artist.</li>
+    <li><strong>4%</strong> is sent to NANdART to support the gallery's curation and infrastructure.</li>
+  </ul>
+    <h2>4. Responsibilities of the Artist</h2>
+  <p>By submitting an artwork, the artist agrees to:</p>
+  <ul>
+    <li>Guarantee full authorship and originality of the submitted work.</li>
+    <li>Ensure that the content does not infringe upon any third-party rights.</li>
+    <li>Accept the gallery’s decision on whether the work is accepted for curation.</li>
+    <li>Specify whether the Premium Service is chosen for enhanced visibility in the central circle.</li>
+  </ul>
 
-    <section>
-      <h2>4. NANdART Commitments to You</h2>
-      <ul>
-        <li>We honour your vision by curating with respect and aesthetic fidelity.</li>
-        <li>We ensure transparency and immutability through blockchain minting.</li>
-        <li>We never claim ownership of your work — only the right to exhibit it within our curated structure.</li>
-        <li>We protect your royalties through every transaction, present and future.</li>
-      </ul>
-    </section>
+  <h2>5. Responsibilities of NANdART</h2>
+  <p>NANdART commits to:</p>
+  <ul>
+    <li>Curate submitted artworks fairly and respectfully.</li>
+    <li>Display accepted works either in the main gallery (for Premium entries) or on the <em>Web3 & NFT</em> page.</li>
+    <li>Maintain a secure and transparent infrastructure for minting and transactions.</li>
+    <li>Respect the artist’s intellectual property at all times.</li>
+  </ul>
 
-    <section>
-      <h2>5. Premium Visibility (Optional)</h2>
-      <p>
-        If you choose the <strong>Premium Placement</strong> service, your approved work will be displayed prominently in the central visual circle of the gallery — visible to all visitors, collectors, and curators.
-      </p>
-      <p>
-        Standard approved submissions appear only on the <a href="web3.html">Web3 & NFT</a> page.
-      </p>
-    </section>
+  <h2>6. NFT Rights</h2>
+  <p>When an artwork is minted as an NFT:</p>
+  <ul>
+    <li>The buyer acquires a unique digital token representing the artwork’s authenticity.</li>
+    <li>No copyright or reproduction rights are transferred with the NFT.</li>
+    <li>All artistic rights remain fully with the original artist unless stated otherwise in writing.</li>
+  </ul>
 
-    <p class="closing">
-      At NANdART, we believe in eternal echoes. Your art, your rights — always preserved.
-    </p>
-  </main>
+  <h2>7. Disclaimer & Termination</h2>
+  <p>NANdART reserves the right to remove any artwork or NFT from the platform in the event of proven infringement, fraud, or misconduct. The artist may request removal of their work at any time, provided no NFT has yet been sold or minted.</p>
 
-  <!-- Script de menu -->
-  <script>
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-  </script>
+  <p>By continuing to use the platform and submit works, the artist acknowledges these terms and accepts the shared values of transparency, respect, and artistic integrity.</p>
+
 </body>
 </html>

@@ -785,17 +785,42 @@ window.addEventListener('pointerdown', e => {
   }
 });
 
-// Handler Web3 de compra
-botaoComprar.addEventListener('click', async () => {
+// Função real de compra com ethers.js e MetaMask
+async function buyHandler(dados) {
   if (!window.ethereum) {
-    alert('Instala MetaMask para comprar.');
+    alert('Precisas da MetaMask para continuar.');
     return;
   }
 
   try {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await
+    const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    const valorETH = parseFloat(dados.preco);
+    if (isNaN(valorETH)) {
+      alert('Preço inválido.');
+      return;
+    }
+
+    const tx = await signer.sendTransaction({
+      to: '0xSEU_ENDERECO_WALLET', // Substitui por endereço real da galeria
+      value: ethers.utils.parseEther(valorETH.toString())
+    });
+
+    alert(`Transação enviada! Hash:\n${tx.hash}\nAguardando confirmação...`);
+
+    await tx.wait();
+    alert('Compra concluída com sucesso!');
+
+    // Ocultar modal após sucesso
+    document.querySelector('.art-modal').style.display = 'none';
+
+  } catch (erro) {
+    console.error('Erro na compra:', erro);
+    alert('Houve um erro durante a compra. Verifica a MetaMask.');
+  }
+}
     
 animate();
 // Modal HTML

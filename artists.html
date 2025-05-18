@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -9,131 +9,131 @@
   <link rel="stylesheet" href="/src/styles/index.css" />
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    body {
+      overflow-y: auto;
+      height: auto;
+      min-height: 100vh;
       background-color: #111111;
       color: #e0e0e0;
       font-family: 'Playfair Display', serif;
+      padding: 40px 20px 60px;
     }
 
-    body {
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 60px;
+    .artist-page-content {
+      max-width: 520px;
+      margin: 0 auto;
     }
 
-    .artist-container {
-      max-width: 600px;
-      margin: 100px auto 40px;
-      padding: 20px;
-      background-color: rgba(20, 20, 20, 0.9);
+    .intro-box {
       border: 1px solid #c4b582;
       border-radius: 8px;
-      backdrop-filter: blur(10px);
-    }
-
-    .artist-container h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      color: #c4b582;
+      padding: 24px;
+      margin-bottom: 30px;
       text-align: center;
+      backdrop-filter: blur(8px);
+      background: rgba(20, 20, 20, 0.95);
     }
 
-    .artist-container p {
+    .intro-box h1 {
+      color: #c4b582;
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+
+    .intro-box p {
       font-size: 1rem;
       line-height: 1.6;
-      margin-bottom: 20px;
-      text-align: center;
     }
 
-    .artist-container form {
+    .artist-form {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .artist-container label {
-      font-weight: bold;
-      margin-bottom: 4px;
+    .artist-form label {
+      font-size: 0.95rem;
+      font-weight: 500;
     }
 
-    .artist-container input,
-    .artist-container select {
+    .artist-form input[type="text"],
+    .artist-form input[type="number"],
+    .artist-form input[type="file"],
+    .artist-form select {
       padding: 10px;
-      border-radius: 4px;
-      border: none;
-      background: #222;
-      color: #e0e0e0;
-      font-size: 1rem;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
     }
 
-    .artist-container input[type="file"] {
-      padding: 6px;
-    }
-
-    .artist-container button {
-      background: linear-gradient(to bottom, #c4b582, #a8996e);
-      border: none;
+    .artist-form button {
+      background: #c4b582;
+      color: #111;
       padding: 10px;
+      border: none;
       border-radius: 4px;
-      color: #1a1a1a;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
       font-size: 1rem;
+      margin-top: 10px;
+      transition: background 0.3s ease;
     }
 
-    .artist-container button:hover {
-      background: linear-gradient(to bottom, #d4c592, #b8a97e);
+    .artist-form button:hover {
+      background: #d1c08f;
     }
 
-    .artist-nav {
+    .navigation-bar {
       position: fixed;
-      top: 12px;
+      top: 20px;
       right: 20px;
       display: flex;
-      gap: 10px;
-      z-index: 200;
+      gap: 12px;
+      z-index: 999;
     }
 
-    .artist-nav button {
+    .navigation-bar button {
       background: transparent;
-      border: 1px solid #c4b582;
       color: #c4b582;
-      padding: 6px 12px;
+      border: 1px solid #c4b582;
+      padding: 6px 14px;
       border-radius: 4px;
-      cursor: pointer;
       font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    .artist-nav button:hover {
-      background-color: rgba(196, 181, 130, 0.1);
+    .navigation-bar button:hover {
+      background: rgba(196, 181, 130, 0.15);
     }
 
     @media (max-width: 768px) {
-      .artist-container {
-        margin: 80px 16px 40px;
-        padding: 16px;
+      body {
+        padding: 30px 15px 60px;
       }
 
-      .artist-container h1 {
+      .intro-box {
+        padding: 20px;
+      }
+
+      .intro-box h1 {
         font-size: 1.5rem;
       }
 
-      .artist-container p {
+      .intro-box p {
         font-size: 0.95rem;
       }
 
-      .artist-nav {
+      .navigation-bar {
         flex-direction: column;
-        top: 10px;
-        right: 10px;
-        gap: 6px;
+        gap: 10px;
+        top: 15px;
+        right: 15px;
       }
 
-      .artist-nav button {
+      .navigation-bar button {
         font-size: 0.8rem;
         padding: 5px 10px;
       }
@@ -141,19 +141,18 @@
   </style>
 </head>
 <body>
-  <div class="artist-nav">
+  <div class="navigation-bar">
     <button onclick="window.location.href='index.html'">Return to Gallery</button>
     <button onclick="window.location.href='menu.html'">Back to Menu</button>
   </div>
 
-  <div class="artist-container">
-    <h1>Welcome, Visionary Artist</h1>
-    <p>
-      Join <strong>NANdART</strong> — a curated virtual sanctuary where your art transcends borders.
-      Submit your creation for review by our curatorial team and, if accepted, see it shine among timeless works of digital wonder.
-    </p>
+  <div class="artist-page-content">
+    <div class="intro-box">
+      <h1>Welcome, Visionary Artist</h1>
+      <p>Step into NANdART — a curated sanctuary where your work may resonate among eternal digital voices. Submit your creation for review by our curators. If approved, your NFT shall join our growing constellation of beauty. Premium artworks will shine within the central circle. All others shall be honoured in the Web3 Gallery.</p>
+    </div>
 
-    <form action="/api/submit-artwork" method="POST" enctype="multipart/form-data">
+    <form class="artist-form" action="/api/submit-artwork" method="POST" enctype="multipart/form-data">
       <label for="artist-name">Artist Name</label>
       <input type="text" id="artist-name" name="artistName" required />
 

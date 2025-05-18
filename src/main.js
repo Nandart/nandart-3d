@@ -708,16 +708,18 @@ obraPaths.forEach((src, i) => {
 let obraSelecionada = null;
 
 const modal = document.querySelector('.art-modal');
-const modalTitulo = modal.querySelector('.titulo');
-const modalArtista = modal.querySelector('.artista');
-const modalAno = modal.querySelector('.ano');
-const modalPreco = modal.querySelector('.preco');
-const botaoComprar = modal.querySelector('.buy-button');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
 
 function abrirModal(dados, obra) {
   obraSelecionada = obra;
 
   modalTitulo.textContent = dados.titulo;
+  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalArtista.textContent = dados.artista;
   modalAno.textContent = dados.ano;
   modalPreco.textContent = `${dados.preco} ETH`;
@@ -733,7 +735,7 @@ function abrirModal(dados, obra) {
     ease: 'power2.inOut'
   });
 }
-
+  
 // Fechar modal ao clicar fora da obra/modal
 window.addEventListener('pointerdown', e => {
   if (obraSelecionada && !modal.contains(e.target)) {

@@ -822,7 +822,6 @@ async function buyHandler(dados) {
   }
 }
     
-animate();
 // Modal HTML
 const modal = document.querySelector('.art-modal');
 const tituloEl = document.getElementById('art-title');
@@ -863,3 +862,4 @@ window.addEventListener('pointerdown', e => {
     modal.classList.remove('visible');
   }
 });
+animate();

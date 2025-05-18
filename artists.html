@@ -1,92 +1,140 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="description" content="Join NANdART – A Timeless Web3 Gallery for Visionary Artists">
-  <meta name="theme-color" content="#111111">
-  <title>NANdART – Become a Featured Artist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="NANdART — Submit your artwork for Web3 curation and premium display" />
+  <meta name="theme-color" content="#111111" />
+  <title>Join NANdART — Submit Your Artwork</title>
+  <link rel="stylesheet" href="/src/styles/index.css" />
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="/src/styles/index.css">
+  <style>
+    .artist-container {
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 20px;
+      background-color: rgba(20, 20, 20, 0.9);
+      border: 1px solid #c4b582;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: 'Playfair Display', serif;
+      backdrop-filter: blur(10px);
+    }
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-  </noscript>
+    .artist-container h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #c4b582;
+      text-align: center;
+    }
+
+    .artist-container p {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .artist-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .artist-container label {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .artist-container input,
+    .artist-container select {
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      background: #222;
+      color: #e0e0e0;
+    }
+
+    .artist-container input[type="file"] {
+      padding: 6px;
+    }
+
+    .artist-container button {
+      background: linear-gradient(to bottom, #c4b582, #a8996e);
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      color: #1a1a1a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .artist-container button:hover {
+      background: linear-gradient(to bottom, #d4c592, #b8a97e);
+    }
+
+    .artist-nav {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 200;
+    }
+
+    .artist-nav button {
+      background: transparent;
+      border: 1px solid #c4b582;
+      color: #c4b582;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .artist-nav button:hover {
+      background-color: rgba(196, 181, 130, 0.1);
+    }
+  </style>
 </head>
 <body>
-  <!-- Navigation bar -->
-  <div class="navigation-bar">
-    <button onclick="window.location.href='index.html'">Return to Gallery</button>
-    <button onclick="window.location.href='javascript:history.back()'">Back to Menu</button>
-  </div>
-
-  <!-- Page header -->
-  <section class="artist-intro">
-    <h1>Welcome to NANdART</h1>
-    <p class="artist-description">
-      A sanctuary for digital visionaries. Submit your artwork and join a curated gallery that breathes elegance, depth and innovation. Whether you choose the premium spotlight or the curated collection, every masterpiece here speaks to the eternity of art.
-    </p>
-  </section>
-    <!-- Submission Form -->
-  <section class="artist-form">
-    <form id="submission-form">
-      <label for="artist-name">Artist Name</label>
-      <input type="text" id="artist-name" name="artist" required placeholder="Your full name">
-
-      <label for="art-title">Artwork Title</label>
-      <input type="text" id="art-title" name="title" required placeholder="Title of your artwork">
-
-      <label for="art-year">Year</label>
-      <input type="number" id="art-year" name="year" required min="1900" max="2099" placeholder="e.g. 2025">
-
-      <label for="art-price">Suggested Price (ETH)</label>
-      <input type="number" id="art-price" name="price" required step="0.01" min="0" placeholder="e.g. 0.8">
-
-      <label for="art-image">Upload Image</label>
-      <input type="file" id="art-image" name="image" accept="image/*" required>
-
-      <label for="premium-choice">Do you wish to feature your artwork in the central gallery circle?</label>
-      <select id="premium-choice" name="premium" required>
-        <option value="" disabled selected>Select one</option>
-        <option value="yes">Yes – Premium Placement (Paid)</option>
-        <option value="no">No – Standard Listing</option>
-      </select>
-
-      <button type="submit" class="submit-button">Submit Artwork</button>
-    </form>
-  </section>
-    <!-- Side Panel Info -->
-  <aside class="artist-info-panel">
-    <h3>About NANdART Curation</h3>
-    <p>All submitted artworks will be reviewed by our curators. Approved pieces will be minted as NFTs on the Polygon blockchain.</p>
-
-    <h4>Premium Spotlight</h4>
-    <p>By choosing the Premium service, your artwork will be visually featured at the heart of the 3D Gallery in a rotating spotlight position.</p>
-    <p>This is ideal for artists seeking higher visibility and immediate impact.</p>
-
-    <h4>Royalties & Sales</h4>
-    <p>Artists retain full ownership of their work. Each first sale guarantees:</p>
-    <ul>
-      <li><strong>90%</strong> to the artist</li>
-      <li><strong>10%</strong> to NANdART</li>
-    </ul>
-    <p>On all future resales:</p>
-    <ul>
-      <li><strong>6%</strong> to the artist</li>
-      <li><strong>4%</strong> to NANdART</li>
-    </ul>
-
-    <p class="terms-link"><a href="terms.html">See Full Terms & Responsibilities</a></p>
-  </aside>
-    <!-- Navegação superior fixa -->
-  <div class="navigation-bar">
+  <div class="artist-nav">
     <button onclick="window.location.href='index.html'">Return to Gallery</button>
     <button onclick="window.location.href='menu.html'">Back to Menu</button>
   </div>
 
+  <div class="artist-container">
+    <h1>Welcome, Visionary Artist</h1>
+    <p>Join NANdART — a curated virtual sanctuary where your art transcends borders. Submit your creation for review by our curatorial team and, if accepted, see it shine among timeless works of digital wonder.</p>
+        <form action="/api/submit-artwork" method="POST" enctype="multipart/form-data">
+      <label for="artist-name">Artist Name</label>
+      <input type="text" id="artist-name" name="artistName" required />
+
+      <label for="art-title">Artwork Title</label>
+      <input type="text" id="art-title" name="artTitle" required />
+
+      <label for="art-year">Year</label>
+      <input type="number" id="art-year" name="artYear" min="1900" max="2100" required />
+
+      <label for="art-price">Suggested Price (in ETH)</label>
+      <input type="text" id="art-price" name="artPrice" placeholder="e.g. 0.75" required />
+
+      <label for="art-image">Artwork Image (JPG or PNG)</label>
+      <input type="file" id="art-image" name="artImage" accept="image/png, image/jpeg" required />
+
+      <label for="highlight">Display Preference</label>
+      <select id="highlight" name="highlight">
+        <option value="standard">Standard (Web3 page only)</option>
+        <option value="premium">Premium – Central Highlight (Paid Service)</option>
+      </select>
+
+      <p style="font-size: 0.85rem; text-align: center;">
+        By submitting, you agree to the <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a> regarding royalties, display rights, and responsibilities.
+      </p>
+
+      <button type="submit">Submit Artwork</button>
+    </form>
+  </div>
 </body>
 </html>

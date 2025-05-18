@@ -268,7 +268,86 @@ html, body {
   opacity: 0.8;
 }
 
-/* Barra de navegação comum */
+/* Scroll personalizado para páginas verticais */
+body.pagina-scrollavel {
+  overflow-y: auto;
+  touch-action: auto;
+  height: auto;
+  min-height: 100vh;
+  background-color: #111111;
+  color: #e0e0e0;
+  font-family: 'Playfair Display', serif;
+  padding: 40px 20px 60px;
+}
+
+.artist-page-content {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.intro-box {
+  border: 1px solid #c4b582;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.intro-box h1 {
+  color: #c4b582;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+.intro-box p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.artist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.artist-form label {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.artist-form input[type="text"],
+.artist-form input[type="number"],
+.artist-form input[type="file"] {
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #555;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-size: 0.95rem;
+}
+
+.artist-form input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.artist-form button {
+  background: #c4b582;
+  color: #111;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.artist-form button:hover {
+  background: #d1c08f;
+}
+
+/* Navegação fixa */
 .navigation-bar {
   position: fixed;
   top: 20px;
@@ -279,7 +358,7 @@ html, body {
   z-index: 500;
 }
 
-.navigation-bar a {
+.navigation-bar a, .navigation-bar button {
   background-color: rgba(196, 181, 130, 0.1);
   color: #c4b582;
   padding: 8px 12px;
@@ -291,9 +370,10 @@ html, body {
   border: 1px solid #c4b582;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
 }
 
-.navigation-bar a:hover {
+.navigation-bar a:hover, .navigation-bar button:hover {
   background-color: rgba(196, 181, 130, 0.3);
   color: #ffffff;
 }

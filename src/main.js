@@ -671,5 +671,72 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
+import { ethers } from 'ethers';
 
+let obraSelecionada = null;
+const modal = document.querySelector('.art-modal');
+const modalTitulo = modal.querySelector('.titulo');
+const modalArtista = modal.querySelector('.artista');
+const modalAno = modal.querySelector('.ano');
+const modalPreco = modal.querySelector('.preco');
+const botaoComprar = modal.querySelector('.buy-button');
+
+function abrirModal(obra, index) {
+  obraSelecionada = obra;
+
+  modalTitulo.textContent = `Obra ${index + 1}`;
+  modalArtista.textContent = `Artista ${index + 1}`;
+  modalAno.textContent = `2025`;
+  modalPreco.textContent = `0.3 ETH`;
+
+  modal.style.display = 'flex';
+
+  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
+  gsap.to(camera.position, {
+    x: obra.position.x,
+    y: obra.position.y + 1.5,
+    z: obra.position.z + 3,
+    duration: 0.8,
+    ease: 'power2.inOut'
+  });
+}
+
+// Fechar ao clicar fora da obra ou modal
+window.addEventListener('click', e => {
+  if (obraSelecionada && !modal.contains(e.target)) {
+    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
+    updateCamera();
+    modal.style.display = 'none';
+    obraSelecionada = null;
+  }
+});
+
+// Detectar clique ou toque numa obra suspensa
+window.addEventListener('pointerdown', e => {
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersecoes = raycaster.intersectObjects(obrasNormais);
+  if (intersecoes.length > 0) {
+    const indice = obrasNormais.indexOf(intersecoes[0].object);
+    abrirModal(intersecoes[0].object, indice);
+  }
+});
+
+// Handler Web3 de compra
+botaoComprar.addEventListener('click', async () => {
+  if (!window.ethereum) {
+    alert('Instala MetaMask para comprar.');
+    return;
+  }
+
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await
+    
 animate();

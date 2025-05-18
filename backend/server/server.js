@@ -1,31 +1,32 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const rateLimit = require("express-rate-limit"); // Importar express-rate-limit
+const rateLimit = require("express-rate-limit");
+const submitRouter = require('./submit'); // <- Adicionado
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Configuração das credenciais de administrador
+// Integrar a rota de submissão
+app.use('/api', submitRouter); // <- Adicionado
+
 const ADMIN_CREDENTIALS = {
   username: process.env.ADMIN_USERNAME || "meu-usuario-admin",
   password: process.env.ADMIN_PASSWORD || "minha-senha-segura",
 };
 
-// Chave secreta para assinar o token JWT
 const JWT_SECRET = process.env.JWT_SECRET || "minha-chave-secreta";
 
-// Configurar um limite para tentativas de login
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Limite de 5 tentativas por IP
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: {
     message: "Muitas tentativas de login. Tente novamente após 15 minutos.",
   },
-  standardHeaders: true, // Adiciona informações de limitação nos cabeçalhos padrão
-  legacyHeaders: false, // Remove cabeçalhos legados (X-RateLimit-*)
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-// Rota para login de administrador (com limitação de tentativas)
 app.post("/api/admin-login", loginLimiter, (req, res) => {
   const { username, password } = req.body;
 
@@ -43,7 +44,6 @@ app.post("/api/admin-login", loginLimiter, (req, res) => {
   }
 });
 
-// Rota para verificar o token
 app.get("/api/verify-admin", (req, res) => {
   const authHeader = req.headers.authorization;
 

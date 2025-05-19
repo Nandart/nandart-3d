@@ -6,7 +6,12 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "cleanUrls": true
+        "cleanUrls": true,
+        "includeFiles": [
+          "src/**",
+          "assets/**",
+          "node_modules/**"
+        ]
       }
     }
   ],
@@ -15,52 +20,44 @@
       "src": "/node_modules/(.*)",
       "dest": "/node_modules/$1",
       "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "Access-Control-Allow-Origin": "*"
+        "Cache-Control": "public, max-age=31536000, immutable"
       }
     },
     {
       "src": "/assets/(.*)",
+      "dest": "/assets/$1",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"
-      },
-      "dest": "/assets/$1"
+      }
     },
     {
       "src": "/src/(.*)",
-      "dest": "/src/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000"
-      }
+      "dest": "/src/$1"
     },
     {
       "src": "/(index|como-navegar|info|contactos|artists|web3).html",
-      "dest": "/$1.html",
-      "headers": {
-        "Cross-Origin-Opener-Policy": "same-origin",
-        "Cross-Origin-Embedder-Policy": "require-corp"
-      }
+      "dest": "/$1.html"
     },
     {
       "src": "/backed/server/(.*)",
       "dest": "/backed/server/$1"
     },
     {
-      "src": "/",
-      "dest": "/index.html",
-      "headers": {
-        "Cross-Origin-Opener-Policy": "same-origin",
-        "Cross-Origin-Embedder-Policy": "require-corp"
-      }
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/src/main.js",
+      "source": "/(.*)",
       "headers": [
         {
-          "key": "Content-Type",
-          "value": "application/javascript"
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
         }
       ]
     }

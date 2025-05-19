@@ -1,18 +1,24 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
-  server: {
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp'
+  base: '/',
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
     }
   },
-  optimizeDeps: {
-    include: [
-      'three',
-      'three/examples/jsm/objects/Reflector',
-      'three/examples/jsm/loaders/FontLoader',
-      'three/examples/jsm/geometries/TextGeometry'
-    ]
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        info: resolve(__dirname, 'info.html')
+      }
+    }
+  },
+  server: {
+    open: true
   }
 });

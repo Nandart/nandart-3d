@@ -559,7 +559,7 @@ scene.traverse(obj => {
       ease: 'sine.inOut'
     });
   }
-});
+}); // ✅ aqui sim, fecha a função `traverse`
 
 // 🎯 Interação com obras suspensas e modal informativo moderno
 

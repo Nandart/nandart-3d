@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/objects/Reflector.js';
-import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/geometries/TextGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
@@ -341,7 +341,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
     src,
     undefined,
     undefined,
-    err => console.error(`Erro ao carregar ${src}:`, err)
+    err => console.error(Erro ao carregar ${src}:, err)
   );
 
   const largura = 4.4;
@@ -559,7 +559,7 @@ scene.traverse(obj => {
       ease: 'sine.inOut'
     });
   }
-}); // ✅ aqui sim, fecha a função `traverse`
+}); // ✅ aqui sim, fecha a função traverse
 
 // 🎯 Interação com obras suspensas e modal informativo moderno
 
@@ -570,22 +570,22 @@ let cameraIsAnimating = false;
 
 // Criar overlay de fundo desfocado
 const overlay = document.createElement('div');
-overlay.style.cssText = `
+overlay.style.cssText = 
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   backdrop-filter: blur(6px); z-index: 50; display: none;
-`;
+;
 document.body.appendChild(overlay);
 
 // Criar painel informativo translúcido
 const infoPanel = document.createElement('div');
-infoPanel.style.cssText = `
+infoPanel.style.cssText = 
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
   margin-top: calc(260px + 10px); padding: 20px;
   background: rgba(255,255,255,0.07); backdrop-filter: blur(4px);
   border-radius: 12px; color: #fffbe6; font-family: Georgia, serif;
   text-align: center; z-index: 60; display: none;
-`;
-infoPanel.innerHTML = `
+;
+infoPanel.innerHTML = 
   <div id="art-title" style="font-size: 1.6em; font-weight: bold;"></div>
   <div id="art-artist" style="margin-top: 6px;"></div>
   <div id="art-year" style="margin-top: 2px;"></div>
@@ -598,7 +598,7 @@ infoPanel.innerHTML = `
     font-size: 1em; cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
   ">Buy</button>
-`;
+;
 document.body.appendChild(infoPanel);
 
 // Referências aos elementos
@@ -621,7 +621,7 @@ function abrirModal(dados, obra) {
   modalArtista.textContent = dados.artista;
   modalAno.textContent = dados.ano;
   modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
-  modalPreco.textContent = `${dados.preco} ETH`;
+  modalPreco.textContent = ${dados.preco} ETH;
 
   // Centralizar obra visualmente (centro vertical e horizontal)
   gsap.to(obra.scale, { x: 2, y: 2, duration: 0.8, ease: 'power2.out' });
@@ -724,7 +724,7 @@ async function buyHandler(dados) {
       value: valorETH
     });
 
-    alert(`Transação enviada!\nHash: ${tx.hash}`);
+    alert(Transação enviada!\nHash: ${tx.hash});
     await tx.wait();
     alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
   } catch (err) {
@@ -774,4 +774,4 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-animate();
+animate();  

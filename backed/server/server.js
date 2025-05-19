@@ -1,24 +1,35 @@
 const express = require("express");
+const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
 const submitRouter = require('./routes/submit');
 
 const app = express();
+
+// 1. Ativar CORS apenas para o domínio do frontend
+app.use(cors({
+  origin: 'https://nandartart.art',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// 2. Middleware de parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 1. Servir ficheiros estáticos diretamente da raiz do projeto
+// 3. Servir ficheiros estáticos diretamente da raiz do projeto
 app.use(express.static(path.join(__dirname, '../../'))); // NOTA: estamos em /backed/server
 
-// 2. Servir o index.html para rotas diretas como /terms.html, /artists.html, etc.
+// 4. Servir o index.html para rotas diretas como /terms.html, /artists.html, etc.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../index.html'));
 });
 
-// 3. Rotas de API
+// 5. Rotas de submissão
 app.use('/api', submitRouter);
 
+// 6. Credenciais de admin (usadas no login)
 const ADMIN_CREDENTIALS = {
   username: process.env.ADMIN_USERNAME || "meu-usuario-admin",
   password: process.env.ADMIN_PASSWORD || "minha-senha-segura",
@@ -26,6 +37,7 @@ const ADMIN_CREDENTIALS = {
 
 const JWT_SECRET = process.env.JWT_SECRET || "minha-chave-secreta";
 
+// 7. Limite de tentativas de login
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -36,6 +48,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// 8. Endpoint de login
 app.post("/api/admin-login", loginLimiter, (req, res) => {
   const { username, password } = req.body;
 
@@ -53,6 +66,7 @@ app.post("/api/admin-login", loginLimiter, (req, res) => {
   }
 });
 
+// 9. Verificação do token JWT
 app.get("/api/verify-admin", (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -75,5 +89,5 @@ app.get("/api/verify-admin", (req, res) => {
   }
 });
 
-// Iniciar o servidor
+// 10. Iniciar o servidor
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

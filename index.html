@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,14 +10,12 @@
   <link rel="stylesheet" href="/src/styles/index.css">
 
   <!-- Preload/Preconnect Optimised -->
-
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
   <link rel="modulepreload" href="/src/main.js" crossorigin>
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
   <!-- Google Fonts -->
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -27,33 +24,30 @@
   </noscript>
 
   <!-- Import Maps -->
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
-    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
-    "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
-    "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+      "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
+      "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+    }
   }
-}
-</script>
-
+  </script>
 </head>
+
 <body>
   <!-- Canvas 3D -->
   <canvas id="scene"></canvas>
 
   <!-- Navigation Icons -->
-
   <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
   <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
   <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Help">
 
   <!-- Dropdown Menu -->
-
   <div class="menu-dropdown" id="menu-dropdown">
     <a href="contactos.html">Contacts</a>
     <a href="como-navegar.html">How to Navigate</a>
@@ -62,7 +56,6 @@
   </div>
 
   <!-- Artwork Modal -->
-
   <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true" style="display:none;">
     <h3 id="art-title">Artwork Title</h3>
     <p id="art-description">Selected piece description</p>
@@ -73,14 +66,12 @@
   </div>
 
   <!-- Loading Screen -->
-
   <div class="loading-screen">
     <div class="loading-spinner"></div>
     <div class="loading-text">Loading...</div>
   </div>
 
   <!-- Dynamic Script Loader -->
-
   <script>
     document.getElementById('menu-toggle').addEventListener('click', () => {
       const menu = document.getElementById('menu-dropdown');
@@ -102,7 +93,7 @@
         };
 
         script.onerror = () => {
-          console.error('Failed to load main.js');
+          console.error('❌ Failed to load main.js');
         };
 
         document.body.appendChild(script);
@@ -111,11 +102,9 @@
   </script>
 
   <!-- Fallback for Non-Module Browsers -->
-
   <script nomodule>
     alert("Your browser does not support JavaScript modules. Please use a modern browser.");
     window.location.href = "https://www.google.com/chrome/";
   </script>
-
 </body>
-</html> 
+</html>

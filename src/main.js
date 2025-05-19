@@ -561,33 +561,6 @@ scene.traverse(obj => {
   }
 });
 
-// 🔄 Animação contínua das obras suspensas e respetivos reflexos
-function animate() {
-  requestAnimationFrame(animate);
-
-  const tempo = Date.now() * -0.00012;
-
-  obrasNormais.forEach((obra, i) => {
-    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(angulo) * config.circleRadius;
-    const z = Math.sin(angulo) * config.circleRadius;
-    const rotacaoY = -angulo + Math.PI;
-
-    // Actualizar posição e rotação
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = rotacaoY;
-
-    // Actualizar reflexo correspondente
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, rotacaoY, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
-    }
-  });
-
   renderer.render(scene, camera);
 }
 
@@ -772,28 +745,32 @@ botaoComprar.addEventListener('click', () => {
   }
 });
 
-// 🚀 Animação contínua com velocidade controlada
+// 🚀 Animação contínua com controlo de velocidade e reflexos suaves
 function animate() {
   requestAnimationFrame(animate);
+
   const tempo = Date.now() * -velocidadeObras;
 
   obrasNormais.forEach((obra, i) => {
+    // Evita movimentar a obra seleccionada
     if (obra !== obraSelecionada) {
       const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
       const x = Math.cos(angulo) * config.circleRadius;
       const z = Math.sin(angulo) * config.circleRadius;
-      const rotY = -angulo + Math.PI;
+      const rotacaoY = -angulo + Math.PI;
 
+      // Actualizar posição e rotação da obra
       obra.position.x = x;
       obra.position.z = z;
-      obra.rotation.y = rotY;
+      obra.rotation.y = rotacaoY;
 
-      const reflexo = obra.userData.reflexo;
+      // Actualizar reflexo correspondente suavemente
+      const reflexo = obra.userData?.reflexo;
       if (reflexo) {
         reflexo.userData.targetPos.set(x, -0.01, z);
-        reflexo.userData.targetRot.set(0, rotY, 0);
+        reflexo.userData.targetRot.set(0, rotacaoY, 0);
         reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-        reflexo.rotation.y += (rotY - reflexo.rotation.y) * 0.1;
+        reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
       }
     }
   });

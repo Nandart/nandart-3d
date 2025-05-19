@@ -23,21 +23,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   </noscript>
 
-  <!-- Import Maps -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
-      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
-      "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
-      "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
-    }
-  }
-  </script>
-</head>
+  <!-- ethers.js -->
+"ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
 
+  <!-- Import Maps -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+    "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
+    "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+  }
+}
+</script>
+
+</head>
 <body>
   <!-- Canvas 3D -->
   <canvas id="scene"></canvas>
@@ -93,7 +96,7 @@
         };
 
         script.onerror = () => {
-          console.error('❌ Failed to load main.js');
+          console.error('Failed to load main.js');
         };
 
         document.body.appendChild(script);
@@ -107,4 +110,4 @@
     window.location.href = "https://www.google.com/chrome/";
   </script>
 </body>
-</html>
+</html> 

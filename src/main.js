@@ -561,9 +561,6 @@ scene.traverse(obj => {
   }
 });
 
-  renderer.render(scene, camera);
-}
-
 // 🎯 Interação com obras suspensas e modal informativo moderno
 
 let obraSelecionada = null;

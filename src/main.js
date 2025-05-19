@@ -591,73 +591,14 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// 🎯 Modal de obra e interacção com Web3
+// 🎯 Interação com obras suspensas e modal informativo moderno
+
 let obraSelecionada = null;
+let velocidadeObras = 0.00012;
+let cameraOriginalPos = camera.position.clone();
+let cameraIsAnimating = false;
 
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
-
-function abrirModal(dados, obra) {
-  obraSelecionada = obra;
-
-  modalTitulo.textContent = dados.titulo;
-  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
-  modalArtista.textContent = dados.artista;
-  modalAno.textContent = dados.ano;
-  modalPreco.textContent = `${dados.preco} ETH`;
-
-  modal.style.display = 'flex';
-
-  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
-  gsap.to(camera.position, {
-    x: obra.position.x,
-    y: obra.position.y + 1.5,
-    z: obra.position.z + 3,
-    duration: 0.8,
-    ease: 'power2.inOut'
-  });
-}
-
-// ⛔ Fechar modal ao clicar fora
-window.addEventListener('pointerdown', e => {
-  if (obraSelecionada && !modal.contains(e.target)) {
-    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
-    updateCamera();
-    modal.style.display = 'none';
-    obraSelecionada = null;
-  }
-});
-// 🖼️ Obras suspensas normais com reflexo no chão
-const obraPaths = [
-  "/assets/obras/obra1.jpg",
-  "/assets/obras/obra2.jpg",
-  "/assets/obras/obra3.jpg",
-  "/assets/obras/obra4.jpg",
-  "/assets/obras/obra5.jpg",
-  "/assets/obras/obra6.jpg",
-  "/assets/obras/obra7.jpg",
-  "/assets/obras/obra8.jpg"
-];
-
-const dadosObras = [
-  { titulo: "Fragmento da Eternidade", artista: "Inês Duarte", ano: "2023", preco: "0.8", imagem: obraPaths[0] },
-  { titulo: "Sombras de Luz", artista: "Miguel Costa", ano: "2024", preco: "0.5", imagem: obraPaths[1] },
-  { titulo: "Horizonte Partilhado", artista: "Clara Mendonça", ano: "2022", preco: "1.2", imagem: obraPaths[2] },
-  { titulo: "Memórias de Silêncio", artista: "Rui Valente", ano: "2023", preco: "0.6", imagem: obraPaths[3] },
-  { titulo: "Ritmo Contido", artista: "Joana Serra", ano: "2025", preco: "0.75", imagem: obraPaths[4] },
-  { titulo: "Flutuação Interior", artista: "André Luz", ano: "2023", preco: "1.0", imagem: obraPaths[5] },
-  { titulo: "Verso Encoberto", artista: "Sofia Rocha", ano: "2024", preco: "0.4", imagem: obraPaths[6] },
-  { titulo: "Silhueta do Amanhã", artista: "Tiago Faria", ano: "2025", preco: "0.9", imagem: obraPaths[7] }
-];
-
-const obrasNormais = [];
-
-// Criar overlay de fundo desfocado e painel informativo
+// Criar overlay de fundo desfocado
 const overlay = document.createElement('div');
 overlay.style.cssText = `
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -665,6 +606,7 @@ overlay.style.cssText = `
 `;
 document.body.appendChild(overlay);
 
+// Criar painel informativo translúcido
 const infoPanel = document.createElement('div');
 infoPanel.style.cssText = `
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
@@ -689,6 +631,7 @@ infoPanel.innerHTML = `
 `;
 document.body.appendChild(infoPanel);
 
+// Referências aos elementos
 const modalTitulo = infoPanel.querySelector('#art-title');
 const modalArtista = infoPanel.querySelector('#art-artist');
 const modalAno = infoPanel.querySelector('#art-year');
@@ -696,51 +639,7 @@ const modalDescricao = infoPanel.querySelector('#art-description');
 const modalPreco = infoPanel.querySelector('#art-price');
 const botaoComprar = infoPanel.querySelector('#buy-art');
 
-let obraSelecionada = null;
-let cameraOriginalPos = camera.position.clone();
-let cameraIsAnimating = false;
-
-obraPaths.forEach((src, i) => {
-  const texture = textureLoader.load(src);
-  const ang = (i / obraPaths.length) * Math.PI * 2;
-  const x = Math.cos(ang) * config.circleRadius;
-  const z = Math.sin(ang) * config.circleRadius;
-  const ry = -ang + Math.PI;
-
-  const obra = new THREE.Mesh(
-    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-    new THREE.MeshStandardMaterial({
-      map: texture,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.DoubleSide
-    })
-  );
-  obra.position.set(x, 4.2, z);
-  obra.rotation.y = ry;
-  obra.castShadow = true;
-  scene.add(obra);
-
-  const reflexo = obra.clone();
-  reflexo.position.y = -0.01;
-  reflexo.scale.y = -1;
-  reflexo.material = obra.material.clone();
-  reflexo.material.opacity = 0.2;
-  reflexo.material.transparent = true;
-  reflexo.material.depthWrite = false;
-  reflexo.material.roughness = 0.5;
-  reflexo.material.metalness = 0.6;
-  reflexo.renderOrder = 1;
-  scene.add(reflexo);
-
-  obra.userData.reflexo = reflexo;
-  reflexo.userData.targetPos = new THREE.Vector3();
-  reflexo.userData.targetRot = new THREE.Euler();
-
-  obrasNormais.push(obra);
-});
-
-// Função para abrir o modal com a obra centrada
+// Abrir modal com animação e dados
 function abrirModal(dados, obra) {
   if (obraSelecionada) return;
 
@@ -754,22 +653,70 @@ function abrirModal(dados, obra) {
   modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalPreco.textContent = `${dados.preco} ETH`;
 
+  // Centralizar obra visualmente (centro vertical e horizontal)
   gsap.to(obra.scale, { x: 2, y: 2, duration: 0.8, ease: 'power2.out' });
   gsap.to(obra.position, {
     x: 0, y: 10.5, z: 0,
     duration: 0.9, ease: 'power2.inOut'
   });
 
+  // Mover câmara para ver a obra e o painel
   gsap.to(camera.position, {
     x: 0, y: 10.5, z: 5.5,
     duration: 1.1, ease: 'power2.inOut'
+  });
+
+  // Desacelerar suavemente
+  gsap.to(window, {
+    duration: 1.5,
+    ease: 'power2.out',
+    onUpdate: () => {
+      velocidadeObras = gsap.getProperty(window, 'velocidadeObras') || 0.00004;
+    },
+    onStart: () => {
+      gsap.set(window, { velocidadeObras: velocidadeObras });
+    },
+    velocidadeObras: 0.00004
   });
 
   cameraIsAnimating = true;
   setTimeout(() => { cameraIsAnimating = false; }, 1200);
 }
 
-// 🎯 Detetar clique/tap numa obra suspensa
+// Fechar modal e restaurar tudo
+window.addEventListener('pointerdown', e => {
+  if (!obraSelecionada || cameraIsAnimating) return;
+  if (!infoPanel.contains(e.target)) {
+    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
+    gsap.to(obraSelecionada.position, {
+      y: 4.2, duration: 0.6,
+      onComplete: () => {
+        overlay.style.display = 'none';
+        infoPanel.style.display = 'none';
+        obraSelecionada = null;
+      }
+    });
+
+    gsap.to(camera.position, {
+      x: cameraOriginalPos.x,
+      y: cameraOriginalPos.y,
+      z: cameraOriginalPos.z,
+      duration: 0.8
+    });
+
+    // Restaurar velocidade original
+    gsap.to(window, {
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        velocidadeObras = gsap.getProperty(window, 'velocidadeObras') || 0.00012;
+      },
+      velocidadeObras: 0.00012
+    });
+  }
+});
+
+// Detectar clique numa obra
 renderer.domElement.addEventListener('pointerdown', e => {
   if (obraSelecionada || cameraIsAnimating) return;
 
@@ -789,30 +736,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   }
 });
 
-// ⛔ Fechar ao clicar fora do painel
-window.addEventListener('pointerdown', e => {
-  if (!obraSelecionada || cameraIsAnimating) return;
-
-  if (!infoPanel.contains(e.target)) {
-    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
-    gsap.to(obraSelecionada.position, {
-      y: 4.2, duration: 0.6,
-      onComplete: () => {
-        overlay.style.display = 'none';
-        infoPanel.style.display = 'none';
-        obraSelecionada = null;
-      }
-    });
-    gsap.to(camera.position, {
-      x: cameraOriginalPos.x,
-      y: cameraOriginalPos.y,
-      z: cameraOriginalPos.z,
-      duration: 0.8
-    });
-  }
-});
-
-// 💳 Compra real com ethers.js
+// Compra real com ethers.js
 async function buyHandler(dados) {
   if (!window.ethereum) {
     alert('Instala a MetaMask para poder adquirir esta obra.');
@@ -839,7 +763,7 @@ async function buyHandler(dados) {
   }
 }
 
-// 🛒 Clique no botão "Buy"
+// Evento de clique no botão "Buy"
 botaoComprar.addEventListener('click', () => {
   if (obraSelecionada) {
     const index = obrasNormais.indexOf(obraSelecionada);
@@ -848,5 +772,32 @@ botaoComprar.addEventListener('click', () => {
   }
 });
 
-// 🚀 Iniciar a animação contínua
+// 🚀 Animação contínua com velocidade controlada
+function animate() {
+  requestAnimationFrame(animate);
+  const tempo = Date.now() * -velocidadeObras;
+
+  obrasNormais.forEach((obra, i) => {
+    if (obra !== obraSelecionada) {
+      const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
+      const x = Math.cos(angulo) * config.circleRadius;
+      const z = Math.sin(angulo) * config.circleRadius;
+      const rotY = -angulo + Math.PI;
+
+      obra.position.x = x;
+      obra.position.z = z;
+      obra.rotation.y = rotY;
+
+      const reflexo = obra.userData.reflexo;
+      if (reflexo) {
+        reflexo.userData.targetPos.set(x, -0.01, z);
+        reflexo.userData.targetRot.set(0, rotY, 0);
+        reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+        reflexo.rotation.y += (rotY - reflexo.rotation.y) * 0.1;
+      }
+    }
+  });
+
+  renderer.render(scene, camera);
+}
 animate();

@@ -74,35 +74,24 @@
     <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Dynamic Script Loader -->
-  <script>
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    window.addEventListener('load', () => {
+<!-- Direct module import of main.js -->
+<script type="module">
+  import '/src/main.js';
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelector('.loading-screen').style.opacity = '0';
       setTimeout(() => {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/src/main.js';
-        script.crossOrigin = 'anonymous';
+        document.querySelector('.loading-screen').style.display = 'none';
+      }, 1000);
+    }, 300);
+  });
 
-        script.onload = () => {
-          document.querySelector('.loading-screen').style.opacity = '0';
-          setTimeout(() => {
-            document.querySelector('.loading-screen').style.display = 'none';
-          }, 1000);
-        };
+  document.getElementById('menu-toggle').addEventListener('click', () => {
+    const menu = document.getElementById('menu-dropdown');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  });
+</script>
 
-        script.onerror = () => {
-          console.error('Failed to load main.js');
-        };
-
-        document.body.appendChild(script);
-      }, 300);
-    });
-  </script>
 
   <!-- Fallback for Non-Module Browsers -->
   <script nomodule>

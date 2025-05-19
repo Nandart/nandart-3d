@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
-const submitRouter = require('./submit'); // rota da submissão
+const submitRouter = require('./routes/submit');
 
 const app = express();
 app.use(express.json());

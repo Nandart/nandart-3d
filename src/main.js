@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '/node_modules/three/build/three.module.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';

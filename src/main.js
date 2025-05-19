@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
+// 📱 Sistema de responsividade refinado
 function getViewportLevel() {
   const largura = window.innerWidth;
   if (largura < 480) return 'XS';
@@ -26,11 +27,12 @@ const configMap = {
 
 let config = configMap[getViewportLevel()];
 
+// 🎨 Cena e carregador de texturas
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
-
 const textureLoader = new THREE.TextureLoader();
 
+// 🎥 Câmara adaptativa
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
@@ -42,6 +44,7 @@ function updateCamera() {
 }
 updateCamera();
 
+// 🖥️ Renderizador com qualidade cinematográfica
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -54,30 +57,29 @@ window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-// 🔆 Iluminação ambiente duplicada com maior intensidade e difusão
-const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 1.8); // duplicada
-const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 1.8);
-const luzAmbiente3 = new THREE.AmbientLight(0xfff2dd, 1.8);
-const luzAmbiente4 = new THREE.AmbientLight(0xfff2dd, 1.8);
-scene.add(luzAmbiente1, luzAmbiente2, luzAmbiente3, luzAmbiente4);
+// 💡 Iluminação ambiente triplicada (sem afetar obras ou imagens)
+const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 1.4);
+const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 1.4);
+const luzAmbiente3 = new THREE.AmbientLight(0xfff2dd, 1.4);
+scene.add(luzAmbiente1, luzAmbiente2, luzAmbiente3);
 
-// ☀️ Luz hemisférica para brilho global suave
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.65); // ligeiramente aumentada
+// Luz hemisférica com brilho subtil de fundo
+const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.4);
 scene.add(luzHemisferica);
 
-// 💡 Luz rasante esquerda com sombra e profundidade
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 1.0); // intensificada
+// Luz rasante lateral para dar realce tridimensional
+const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.8);
 luzRasanteEsquerda.position.set(-10, 8, 0);
 luzRasanteEsquerda.angle = Math.PI / 6;
 luzRasanteEsquerda.penumbra = 0.3;
 luzRasanteEsquerda.decay = 2;
 luzRasanteEsquerda.distance = 25;
 luzRasanteEsquerda.castShadow = true;
-luzRasanteEsquerda.shadow.mapSize.width = 1024;
-luzRasanteEsquerda.shadow.mapSize.height = 1024;
+luzRasanteEsquerda.shadow.mapSize.set(1024, 1024);
 luzRasanteEsquerda.shadow.bias = -0.0005;
 scene.add(luzRasanteEsquerda);
-// 🪞 Pavimento reflectivo e translúcido com aparência de obsidiana líquida
+
+// 🧱 Pavimento reflexivo estilo obsidiana líquida
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
@@ -86,38 +88,36 @@ const floor = new Reflector(floorGeometry, {
   color: 0x000000,
   recursion: 2
 });
-
 floor.material.opacity = 0.88;
 floor.material.roughness = 0.015;
 floor.material.metalness = 0.98;
 floor.material.transparent = true;
 floor.material.envMapIntensity = 1.4;
 floor.material.reflectivity = 0.985;
-
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// ✨ Círculo de luz com brilho forte e aparência de luz pousada
+// ✨ Círculo de luz redesenhado — com base na imagem layout.jpeg
 const circle = new THREE.Mesh(
-  new THREE.RingGeometry(4.3, 4.55, 100),
+  new THREE.RingGeometry(4.2, 4.56, 120),
   new THREE.MeshStandardMaterial({
     color: 0xfdf6dc,
     emissive: 0xffefc6,
-    emissiveIntensity: 3.8,
+    emissiveIntensity: 3.5,
     metalness: 0.75,
     roughness: 0.1,
     transparent: true,
-    opacity: 0.92,
+    opacity: 0.93,
     side: THREE.DoubleSide
   })
 );
 circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.051;
+circle.position.y = 0.052;
 circle.receiveShadow = true;
 scene.add(circle);
 
-// 🟡 Friso horizontal dourado abaixo do círculo de luz
+// Friso horizontal dourado vivo abaixo do círculo
 const frisoChao = new THREE.Mesh(
   new THREE.BoxGeometry(36, 0.06, 0.03),
   new THREE.MeshStandardMaterial({
@@ -130,16 +130,16 @@ const frisoChao = new THREE.Mesh(
 );
 frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
 scene.add(frisoChao);
-// 🟡 Material dourado vivo usado em todos os frisos
+// 🎨 Material dourado vivo fiel à imagem "dourado para friso.png"
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xf3cc80,
+  color: 0x8a5c21, // #8a5c21
   metalness: 1,
   roughness: 0.08,
-  emissive: 0x3a240a,
-  emissiveIntensity: 0.35
+  emissive: 0x2f1b08,
+  emissiveIntensity: 0.33
 });
 
-// 🔧 Função para frisos simples (linha horizontal ou vertical)
+// Função para frisos lineares simples
 function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, 0.02),
@@ -152,7 +152,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   return friso;
 }
 
-// 🔧 Função para frisos rectangulares (estrutura completa com topo, base e laterais)
+// Função para frisos retangulares com 4 lados
 function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
@@ -179,16 +179,16 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   return group;
 }
 
-// 🟡 Friso central redesenhado com proporção generosa
-const frisoCentral = criarFrisoRect(
-  0,               // x
-  10.3,            // y (centro do friso)
-  -config.wallDistance + 0.01, // z
-  6.8,             // largura total
-  7.0              // altura total
+// 🟡 Friso central redesenhado com respiro visual
+criarFrisoRect(
+  0,               // X
+  10.3,            // Y (centro vertical do friso)
+  -config.wallDistance + 0.01, // Z (junto à parede central)
+  6.8,             // Largura
+  7.0              // Altura
 );
 
-// Friso horizontal interno — alinhado com a parte superior do quadro
+// Friso interior horizontal acima do quadro central
 criarFrisoLinha(
   0,
   13.1,
@@ -196,7 +196,7 @@ criarFrisoLinha(
   4.5
 );
 
-// 🟡 Frisos laterais duplos — estrutura dupla: exterior e interior
+// 🟡 Frisos duplos verticais laterais com estrutura dupla
 const posXFrisoLateral = 6.7;
 const alturaFrisoExt = 8.8;
 const alturaFrisoInt = 7.1;
@@ -209,90 +209,43 @@ criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, altur
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// 🟡 Frisos horizontais inferiores contínuos entre paredes
+// 🟡 Frisos horizontais inferiores contínuos nas 3 paredes
 criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);     // fundo superior
 criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);    // fundo inferior
 criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. sup.
 criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
 criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
 criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
-// 🖼️ Textura da obra central com fallback de erro
-const texturaCentral = textureLoader.load(
-  '/assets/obras/obra-central.jpg',
-  undefined,
-  undefined,
-  err => console.error('Erro a carregar obra-central.jpg:', err)
-);
-
-const quadroCentralGrupo = new THREE.Group();
-
-// 📐 Dimensões reais da pintura (sem moldura)
-const larguraQuadro = 4.6;
-const alturaQuadro = 5.8;
-
-// 🟫 Moldura escura saliente com profundidade e brilho subtil
-const molduraCentral = new THREE.Mesh(
-  new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
-  new THREE.MeshStandardMaterial({
-    color: 0x1e1a16,
-    metalness: 0.6,
-    roughness: 0.3,
-    emissive: 0x0d0c0a,
-    emissiveIntensity: 0.15
-  })
-);
-molduraCentral.position.z = -0.1; // ligeiro relevo
-quadroCentralGrupo.add(molduraCentral);
-
-// 🎨 Pintura central com leve metalização
-const pinturaCentral = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-  new THREE.MeshStandardMaterial({
-    map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
-  })
-);
-pinturaCentral.position.z = 0.01; // camada frontal
-quadroCentralGrupo.add(pinturaCentral);
-
-// 📍 Posicionamento final do grupo — centrado dentro do friso
-quadroCentralGrupo.position.set(
-  0, // X — centro da parede
-  10.3, // Y — mesmo centro vertical do friso
-  -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
-);
-scene.add(quadroCentralGrupo);
-// 🧱 Geometrias base das paredes
+// 🧱 Geometria base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
-// 🧩 Função utilitária para aplicar textura realista às paredes
+// Função utilitária para aplicar a textura antracite às três paredes
 const aplicarTexturaParede = textura => {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura,
-    color: 0xffffff, // realce dos tons claros da textura
-    emissive: new THREE.Color(0x111111), // brilho suave nos tons escuros
+    color: 0xffffff,
+    emissive: new THREE.Color(0x111111),
     emissiveIntensity: 0.25,
     roughness: 0.65,
     metalness: 0.15,
     side: THREE.FrontSide
   });
 
-  // 🔳 Parede de fundo — central
+  // 🧱 Parede de fundo (central)
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
   paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // 🟥 Parede lateral esquerda — plana, sem inclinação
+  // 🧱 Parede lateral esquerda
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // 🟦 Parede lateral direita — plana, sem inclinação
+  // 🧱 Parede lateral direita
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
@@ -300,7 +253,7 @@ const aplicarTexturaParede = textura => {
   scene.add(paredeDireita);
 };
 
-// 🌌 Carregamento da textura antracite com fallback remoto automático
+// 🌌 Carregamento da textura antracite com fallback remoto
 textureLoader.load(
   '/assets/antracite-realista.jpg',
   texturaLocal => {
@@ -318,19 +271,66 @@ textureLoader.load(
     );
   }
 );
-// 🖼️ Quadros laterais com moldura saliente e proporções realistas
+// 🖼️ Textura da obra central (com fallback em caso de erro)
+const texturaCentral = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  undefined,
+  undefined,
+  err => console.error('Erro a carregar obra-central.jpg:', err)
+);
+
+const quadroCentralGrupo = new THREE.Group();
+
+// 📐 Dimensões reais da pintura sem moldura
+const larguraQuadro = 4.6;
+const alturaQuadro = 5.8;
+
+// 🟫 Moldura escura saliente com profundidade realista
+const molduraCentral = new THREE.Mesh(
+  new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
+  new THREE.MeshStandardMaterial({
+    color: 0x1e1a16,
+    metalness: 0.6,
+    roughness: 0.3,
+    emissive: 0x0d0c0a,
+    emissiveIntensity: 0.15
+  })
+);
+molduraCentral.position.z = -0.1; // ligeiro relevo para destacar
+quadroCentralGrupo.add(molduraCentral);
+
+// 🖼️ Pintura central com leve metalização
+const pinturaCentral = new THREE.Mesh(
+  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
+  new THREE.MeshStandardMaterial({
+    map: texturaCentral,
+    roughness: 0.15,
+    metalness: 0.1
+  })
+);
+pinturaCentral.position.z = 0.01; // camada frontal à moldura
+quadroCentralGrupo.add(pinturaCentral);
+
+// 📌 Posicionamento final da obra central
+quadroCentralGrupo.position.set(
+  0,                     // X — centro horizontal
+  10.3,                  // Y — centrado com o friso principal
+  -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
+);
+scene.add(quadroCentralGrupo);
+// 🖼️ Dados das obras nas paredes laterais
 const obrasParede = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
-    x: -14.6,
-    y: 9.1,
-    z: -config.wallDistance / 2 + 0.01, // ligeiramente à frente para não parecer embutido
+    x: -14.48,
+    y: 11.6, // Altura ajustada para centralização
+    z: -config.wallDistance / 2 + 0.01,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
-    x: 14.6,
-    y: 9.1,
+    x: 14.48,
+    y: 11.6,
     z: -config.wallDistance / 2 + 0.01,
     rotY: -Math.PI / 2
   }
@@ -349,7 +349,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
 
   const grupoQuadro = new THREE.Group();
 
-  // 🟫 Moldura escura com relevo e volume
+  // Moldura escura com relevo e profundidade
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
     new THREE.MeshStandardMaterial({
@@ -363,7 +363,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   moldura.position.z = -0.1;
   grupoQuadro.add(moldura);
 
-  // 🎨 Pintura com textura individual
+  // Pintura com textura correspondente
   const quadro = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -376,12 +376,12 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   quadro.position.z = 0.01;
   grupoQuadro.add(quadro);
 
-  // 📍 Posicionamento final — centrado na parede lateral
+  // Posicionamento final sobre a parede lateral
   grupoQuadro.position.set(x, y, z);
   grupoQuadro.rotation.y = rotY;
   scene.add(grupoQuadro);
 });
-// ✨ Material dourado realista para o topo dos pedestais
+// 🟡 Material dourado realista para o topo dos pedestais
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
@@ -393,18 +393,17 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.6
 });
 
-// 💠 Textura da gema facetada azul
+// 💠 Textura da gema facetada
 const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
 
-// 🧰 Função para criar uma vitrine completa com pedestal e gema
+// Função para criar vitrine completa com pedestal e gema
 function criarVitrine(x, z, indice) {
   const alturaPedestal = 4.6;
   const alturaVitrine = 1.6;
   const alturaGema = alturaPedestal + alturaVitrine / 2 + 0.25;
-  const emissivaBase = 0x3377cc;
-  const intensidade = 2.8;
+  const intensidade = 2.4;
 
-  // 🧱 Pedestal negro robusto
+  // 🟥 Pedestal negro com base sólida
   const pedestal = new THREE.Mesh(
     new THREE.BoxGeometry(1.05, alturaPedestal, 1.05),
     new THREE.MeshStandardMaterial({
@@ -426,7 +425,7 @@ function criarVitrine(x, z, indice) {
   topoDourado.castShadow = true;
   scene.add(topoDourado);
 
-  // 🟦 Vitrine de vidro translúcido com IOR realista
+  // 🔲 Vitrine translúcida em vidro
   const vitrine = new THREE.Mesh(
     new THREE.BoxGeometry(1.0, alturaVitrine, 1.0),
     new THREE.MeshPhysicalMaterial({
@@ -436,7 +435,7 @@ function criarVitrine(x, z, indice) {
       transmission: 1,
       thickness: 0.42,
       transparent: true,
-      opacity: 0.13, // ligeiramente mais transparente
+      opacity: 0.14,
       ior: 1.45,
       reflectivity: 0.7,
       clearcoat: 0.85,
@@ -447,34 +446,29 @@ function criarVitrine(x, z, indice) {
   vitrine.castShadow = true;
   scene.add(vitrine);
 
-  // 💎 Gema facetada azul flutuante e visível
+  // 💎 Gema flutuante facetada com brilho pulsante
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.4, 1),
     new THREE.MeshStandardMaterial({
       map: texturaGema,
-      emissive: emissivaBase,
+      emissive: 0x3377cc,
       emissiveIntensity: intensidade,
       transparent: true,
-      opacity: 0.96,
-      metalness: 0.3,
-      roughness: 0.2
+      opacity: 0.95
     })
   );
   gema.position.set(x, alturaGema, z);
-  gema.rotation.y = indice * 0.4;
+  gema.rotation.y = indice * 0.3;
   gema.castShadow = true;
   scene.add(gema);
 }
 
-// 🧊 Criar quatro vitrines nos pedestais alinhados com o círculo de luz
-// Frontais — próximos das paredes laterais
-criarVitrine(-9.3, -1.85, 0);
-criarVitrine(9.3, -1.85, 1);
-
-// Traseiros — afastados, criando espaço para a obra central
-criarVitrine(-9.3, 1.85, 2);
-criarVitrine(9.3, 1.85, 3);
-// ✨ Texto NANdART com dourado vivo e presença centralizada
+// 📍 Criação das quatro vitrines alinhadas com o círculo de luz (layout preciso)
+criarVitrine(-9.4, -4.45, 0); // Esquerda traseira
+criarVitrine(-9.4, 4.45, 1);  // Esquerda frontal
+criarVitrine(9.4, -4.45, 2);  // Direita traseira
+criarVitrine(9.4, 4.45, 3);   // Direita frontal
+// 🔤 Carregamento da fonte e criação do texto NANdART
 const fontLoader = new FontLoader();
 fontLoader.load(
   'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
@@ -496,7 +490,7 @@ fontLoader.load(
     const texto = new THREE.Mesh(
       textGeo,
       new THREE.MeshStandardMaterial({
-        color: 0xc49b42, // Tom dourado inspirado no layout
+        color: 0xc49b42,               // Dourado fiel (extraído de "dourado para nandart.png")
         metalness: 1,
         roughness: 0.25,
         emissive: 0x2c1d07,
@@ -504,11 +498,12 @@ fontLoader.load(
       })
     );
 
+    // Posicionamento do nome — centrado e com profundidade
     texto.position.set(-largura / 2, 15.5, -config.wallDistance - 3.98);
     texto.castShadow = true;
     scene.add(texto);
 
-    // 💡 Luz direcional focada no texto
+    // Luz suave direcionada ao nome
     const luzTexto = new THREE.SpotLight(0xfff1cc, 1.3, 12, Math.PI / 9, 0.4);
     luzTexto.position.set(0, 18, -config.wallDistance - 2);
     luzTexto.target = texto;
@@ -518,13 +513,13 @@ fontLoader.load(
 );
 // ✨ Reflexos animados subtis — frisos, molduras e gemas
 scene.traverse(obj => {
-  // 💛 Frisos dourados com brilho pulsante
+  // Frisos dourados com brilho pulsante
   if (
     obj.isMesh &&
     obj.material &&
     obj.material.emissive &&
     obj.material.emissiveIntensity &&
-    obj.material.color?.getHex() === 0xf3cc80
+    obj.material.color?.getHex() === 0x8a5c21
   ) {
     gsap.to(obj.material, {
       emissiveIntensity: 0.45,
@@ -535,7 +530,7 @@ scene.traverse(obj => {
     });
   }
 
-  // 🟫 Molduras escuras com brilho suave e oscilante
+  // Molduras escuras com leve emissividade
   if (
     obj.isMesh &&
     obj.material?.emissive &&
@@ -550,7 +545,7 @@ scene.traverse(obj => {
     });
   }
 
-  // 💎 Gemas com emissão pulsante intensa
+  // Gemas com emissão pulsante intensa
   if (
     obj.isMesh &&
     obj.material?.emissive &&
@@ -563,17 +558,81 @@ scene.traverse(obj => {
       yoyo: true,
       ease: 'sine.inOut'
     });
-
-    // ❗ Rotação contínua subtil para maior dinamismo
-    gsap.to(obj.rotation, {
-      y: "+=6.283", // 2π para rotação completa
-      duration: 20,
-      repeat: -1,
-      ease: 'none'
-    });
   }
 });
-// 🖼️ Obras circulantes suspensas (sem moldura) com reflexo no chão
+
+// 🔄 Animação contínua das obras suspensas e respetivos reflexos
+function animate() {
+  requestAnimationFrame(animate);
+
+  const tempo = Date.now() * -0.00012;
+
+  obrasNormais.forEach((obra, i) => {
+    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(angulo) * config.circleRadius;
+    const z = Math.sin(angulo) * config.circleRadius;
+    const rotacaoY = -angulo + Math.PI;
+
+    // Actualizar posição e rotação
+    obra.position.x = x;
+    obra.position.z = z;
+    obra.rotation.y = rotacaoY;
+
+    // Actualizar reflexo correspondente
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, rotacaoY, 0);
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+// 🎯 Modal de obra e interacção com Web3
+let obraSelecionada = null;
+
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
+
+function abrirModal(dados, obra) {
+  obraSelecionada = obra;
+
+  modalTitulo.textContent = dados.titulo;
+  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
+  modalArtista.textContent = dados.artista;
+  modalAno.textContent = dados.ano;
+  modalPreco.textContent = `${dados.preco} ETH`;
+
+  modal.style.display = 'flex';
+
+  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
+  gsap.to(camera.position, {
+    x: obra.position.x,
+    y: obra.position.y + 1.5,
+    z: obra.position.z + 3,
+    duration: 0.8,
+    ease: 'power2.inOut'
+  });
+}
+
+// ⛔ Fechar modal ao clicar fora
+window.addEventListener('pointerdown', e => {
+  if (obraSelecionada && !modal.contains(e.target)) {
+    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
+    updateCamera();
+    modal.style.display = 'none';
+    obraSelecionada = null;
+  }
+});
+// 🖼️ Obras suspensas normais com reflexo no chão
 const obraPaths = [
   "/assets/obras/obra1.jpg",
   "/assets/obras/obra2.jpg",
@@ -585,67 +644,61 @@ const obraPaths = [
   "/assets/obras/obra8.jpg"
 ];
 
-// 📋 Dados reais das obras para o modal
 const dadosObras = [
-  {
-    titulo: "Fragmento da Eternidade",
-    artista: "Inês Duarte",
-    ano: "2023",
-    preco: "0.8",
-    imagem: "/assets/obras/obra1.jpg"
-  },
-  {
-    titulo: "Sombras de Luz",
-    artista: "Miguel Costa",
-    ano: "2024",
-    preco: "0.5",
-    imagem: "/assets/obras/obra2.jpg"
-  },
-  {
-    titulo: "Horizonte Partilhado",
-    artista: "Clara Mendonça",
-    ano: "2022",
-    preco: "1.2",
-    imagem: "/assets/obras/obra3.jpg"
-  },
-  {
-    titulo: "Memórias de Silêncio",
-    artista: "Rui Valente",
-    ano: "2023",
-    preco: "0.6",
-    imagem: "/assets/obras/obra4.jpg"
-  },
-  {
-    titulo: "Ritmo Contido",
-    artista: "Joana Serra",
-    ano: "2025",
-    preco: "0.75",
-    imagem: "/assets/obras/obra5.jpg"
-  },
-  {
-    titulo: "Flutuação Interior",
-    artista: "André Luz",
-    ano: "2023",
-    preco: "1.0",
-    imagem: "/assets/obras/obra6.jpg"
-  },
-  {
-    titulo: "Verso Encoberto",
-    artista: "Sofia Rocha",
-    ano: "2024",
-    preco: "0.4",
-    imagem: "/assets/obras/obra7.jpg"
-  },
-  {
-    titulo: "Silhueta do Amanhã",
-    artista: "Tiago Faria",
-    ano: "2025",
-    preco: "0.9",
-    imagem: "/assets/obras/obra8.jpg"
-  }
+  { titulo: "Fragmento da Eternidade", artista: "Inês Duarte", ano: "2023", preco: "0.8", imagem: obraPaths[0] },
+  { titulo: "Sombras de Luz", artista: "Miguel Costa", ano: "2024", preco: "0.5", imagem: obraPaths[1] },
+  { titulo: "Horizonte Partilhado", artista: "Clara Mendonça", ano: "2022", preco: "1.2", imagem: obraPaths[2] },
+  { titulo: "Memórias de Silêncio", artista: "Rui Valente", ano: "2023", preco: "0.6", imagem: obraPaths[3] },
+  { titulo: "Ritmo Contido", artista: "Joana Serra", ano: "2025", preco: "0.75", imagem: obraPaths[4] },
+  { titulo: "Flutuação Interior", artista: "André Luz", ano: "2023", preco: "1.0", imagem: obraPaths[5] },
+  { titulo: "Verso Encoberto", artista: "Sofia Rocha", ano: "2024", preco: "0.4", imagem: obraPaths[6] },
+  { titulo: "Silhueta do Amanhã", artista: "Tiago Faria", ano: "2025", preco: "0.9", imagem: obraPaths[7] }
 ];
 
 const obrasNormais = [];
+
+// Criar overlay de fundo desfocado e painel informativo
+const overlay = document.createElement('div');
+overlay.style.cssText = `
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  backdrop-filter: blur(6px); z-index: 50; display: none;
+`;
+document.body.appendChild(overlay);
+
+const infoPanel = document.createElement('div');
+infoPanel.style.cssText = `
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
+  margin-top: calc(260px + 10px); padding: 20px;
+  background: rgba(255,255,255,0.07); backdrop-filter: blur(4px);
+  border-radius: 12px; color: #fffbe6; font-family: Georgia, serif;
+  text-align: center; z-index: 60; display: none;
+`;
+infoPanel.innerHTML = `
+  <div id="art-title" style="font-size: 1.6em; font-weight: bold;"></div>
+  <div id="art-artist" style="margin-top: 6px;"></div>
+  <div id="art-year" style="margin-top: 2px;"></div>
+  <div id="art-description" style="margin-top: 10px; font-style: italic;"></div>
+  <div id="art-price" style="margin-top: 10px; font-weight: bold;"></div>
+  <button id="buy-art" style="
+    margin-top: 16px; padding: 10px 18px;
+    background-color: #d8b26c; color: #111;
+    border: none; border-radius: 6px;
+    font-size: 1em; cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  ">Buy</button>
+`;
+document.body.appendChild(infoPanel);
+
+const modalTitulo = infoPanel.querySelector('#art-title');
+const modalArtista = infoPanel.querySelector('#art-artist');
+const modalAno = infoPanel.querySelector('#art-year');
+const modalDescricao = infoPanel.querySelector('#art-description');
+const modalPreco = infoPanel.querySelector('#art-price');
+const botaoComprar = infoPanel.querySelector('#buy-art');
+
+let obraSelecionada = null;
+let cameraOriginalPos = camera.position.clone();
+let cameraIsAnimating = false;
 
 obraPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
@@ -668,7 +721,6 @@ obraPaths.forEach((src, i) => {
   obra.castShadow = true;
   scene.add(obra);
 
-  // 🪞 Reflexo invertido e subtil no chão
   const reflexo = obra.clone();
   reflexo.position.y = -0.01;
   reflexo.scale.y = -1;
@@ -681,58 +733,46 @@ obraPaths.forEach((src, i) => {
   reflexo.renderOrder = 1;
   scene.add(reflexo);
 
-  // 🔁 Ligação obra-reflexo
   obra.userData.reflexo = reflexo;
   reflexo.userData.targetPos = new THREE.Vector3();
   reflexo.userData.targetRot = new THREE.Euler();
 
   obrasNormais.push(obra);
 });
-let obraSelecionada = null;
 
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
-
-// 🔍 Abrir modal com dados e animações
+// Função para abrir o modal com a obra centrada
 function abrirModal(dados, obra) {
+  if (obraSelecionada) return;
+
   obraSelecionada = obra;
+  overlay.style.display = 'block';
+  infoPanel.style.display = 'block';
 
   modalTitulo.textContent = dados.titulo;
-  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalArtista.textContent = dados.artista;
   modalAno.textContent = dados.ano;
+  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalPreco.textContent = `${dados.preco} ETH`;
 
-  modal.style.display = 'flex';
-
-  // ✨ Destaque visual da obra seleccionada
-  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
-  gsap.to(camera.position, {
-    x: obra.position.x,
-    y: obra.position.y + 1.5,
-    z: obra.position.z + 3,
-    duration: 0.8,
-    ease: 'power2.inOut'
+  gsap.to(obra.scale, { x: 2, y: 2, duration: 0.8, ease: 'power2.out' });
+  gsap.to(obra.position, {
+    x: 0, y: 10.5, z: 0,
+    duration: 0.9, ease: 'power2.inOut'
   });
+
+  gsap.to(camera.position, {
+    x: 0, y: 10.5, z: 5.5,
+    duration: 1.1, ease: 'power2.inOut'
+  });
+
+  cameraIsAnimating = true;
+  setTimeout(() => { cameraIsAnimating = false; }, 1200);
 }
 
-// ❌ Fechar modal ao clicar fora
-window.addEventListener('pointerdown', e => {
-  if (obraSelecionada && !modal.contains(e.target)) {
-    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
-    updateCamera();
-    modal.style.display = 'none';
-    obraSelecionada = null;
-  }
-});
-
-// 🖱️ Detetar clique/tap numa obra suspensa
+// 🎯 Detetar clique/tap numa obra suspensa
 renderer.domElement.addEventListener('pointerdown', e => {
+  if (obraSelecionada || cameraIsAnimating) return;
+
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -749,7 +789,30 @@ renderer.domElement.addEventListener('pointerdown', e => {
   }
 });
 
-// 💸 Função real de compra com ethers.js e MetaMask
+// ⛔ Fechar ao clicar fora do painel
+window.addEventListener('pointerdown', e => {
+  if (!obraSelecionada || cameraIsAnimating) return;
+
+  if (!infoPanel.contains(e.target)) {
+    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
+    gsap.to(obraSelecionada.position, {
+      y: 4.2, duration: 0.6,
+      onComplete: () => {
+        overlay.style.display = 'none';
+        infoPanel.style.display = 'none';
+        obraSelecionada = null;
+      }
+    });
+    gsap.to(camera.position, {
+      x: cameraOriginalPos.x,
+      y: cameraOriginalPos.y,
+      z: cameraOriginalPos.z,
+      duration: 0.8
+    });
+  }
+});
+
+// 💳 Compra real com ethers.js
 async function buyHandler(dados) {
   if (!window.ethereum) {
     alert('Instala a MetaMask para poder adquirir esta obra.');
@@ -757,17 +820,13 @@ async function buyHandler(dados) {
   }
 
   try {
-    // Solicitar autorização à carteira
     await window.ethereum.request({ method: 'eth_requestAccounts' });
-
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
-
     const valorETH = ethers.parseEther(dados.preco);
 
-    // Enviar transação para o endereço da galeria
     const tx = await signer.sendTransaction({
-      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // substituir pelo endereço real
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12',
       value: valorETH
     });
 
@@ -780,7 +839,7 @@ async function buyHandler(dados) {
   }
 }
 
-// 🛒 Evento de clique no botão "Comprar" do modal
+// 🛒 Clique no botão "Buy"
 botaoComprar.addEventListener('click', () => {
   if (obraSelecionada) {
     const index = obrasNormais.indexOf(obraSelecionada);
@@ -788,35 +847,6 @@ botaoComprar.addEventListener('click', () => {
     buyHandler(dados);
   }
 });
-// 🔁 Animação contínua das obras circulantes e respetivos reflexos
-function animate() {
-  requestAnimationFrame(animate);
 
-  const tempo = Date.now() * -0.00012;
-
-  obrasNormais.forEach((obra, i) => {
-    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(angulo) * config.circleRadius;
-    const z = Math.sin(angulo) * config.circleRadius;
-    const rotacaoY = -angulo + Math.PI;
-
-    // Atualizar posição e orientação da obra
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = rotacaoY;
-
-    // Atualizar reflexo correspondente
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, rotacaoY, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
-    }
-  });
-
-  renderer.render(scene, camera);
-}
-
-// ▶️ Iniciar a animação contínua da cena
+// 🚀 Iniciar a animação contínua
 animate();

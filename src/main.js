@@ -688,3 +688,135 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
+let obraSelecionada = null;
+
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
+
+// 🔍 Abrir modal com dados e animações
+function abrirModal(dados, obra) {
+  obraSelecionada = obra;
+
+  modalTitulo.textContent = dados.titulo;
+  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
+  modalArtista.textContent = dados.artista;
+  modalAno.textContent = dados.ano;
+  modalPreco.textContent = `${dados.preco} ETH`;
+
+  modal.style.display = 'flex';
+
+  // ✨ Destaque visual da obra seleccionada
+  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
+  gsap.to(camera.position, {
+    x: obra.position.x,
+    y: obra.position.y + 1.5,
+    z: obra.position.z + 3,
+    duration: 0.8,
+    ease: 'power2.inOut'
+  });
+}
+
+// ❌ Fechar modal ao clicar fora
+window.addEventListener('pointerdown', e => {
+  if (obraSelecionada && !modal.contains(e.target)) {
+    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
+    updateCamera();
+    modal.style.display = 'none';
+    obraSelecionada = null;
+  }
+});
+
+// 🖱️ Detetar clique/tap numa obra suspensa
+renderer.domElement.addEventListener('pointerdown', e => {
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(obrasNormais);
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    const dados = dadosObras[index];
+    abrirModal(dados, obra);
+  }
+});
+
+// 💸 Função real de compra com ethers.js e MetaMask
+async function buyHandler(dados) {
+  if (!window.ethereum) {
+    alert('Instala a MetaMask para poder adquirir esta obra.');
+    return;
+  }
+
+  try {
+    // Solicitar autorização à carteira
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    const valorETH = ethers.parseEther(dados.preco);
+
+    // Enviar transação para o endereço da galeria
+    const tx = await signer.sendTransaction({
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // substituir pelo endereço real
+      value: valorETH
+    });
+
+    alert(`Transação enviada!\nHash: ${tx.hash}`);
+    await tx.wait();
+    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
+  } catch (err) {
+    console.error('Erro ao comprar a obra:', err);
+    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
+  }
+}
+
+// 🛒 Evento de clique no botão "Comprar" do modal
+botaoComprar.addEventListener('click', () => {
+  if (obraSelecionada) {
+    const index = obrasNormais.indexOf(obraSelecionada);
+    const dados = dadosObras[index];
+    buyHandler(dados);
+  }
+});
+// 🔁 Animação contínua das obras circulantes e respetivos reflexos
+function animate() {
+  requestAnimationFrame(animate);
+
+  const tempo = Date.now() * -0.00012;
+
+  obrasNormais.forEach((obra, i) => {
+    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(angulo) * config.circleRadius;
+    const z = Math.sin(angulo) * config.circleRadius;
+    const rotacaoY = -angulo + Math.PI;
+
+    // Atualizar posição e orientação da obra
+    obra.position.x = x;
+    obra.position.z = z;
+    obra.rotation.y = rotacaoY;
+
+    // Atualizar reflexo correspondente
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, rotacaoY, 0);
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+// ▶️ Iniciar a animação contínua da cena
+animate();

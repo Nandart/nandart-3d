@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#111111">
   <title>NANdART 3D Gallery</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="/src/styles/index.css">
+  <link rel="stylesheet" href="/src/styles/index.css" />
 
   <!-- Preload/Preconnect Optimised -->
   <link rel="modulepreload" href="/src/main.js" crossorigin>
@@ -21,18 +21,6 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   </noscript>
-
-  <!-- Polyfill para módulos ES -->
-  <script>
-    if (!window.esmsInitOptions) {
-      window.esmsInitOptions = {
-        shimMode: true,
-        polyfillEnable: ['css-modules', 'json-modules']
-      };
-    }
-  </script>
-
-
 </head>
 <body>
   <!-- Canvas 3D -->
@@ -67,37 +55,24 @@
     <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Dynamic Script Loader -->
+  <!-- Script para interacção do menu -->
   <script>
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuDropdown = document.getElementById('menu-dropdown');
 
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/src/main.js';
-        script.crossOrigin = 'anonymous';
-
-        script.onload = () => {
-          document.querySelector('.loading-screen').style.opacity = '0';
-          setTimeout(() => {
-            document.querySelector('.loading-screen').style.display = 'none';
-          }, 1000);
-        };
-
-        script.onerror = () => {
-          console.error('Failed to load main.js');
-        };
-
-        document.body.appendChild(script);
-      }, 300);
+      if (menuToggle && menuDropdown) {
+        menuToggle.addEventListener('click', () => {
+          menuDropdown.style.display = menuDropdown.style.display === 'flex' ? 'none' : 'flex';
+        });
+      }
     });
   </script>
 
-  <!-- Fallback for Non-Module Browsers -->
+  <!-- Script principal da galeria -->
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Fallback para browsers antigos -->
   <script nomodule>
     alert("Your browser does not support JavaScript modules. Please use a modern browser.");
     window.location.href = "https://www.google.com/chrome/";

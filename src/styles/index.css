@@ -404,3 +404,30 @@ body.pagina-scrollavel {
   .menu-icon, .info-icon { width: 28px; height: 28px; }
   .ajuda-icon { width: 36px; height: 36px; }
 }
+
+/* Botão Connect Wallet */
+#wallet-button {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 250;
+  padding: 10px 18px;
+  font-size: 1em;
+  background-color: #d8b26c;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#wallet-button:hover {
+  background-color: #c4a156;
+  transform: scale(1.04);
+}
+
+#wallet-button:active {
+  transform: scale(0.97);
+}

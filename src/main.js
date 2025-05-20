@@ -47,6 +47,14 @@ function updateCamera() {
   camera.updateProjectionMatrix();
 }
 updateCamera();
+// 🌞 Iluminação geral da galeria (crítica para visualização)
+const luzAmbiente = new THREE.AmbientLight(0xffffff, 2.2); // luz suave e difusa
+scene.add(luzAmbiente);
+
+const luzDirecional = new THREE.DirectionalLight(0xffffff, 3.5); // luz principal
+luzDirecional.position.set(5, 10, 5);
+luzDirecional.castShadow = true;
+scene.add(luzDirecional);
 
 // 🖥️ Renderizador com qualidade cinematográfica
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });

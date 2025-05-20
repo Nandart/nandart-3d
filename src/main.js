@@ -780,7 +780,6 @@ async function buyHandler(obra) {
   }
 }
 // Referência ao botão "Buy" do modal (definido no Bloco 4)
-const botaoComprar = document.querySelector('#buy-art');
 
 botaoComprar.addEventListener('click', () => {
   if (!obraSelecionada) return;

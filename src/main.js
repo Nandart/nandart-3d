@@ -13,6 +13,11 @@ console.log("Inicializando galeria 3D...");
 console.log("THREE.js version:", THREE.REVISION);
 //console.log("WebGL disponível:", THREE.WEBGL.isWebGLAvailable());
 
+import { isWebGLAvailable } from 'three/addons/capabilities/WebGL.js';
+
+if (!isWebGLAvailable()) {
+  alert('WebGL not available');
+}
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 // ==================== SISTEMA DE RESPONSIVIDADE ====================

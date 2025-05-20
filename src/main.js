@@ -374,7 +374,6 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
 
-  const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), fr
     const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
   topo.position.set(0, altura / 2, 0);
   group.add(topo);

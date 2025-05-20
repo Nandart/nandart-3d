@@ -7,9 +7,10 @@
   <meta name="theme-color" content="#111111">
   <title>NANdART 3D Gallery</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="stylesheet" href="/src/styles/index.css">
 
   <!-- Preload/Preconnect Optimised -->
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
   <link rel="modulepreload" href="/src/main.js" crossorigin>
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
@@ -21,6 +22,20 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   </noscript>
+
+  <!-- Import Maps -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+      "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
+      "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+    }
+  }
+  </script>
 </head>
 <body>
   <!-- Canvas 3D -->
@@ -30,6 +45,15 @@
   <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
   <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
   <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Help">
+
+  <!-- Connect Wallet Button -->
+  <button id="connect-wallet" aria-label="Connect Wallet"
+    style="position: fixed; top: 16px; right: 18px; padding: 10px 18px;
+           background-color: #d8b26c; color: #111; border: none; border-radius: 6px;
+           font-size: 1em; font-family: 'Playfair Display', serif; cursor: pointer;
+           z-index: 100; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);">
+    Connect
+  </button>
 
   <!-- Dropdown Menu -->
   <div class="menu-dropdown" id="menu-dropdown">
@@ -55,24 +79,37 @@
     <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Script para interacção do menu -->
+  <!-- Dynamic Script Loader -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const menuToggle = document.getElementById('menu-toggle');
-      const menuDropdown = document.getElementById('menu-dropdown');
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
 
-      if (menuToggle && menuDropdown) {
-        menuToggle.addEventListener('click', () => {
-          menuDropdown.style.display = menuDropdown.style.display === 'flex' ? 'none' : 'flex';
-        });
-      }
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/src/main.js';
+        script.crossOrigin = 'anonymous';
+
+        script.onload = () => {
+          document.querySelector('.loading-screen').style.opacity = '0';
+          setTimeout(() => {
+            document.querySelector('.loading-screen').style.display = 'none';
+          }, 1000);
+        };
+
+        script.onerror = () => {
+          console.error('Failed to load main.js');
+        };
+
+        document.body.appendChild(script);
+      }, 300);
     });
   </script>
 
-  <!-- Script principal da galeria -->
-  <script type="module" src="/src/main.js"></script>
-
-  <!-- Fallback para browsers antigos -->
+  <!-- Fallback for Non-Module Browsers -->
   <script nomodule>
     alert("Your browser does not support JavaScript modules. Please use a modern browser.");
     window.location.href = "https://www.google.com/chrome/";

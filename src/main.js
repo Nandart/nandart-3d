@@ -108,11 +108,10 @@ updateCamera();
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  floorMirror.getRenderTarget().setSize(
-    window.innerWidth * window.devicePixelRatio,
-    window.innerHeight * window.devicePixelRatio
-  );
-});
+ floorMirror.getRenderTarget().setSize = function(width, height) {
+  this.width = width;
+  this.height = height;
+}
 
 // ==================== PAREDES ====================
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);

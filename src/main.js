@@ -1,3 +1,27 @@
+window.addEventListener('DOMContentLoaded', () => {
+  console.log("✔️ DOM carregado. A iniciar galeria NANdART...");
+
+  const canvas = document.getElementById('scene');
+  if (!canvas) {
+    console.error("❌ Canvas com ID 'scene' não encontrado.");
+    return;
+  }
+  const loadingScreen = document.querySelector('.loading-screen');
+  if (loadingScreen) loadingScreen.remove();
+
+  // AQUI ENTRA TODO O TEU CÓDIGO
+  // (Já validado e funcional, que tu colocaste no início desta conversa)
+  // Começando por exemplo com:
+
+  import * as THREE from 'three';
+  import { Reflector } from 'three/addons/objects/Reflector.js';
+  import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+  import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+  import { ethers } from 'ethers';
+  import { obrasSuspensas } from './data/obras-suspensas.js';
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -7,22 +31,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
-
-window.addEventListener('DOMContentLoaded', () => {
-  console.log("✔️ DOM carregado. A iniciar galeria NANdART...");
-
-  const canvas = document.getElementById('scene');
-  if (!canvas) {
-    console.error("❌ Canvas com ID 'scene' não encontrado.");
-    return;
-  }
-
-  // Remove loading screen se existir
-  const loading = document.querySelector('.loading-screen');
-  if (loading) loading.remove();
-
-  // TODO: Aqui dentro vai todo o teu código da galeria, como já tens.
-});
 
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);

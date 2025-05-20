@@ -59,6 +59,133 @@ window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+// === INÍCIO Bloco 9 - Botão Connect Wallet e painel saldo ===
+// Criar botão Connect Wallet e painel saldo dinamicamente e inserir no DOM
+const walletButton = document.createElement('button');
+walletButton.id = 'wallet-button';
+walletButton.textContent = 'Connect Wallet';
+document.body.appendChild(walletButton);
+
+const walletBalance = document.createElement('div');
+walletBalance.id = 'wallet-balance';
+walletBalance.style.position = 'fixed';
+walletBalance.style.top = '60px';
+walletBalance.style.right = '20px';
+walletBalance.style.color = '#c4b582';
+walletBalance.style.fontFamily = "'Playfair Display', serif";
+walletBalance.style.fontSize = '0.9em';
+walletBalance.style.zIndex = '250';
+walletBalance.style.opacity = '0';
+walletBalance.style.transition = 'opacity 0.4s ease';
+walletBalance.textContent = '';
+document.body.appendChild(walletBalance);
+// === FIM Bloco 9 ===
+// === INÍCIO Bloco 10 - Variáveis e funções utilitárias Web3 ===
+let walletAddress = null; // Endereço da carteira ligada
+
+function abreviarEndereco(endereco) {
+  if (!endereco) return '';
+  return endereco.slice(0, 6) + '...' + endereco.slice(-4);
+}
+
+async function atualizarUIConexao(provider) {
+  if (!walletAddress) {
+    walletButton.textContent = 'Connect Wallet';
+    walletButton.classList.remove('connected');
+    walletBalance.style.opacity = '0';
+    walletBalance.textContent = '';
+    return;
+  }
+
+  walletButton.textContent = `Disconnect (${abreviarEndereco(walletAddress)})`;
+  walletButton.classList.add('connected');
+
+  try {
+    const balanceBigInt = await provider.getBalance(walletAddress);
+    const balanceETH = ethers.formatEther(balanceBigInt);
+    walletBalance.textContent = `Balance: ${parseFloat(balanceETH).toFixed(4)} ETH`;
+    walletBalance.style.opacity = '1';
+  } catch (err) {
+    walletBalance.textContent = 'Balance: N/A';
+    walletBalance.style.opacity = '1';
+  }
+}
+// === FIM Bloco 10 ===
+
+
+// === INÍCIO Bloco 11 - Funções ligar e desligar carteira ===
+async function ligarCarteira() {
+  if (!window.ethereum) {
+    alert('Por favor instala a MetaMask para ligar a tua carteira.');
+    return;
+  }
+  try {
+    const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddress = contas[0];
+    localStorage.setItem('walletAddress', walletAddress);
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await atualizarUIConexao(provider);
+
+    window.ethereum.on('accountsChanged', async (contasNovas) => {
+      if (contasNovas.length === 0) {
+        await desligarCarteira();
+      } else {
+        walletAddress = contasNovas[0];
+        localStorage.setItem('walletAddress', walletAddress);
+        await atualizarUIConexao(provider);
+      }
+    });
+
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload();
+    });
+
+  } catch (err) {
+    alert('Erro ao ligar a carteira. Tenta novamente.');
+    console.error('Erro ligarCarteira:', err);
+  }
+}
+
+async function desligarCarteira() {
+  walletAddress = null;
+  localStorage.removeItem('walletAddress');
+  walletButton.textContent = 'Connect Wallet';
+  walletButton.classList.remove('connected');
+  walletBalance.style.opacity = '0';
+  walletBalance.textContent = '';
+}
+// === FIM Bloco 11 ===
+
+
+// === INÍCIO Bloco 12 - Event listener do botão e persistência ===
+walletButton.addEventListener('click', async () => {
+  if (!walletAddress) {
+    await ligarCarteira();
+  } else {
+    await desligarCarteira();
+  }
+});
+
+window.addEventListener('load', async () => {
+  const enderecoGuardado = localStorage.getItem('walletAddress');
+  if (enderecoGuardado && window.ethereum) {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contasAtuais = await window.ethereum.request({ method: 'eth_accounts' });
+      if (contasAtuais.length > 0 && contasAtuais.includes(enderecoGuardado)) {
+        walletAddress = enderecoGuardado;
+        await atualizarUIConexao(provider);
+      } else {
+        localStorage.removeItem('walletAddress');
+      }
+    } catch (err) {
+      console.error('Erro ao restaurar ligação da carteira:', err);
+      localStorage.removeItem('walletAddress');
+    }
+  }
+});
+
 // main.js — Bloco 2
 
 // 🧱 Geometria base das paredes

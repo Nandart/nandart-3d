@@ -374,7 +374,7 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
 
-    const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
+  const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
   topo.position.set(0, altura / 2, 0);
   group.add(topo);
 
@@ -684,7 +684,6 @@ async function buyHandler(obra) {
 // main.js — Bloco 6
 
 // Referência ao botão "Buy" do modal (definido no Bloco 4)
-const botaoComprar = document.querySelector('#buy-art');
 
 botaoComprar.addEventListener('click', () => {
   if (!obraSelecionada) return;

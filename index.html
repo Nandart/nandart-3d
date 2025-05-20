@@ -9,11 +9,10 @@
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/src/styles/index.css">
 
-  <!-- Preload/Preconnect Optimised -->
-  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js" crossorigin>
-  <link rel="modulepreload" href="/src/main.js" crossorigin>
+  <!-- Preloads -->
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
+  <link rel="preload" href="/assets/icons/ajuda-flutuante.png" as="image">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -79,37 +78,18 @@
     <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Dynamic Script Loader -->
+  <!-- Menu Toggle Script -->
   <script>
     document.getElementById('menu-toggle').addEventListener('click', () => {
       const menu = document.getElementById('menu-dropdown');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
     });
-
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/src/main.js';
-        script.crossOrigin = 'anonymous';
-
-        script.onload = () => {
-          document.querySelector('.loading-screen').style.opacity = '0';
-          setTimeout(() => {
-            document.querySelector('.loading-screen').style.display = 'none';
-          }, 1000);
-        };
-
-        script.onerror = () => {
-          console.error('Failed to load main.js');
-        };
-
-        document.body.appendChild(script);
-      }, 300);
-    });
   </script>
 
-  <!-- Fallback for Non-Module Browsers -->
+  <!-- Main Script with Modules -->
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Fallback for Older Browsers -->
   <script nomodule>
     alert("Your browser does not support JavaScript modules. Please use a modern browser.");
     window.location.href = "https://www.google.com/chrome/";

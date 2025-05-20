@@ -471,7 +471,6 @@ renderer.domElement.addEventListener('pointerdown', e => {
 });
 
 // Dentro do Bloco 4, logo após criar o modal e inserir o botão "Buy":
-const botaoComprar = infoPanel.querySelector('#buy-art');
 
 botaoComprar.addEventListener('click', () => {
   if (!obraSelecionada) return;

@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
+import { obrasSuspensas } from './data/obras-suspensas.js';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

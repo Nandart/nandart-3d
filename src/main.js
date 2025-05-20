@@ -11,7 +11,7 @@ import { obrasSuspensas } from './data/obras-suspensas.js';
 // Verificação inicial do ambiente
 console.log("Inicializando galeria 3D...");
 console.log("THREE.js version:", THREE.REVISION);
-console.log("WebGL disponível:", THREE.WEBGL.isWebGLAvailable());
+//console.log("WebGL disponível:", THREE.WEBGL.isWebGLAvailable());
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

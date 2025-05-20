@@ -377,7 +377,10 @@ body.pagina-scrollavel {
   background-color: rgba(196, 181, 130, 0.3);
   color: #ffffff;
 }
-
+/* Saldo da carteira */
+#wallet-balance {
+  transition: opacity 0.4s ease;
+}
 /* Responsividade refinada */
 @media (max-width: 1200px) {
   .art-modal { width: 150px; padding: 12px; }
@@ -438,4 +441,7 @@ body.pagina-scrollavel {
 
 #wallet-button:active {
   transform: scale(0.97);
+}
+#wallet-balance {
+  transition: opacity 0.4s ease;
 }

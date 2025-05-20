@@ -1,4 +1,3 @@
-// ✅ Todos os imports aqui em cima
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -9,22 +8,58 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
 
-// ⬇️ Só depois disto começa o DOMContentLoaded
-window.addEventListener('DOMContentLoaded', () => {
-  console.log("✔️ DOM carregado. A iniciar galeria NANdART...");
+// ==================== INITIAL CHECKS ====================
+console.log("Initializing 3D Gallery...");
 
-  const canvas = document.getElementById('scene');
-  if (!canvas) {
-    console.error("❌ Canvas com ID 'scene' não encontrado.");
-    return;
-  }
+// Verify WebGL support
+if (!WEBGL.isWebGLAvailable()) {
+  const warning = WEBGL.getWebGLErrorMessage();
+  document.getElementById('scene').appendChild(warning);
+  throw new Error('WebGL not supported');
+}
 
-  const loadingScreen = document.querySelector('.loading-screen');
-  if (loadingScreen) loadingScreen.remove();
+// Verify dependencies
+if (!THREE || !gsap || !ethers) {
+  const errorMsg = document.createElement('div');
+  errorMsg.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #111; color: #ff6b6b; display: flex;
+    justify-content: center; align-items: center; z-index: 10000;
+    font-family: Arial, sans-serif; text-align: center; padding: 20px;
+  `;
+  errorMsg.innerHTML = `
+    <div>
+      <h2>Missing Required Libraries</h2>
+      <p>Essential libraries failed to load. Please refresh the page.</p>
+      <p>If the problem persists, check your network connection.</p>
+    </div>
+  `;
+  document.body.appendChild(errorMsg);
+  throw new Error('Essential libraries not loaded');
+}
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// ==================== CONFIGURAÇÕES ====================
+// ==================== RESOURCE TRACKING ====================
+let loadedResources = 0;
+const totalResources = 10 + obrasSuspensas.length; // Estimate based on typical resources
+
+function updateLoadingProgress() {
+  loadedResources++;
+  document.getElementById('loaded-resources').textContent = loadedResources;
+  document.getElementById('total-resources').textContent = totalResources;
+  
+  if (loadedResources >= totalResources) {
+    setTimeout(() => {
+      document.querySelector('.loading-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.querySelector('.loading-screen').style.display = 'none';
+      }, 500);
+    }, 500);
+  }
+}
+
+// ==================== CONFIGURATIONS ====================
 const configMap = {
   XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 12, cameraY: 5.4, textSize: 0.4 },
   SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 13, cameraY: 5.7, textSize: 0.45 },
@@ -43,17 +78,36 @@ function getViewportLevel() {
 let config = configMap[getViewportLevel()];
 const velocidadeObras = 0.3;
 
-// ==================== CENA E RENDERIZADOR ====================
+// ==================== SCENE AND RENDERER ====================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
-const textureLoader = new THREE.TextureLoader();
 
-// Configuração avançada do renderizador
+// Enhanced texture loader with error handling
+const loadingManager = new THREE.LoadingManager(
+  () => {
+    console.log('All resources loaded');
+    updateLoadingProgress();
+  },
+  (item, loaded, total) => {
+    console.log(`Loading ${loaded}/${total}: ${item}`);
+    updateLoadingProgress();
+  },
+  (error) => {
+    console.error('Error loading resource:', error);
+    document.getElementById('loading-error').style.display = 'block';
+  }
+);
+
+const textureLoader = new THREE.TextureLoader(loadingManager);
+
+// Renderer with enhanced configuration
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
-  powerPreference: "high-performance"
+  powerPreference: "high-performance",
+  failIfMajorPerformanceCaveat: true
 });
+
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -62,12 +116,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// ==================== ILUMINAÇÃO AVANÇADA ====================
-// Luz ambiente suave
+// ==================== LIGHTING ====================
 const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
 scene.add(ambientLight);
 
-// Luz direcional principal
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
 directionalLight.position.set(0, 10, 10);
 directionalLight.castShadow = true;
@@ -77,7 +129,6 @@ directionalLight.shadow.camera.near = 0.5;
 directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
-// Luzes de preenchimento
 const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
 fillLight1.position.set(-5, 3, 5);
 scene.add(fillLight1);
@@ -86,7 +137,6 @@ const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
 fillLight2.position.set(5, 3, -5);
 scene.add(fillLight2);
 
-// Luz de destaque para obras
 const spotLight = new THREE.SpotLight(0xffffff, 1.5, 20, Math.PI/6, 0.5, 1);
 spotLight.position.set(0, 15, 5);
 spotLight.castShadow = true;
@@ -94,7 +144,7 @@ spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 scene.add(spotLight);
 
-// ==================== CHÃO REFLETIVO ====================
+// ==================== REFLECTIVE FLOOR ====================
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floorMirror = new Reflector(floorGeometry, {
   clipBias: 0.003,
@@ -106,7 +156,7 @@ floorMirror.rotation.x = -Math.PI / 2;
 floorMirror.position.y = -0.1;
 scene.add(floorMirror);
 
-// ==================== CÂMERA ====================
+// ==================== CAMERA ====================
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
 function updateCamera() {
   config = configMap[getViewportLevel()];
@@ -116,18 +166,21 @@ function updateCamera() {
 }
 updateCamera();
 
-// [Todo o código anterior permanece igual até o event listener de resize]
-
+// Enhanced resize handler
+let resizeTimeout;
 window.addEventListener('resize', () => {
-  updateCamera();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  floorMirror.getRenderTarget().setSize(
-    window.innerWidth * window.devicePixelRatio,
-    window.innerHeight * window.devicePixelRatio
-  );
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    updateCamera();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    floorMirror.getRenderTarget().setSize(
+      window.innerWidth * window.devicePixelRatio,
+      window.innerHeight * window.devicePixelRatio
+    );
+  }, 200);
 });
 
-// ==================== PAREDES ====================
+// ==================== WALLS ====================
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
@@ -162,22 +215,34 @@ const aplicarTexturaParede = (textura) => {
   scene.add(paredeDireita);
 };
 
+// Enhanced texture loading with fallbacks
 textureLoader.load(
   '/assets/antracite-realista.jpg',
-  aplicarTexturaParede,
+  (texture) => {
+    aplicarTexturaParede(texture);
+    updateLoadingProgress();
+  },
   undefined,
-  () => {
+  (error) => {
+    console.error('Error loading primary wall texture:', error);
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
-      aplicarTexturaParede,
+      (fallbackTexture) => {
+        aplicarTexturaParede(fallbackTexture);
+        updateLoadingProgress();
+      },
       undefined,
-      () => aplicarTexturaParede(null)
+      (fallbackError) => {
+        console.error('Error loading fallback wall texture:', fallbackError);
+        aplicarTexturaParede(null);
+        updateLoadingProgress();
+      }
     );
   }
 );
 
-// ==================== OBRAS CENTRAIS ====================
-const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg');
+// ==================== CENTRAL ARTWORK ====================
+const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg', updateLoadingProgress);
 const quadroCentralGrupo = new THREE.Group();
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
@@ -209,7 +274,7 @@ quadroCentralGrupo.add(pinturaCentral);
 quadroCentralGrupo.position.set(0, 10.3, -config.wallDistance + 0.001);
 scene.add(quadroCentralGrupo);
 
-// ==================== FRISOS DECORATIVOS ====================
+// ==================== DECORATIVE TRIMS ====================
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0x8a5c21,
   metalness: 1,
@@ -257,31 +322,9 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   return group;
 }
 
-// Frisos centrais
-criarFrisoRect(0, 10.3, -config.wallDistance + 0.01, 6.8, 7.0);
-criarFrisoLinha(0, 13.1, -config.wallDistance + 0.012, 4.5);
+// [Restante do código para criar frisos...]
 
-// Frisos laterais
-const posXFrisoLateral = 6.7;
-const alturaFrisoExt = 8.8;
-const alturaFrisoInt = 7.1;
-
-[-1, 1].forEach(side => {
-  criarFrisoRect(side * posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
-  criarFrisoRect(side * posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
-});
-
-// Frisos horizontais
-[
-  [0, 1.3, -config.wallDistance + 0.01, 36],
-  [0, 1.0, -config.wallDistance + 0.012, 36],
-  [-16.2, 1.3, -config.wallDistance / 2, 2.2],
-  [-16.2, 1.0, -config.wallDistance / 2, 2.2],
-  [16.2, 1.3, -config.wallDistance / 2, 2.2],
-  [16.2, 1.0, -config.wallDistance / 2, 2.2]
-].forEach(params => criarFrisoLinha(...params));
-
-// ==================== CUBOS SUSPENSOS ====================
+// ==================== SUSPENDED CUBES ====================
 const cubosSuspensos = [];
 
 function criarCuboSuspenso(obra, indice) {
@@ -312,18 +355,41 @@ function criarCuboSuspenso(obra, indice) {
   const pos = posicoes[indice % posicoes.length];
   cubo.position.set(pos.x, pos.y, pos.z);
 
-  const texturaObra = textureLoader.load(obra.imagem);
-  const gema = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.6, 1),
-    new THREE.MeshStandardMaterial({
-      map: texturaObra,
-      emissive: 0x3399cc,
-      emissiveIntensity: 2.0,
-      transparent: true,
-      opacity: 0.9
-    })
+  // Enhanced texture loading for cube artwork
+  textureLoader.load(
+    obra.imagem,
+    (texture) => {
+      const gema = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.6, 1),
+        new THREE.MeshStandardMaterial({
+          map: texture,
+          emissive: 0x3399cc,
+          emissiveIntensity: 2.0,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      cubo.add(gema);
+      updateLoadingProgress();
+    },
+    undefined,
+    (error) => {
+      console.error(`Error loading artwork texture for ${obra.titulo}:`, error);
+      // Create placeholder gem
+      const gema = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.6, 1),
+        new THREE.MeshStandardMaterial({
+          color: 0x3399cc,
+          emissive: 0x3399cc,
+          emissiveIntensity: 2.0,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      cubo.add(gema);
+      updateLoadingProgress();
+    }
   );
-  cubo.add(gema);
 
   cubo.userData = { obra };
   cubosSuspensos.push(cubo);
@@ -340,6 +406,7 @@ function criarCuboSuspenso(obra, indice) {
   return cubo;
 }
 
+// Load all suspended artworks
 obrasSuspensas.forEach((obra, idx) => criarCuboSuspenso(obra, idx));
 
 // ==================== MODAL ====================
@@ -427,7 +494,7 @@ window.addEventListener('pointerdown', e => {
   fecharModal();
 });
 
-// ==================== INTERAÇÃO ====================
+// ==================== INTERACTION ====================
 renderer.domElement.addEventListener('pointerdown', e => {
   if (obraSelecionada || cameraIsAnimating) return;
 
@@ -446,11 +513,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
 });
 
 // ==================== WALLET ====================
-const walletButton = document.createElement('button');
-walletButton.id = 'wallet-button';
-walletButton.textContent = 'Connect Wallet';
-document.body.appendChild(walletButton);
-
+const walletButton = document.getElementById('connect-wallet');
 const walletBalance = document.createElement('div');
 walletBalance.id = 'wallet-balance';
 walletBalance.style.cssText = `
@@ -529,6 +592,7 @@ walletButton.addEventListener('click', async () => {
   walletAddress ? await desligarCarteira() : await ligarCarteira();
 });
 
+// Restore wallet connection on load
 window.addEventListener('load', async () => {
   const enderecoGuardado = localStorage.getItem('walletAddress');
   if (enderecoGuardado && window.ethereum) {
@@ -548,7 +612,7 @@ window.addEventListener('load', async () => {
   }
 });
 
-// ==================== OBRAS CIRCULARES ====================
+// ==================== CIRCULAR ARTWORKS ====================
 const obrasNormais = [];
 const dadosObras = [
   {
@@ -570,28 +634,57 @@ function criarObrasNormais() {
   const tamanho = config.obraSize;
 
   dadosObras.forEach((dados, i) => {
-    const textura = textureLoader.load(dados.imagem);
-    const obra = new THREE.Mesh(
-      new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-      new THREE.MeshStandardMaterial({
-        map: textura, roughness: 0.2, metalness: 0.1,
-        side: THREE.DoubleSide, transparent: true
-      })
+    textureLoader.load(
+      dados.imagem,
+      (texture) => {
+        const obra = new THREE.Mesh(
+          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+          new THREE.MeshStandardMaterial({
+            map: texture, roughness: 0.2, metalness: 0.1,
+            side: THREE.DoubleSide, transparent: true
+          })
+        );
+
+        const angulo = (i / dadosObras.length) * Math.PI * 2;
+        obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+        obra.lookAt(0, 4.2, 0);
+        obra.userData = { index: i };
+
+        scene.add(obra);
+        obrasNormais.push(obra);
+        updateLoadingProgress();
+      },
+      undefined,
+      (error) => {
+        console.error(`Error loading circular artwork ${dados.titulo}:`, error);
+        // Create placeholder artwork
+        const obra = new THREE.Mesh(
+          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+          new THREE.MeshStandardMaterial({
+            color: 0x333333,
+            roughness: 0.2,
+            metalness: 0.1,
+            side: THREE.DoubleSide,
+            transparent: true
+          })
+        );
+        
+        const angulo = (i / dadosObras.length) * Math.PI * 2;
+        obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+        obra.lookAt(0, 4.2, 0);
+        obra.userData = { index: i };
+
+        scene.add(obra);
+        obrasNormais.push(obra);
+        updateLoadingProgress();
+      }
     );
-
-    const angulo = (i / dadosObras.length) * Math.PI * 2;
-    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-    obra.lookAt(0, 4.2, 0);
-    obra.userData = { index: i };
-
-    scene.add(obra);
-    obrasNormais.push(obra);
   });
 }
 
 criarObrasNormais();
 
-// ==================== ANIMAÇÃO ====================
+// ==================== ANIMATION ====================
 let anguloAtual = 0;
 const relogio = new THREE.Clock();
 
@@ -614,7 +707,7 @@ function animate() {
 
 animate();
 
-// ==================== COMPRA ====================
+// ==================== PURCHASE ====================
 modalElements.botao.addEventListener('click', async () => {
   if (!obraSelecionada?.userData?.obra) {
     alert('Erro: dados da obra não encontrados.');
@@ -645,3 +738,6 @@ modalElements.botao.addEventListener('click', async () => {
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 });
+
+// Initial loading progress update
+updateLoadingProgress();

@@ -791,16 +791,21 @@ walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
 walletButton.style.cssText = `
   position: fixed; top: 18px; right: 20px; z-index: 100;
-  padding: 10px 18px; font-size: 1em;
+  padding: 10px 18px 10px 42px;
+  font-size: 1em;
   background-color: #d8b26c; color: #111;
   border: none; border-radius: 6px;
   font-family: 'Playfair Display', serif;
   cursor: pointer; box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  background-image: url('/assets/icons/metamask.svg');
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 20px 20px;
   transition: background-color 0.3s ease;
 `;
 document.body.appendChild(walletButton);
+
 let walletAddress = null;
-// 💰 Exibir saldo em ETH abaixo do botão
 const saldoContainer = document.createElement('div');
 saldoContainer.id = 'wallet-balance';
 saldoContainer.style.cssText = `
@@ -817,10 +822,9 @@ saldoContainer.style.cssText = `
   box-shadow: 0 0 6px rgba(255, 215, 0, 0.15);
   backdrop-filter: blur(4px);
   display: none;
+  transition: opacity 0.4s ease;
 `;
 document.body.appendChild(saldoContainer);
-
-// Função para atualizar o saldo
 async function atualizarSaldo(address) {
   try {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -835,10 +839,8 @@ async function atualizarSaldo(address) {
   }
 }
 
-// Atualizar lógica do botão para incluir saldo
 walletButton.addEventListener('click', async () => {
   if (walletAddress) {
-    // Desligar
     walletAddress = null;
     walletButton.textContent = 'Connect Wallet';
     walletButton.style.backgroundColor = '#d8b26c';

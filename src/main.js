@@ -8,9 +8,14 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
 
+// Verificação inicial do ambiente
+console.log("Inicializando galeria 3D...");
+console.log("THREE.js version:", THREE.REVISION);
+console.log("WebGL disponível:", THREE.WEBGL.isWebGLAvailable());
+
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// 📱 Sistema de responsividade refinado (XS, SM, MD, LG)
+// ==================== SISTEMA DE RESPONSIVIDADE ====================
 function getViewportLevel() {
   const largura = window.innerWidth;
   if (largura < 480) return 'XS';
@@ -26,17 +31,15 @@ const configMap = {
   LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
 };
 
-// Declaração da velocidade do movimento circular
 const velocidadeObras = 0.3;
-
 let config = configMap[getViewportLevel()];
 
-// 🎨 Cena e carregador de texturas
+// ==================== CENA E RENDERIZADOR ====================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 const textureLoader = new THREE.TextureLoader();
 
-// 🎥 Câmara adaptativa
+// Configuração da câmera
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
@@ -45,32 +48,32 @@ function updateCamera() {
   camera.position.set(0, config.cameraY + 6.5, config.cameraZ + 15.2);
   camera.lookAt(0, 7.3, -config.wallDistance + 0.8);
   camera.updateProjectionMatrix();
+  console.log("Câmera atualizada para viewport:", getViewportLevel());
 }
 updateCamera();
-// 🌞 Iluminação geral da galeria (crítica para visualização)
-const luzAmbiente = new THREE.AmbientLight(0xffffff, 2.2); // luz suave e difusa
-scene.add(luzAmbiente);
 
-const luzDirecional = new THREE.DirectionalLight(0xffffff, 3.5); // luz principal
-luzDirecional.position.set(5, 10, 5);
-luzDirecional.castShadow = true;
-scene.add(luzDirecional);
+// Configuração do renderizador
+const renderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('scene'), 
+  antialias: true,
+  powerPreference: "high-performance"
+});
 
-// 🖥️ Renderizador com qualidade cinematográfica
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
+console.log("Renderizador configurado com sucesso");
 
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  console.log("Janela redimensionada");
 });
 
-// === INÍCIO Bloco 9 - Botão Connect Wallet e painel saldo ===
+// ==================== SISTEMA DE CARTEIRA ====================
 const walletButton = document.createElement('button');
 walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
@@ -89,10 +92,8 @@ walletBalance.style.opacity = '0';
 walletBalance.style.transition = 'opacity 0.4s ease';
 walletBalance.textContent = '';
 document.body.appendChild(walletBalance);
-// === FIM Bloco 9 ===
 
-// === INÍCIO Bloco 10 - Variáveis e funções utilitárias Web3 ===
-let walletAddress = null; // Endereço da carteira ligada
+let walletAddress = null;
 
 function abreviarEndereco(endereco) {
   if (!endereco) return '';
@@ -117,24 +118,25 @@ async function atualizarUIConexao() {
     const balanceETH = ethers.formatEther(balanceBigInt);
     walletBalance.textContent = `Balance: ${parseFloat(balanceETH).toFixed(4)} ETH`;
     walletBalance.style.opacity = '1';
-  } catch {
+  } catch (err) {
+    console.error("Erro ao obter saldo:", err);
     walletBalance.textContent = 'Balance: N/A';
     walletBalance.style.opacity = '1';
   }
 }
-// === FIM Bloco 10 ===
 
-// === INÍCIO Bloco 11 - Funções ligar e desligar carteira ===
 async function ligarCarteira() {
   if (!window.ethereum) {
     alert('Por favor instala a MetaMask para ligar a tua carteira.');
     return;
   }
+  
   try {
     const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
     walletAddress = contas[0];
     localStorage.setItem('walletAddress', walletAddress);
     await atualizarUIConexao();
+    console.log("Carteira conectada:", abreviarEndereco(walletAddress));
 
     window.ethereum.on('accountsChanged', async (contasNovas) => {
       if (contasNovas.length === 0) {
@@ -151,22 +153,18 @@ async function ligarCarteira() {
     });
 
   } catch (err) {
+    console.error('Erro ao ligar carteira:', err);
     alert('Erro ao ligar a carteira. Tenta novamente.');
-    console.error('Erro ligarCarteira:', err);
   }
 }
 
 async function desligarCarteira() {
   walletAddress = null;
   localStorage.removeItem('walletAddress');
-  walletButton.textContent = 'Connect Wallet';
-  walletButton.classList.remove('connected');
-  walletBalance.style.opacity = '0';
-  walletBalance.textContent = '';
+  await atualizarUIConexao();
+  console.log("Carteira desconectada");
 }
-// === FIM Bloco 11 ===
 
-// === INÍCIO Bloco 12 - Event listener do botão e persistência ===
 walletButton.addEventListener('click', async () => {
   if (!walletAddress) {
     await ligarCarteira();
@@ -192,12 +190,12 @@ window.addEventListener('load', async () => {
     }
   }
 });
-// 🧱 Geometria base das paredes
+
+// ==================== PAREDES E ESTRUTURA ====================
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
-// Função utilitária para aplicar a textura antracite às três paredes
-const aplicarTexturaParede = textura => {
+const aplicarTexturaParede = (textura) => {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura,
     color: 0xffffff,
@@ -208,20 +206,20 @@ const aplicarTexturaParede = textura => {
     side: THREE.FrontSide
   });
 
-  // 🧱 Parede de fundo (central)
+  // Parede de fundo
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
   paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // 🧱 Parede lateral esquerda
+  // Parede lateral esquerda
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // 🧱 Parede lateral direita
+  // Parede lateral direita
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
@@ -229,40 +227,45 @@ const aplicarTexturaParede = textura => {
   scene.add(paredeDireita);
 };
 
-// 🌌 Carregamento da textura antracite com fallback remoto
+// Carregamento da textura com fallback e logging
 textureLoader.load(
   '/assets/antracite-realista.jpg',
-  texturaLocal => {
-    console.log('✅ Textura antracite local carregada.');
+  (texturaLocal) => {
+    console.log("✅ Textura antracite local carregada");
     aplicarTexturaParede(texturaLocal);
   },
   undefined,
   () => {
-    console.warn('⚠️ Falha ao carregar textura local. A usar versão remota...');
+    console.warn("⚠️ Textura local não encontrada, tentando remota...");
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
-      texturaRemota => aplicarTexturaParede(texturaRemota),
+      (texturaRemota) => {
+        console.log("✅ Textura antracite remota carregada");
+        aplicarTexturaParede(texturaRemota);
+      },
       undefined,
-      err => console.error('❌ Erro ao carregar textura remota:', err)
+      (err) => {
+        console.error("❌ Falha ao carregar textura:", err);
+        // Fallback para cor sólida
+        aplicarTexturaParede(new THREE.Texture());
+      }
     );
   }
 );
 
-// 🖼️ Textura da obra central (com fallback em caso de erro)
+// ==================== OBRA CENTRAL ====================
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
+  () => console.log("✅ Textura da obra central carregada"),
   undefined,
-  undefined,
-  err => console.error('Erro a carregar obra-central.jpg:', err)
+  (err) => console.error("❌ Erro ao carregar obra central:", err)
 );
 
 const quadroCentralGrupo = new THREE.Group();
-
-// 📐 Dimensões reais da pintura sem moldura
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
 
-// 🟫 Moldura escura saliente com profundidade realista
+// Moldura
 const molduraCentral = new THREE.Mesh(
   new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
   new THREE.MeshStandardMaterial({
@@ -276,7 +279,7 @@ const molduraCentral = new THREE.Mesh(
 molduraCentral.position.z = -0.1;
 quadroCentralGrupo.add(molduraCentral);
 
-// 🖼️ Pintura central com leve metalização
+// Pintura
 const pinturaCentral = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
@@ -288,15 +291,10 @@ const pinturaCentral = new THREE.Mesh(
 pinturaCentral.position.z = 0.01;
 quadroCentralGrupo.add(pinturaCentral);
 
-// 📌 Posicionamento final da obra central
-quadroCentralGrupo.position.set(
-  0,
-  10.3,
-  -config.wallDistance + 0.001
-);
+quadroCentralGrupo.position.set(0, 10.3, -config.wallDistance + 0.001);
 scene.add(quadroCentralGrupo);
 
-// 🖼️ Dados das obras nas paredes laterais
+// ==================== OBRAS LATERAIS ====================
 const obrasParede = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
@@ -317,16 +315,16 @@ const obrasParede = [
 obrasParede.forEach(({ src, x, y, z, rotY }) => {
   const textura = textureLoader.load(
     src,
+    () => console.log(`✅ Textura ${src} carregada`),
     undefined,
-    undefined,
-    err => console.error(`Erro ao carregar ${src}:`, err)
+    (err) => console.error(`❌ Erro ao carregar ${src}:`, err)
   );
 
   const largura = 4.4;
   const altura = 6.4;
-
   const grupoQuadro = new THREE.Group();
 
+  // Moldura
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
     new THREE.MeshStandardMaterial({
@@ -340,6 +338,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   moldura.position.z = -0.1;
   grupoQuadro.add(moldura);
 
+  // Quadro
   const quadro = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -357,7 +356,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   scene.add(grupoQuadro);
 });
 
-// 🎨 Material dourado vivo fiel à imagem "dourado para friso.png"
+// ==================== FRISOS DECORATIVOS ====================
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0x8a5c21,
   metalness: 1,
@@ -404,53 +403,38 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   return group;
 }
 
-// 🟡 Friso central redesenhado com respiro visual
-criarFrisoRect(
-  0,               // X
-  10.3,            // Y (centro vertical do friso)
-  -config.wallDistance + 0.01, // Z (junto à parede central)
-  6.8,             // Largura
-  7.0              // Altura
-);
+// Frisos centrais
+criarFrisoRect(0, 10.3, -config.wallDistance + 0.01, 6.8, 7.0);
+criarFrisoLinha(0, 13.1, -config.wallDistance + 0.012, 4.5);
 
-// Friso interior horizontal acima do quadro central
-criarFrisoLinha(
-  0,
-  13.1,
-  -config.wallDistance + 0.012,
-  4.5
-);
-
-// 🟡 Frisos duplos verticais laterais com estrutura dupla
+// Frisos laterais
 const posXFrisoLateral = 6.7;
 const alturaFrisoExt = 8.8;
 const alturaFrisoInt = 7.1;
 
-// Lado esquerdo
+// Esquerda
 criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
 criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// Lado direito
+// Direita
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// 🟡 Frisos horizontais inferiores contínuos nas 3 paredes
-criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);     // fundo superior
-criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);    // fundo inferior
-criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. sup.
-criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
-criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
-criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
-// main.js — Bloco 3
+// Frisos horizontais
+criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);
+criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);
+criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);
+criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);
+criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);
+criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);
 
-// Lista global para armazenar os cubos suspensos com as obras
+// ==================== OBRAS SUSPENSAS ====================
 const cubosSuspensos = [];
 
-// Função para criar o cubo suspenso com a obra dentro (gema + textura)
 function criarCuboSuspenso(obra, indice) {
   const tamanhoCubo = 1.5;
 
-  // Cubo externo translúcido e etéreo
+  // Material do cubo
   const materialCubo = new THREE.MeshPhysicalMaterial({
     color: 0x222222,
     transparent: true,
@@ -467,7 +451,7 @@ function criarCuboSuspenso(obra, indice) {
   cubo.castShadow = true;
   cubo.receiveShadow = true;
 
-  // Posicionamento fixo dos cubos suspensos — 4 posições base
+  // Posicionamento
   const posicoesCubos = [
     { x: -5, y: 5, z: 0 },
     { x: 5, y: 5, z: 0 },
@@ -477,8 +461,13 @@ function criarCuboSuspenso(obra, indice) {
   const pos = posicoesCubos[indice % posicoesCubos.length];
   cubo.position.set(pos.x, pos.y, pos.z);
 
-  // Criar gema/textura da obra dentro do cubo
-  const texturaObra = textureLoader.load(obra.imagem);
+  // Gema interna
+  const texturaObra = textureLoader.load(
+    obra.imagem,
+    () => console.log(`✅ Textura da obra ${obra.titulo} carregada`),
+    undefined,
+    (err) => console.error(`❌ Erro ao carregar obra ${obra.titulo}:`, err)
+  );
 
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.6, 1),
@@ -493,17 +482,13 @@ function criarCuboSuspenso(obra, indice) {
   gema.position.set(0, 0, 0);
   cubo.add(gema);
 
-  // Guardar dados da obra no userData para referência futura
+  // Dados da obra
   cubo.userData = { obra };
-
-  // Adicionar cubo à cena e ao array global
-  scene.add(cubo);
   cubosSuspensos.push(cubo);
+  scene.add(cubo);
 
-  // Interação - clicar no cubo
-  cubo.cursor = 'pointer'; // Indica interatividade
-
-  // Usar Raycaster para detectar clique - este código será integrado na função de clique global (ver bloco 4)
+  // Interatividade
+  cubo.cursor = 'pointer';
   cubo.onClick = () => {
     if (!walletAddress) {
       alert('A pré-venda desta obra está disponível. Liga a tua carteira para adquirir.');
@@ -515,17 +500,16 @@ function criarCuboSuspenso(obra, indice) {
   return cubo;
 }
 
-// Criar cubos suspensos para todas as obras importadas
+// Criar cubos suspensos
 obrasSuspensas.forEach((obra, idx) => {
   criarCuboSuspenso(obra, idx);
 });
-// main.js — Bloco 4
 
-// Variável para controlar a obra que está aberta no modal
+// ==================== MODAL DE OBRAS ====================
 let obraSelecionada = null;
 let cameraIsAnimating = false;
 
-// Criar overlay desfocado para o fundo ao abrir modal
+// Overlay
 const overlay = document.createElement('div');
 overlay.style.cssText = `
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -535,7 +519,7 @@ overlay.style.cssText = `
 `;
 document.body.appendChild(overlay);
 
-// Painel informativo translúcido (modal)
+// Painel de informações
 const infoPanel = document.createElement('div');
 infoPanel.style.cssText = `
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
@@ -567,7 +551,7 @@ infoPanel.innerHTML = `
 `;
 document.body.appendChild(infoPanel);
 
-// Referências aos elementos do modal
+// Elementos do modal
 const modalTitulo = infoPanel.querySelector('#art-title');
 const modalArtista = infoPanel.querySelector('#art-artist');
 const modalAno = infoPanel.querySelector('#art-year');
@@ -575,9 +559,8 @@ const modalDescricao = infoPanel.querySelector('#art-description');
 const modalPreco = infoPanel.querySelector('#art-price');
 const botaoComprar = infoPanel.querySelector('#buy-art');
 
-// Função para abrir o modal com dados e animações
 function abrirModal(dados, cubo) {
-  if (obraSelecionada) return; // Evitar abrir múltiplos modais
+  if (obraSelecionada) return;
 
   obraSelecionada = cubo;
   overlay.style.display = 'block';
@@ -589,7 +572,7 @@ function abrirModal(dados, cubo) {
   modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalPreco.textContent = `${dados.preco} ETH`;
 
-  // Animações para destacar a obra no espaço
+  // Animações
   gsap.to(cubo.scale, { x: 2, y: 2, z: 2, duration: 0.8, ease: 'power2.out' });
   gsap.to(cubo.position, { x: 0, y: 10.5, z: 0, duration: 0.9, ease: 'power2.inOut' });
   gsap.to(camera.position, { x: 0, y: 10.5, z: 5.5, duration: 1.1, ease: 'power2.inOut' });
@@ -598,13 +581,13 @@ function abrirModal(dados, cubo) {
   setTimeout(() => { cameraIsAnimating = false; }, 1200);
 }
 
-// Fechar modal ao clicar fora do painel
-window.addEventListener('pointerdown', e => {
+// Fechar modal
+window.addEventListener('pointerdown', (e) => {
   if (!obraSelecionada || cameraIsAnimating) return;
   if (!infoPanel.contains(e.target)) {
     gsap.to(obraSelecionada.scale, { x: 1, y: 1, z: 1, duration: 0.6 });
     gsap.to(obraSelecionada.position, {
-      y: 5, duration: 0.6, // voltar à posição original (y = 5 dos cubos)
+      y: 5, duration: 0.6,
       onComplete: () => {
         overlay.style.display = 'none';
         infoPanel.style.display = 'none';
@@ -621,8 +604,8 @@ window.addEventListener('pointerdown', e => {
   }
 });
 
-// Detectar clique nos cubos suspensos usando raycaster
-renderer.domElement.addEventListener('pointerdown', e => {
+// Detecção de clique nas obras
+renderer.domElement.addEventListener('pointerdown', (e) => {
   if (obraSelecionada || cameraIsAnimating) return;
 
   const mouse = new THREE.Vector2(
@@ -633,9 +616,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // Obter interseções com cubos suspensos
   const intersects = raycaster.intersectObjects(cubosSuspensos);
-
   if (intersects.length > 0) {
     const cuboClicado = intersects[0].object;
     if (cuboClicado.onClick) {
@@ -644,71 +625,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   }
 });
 
-// Evento clique no botão "Buy" no modal (deve estar implementado no Bloco 5)
-botaoComprar.addEventListener('click', () => {
-  if (!obraSelecionada) return;
-  const obra = obraSelecionada.userData.obra;
-  buyHandler(obra); // Função de compra que será implementada (Bloco 5)
-});
-// main.js — Bloco 5
-
-async function buyHandler(obra) {
-  if (!window.ethereum) {
-    alert('Instala a MetaMask para poder adquirir esta obra.');
-    return;
-  }
-
-  try {
-    // Pedir permissões para ligar carteira
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-
-    // Valor em ETH convertido para Wei
-    const valorETH = ethers.parseEther(obra.preco);
-
-    // Endereço da galeria para receção do pagamento
-    const enderecoGaleria = '0xAbCdEf1234567890abcdef1234567890ABcDef12'; // Substituir pelo endereço correto
-
-    // Criar e enviar transação
-    const tx = await signer.sendTransaction({
-      to: enderecoGaleria,
-      value: valorETH
-    });
-
-    alert(`Transação enviada!\nHash: ${tx.hash}`);
-    await tx.wait();
-
-    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
-
-    // Atualizar UI ou estado local após compra — opcional
-    // Poderá adicionar lógica para remover obra do cubo, alterar estado, etc.
-
-  } catch (err) {
-    console.error('Erro ao comprar a obra:', err);
-    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
-  }
-}
-// main.js — Bloco 6
-
-// Referência ao botão "Buy" do modal (definido no Bloco 4)
-
-botaoComprar.addEventListener('click', () => {
-  if (!obraSelecionada) return;
-
-  // Dados da obra selecionada (armazenados no cubo)
-  const dados = obraSelecionada.userData?.obra || null;
-  if (!dados) {
-    alert('Erro: dados da obra não encontrados.');
-    return;
-  }
-
-  // Disparar função de compra
-  buyHandler(dados);
-});
-// main.js — Bloco 7
-
-// Lista global para obras normais e seus dados
+// ==================== OBRAS NORMAIS ====================
 const obrasNormais = [];
 const dadosObras = [
   {
@@ -734,17 +651,20 @@ const dadosObras = [
     descricao: 'Descrição da Obra 3.',
     preco: '0.45',
     imagem: '/assets/obras/obra3.jpg'
-  },
-  // Acrescenta mais obras conforme necessário
+  }
 ];
 
-// Criar obras normais e posicioná-las em círculo
 function criarObrasNormais() {
   const raio = config.circleRadius;
   const tamanho = config.obraSize;
 
   dadosObras.forEach((dados, i) => {
-    const textura = textureLoader.load(dados.imagem);
+    const textura = textureLoader.load(
+      dados.imagem,
+      () => console.log(`✅ Textura ${dados.imagem} carregada`),
+      undefined,
+      (err) => console.error(`❌ Erro ao carregar ${dados.imagem}:`, err)
+    );
 
     const obraMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
@@ -757,7 +677,6 @@ function criarObrasNormais() {
       })
     );
 
-    // Posição circular inicial
     const angulo = (i / dadosObras.length) * Math.PI * 2;
     obraMesh.position.set(
       Math.cos(angulo) * raio,
@@ -765,8 +684,6 @@ function criarObrasNormais() {
       Math.sin(angulo) * raio
     );
     obraMesh.lookAt(0, 4.2, 0);
-
-    // Guardar índice para referência nos eventos
     obraMesh.userData = { index: i };
 
     scene.add(obraMesh);
@@ -776,12 +693,11 @@ function criarObrasNormais() {
 
 criarObrasNormais();
 
+// ==================== ANIMAÇÃO DAS OBRAS ====================
 let anguloAtual = 0;
 
-// Animação das obras normais em círculo
 function animarObrasCirculares(delta) {
   const velocidade = velocidadeObras;
-
   anguloAtual += velocidade * delta;
 
   const raio = config.circleRadius;
@@ -798,8 +714,8 @@ function animarObrasCirculares(delta) {
   });
 }
 
-// Detectar clique nas obras normais (pode substituir ou juntar ao evento do cubo suspenso)
-renderer.domElement.addEventListener('pointerdown', e => {
+// Detecção de clique nas obras normais
+renderer.domElement.addEventListener('pointerdown', (e) => {
   if (obraSelecionada || cameraIsAnimating) return;
 
   const mouse = new THREE.Vector2(
@@ -817,22 +733,63 @@ renderer.domElement.addEventListener('pointerdown', e => {
     abrirModal(dados, obra);
   }
 });
-// main.js — Bloco 8
 
-// Relógio para calcular delta time
+// ==================== FUNÇÃO DE COMPRA ====================
+async function buyHandler(obra) {
+  if (!window.ethereum) {
+    alert('Instala a MetaMask para poder adquirir esta obra.');
+    return;
+  }
+
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    const valorETH = ethers.parseEther(obra.preco);
+    const enderecoGaleria = '0xAbCdEf1234567890abcdef1234567890ABcDef12'; // Substituir pelo endereço correto
+
+    const tx = await signer.sendTransaction({
+      to: enderecoGaleria,
+      value: valorETH
+    });
+
+    alert(`Transação enviada!\nHash: ${tx.hash}`);
+    await tx.wait();
+    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
+
+  } catch (err) {
+    console.error('Erro ao comprar a obra:', err);
+    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
+  }
+}
+
+// Evento de compra
+botaoComprar.addEventListener('click', () => {
+  if (!obraSelecionada) return;
+  const dados = obraSelecionada.userData?.obra || null;
+  if (!dados) {
+    alert('Erro: dados da obra não encontrados.');
+    return;
+  }
+  buyHandler(dados);
+});
+
+// ==================== LOOP DE ANIMAÇÃO ====================
 const relogio = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
-
   const delta = relogio.getDelta();
-
-  // Animar obras normais em círculo
   animarObrasCirculares(delta);
-
-  // Aqui podes adicionar outras animações ou atualizações futuras
-
   renderer.render(scene, camera);
 }
 
-animate();
+// Iniciar animação quando tudo estiver carregado
+window.addEventListener('load', () => {
+  console.log("Todos os recursos carregados, iniciando animação...");
+  animate();
+});
+
+// Verificação final
+console.log("Configuração inicial concluída");

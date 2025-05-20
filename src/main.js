@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
@@ -57,6 +57,54 @@ window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// 🔗 Botão Connect Wallet + Disconnect
+const botaoConectar = document.getElementById('connect-wallet');
+
+async function conectarCarteira() {
+  if (!window.ethereum) {
+    alert('Instala a MetaMask ou outra carteira Web3 para interagir com a galeria.');
+    return;
+  }
+
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    const signer = await provider.getSigner();
+    const endereco = await signer.getAddress();
+    const enderecoResumido = endereco.slice(0, 6) + '...' + endereco.slice(-4);
+
+    botaoConectar.textContent = `${enderecoResumido} | Disconnect`;
+    botaoConectar.dataset.connected = 'true';
+  } catch (err) {
+    console.error('Erro ao conectar carteira:', err);
+    alert('Ocorreu um erro ao tentar conectar a carteira.');
+  }
+}
+
+botaoConectar?.addEventListener('click', () => {
+  if (botaoConectar.dataset.connected === 'true') {
+    botaoConectar.textContent = 'Connect Wallet';
+    botaoConectar.dataset.connected = 'false';
+  } else {
+    conectarCarteira();
+  }
+});
+
+async function verificarLigacaoInicial() {
+  if (typeof window.ethereum !== 'undefined') {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const contas = await provider.listAccounts();
+
+    if (contas.length > 0) {
+      const endereco = contas[0];
+      const enderecoResumido = endereco.slice(0, 6) + '...' + endereco.slice(-4);
+      botaoConectar.textContent = `${enderecoResumido} | Disconnect`;
+      botaoConectar.dataset.connected = 'true';
+    }
+  }
+}
+verificarLigacaoInicial();
 // 💡 Iluminação ambiente triplicada (sem afetar obras ou imagens)
 const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 1.4);
 const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 1.4);
@@ -130,6 +178,7 @@ const frisoChao = new THREE.Mesh(
 );
 frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
 scene.add(frisoChao);
+
 // 🎨 Material dourado vivo fiel à imagem "dourado para friso.png"
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0x8a5c21, // #8a5c21
@@ -178,7 +227,6 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   scene.add(group);
   return group;
 }
-
 // 🟡 Friso central redesenhado com respiro visual
 criarFrisoRect(
   0,               // X
@@ -216,6 +264,7 @@ criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. su
 criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
 criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
 criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
+
 // 🧱 Geometria base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
@@ -296,7 +345,7 @@ const molduraCentral = new THREE.Mesh(
     emissiveIntensity: 0.15
   })
 );
-molduraCentral.position.z = -0.1; // ligeiro relevo para destacar
+molduraCentral.position.z = -0.1;
 quadroCentralGrupo.add(molduraCentral);
 
 // 🖼️ Pintura central com leve metalização
@@ -308,22 +357,23 @@ const pinturaCentral = new THREE.Mesh(
     metalness: 0.1
   })
 );
-pinturaCentral.position.z = 0.01; // camada frontal à moldura
+pinturaCentral.position.z = 0.01;
 quadroCentralGrupo.add(pinturaCentral);
 
 // 📌 Posicionamento final da obra central
 quadroCentralGrupo.position.set(
   0,                     // X — centro horizontal
-  10.3,                  // Y — centrado com o friso principal
+  10.3,                  // Y — alinhado com o friso principal
   -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
 );
 scene.add(quadroCentralGrupo);
+
 // 🖼️ Dados das obras nas paredes laterais
 const obrasParede = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -14.48,
-    y: 11.6, // Altura ajustada para centralização
+    y: 11.6,
     z: -config.wallDistance / 2 + 0.01,
     rotY: Math.PI / 2
   },
@@ -341,7 +391,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
     src,
     undefined,
     undefined,
-    err => console.error(Erro ao carregar ${src}:, err)
+    err => console.error(`Erro ao carregar ${src}:`, err)
   );
 
   const largura = 4.4;
@@ -559,8 +609,7 @@ scene.traverse(obj => {
       ease: 'sine.inOut'
     });
   }
-}); // ✅ aqui sim, fecha a função traverse
-
+});
 // 🎯 Interação com obras suspensas e modal informativo moderno
 
 let obraSelecionada = null;
@@ -570,22 +619,22 @@ let cameraIsAnimating = false;
 
 // Criar overlay de fundo desfocado
 const overlay = document.createElement('div');
-overlay.style.cssText = 
+overlay.style.cssText = `
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   backdrop-filter: blur(6px); z-index: 50; display: none;
-;
+`;
 document.body.appendChild(overlay);
 
 // Criar painel informativo translúcido
 const infoPanel = document.createElement('div');
-infoPanel.style.cssText = 
+infoPanel.style.cssText = `
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
   margin-top: calc(260px + 10px); padding: 20px;
   background: rgba(255,255,255,0.07); backdrop-filter: blur(4px);
   border-radius: 12px; color: #fffbe6; font-family: Georgia, serif;
   text-align: center; z-index: 60; display: none;
-;
-infoPanel.innerHTML = 
+`;
+infoPanel.innerHTML = `
   <div id="art-title" style="font-size: 1.6em; font-weight: bold;"></div>
   <div id="art-artist" style="margin-top: 6px;"></div>
   <div id="art-year" style="margin-top: 2px;"></div>
@@ -598,7 +647,7 @@ infoPanel.innerHTML =
     font-size: 1em; cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
   ">Buy</button>
-;
+`;
 document.body.appendChild(infoPanel);
 
 // Referências aos elementos
@@ -621,7 +670,7 @@ function abrirModal(dados, obra) {
   modalArtista.textContent = dados.artista;
   modalAno.textContent = dados.ano;
   modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
-  modalPreco.textContent = ${dados.preco} ETH;
+  modalPreco.textContent = `${dados.preco} ETH`;
 
   // Centralizar obra visualmente (centro vertical e horizontal)
   gsap.to(obra.scale, { x: 2, y: 2, duration: 0.8, ease: 'power2.out' });
@@ -652,7 +701,6 @@ function abrirModal(dados, obra) {
   cameraIsAnimating = true;
   setTimeout(() => { cameraIsAnimating = false; }, 1200);
 }
-
 // Fechar modal e restaurar tudo
 window.addEventListener('pointerdown', e => {
   if (!obraSelecionada || cameraIsAnimating) return;
@@ -685,7 +733,6 @@ window.addEventListener('pointerdown', e => {
     });
   }
 });
-
 // Detectar clique numa obra
 renderer.domElement.addEventListener('pointerdown', e => {
   if (obraSelecionada || cameraIsAnimating) return;
@@ -705,7 +752,6 @@ renderer.domElement.addEventListener('pointerdown', e => {
     abrirModal(dados, obra);
   }
 });
-
 // Compra real com ethers.js
 async function buyHandler(dados) {
   if (!window.ethereum) {
@@ -724,7 +770,7 @@ async function buyHandler(dados) {
       value: valorETH
     });
 
-    alert(Transação enviada!\nHash: ${tx.hash});
+    alert(`Transação enviada!\nHash: ${tx.hash}`);
     await tx.wait();
     alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
   } catch (err) {
@@ -732,7 +778,6 @@ async function buyHandler(dados) {
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 }
-
 // Evento de clique no botão "Buy"
 botaoComprar.addEventListener('click', () => {
   if (obraSelecionada) {
@@ -741,7 +786,47 @@ botaoComprar.addEventListener('click', () => {
     buyHandler(dados);
   }
 });
+// 🌐 Botão "Connect Wallet" com ligação e desconexão via MetaMask
+const walletButton = document.createElement('button');
+walletButton.id = 'wallet-button';
+walletButton.textContent = 'Connect Wallet';
+walletButton.style.cssText = `
+  position: fixed; top: 18px; right: 20px; z-index: 100;
+  padding: 10px 18px; font-size: 1em;
+  background-color: #d8b26c; color: #111;
+  border: none; border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer; box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  transition: background-color 0.3s ease;
+`;
+document.body.appendChild(walletButton);
 
+let walletAddress = null;
+
+walletButton.addEventListener('click', async () => {
+  if (walletAddress) {
+    // Desligar
+    walletAddress = null;
+    walletButton.textContent = 'Connect Wallet';
+    walletButton.style.backgroundColor = '#d8b26c';
+    return;
+  }
+
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      walletAddress = accounts[0];
+      const abreviado = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+      walletButton.textContent = abreviado;
+      walletButton.style.backgroundColor = '#bca05c';
+    } catch (err) {
+      console.error('Erro ao ligar à carteira:', err);
+      alert('Não foi possível ligar à carteira.');
+    }
+  } else {
+    alert('MetaMask não está instalada. Instala para usar esta funcionalidade.');
+  }
+});
 // 🚀 Animação contínua com controlo de velocidade e reflexos suaves
 function animate() {
   requestAnimationFrame(animate);
@@ -774,4 +859,61 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-animate();  
+animate();
+// 🌐 Botão "Connect Wallet" com ligação e desconexão via MetaMask
+const walletButton = document.createElement('button');
+walletButton.id = 'wallet-button';
+walletButton.textContent = 'Connect Wallet';
+walletButton.style.cssText = `
+  position: fixed; top: 18px; right: 20px; z-index: 100;
+  padding: 10px 18px; font-size: 1em;
+  background-color: #d8b26c; color: #111;
+  border: none; border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer; box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  transition: background-color 0.3s ease;
+`;
+document.body.appendChild(walletButton);
+
+let walletAddress = null;
+
+walletButton.addEventListener('click', async () => {
+  if (walletAddress) {
+    // Desligar
+    walletAddress = null;
+    walletButton.textContent = 'Connect Wallet';
+    walletButton.style.backgroundColor = '#d8b26c';
+    return;
+  }
+
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      walletAddress = accounts[0];
+      const abreviado = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+      walletButton.textContent = abreviado;
+      walletButton.style.backgroundColor = '#bca05c';
+    } catch (err) {
+      console.error('Erro ao ligar à carteira:', err);
+      alert('Não foi possível ligar à carteira.');
+    }
+  } else {
+    alert('MetaMask não está instalada. Instala para usar esta funcionalidade.');
+  }
+});
+// Garantir foco e acessibilidade para teclado/tab
+walletButton.setAttribute('aria-label', 'Connect Wallet');
+walletButton.setAttribute('tabindex', '0');
+walletButton.setAttribute('role', 'button');
+
+// Responsividade adicional (opcional)
+window.addEventListener('resize', () => {
+  if (window.innerWidth < 600) {
+    walletButton.style.fontSize = '0.85em';
+    walletButton.style.padding = '8px 14px';
+  } else {
+    walletButton.style.fontSize = '1em';
+    walletButton.style.padding = '10px 18px';
+  }
+});
+

@@ -39,6 +39,15 @@
 <body>
   <!-- Canvas 3D -->
   <canvas id="scene"></canvas>
+canvas#scene {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
 
   <!-- Navigation Icons -->
   <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">

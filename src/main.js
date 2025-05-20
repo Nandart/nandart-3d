@@ -10,7 +10,6 @@ import { obrasSuspensas } from './data/obras-suspensas.js';
 
 // Verificação inicial do ambiente
 console.log("Inicializando galeria 3D...");
-if (!THREE.WEBGL.isWebGLAvailable()) {
   document.body.appendChild(THREE.WEBGL.getWebGLErrorMessage());
   throw new Error('WebGL não suportado');
 }

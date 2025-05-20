@@ -786,113 +786,6 @@ botaoComprar.addEventListener('click', () => {
     buyHandler(dados);
   }
 });
-// 🧩 Ligação e desligação da carteira com persistência local
-
-// Criar botão flutuante no topo direito
-const walletButton = document.createElement('button');
-walletButton.id = 'wallet-button';
-walletButton.textContent = 'Connect Wallet';
-walletButton.style.cssText = `
-  position: fixed;
-  top: 14px;
-  right: 18px;
-  z-index: 99;
-  padding: 10px 16px;
-  font-family: 'Playfair Display', serif;
-  font-size: 0.95em;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background-color: #d8b26c;
-  color: #111;
-  box-shadow: 0 0 6px rgba(255, 220, 150, 0.35);
-  transition: background-color 0.3s ease;
-`;
-walletButton.addEventListener('mouseenter', () => {
-  walletButton.style.backgroundColor = '#e2c78e';
-});
-walletButton.addEventListener('mouseleave', () => {
-  walletButton.style.backgroundColor = '#d8b26c';
-});
-document.body.appendChild(walletButton);
-
-// Actualizar estado do botão consoante ligação
-async function actualizarBotaoCarteira() {
-  const isLigada = localStorage.getItem('walletConnected') === 'true';
-  walletButton.textContent = isLigada ? 'Disconnect' : 'Connect Wallet';
-}
-
-// Ligar carteira e guardar estado
-async function ligarCarteira() {
-  if (!window.ethereum) {
-    alert('Instala a MetaMask para poderes interagir com a galeria.');
-    return;
-  }
-
-  try {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    localStorage.setItem('walletConnected', 'true');
-    walletButton.textContent = 'Disconnect';
-    console.log('✅ Carteira ligada com sucesso.');
-  } catch (err) {
-    console.error('Erro ao ligar carteira:', err);
-    alert('Não foi possível ligar a carteira.');
-  }
-}
-
-// Desligar carteira e limpar estado
-function desligarCarteira() {
-  localStorage.removeItem('walletConnected');
-  walletButton.textContent = 'Connect Wallet';
-  console.log('🔌 Carteira desligada.');
-}
-
-// Clique no botão alterna estado
-walletButton.addEventListener('click', () => {
-  const isLigada = localStorage.getItem('walletConnected') === 'true';
-  if (isLigada) {
-    desligarCarteira();
-  } else {
-    ligarCarteira();
-  }
-});
-
-// Inicializar estado ao carregar a galeria
-window.addEventListener('DOMContentLoaded', actualizarBotaoCarteira);
-// 🚀 Animação contínua com controlo de velocidade e reflexos suaves
-function animate() {
-  requestAnimationFrame(animate);
-
-  const tempo = Date.now() * -velocidadeObras;
-
-  obrasNormais.forEach((obra, i) => {
-    // Evita movimentar a obra seleccionada
-    if (obra !== obraSelecionada) {
-      const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-      const x = Math.cos(angulo) * config.circleRadius;
-      const z = Math.sin(angulo) * config.circleRadius;
-      const rotacaoY = -angulo + Math.PI;
-
-      // Actualizar posição e rotação da obra
-      obra.position.x = x;
-      obra.position.z = z;
-      obra.rotation.y = rotacaoY;
-
-      // Actualizar reflexo correspondente suavemente
-      const reflexo = obra.userData?.reflexo;
-      if (reflexo) {
-        reflexo.userData.targetPos.set(x, -0.01, z);
-        reflexo.userData.targetRot.set(0, rotacaoY, 0);
-        reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-        reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
-      }
-    }
-  });
-
-  renderer.render(scene, camera);
-}
-animate();
-// 🌐 Botão "Connect Wallet" com ligação e desconexão via MetaMask
 const walletButton = document.createElement('button');
 walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
@@ -906,15 +799,51 @@ walletButton.style.cssText = `
   transition: background-color 0.3s ease;
 `;
 document.body.appendChild(walletButton);
-
 let walletAddress = null;
+// 💰 Exibir saldo em ETH abaixo do botão
+const saldoContainer = document.createElement('div');
+saldoContainer.id = 'wallet-balance';
+saldoContainer.style.cssText = `
+  position: fixed;
+  top: 62px;
+  right: 22px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f7e9c1;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85em;
+  padding: 4px 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(4px);
+  display: none;
+`;
+document.body.appendChild(saldoContainer);
 
+// Função para atualizar o saldo
+async function atualizarSaldo(address) {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const balanceWei = await provider.getBalance(address);
+    const balanceETH = parseFloat(ethers.formatEther(balanceWei)).toFixed(4);
+    saldoContainer.textContent = `${balanceETH} ETH`;
+    saldoContainer.style.display = 'block';
+  } catch (err) {
+    console.error('Erro ao obter saldo:', err);
+    saldoContainer.textContent = '';
+    saldoContainer.style.display = 'none';
+  }
+}
+
+// Atualizar lógica do botão para incluir saldo
 walletButton.addEventListener('click', async () => {
   if (walletAddress) {
     // Desligar
     walletAddress = null;
     walletButton.textContent = 'Connect Wallet';
     walletButton.style.backgroundColor = '#d8b26c';
+    walletButton.classList.remove('connected');
+    saldoContainer.style.display = 'none';
     return;
   }
 
@@ -925,6 +854,8 @@ walletButton.addEventListener('click', async () => {
       const abreviado = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
       walletButton.textContent = abreviado;
       walletButton.style.backgroundColor = '#bca05c';
+      walletButton.classList.add('connected');
+      await atualizarSaldo(walletAddress);
     } catch (err) {
       console.error('Erro ao ligar à carteira:', err);
       alert('Não foi possível ligar à carteira.');
@@ -933,19 +864,3 @@ walletButton.addEventListener('click', async () => {
     alert('MetaMask não está instalada. Instala para usar esta funcionalidade.');
   }
 });
-// Garantir foco e acessibilidade para teclado/tab
-walletButton.setAttribute('aria-label', 'Connect Wallet');
-walletButton.setAttribute('tabindex', '0');
-walletButton.setAttribute('role', 'button');
-
-// Responsividade adicional (opcional)
-window.addEventListener('resize', () => {
-  if (window.innerWidth < 600) {
-    walletButton.style.fontSize = '0.85em';
-    walletButton.style.padding = '8px 14px';
-  } else {
-    walletButton.style.fontSize = '1em';
-    walletButton.style.padding = '10px 18px';
-  }
-});
-

@@ -6,13 +6,13 @@
   <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
   <meta name="theme-color" content="#111111">
   <title>NANdART 3D Gallery</title>
-  <link rel="icon" href="./assets/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/index.css">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/src/styles/index.css">
 
   <!-- Preloads -->
-  <link rel="preload" href="./assets/icons/info.png" as="image">
-  <link rel="preload" href="./assets/icons/horizontes.png" as="image">
-  <link rel="preload" href="./assets/icons/ajuda-flutuante.png" as="image">
+  <link rel="preload" href="/assets/icons/info.png" as="image">
+  <link rel="preload" href="/assets/icons/horizontes.png" as="image">
+  <link rel="preload" href="/assets/icons/ajuda-flutuante.png" as="image">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,26 +35,199 @@
     }
   }
   </script>
+  
+  <style>
+    canvas#scene {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #111111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      color: #d8b26c;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .loading-spinner {
+      border: 5px solid rgba(216, 178, 108, 0.3);
+      border-radius: 50%;
+      border-top: 5px solid #d8b26c;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-error {
+      display: none;
+      color: #ff6b6b;
+      margin-top: 20px;
+      text-align: center;
+      max-width: 80%;
+    }
+    
+    #menu-dropdown {
+      display: none;
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
+      padding: 15px;
+      flex-direction: column;
+      z-index: 200;
+    }
+    
+    #menu-dropdown a {
+      color: #d8b26c;
+      text-decoration: none;
+      padding: 8px 12px;
+      margin: 5px 0;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    #menu-dropdown a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <!-- Canvas 3D -->
-  <canvas id="scene"></canvas>
+  <!-- Canvas 3D with fallback -->
+  <canvas id="scene">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #111; color: #d8b26c; font-family: 'Playfair Display', serif; z-index: 1000;">
+      <div style="text-align: center; padding: 20px;">
+        <h2>WebGL não suportado</h2>
+        <p>Seu navegador não suporta WebGL ou está desativado.</p>
+        <p>Por favor, atualize para uma versão recente do Chrome, Firefox ou Edge.</p>
+      </div>
+    </div>
+  </canvas>
 
-  <!-- Botão Wallet -->
-  <button id="connect-wallet"
+  <!-- Navigation Icons -->
+  <img src="/assets/icons/horizontes.png" alt="Menu" class="menu-icon" id="menu-toggle" aria-label="Menu">
+  <img src="/assets/icons/info.png" alt="Info" class="info-icon" onclick="window.location.href='info.html'" aria-label="Info">
+  <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Help">
+
+  <!-- Connect Wallet Button -->
+  <button id="connect-wallet" aria-label="Connect Wallet"
     style="position: fixed; top: 16px; right: 18px; padding: 10px 18px;
            background-color: #d8b26c; color: #111; border: none; border-radius: 6px;
            font-size: 1em; font-family: 'Playfair Display', serif; cursor: pointer;
-           z-index: 100;">
+           z-index: 100; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);">
     Connect
   </button>
 
-  <!-- Loading -->
-  <div class="loading-screen" style="position: fixed; inset: 0; background: #111; z-index: 1000; color: #d8b26c; font-family: 'Playfair Display', serif; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">
-    Loading...
+  <!-- Dropdown Menu -->
+  <div class="menu-dropdown" id="menu-dropdown">
+    <a href="contactos.html">Contacts</a>
+    <a href="como-navegar.html">How to Navigate</a>
+    <a href="artists.html">Artists</a>
+    <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Script principal com segurança DOM -->
-  <script type="module" src="./src/main.js"></script>
+  <!-- Artwork Modal -->
+  <div class="art-modal" role="dialog" aria-labelledby="art-title" aria-describedby="art-description" aria-modal="true" style="display:none;">
+    <h3 id="art-title">Artwork Title</h3>
+    <p id="art-description">Selected piece description</p>
+    <p id="art-artist">Artist</p>
+    <p id="art-year">2025</p>
+    <p id="art-price">0.3 ETH</p>
+    <button id="buy-art" class="buy-button" aria-label="Buy Artwork">Buy Artwork</button>
+  </div>
+
+  <!-- Enhanced Loading Screen -->
+  <div class="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">
+      <span id="loaded-resources">0</span>/<span id="total-resources">0</span> resources loaded
+    </div>
+    <div class="loading-error" id="loading-error">
+      Error loading gallery. Please check your connection and refresh the page.
+    </div>
+  </div>
+
+  <!-- Initialization Script -->
+  <script>
+    // WebGL availability check
+    function checkWebGL() {
+      try {
+        const canvas = document.createElement('canvas');
+        return !!window.WebGLRenderingContext && 
+          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+      } catch(e) {
+        return false;
+      }
+    }
+
+    // Error handling
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Global error:', {message, source, lineno, colno, error});
+      document.getElementById('loading-error').style.display = 'block';
+      return true;
+    };
+
+    // Performance monitoring
+    window.addEventListener('load', () => {
+      if (window.performance) {
+        const timing = performance.timing;
+        const loadTime = timing.loadEventEnd - timing.navigationStart;
+        console.log('Page load time:', loadTime + 'ms');
+        
+        if (loadTime > 5000) {
+          console.warn('Long load time detected');
+        }
+      }
+    });
+
+    // Menu toggle
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    // Initial checks
+    if (!checkWebGL()) {
+      document.querySelector('.loading-screen').innerHTML = `
+        <h2>WebGL Not Supported</h2>
+        <p>Your browser doesn't support WebGL or it's disabled.</p>
+        <p>Please upgrade to a modern browser like Chrome, Firefox or Edge.</p>
+      `;
+      throw new Error('WebGL not supported');
+    }
+  </script>
+
+  <!-- Main Script with Modules -->
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Fallback for Older Browsers -->
+  <script nomodule>
+    document.querySelector('.loading-screen').innerHTML = `
+      <h2>Browser Not Supported</h2>
+      <p>Your browser doesn't support JavaScript modules.</p>
+      <p>Please upgrade to a modern browser.</p>
+      <a href="https://www.google.com/chrome/" style="color: #d8b26c; margin-top: 20px; display: inline-block;">Download Chrome</a>
+    `;
+  </script>
 </body>
 </html>

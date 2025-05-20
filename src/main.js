@@ -8,13 +8,9 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
 
-// Verificação inicial do ambiente
-console.log("Inicializando galeria 3D...");
-console.log("THREE.js version:", THREE.REVISION);
-
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// ==================== SISTEMA DE RESPONSIVIDADE ====================
+// 📱 Sistema de responsividade refinado (XS, SM, MD, LG)
 function getViewportLevel() {
   const largura = window.innerWidth;
   if (largura < 480) return 'XS';
@@ -31,14 +27,15 @@ const configMap = {
 };
 
 const velocidadeObras = 0.3;
+
 let config = configMap[getViewportLevel()];
 
-// ==================== CENA E RENDERIZADOR ====================
+// 🎨 Cena e carregador de texturas
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 const textureLoader = new THREE.TextureLoader();
 
-// Configuração da câmera
+// 🎥 Câmara adaptativa
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
@@ -47,32 +44,24 @@ function updateCamera() {
   camera.position.set(0, config.cameraY + 6.5, config.cameraZ + 15.2);
   camera.lookAt(0, 7.3, -config.wallDistance + 0.8);
   camera.updateProjectionMatrix();
-  console.log("Câmera atualizada para viewport:", getViewportLevel());
 }
 updateCamera();
 
-// Configuração do renderizador
-const renderer = new THREE.WebGLRenderer({ 
-  canvas: document.getElementById('scene'), 
-  antialias: true,
-  powerPreference: "high-performance"
-});
-
+// 🖥️ Renderizador com qualidade cinematográfica
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
-console.log("Renderizador configurado com sucesso");
 
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  console.log("Janela redimensionada");
 });
 
-// ==================== SISTEMA DE CARTEIRA ====================
+// === INÍCIO Bloco 9 - Botão Connect Wallet e painel saldo ===
 const walletButton = document.createElement('button');
 walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
@@ -91,7 +80,9 @@ walletBalance.style.opacity = '0';
 walletBalance.style.transition = 'opacity 0.4s ease';
 walletBalance.textContent = '';
 document.body.appendChild(walletBalance);
+// === FIM Bloco 9 ===
 
+// === INÍCIO Bloco 10 - Variáveis e funções utilitárias Web3 ===
 let walletAddress = null;
 
 function abreviarEndereco(endereco) {
@@ -99,7 +90,7 @@ function abreviarEndereco(endereco) {
   return endereco.slice(0, 6) + '...' + endereco.slice(-4);
 }
 
-async function atualizarUIConexao() {
+async function atualizarUIConexao(provider) {
   if (!walletAddress) {
     walletButton.textContent = 'Connect Wallet';
     walletButton.classList.remove('connected');
@@ -112,30 +103,30 @@ async function atualizarUIConexao() {
   walletButton.classList.add('connected');
 
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
     const balanceBigInt = await provider.getBalance(walletAddress);
     const balanceETH = ethers.formatEther(balanceBigInt);
     walletBalance.textContent = `Balance: ${parseFloat(balanceETH).toFixed(4)} ETH`;
     walletBalance.style.opacity = '1';
-  } catch (err) {
-    console.error("Erro ao obter saldo:", err);
+  } catch {
     walletBalance.textContent = 'Balance: N/A';
     walletBalance.style.opacity = '1';
   }
 }
+// === FIM Bloco 10 ===
 
+// === INÍCIO Bloco 11 - Funções ligar e desligar carteira ===
 async function ligarCarteira() {
   if (!window.ethereum) {
     alert('Por favor instala a MetaMask para ligar a tua carteira.');
     return;
   }
-  
   try {
     const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
     walletAddress = contas[0];
     localStorage.setItem('walletAddress', walletAddress);
-    await atualizarUIConexao();
-    console.log("Carteira conectada:", abreviarEndereco(walletAddress));
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await atualizarUIConexao(provider);
 
     window.ethereum.on('accountsChanged', async (contasNovas) => {
       if (contasNovas.length === 0) {
@@ -143,7 +134,7 @@ async function ligarCarteira() {
       } else {
         walletAddress = contasNovas[0];
         localStorage.setItem('walletAddress', walletAddress);
-        await atualizarUIConexao();
+        await atualizarUIConexao(provider);
       }
     });
 
@@ -152,18 +143,22 @@ async function ligarCarteira() {
     });
 
   } catch (err) {
-    console.error('Erro ao ligar carteira:', err);
     alert('Erro ao ligar a carteira. Tenta novamente.');
+    console.error('Erro ligarCarteira:', err);
   }
 }
 
 async function desligarCarteira() {
   walletAddress = null;
   localStorage.removeItem('walletAddress');
-  await atualizarUIConexao();
-  console.log("Carteira desconectada");
+  walletButton.textContent = 'Connect Wallet';
+  walletButton.classList.remove('connected');
+  walletBalance.style.opacity = '0';
+  walletBalance.textContent = '';
 }
+// === FIM Bloco 11 ===
 
+// === INÍCIO Bloco 12 - Event listener do botão e persistência ===
 walletButton.addEventListener('click', async () => {
   if (!walletAddress) {
     await ligarCarteira();
@@ -176,10 +171,11 @@ window.addEventListener('load', async () => {
   const enderecoGuardado = localStorage.getItem('walletAddress');
   if (enderecoGuardado && window.ethereum) {
     try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const contasAtuais = await window.ethereum.request({ method: 'eth_accounts' });
       if (contasAtuais.length > 0 && contasAtuais.includes(enderecoGuardado)) {
         walletAddress = enderecoGuardado;
-        await atualizarUIConexao();
+        await atualizarUIConexao(provider);
       } else {
         localStorage.removeItem('walletAddress');
       }
@@ -189,12 +185,12 @@ window.addEventListener('load', async () => {
     }
   }
 });
-
-// ==================== PAREDES E ESTRUTURA ====================
+// 🧱 Geometria base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
-const aplicarTexturaParede = (textura) => {
+// Função utilitária para aplicar a textura antracite às três paredes
+const aplicarTexturaParede = textura => {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura,
     color: 0xffffff,
@@ -205,20 +201,20 @@ const aplicarTexturaParede = (textura) => {
     side: THREE.FrontSide
   });
 
-  // Parede de fundo
+  // 🧱 Parede de fundo (central)
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
   paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // Parede lateral esquerda
+  // 🧱 Parede lateral esquerda
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // Parede lateral direita
+  // 🧱 Parede lateral direita
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
@@ -226,45 +222,40 @@ const aplicarTexturaParede = (textura) => {
   scene.add(paredeDireita);
 };
 
-// Carregamento da textura com fallback e logging
+// 🌌 Carregamento da textura antracite com fallback remoto
 textureLoader.load(
   '/assets/antracite-realista.jpg',
-  (texturaLocal) => {
-    console.log("✅ Textura antracite local carregada");
+  texturaLocal => {
+    console.log('✅ Textura antracite local carregada.');
     aplicarTexturaParede(texturaLocal);
   },
   undefined,
   () => {
-    console.warn("⚠️ Textura local não encontrada, tentando remota...");
+    console.warn('⚠️ Falha ao carregar textura local. A usar versão remota...');
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
-      (texturaRemota) => {
-        console.log("✅ Textura antracite remota carregada");
-        aplicarTexturaParede(texturaRemota);
-      },
+      texturaRemota => aplicarTexturaParede(texturaRemota),
       undefined,
-      (err) => {
-        console.error("❌ Falha ao carregar textura:", err);
-        // Fallback para cor sólida
-        aplicarTexturaParede(new THREE.Texture());
-      }
+      err => console.error('❌ Erro ao carregar textura remota:', err)
     );
   }
 );
 
-// ==================== OBRA CENTRAL ====================
+// 🖼️ Textura da obra central (com fallback em caso de erro)
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
-  () => console.log("✅ Textura da obra central carregada"),
   undefined,
-  (err) => console.error("❌ Erro ao carregar obra central:", err)
+  undefined,
+  err => console.error('Erro a carregar obra-central.jpg:', err)
 );
 
 const quadroCentralGrupo = new THREE.Group();
+
+// 📐 Dimensões reais da pintura sem moldura
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
 
-// Moldura
+// 🟫 Moldura escura saliente com profundidade realista
 const molduraCentral = new THREE.Mesh(
   new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
   new THREE.MeshStandardMaterial({
@@ -278,7 +269,7 @@ const molduraCentral = new THREE.Mesh(
 molduraCentral.position.z = -0.1;
 quadroCentralGrupo.add(molduraCentral);
 
-// Pintura
+// 🖼️ Pintura central com leve metalização
 const pinturaCentral = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
@@ -290,10 +281,15 @@ const pinturaCentral = new THREE.Mesh(
 pinturaCentral.position.z = 0.01;
 quadroCentralGrupo.add(pinturaCentral);
 
-quadroCentralGrupo.position.set(0, 10.3, -config.wallDistance + 0.001);
+// 📌 Posicionamento final da obra central
+quadroCentralGrupo.position.set(
+  0,                     // X — centro horizontal
+  10.3,                  // Y — alinhado com o friso principal
+  -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
+);
 scene.add(quadroCentralGrupo);
 
-// ==================== OBRAS LATERAIS ====================
+// 🖼️ Dados das obras nas paredes laterais
 const obrasParede = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
@@ -314,16 +310,17 @@ const obrasParede = [
 obrasParede.forEach(({ src, x, y, z, rotY }) => {
   const textura = textureLoader.load(
     src,
-    () => console.log(`✅ Textura ${src} carregada`),
     undefined,
-    (err) => console.error(`❌ Erro ao carregar ${src}:`, err)
+    undefined,
+    err => console.error(`Erro ao carregar ${src}:`, err)
   );
 
   const largura = 4.4;
   const altura = 6.4;
+
   const grupoQuadro = new THREE.Group();
 
-  // Moldura
+  // Moldura escura com relevo e profundidade
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
     new THREE.MeshStandardMaterial({
@@ -337,7 +334,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   moldura.position.z = -0.1;
   grupoQuadro.add(moldura);
 
-  // Quadro
+  // Pintura com textura correspondente
   const quadro = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -350,20 +347,22 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   quadro.position.z = 0.01;
   grupoQuadro.add(quadro);
 
+  // Posicionamento final sobre a parede lateral
   grupoQuadro.position.set(x, y, z);
   grupoQuadro.rotation.y = rotY;
   scene.add(grupoQuadro);
 });
 
-// ==================== FRISOS DECORATIVOS ====================
+// 🎨 Material dourado vivo fiel à imagem "dourado para friso.png"
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21,
+  color: 0x8a5c21, // #8a5c21
   metalness: 1,
   roughness: 0.08,
   emissive: 0x2f1b08,
   emissiveIntensity: 0.33
 });
 
+// Função para frisos lineares simples
 function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, 0.02),
@@ -376,6 +375,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   return friso;
 }
 
+// Função para frisos retangulares com 4 lados (moldura)
 function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
@@ -402,38 +402,151 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   return group;
 }
 
-// Frisos centrais
-criarFrisoRect(0, 10.3, -config.wallDistance + 0.01, 6.8, 7.0);
-criarFrisoLinha(0, 13.1, -config.wallDistance + 0.012, 4.5);
+// 🟡 Friso central redesenhado com respiro visual
+criarFrisoRect(
+  0,               // X
+  10.3,            // Y (centro vertical do friso)
+  -config.wallDistance + 0.01, // Z (junto à parede central)
+  6.8,             // Largura
+  7.0              // Altura
+);
 
-// Frisos laterais
+// Friso interior horizontal acima do quadro central
+criarFrisoLinha(
+  0,
+  13.1,
+  -config.wallDistance + 0.012,
+  4.5
+);
+
+// 🟡 Frisos duplos verticais laterais com estrutura dupla
 const posXFrisoLateral = 6.7;
 const alturaFrisoExt = 8.8;
 const alturaFrisoInt = 7.1;
 
-// Esquerda
+// Lado esquerdo
 criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
 criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// Direita
+// Lado direito
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
 criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
 
-// Frisos horizontais
-criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);
-criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);
-criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);
-criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);
-criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);
-criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);
-
-// ==================== OBRAS SUSPENSAS ====================
+// 🟡 Frisos horizontais inferiores contínuos nas 3 paredes
+criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);     // fundo superior
+criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);    // fundo inferior
+criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. sup.
+criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
+criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
+criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
+// Lista global para armazenar os cubos suspensos com as obras
 const cubosSuspensos = [];
+// === INÍCIO Bloco 9 - Pedestais e Vitrines ===
 
+// Material base dos pedestais (cor, metal e aspeto realista)
+const materialPedestal = new THREE.MeshStandardMaterial({
+  color: 0x2e2b28,    // Cinza escuro, próximo do layout
+  metalness: 0.7,
+  roughness: 0.4,
+  emissive: 0x0a0a0a,
+  emissiveIntensity: 0.15
+});
+
+// Geometria do pedestal (base sólida)
+const geometriaPedestal = new THREE.BoxGeometry(1.4, 3.4, 1.4);
+
+// Função para criar pedestal em posição dada
+function criarPedestal(x, y, z) {
+  const pedestal = new THREE.Mesh(geometriaPedestal, materialPedestal);
+  pedestal.position.set(x, y, z);
+  pedestal.castShadow = true;
+  pedestal.receiveShadow = true;
+  scene.add(pedestal);
+  return pedestal;
+}
+
+// Criar quatro pedestais nas posições indicadas no layout
+const pedestais = [
+  criarPedestal(-7, 1.7, 2),
+  criarPedestal(7, 1.7, 2),
+  criarPedestal(-7, 1.7, -3),
+  criarPedestal(7, 1.7, -3)
+];
+
+// Material para as vitrines (vidro translúcido)
+const materialVitrine = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  metalness: 0.1,
+  roughness: 0.1,
+  transparent: true,
+  opacity: 0.25,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  reflectivity: 0.8
+});
+
+// Geometria da vitrine (caixa transparente)
+const geometriaVitrine = new THREE.BoxGeometry(1.6, 2.2, 1.6);
+
+// Função para criar vitrine sobre pedestal dado
+function criarVitrine(x, y, z) {
+  const vitrine = new THREE.Mesh(geometriaVitrine, materialVitrine);
+  vitrine.position.set(x, y, z);
+  vitrine.castShadow = false;
+  vitrine.receiveShadow = false;
+  scene.add(vitrine);
+  return vitrine;
+}
+
+// Criar vitrines ligeiramente acima dos pedestais
+const vitrines = [
+  criarVitrine(-7, 3.1, 2),
+  criarVitrine(7, 3.1, 2),
+  criarVitrine(-7, 3.1, -3),
+  criarVitrine(7, 3.1, -3)
+];
+
+// Para cada vitrine, adicionar objeto representativo dentro (gema estilizada)
+// Usamos Icosahedron com emissivo azul, semelhante às gemas dos cubos
+const geometriaGema = new THREE.IcosahedronGeometry(0.4, 1);
+const materialGema = new THREE.MeshStandardMaterial({
+  color: 0x3399cc,
+  emissive: 0x3399cc,
+  emissiveIntensity: 1.5,
+  roughness: 0.2,
+  metalness: 0.8,
+  transparent: true,
+  opacity: 0.85
+});
+
+vitrines.forEach((vitrine) => {
+  const gema = new THREE.Mesh(geometriaGema, materialGema);
+  gema.position.set(vitrine.position.x, vitrine.position.y - 0.3, vitrine.position.z);
+  gema.castShadow = true;
+  gema.receiveShadow = true;
+  scene.add(gema);
+});
+
+// Opcional: luz focal para iluminar pedestais e vitrines
+const spotLightPedestal = new THREE.SpotLight(0xffffff, 0.8);
+spotLightPedestal.position.set(0, 10, 5);
+spotLightPedestal.angle = Math.PI / 6;
+spotLightPedestal.penumbra = 0.3;
+spotLightPedestal.decay = 2;
+spotLightPedestal.distance = 25;
+spotLightPedestal.castShadow = true;
+scene.add(spotLightPedestal);
+
+spotLightPedestal.target.position.set(0, 0, 0);
+scene.add(spotLightPedestal.target);
+
+// === FIM Bloco 9 ===
+
+// Função para criar o cubo suspenso com a obra dentro (gema + textura)
 function criarCuboSuspenso(obra, indice) {
   const tamanhoCubo = 1.5;
 
-  // Material do cubo
+  // Cubo externo translúcido e etéreo
   const materialCubo = new THREE.MeshPhysicalMaterial({
     color: 0x222222,
     transparent: true,
@@ -450,7 +563,7 @@ function criarCuboSuspenso(obra, indice) {
   cubo.castShadow = true;
   cubo.receiveShadow = true;
 
-  // Posicionamento
+  // Posicionamento fixo dos cubos suspensos — 4 posições base
   const posicoesCubos = [
     { x: -5, y: 5, z: 0 },
     { x: 5, y: 5, z: 0 },
@@ -460,13 +573,8 @@ function criarCuboSuspenso(obra, indice) {
   const pos = posicoesCubos[indice % posicoesCubos.length];
   cubo.position.set(pos.x, pos.y, pos.z);
 
-  // Gema interna
-  const texturaObra = textureLoader.load(
-    obra.imagem,
-    () => console.log(`✅ Textura da obra ${obra.titulo} carregada`),
-    undefined,
-    (err) => console.error(`❌ Erro ao carregar obra ${obra.titulo}:`, err)
-  );
+  // Criar gema/textura da obra dentro do cubo
+  const texturaObra = textureLoader.load(obra.imagem);
 
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.6, 1),
@@ -481,13 +589,17 @@ function criarCuboSuspenso(obra, indice) {
   gema.position.set(0, 0, 0);
   cubo.add(gema);
 
-  // Dados da obra
+  // Guardar dados da obra no userData para referência futura
   cubo.userData = { obra };
-  cubosSuspensos.push(cubo);
-  scene.add(cubo);
 
-  // Interatividade
-  cubo.cursor = 'pointer';
+  // Adicionar cubo à cena e ao array global
+  scene.add(cubo);
+  cubosSuspensos.push(cubo);
+
+  // Interação - clicar no cubo
+  cubo.cursor = 'pointer'; // Indica interatividade
+
+  // Usar Raycaster para detectar clique - este código será integrado na função de clique global (ver bloco 4)
   cubo.onClick = () => {
     if (!walletAddress) {
       alert('A pré-venda desta obra está disponível. Liga a tua carteira para adquirir.');
@@ -499,16 +611,15 @@ function criarCuboSuspenso(obra, indice) {
   return cubo;
 }
 
-// Criar cubos suspensos
+// Criar cubos suspensos para todas as obras importadas
 obrasSuspensas.forEach((obra, idx) => {
   criarCuboSuspenso(obra, idx);
 });
-
-// ==================== MODAL DE OBRAS ====================
+// Variável para controlar a obra que está aberta no modal
 let obraSelecionada = null;
 let cameraIsAnimating = false;
 
-// Overlay
+// Criar overlay desfocado para o fundo ao abrir modal
 const overlay = document.createElement('div');
 overlay.style.cssText = `
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -518,7 +629,7 @@ overlay.style.cssText = `
 `;
 document.body.appendChild(overlay);
 
-// Painel de informações
+// Painel informativo translúcido (modal)
 const infoPanel = document.createElement('div');
 infoPanel.style.cssText = `
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
@@ -550,7 +661,7 @@ infoPanel.innerHTML = `
 `;
 document.body.appendChild(infoPanel);
 
-// Elementos do modal
+// Referências aos elementos do modal
 const modalTitulo = infoPanel.querySelector('#art-title');
 const modalArtista = infoPanel.querySelector('#art-artist');
 const modalAno = infoPanel.querySelector('#art-year');
@@ -558,8 +669,9 @@ const modalDescricao = infoPanel.querySelector('#art-description');
 const modalPreco = infoPanel.querySelector('#art-price');
 const botaoComprar = infoPanel.querySelector('#buy-art');
 
+// Função para abrir o modal com dados e animações
 function abrirModal(dados, cubo) {
-  if (obraSelecionada) return;
+  if (obraSelecionada) return; // Evitar abrir múltiplos modais
 
   obraSelecionada = cubo;
   overlay.style.display = 'block';
@@ -571,7 +683,7 @@ function abrirModal(dados, cubo) {
   modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
   modalPreco.textContent = `${dados.preco} ETH`;
 
-  // Animações
+  // Animações para destacar a obra no espaço
   gsap.to(cubo.scale, { x: 2, y: 2, z: 2, duration: 0.8, ease: 'power2.out' });
   gsap.to(cubo.position, { x: 0, y: 10.5, z: 0, duration: 0.9, ease: 'power2.inOut' });
   gsap.to(camera.position, { x: 0, y: 10.5, z: 5.5, duration: 1.1, ease: 'power2.inOut' });
@@ -580,13 +692,13 @@ function abrirModal(dados, cubo) {
   setTimeout(() => { cameraIsAnimating = false; }, 1200);
 }
 
-// Fechar modal
-window.addEventListener('pointerdown', (e) => {
+// Fechar modal ao clicar fora do painel
+window.addEventListener('pointerdown', e => {
   if (!obraSelecionada || cameraIsAnimating) return;
   if (!infoPanel.contains(e.target)) {
     gsap.to(obraSelecionada.scale, { x: 1, y: 1, z: 1, duration: 0.6 });
     gsap.to(obraSelecionada.position, {
-      y: 5, duration: 0.6,
+      y: 5, duration: 0.6, // voltar à posição original (y = 5 dos cubos)
       onComplete: () => {
         overlay.style.display = 'none';
         infoPanel.style.display = 'none';
@@ -603,8 +715,8 @@ window.addEventListener('pointerdown', (e) => {
   }
 });
 
-// Detecção de clique nas obras
-renderer.domElement.addEventListener('pointerdown', (e) => {
+// Detectar clique nos cubos suspensos usando raycaster
+renderer.domElement.addEventListener('pointerdown', e => {
   if (obraSelecionada || cameraIsAnimating) return;
 
   const mouse = new THREE.Vector2(
@@ -615,7 +727,9 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
+  // Obter interseções com cubos suspensos
   const intersects = raycaster.intersectObjects(cubosSuspensos);
+
   if (intersects.length > 0) {
     const cuboClicado = intersects[0].object;
     if (cuboClicado.onClick) {
@@ -624,8 +738,67 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   }
 });
 
-// ==================== OBRAS NORMAIS ====================
+// Evento clique no botão "Buy" no modal (a função buyHandler será implementada no Bloco 5)
+botaoComprar.addEventListener('click', () => {
+  if (!obraSelecionada) return;
+  const obra = obraSelecionada.userData.obra;
+  buyHandler(obra);
+});
+async function buyHandler(obra) {
+  if (!window.ethereum) {
+    alert('Instala a MetaMask para poder adquirir esta obra.');
+    return;
+  }
+
+  try {
+    // Pedir permissões para ligar a carteira
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    // Valor em ETH convertido para Wei
+    const valorETH = ethers.parseEther(obra.preco);
+
+    // Endereço da galeria para receção do pagamento (substituir pelo endereço correto)
+    const enderecoGaleria = '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41';
+
+    // Criar e enviar transação
+    const tx = await signer.sendTransaction({
+      to: enderecoGaleria,
+      value: valorETH
+    });
+
+    alert(`Transação enviada!\nHash: ${tx.hash}`);
+    await tx.wait();
+
+    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
+
+    // Aqui poderá ser acrescentada lógica para atualizar UI ou estado após compra
+
+  } catch (err) {
+    console.error('Erro ao comprar a obra:', err);
+    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
+  }
+}
+// Referência ao botão "Buy" do modal (definido no Bloco 4)
+const botaoComprar = document.querySelector('#buy-art');
+
+botaoComprar.addEventListener('click', () => {
+  if (!obraSelecionada) return;
+
+  // Dados da obra selecionada (armazenados no cubo)
+  const dados = obraSelecionada.userData?.obra || null;
+  if (!dados) {
+    alert('Erro: dados da obra não encontrados.');
+    return;
+  }
+
+  // Disparar função de compra
+  buyHandler(dados);
+});
+// Lista global para obras normais e seus dados
 const obrasNormais = [];
+
 const dadosObras = [
   {
     titulo: 'Obra 1',
@@ -651,19 +824,16 @@ const dadosObras = [
     preco: '0.45',
     imagem: '/assets/obras/obra3.jpg'
   }
+  // Acrescenta mais obras conforme necessário
 ];
 
+// Função para criar as obras normais e posicioná-las em círculo
 function criarObrasNormais() {
   const raio = config.circleRadius;
   const tamanho = config.obraSize;
 
   dadosObras.forEach((dados, i) => {
-    const textura = textureLoader.load(
-      dados.imagem,
-      () => console.log(`✅ Textura ${dados.imagem} carregada`),
-      undefined,
-      (err) => console.error(`❌ Erro ao carregar ${dados.imagem}:`, err)
-    );
+    const textura = textureLoader.load(dados.imagem);
 
     const obraMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
@@ -676,6 +846,7 @@ function criarObrasNormais() {
       })
     );
 
+    // Posição circular inicial
     const angulo = (i / dadosObras.length) * Math.PI * 2;
     obraMesh.position.set(
       Math.cos(angulo) * raio,
@@ -683,6 +854,8 @@ function criarObrasNormais() {
       Math.sin(angulo) * raio
     );
     obraMesh.lookAt(0, 4.2, 0);
+
+    // Guardar índice para referência nos eventos
     obraMesh.userData = { index: i };
 
     scene.add(obraMesh);
@@ -692,11 +865,12 @@ function criarObrasNormais() {
 
 criarObrasNormais();
 
-// ==================== ANIMAÇÃO DAS OBRAS ====================
 let anguloAtual = 0;
 
+// Função para animar as obras em círculo
 function animarObrasCirculares(delta) {
   const velocidade = velocidadeObras;
+
   anguloAtual += velocidade * delta;
 
   const raio = config.circleRadius;
@@ -713,14 +887,15 @@ function animarObrasCirculares(delta) {
   });
 }
 
-// Detecção de clique nas obras normais
-renderer.domElement.addEventListener('pointerdown', (e) => {
+// Detectar clique nas obras normais (integrado com raycaster)
+renderer.domElement.addEventListener('pointerdown', e => {
   if (obraSelecionada || cameraIsAnimating) return;
 
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
   );
+
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
@@ -732,77 +907,20 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     abrirModal(dados, obra);
   }
 });
-
-// ==================== FUNÇÃO DE COMPRA ====================
-async function buyHandler(obra) {
-  if (!window.ethereum) {
-    alert('Instala a MetaMask para poder adquirir esta obra.');
-    return;
-  }
-
-  try {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-
-    const valorETH = ethers.parseEther(obra.preco);
-    const enderecoGaleria = '0xAbCdEf1234567890abcdef1234567890ABcDef12'; // Substituir pelo endereço correto
-
-    const tx = await signer.sendTransaction({
-      to: enderecoGaleria,
-      value: valorETH
-    });
-
-    alert(`Transação enviada!\nHash: ${tx.hash}`);
-    await tx.wait();
-    alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
-
-  } catch (err) {
-    console.error('Erro ao comprar a obra:', err);
-    alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
-  }
-}
-
-// Evento de compra
-botaoComprar.addEventListener('click', () => {
-  if (!obraSelecionada) return;
-  const dados = obraSelecionada.userData?.obra || null;
-  if (!dados) {
-    alert('Erro: dados da obra não encontrados.');
-    return;
-  }
-  buyHandler(dados);
-});
-
-// ==================== LOOP DE ANIMAÇÃO ====================
+// Relógio para calcular delta time e garantir animação suave
 const relogio = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
+
   const delta = relogio.getDelta();
+
+  // Animar as obras normais em círculo
   animarObrasCirculares(delta);
+
+  // Poderás acrescentar outras animações ou atualizações aqui
+
   renderer.render(scene, camera);
 }
 
-if (document.readyState === 'complete') {
-  iniciarGaleria();
-} else {
-  window.addEventListener('load', iniciarGaleria);
-}
-
-function iniciarGaleria() {
-  console.log("✅ Todos os recursos carregados, iniciando animação...");
-  const loadingScreen = document.querySelector('.loading-screen');
-  if (loadingScreen) {
-    loadingScreen.style.display = 'none';
-    console.log('✅ Loader visual removido com sucesso');
-  }
-  animate();
-}
-
-// Verificação final
-console.log("Configuração inicial concluída");
-const loadingDiv = document.getElementById('loading');
-if (loadingDiv) loadingDiv.style.display = 'none';
-document.querySelector('#loading')?.remove();
-console.log('✅ Loader removido manualmente');
+animate();

@@ -11,13 +11,6 @@ import { obrasSuspensas } from './data/obras-suspensas.js';
 // ==================== INITIAL CHECKS ====================
 console.log("Initializing 3D Gallery...");
 
-// Verify WebGL support
-if (!WEBGL.isWebGLAvailable()) {
-  const warning = WEBGL.getWebGLErrorMessage();
-  document.getElementById('scene').appendChild(warning);
-  throw new Error('WebGL not supported');
-}
-
 // Verify dependencies
 if (!THREE || !gsap || !ethers) {
   const errorMsg = document.createElement('div');

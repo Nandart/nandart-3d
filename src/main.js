@@ -1,4 +1,3 @@
-// main.js — Bloco 1
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -26,6 +25,9 @@ const configMap = {
   MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 14, cameraY: 6.1, textSize: 0.5 },
   LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
 };
+
+// Declaração da velocidade do movimento circular
+const velocidadeObras = 0.3;
 
 let config = configMap[getViewportLevel()];
 
@@ -59,8 +61,8 @@ window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 // === INÍCIO Bloco 9 - Botão Connect Wallet e painel saldo ===
-// Criar botão Connect Wallet e painel saldo dinamicamente e inserir no DOM
 const walletButton = document.createElement('button');
 walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
@@ -80,6 +82,7 @@ walletBalance.style.transition = 'opacity 0.4s ease';
 walletBalance.textContent = '';
 document.body.appendChild(walletBalance);
 // === FIM Bloco 9 ===
+
 // === INÍCIO Bloco 10 - Variáveis e funções utilitárias Web3 ===
 let walletAddress = null; // Endereço da carteira ligada
 
@@ -88,7 +91,7 @@ function abreviarEndereco(endereco) {
   return endereco.slice(0, 6) + '...' + endereco.slice(-4);
 }
 
-async function atualizarUIConexao(provider) {
+async function atualizarUIConexao() {
   if (!walletAddress) {
     walletButton.textContent = 'Connect Wallet';
     walletButton.classList.remove('connected');
@@ -101,17 +104,17 @@ async function atualizarUIConexao(provider) {
   walletButton.classList.add('connected');
 
   try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
     const balanceBigInt = await provider.getBalance(walletAddress);
     const balanceETH = ethers.formatEther(balanceBigInt);
     walletBalance.textContent = `Balance: ${parseFloat(balanceETH).toFixed(4)} ETH`;
     walletBalance.style.opacity = '1';
-  } catch (err) {
+  } catch {
     walletBalance.textContent = 'Balance: N/A';
     walletBalance.style.opacity = '1';
   }
 }
 // === FIM Bloco 10 ===
-
 
 // === INÍCIO Bloco 11 - Funções ligar e desligar carteira ===
 async function ligarCarteira() {
@@ -123,9 +126,7 @@ async function ligarCarteira() {
     const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
     walletAddress = contas[0];
     localStorage.setItem('walletAddress', walletAddress);
-
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    await atualizarUIConexao(provider);
+    await atualizarUIConexao();
 
     window.ethereum.on('accountsChanged', async (contasNovas) => {
       if (contasNovas.length === 0) {
@@ -133,7 +134,7 @@ async function ligarCarteira() {
       } else {
         walletAddress = contasNovas[0];
         localStorage.setItem('walletAddress', walletAddress);
-        await atualizarUIConexao(provider);
+        await atualizarUIConexao();
       }
     });
 
@@ -157,7 +158,6 @@ async function desligarCarteira() {
 }
 // === FIM Bloco 11 ===
 
-
 // === INÍCIO Bloco 12 - Event listener do botão e persistência ===
 walletButton.addEventListener('click', async () => {
   if (!walletAddress) {
@@ -171,11 +171,10 @@ window.addEventListener('load', async () => {
   const enderecoGuardado = localStorage.getItem('walletAddress');
   if (enderecoGuardado && window.ethereum) {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
       const contasAtuais = await window.ethereum.request({ method: 'eth_accounts' });
       if (contasAtuais.length > 0 && contasAtuais.includes(enderecoGuardado)) {
         walletAddress = enderecoGuardado;
-        await atualizarUIConexao(provider);
+        await atualizarUIConexao();
       } else {
         localStorage.removeItem('walletAddress');
       }
@@ -185,9 +184,6 @@ window.addEventListener('load', async () => {
     }
   }
 });
-
-// main.js — Bloco 2
-
 // 🧱 Geometria base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
@@ -286,9 +282,9 @@ quadroCentralGrupo.add(pinturaCentral);
 
 // 📌 Posicionamento final da obra central
 quadroCentralGrupo.position.set(
-  0,                     // X — centro horizontal
-  10.3,                  // Y — alinhado com o friso principal
-  -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
+  0,
+  10.3,
+  -config.wallDistance + 0.001
 );
 scene.add(quadroCentralGrupo);
 
@@ -323,7 +319,6 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
 
   const grupoQuadro = new THREE.Group();
 
-  // Moldura escura com relevo e profundidade
   const moldura = new THREE.Mesh(
     new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
     new THREE.MeshStandardMaterial({
@@ -337,7 +332,6 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   moldura.position.z = -0.1;
   grupoQuadro.add(moldura);
 
-  // Pintura com textura correspondente
   const quadro = new THREE.Mesh(
     new THREE.PlaneGeometry(largura, altura),
     new THREE.MeshStandardMaterial({
@@ -350,7 +344,6 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   quadro.position.z = 0.01;
   grupoQuadro.add(quadro);
 
-  // Posicionamento final sobre a parede lateral
   grupoQuadro.position.set(x, y, z);
   grupoQuadro.rotation.y = rotY;
   scene.add(grupoQuadro);
@@ -358,14 +351,13 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
 
 // 🎨 Material dourado vivo fiel à imagem "dourado para friso.png"
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21, // #8a5c21
+  color: 0x8a5c21,
   metalness: 1,
   roughness: 0.08,
   emissive: 0x2f1b08,
   emissiveIntensity: 0.33
 });
 
-// Função para frisos lineares simples
 function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, 0.02),
@@ -378,12 +370,12 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   return friso;
 }
 
-// Função para frisos retangulares com 4 lados (moldura)
 function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   const group = new THREE.Group();
   const espessura = 0.06;
 
-  const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
+  const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), fr
+    const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
   topo.position.set(0, altura / 2, 0);
   group.add(topo);
 
@@ -442,7 +434,6 @@ criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. su
 criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
 criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
 criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
-
 // main.js — Bloco 3
 
 // Lista global para armazenar os cubos suspensos com as obras
@@ -833,7 +824,7 @@ function animate() {
   // Animar obras normais em círculo
   animarObrasCirculares(delta);
 
-  // Aqui podes adicionar outras animações ou atualizações
+  // Aqui podes adicionar outras animações ou atualizações futuras
 
   renderer.render(scene, camera);
 }

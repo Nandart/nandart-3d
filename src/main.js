@@ -1,4 +1,3 @@
-console.log("Início do main.js");
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -9,8 +8,22 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
 
-// Verificação inicial do ambiente
-console.log("Inicializando galeria 3D...");
+window.addEventListener('DOMContentLoaded', () => {
+  console.log("✔️ DOM carregado. A iniciar galeria NANdART...");
+
+  const canvas = document.getElementById('scene');
+  if (!canvas) {
+    console.error("❌ Canvas com ID 'scene' não encontrado.");
+    return;
+  }
+
+  // Remove loading screen se existir
+  const loading = document.querySelector('.loading-screen');
+  if (loading) loading.remove();
+
+  // TODO: Aqui dentro vai todo o teu código da galeria, como já tens.
+});
+
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

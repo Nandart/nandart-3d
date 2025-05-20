@@ -667,7 +667,6 @@ const modalArtista = infoPanel.querySelector('#art-artist');
 const modalAno = infoPanel.querySelector('#art-year');
 const modalDescricao = infoPanel.querySelector('#art-description');
 const modalPreco = infoPanel.querySelector('#art-price');
-const botaoComprar = infoPanel.querySelector('#buy-art');
 
 // Função para abrir o modal com dados e animações
 function abrirModal(dados, cubo) {

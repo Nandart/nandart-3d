@@ -792,3 +792,7 @@ window.addEventListener('load', () => {
 
 // Verificação final
 console.log("Configuração inicial concluída");
+const loadingDiv = document.getElementById('loading');
+if (loadingDiv) loadingDiv.style.display = 'none';
+document.querySelector('#loading')?.remove();
+console.log('✅ Loader removido manualmente');

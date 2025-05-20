@@ -786,47 +786,79 @@ botaoComprar.addEventListener('click', () => {
     buyHandler(dados);
   }
 });
-// 🌐 Botão "Connect Wallet" com ligação e desconexão via MetaMask
+// 🧩 Ligação e desligação da carteira com persistência local
+
+// Criar botão flutuante no topo direito
 const walletButton = document.createElement('button');
 walletButton.id = 'wallet-button';
 walletButton.textContent = 'Connect Wallet';
 walletButton.style.cssText = `
-  position: fixed; top: 18px; right: 20px; z-index: 100;
-  padding: 10px 18px; font-size: 1em;
-  background-color: #d8b26c; color: #111;
-  border: none; border-radius: 6px;
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 99;
+  padding: 10px 16px;
   font-family: 'Playfair Display', serif;
-  cursor: pointer; box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  font-size: 0.95em;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: #d8b26c;
+  color: #111;
+  box-shadow: 0 0 6px rgba(255, 220, 150, 0.35);
   transition: background-color 0.3s ease;
 `;
+walletButton.addEventListener('mouseenter', () => {
+  walletButton.style.backgroundColor = '#e2c78e';
+});
+walletButton.addEventListener('mouseleave', () => {
+  walletButton.style.backgroundColor = '#d8b26c';
+});
 document.body.appendChild(walletButton);
 
-let walletAddress = null;
+// Actualizar estado do botão consoante ligação
+async function actualizarBotaoCarteira() {
+  const isLigada = localStorage.getItem('walletConnected') === 'true';
+  walletButton.textContent = isLigada ? 'Disconnect' : 'Connect Wallet';
+}
 
-walletButton.addEventListener('click', async () => {
-  if (walletAddress) {
-    // Desligar
-    walletAddress = null;
-    walletButton.textContent = 'Connect Wallet';
-    walletButton.style.backgroundColor = '#d8b26c';
+// Ligar carteira e guardar estado
+async function ligarCarteira() {
+  if (!window.ethereum) {
+    alert('Instala a MetaMask para poderes interagir com a galeria.');
     return;
   }
 
-  if (typeof window.ethereum !== 'undefined') {
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      walletAddress = accounts[0];
-      const abreviado = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
-      walletButton.textContent = abreviado;
-      walletButton.style.backgroundColor = '#bca05c';
-    } catch (err) {
-      console.error('Erro ao ligar à carteira:', err);
-      alert('Não foi possível ligar à carteira.');
-    }
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    localStorage.setItem('walletConnected', 'true');
+    walletButton.textContent = 'Disconnect';
+    console.log('✅ Carteira ligada com sucesso.');
+  } catch (err) {
+    console.error('Erro ao ligar carteira:', err);
+    alert('Não foi possível ligar a carteira.');
+  }
+}
+
+// Desligar carteira e limpar estado
+function desligarCarteira() {
+  localStorage.removeItem('walletConnected');
+  walletButton.textContent = 'Connect Wallet';
+  console.log('🔌 Carteira desligada.');
+}
+
+// Clique no botão alterna estado
+walletButton.addEventListener('click', () => {
+  const isLigada = localStorage.getItem('walletConnected') === 'true';
+  if (isLigada) {
+    desligarCarteira();
   } else {
-    alert('MetaMask não está instalada. Instala para usar esta funcionalidade.');
+    ligarCarteira();
   }
 });
+
+// Inicializar estado ao carregar a galeria
+window.addEventListener('DOMContentLoaded', actualizarBotaoCarteira);
 // 🚀 Animação contínua com controlo de velocidade e reflexos suaves
 function animate() {
   requestAnimationFrame(animate);

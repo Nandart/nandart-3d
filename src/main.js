@@ -784,11 +784,21 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Iniciar animação quando tudo estiver carregado
-window.addEventListener('load', () => {
-  console.log("Todos os recursos carregados, iniciando animação...");
+if (document.readyState === 'complete') {
+  iniciarGaleria();
+} else {
+  window.addEventListener('load', iniciarGaleria);
+}
+
+function iniciarGaleria() {
+  console.log("✅ Todos os recursos carregados, iniciando animação...");
+  const loadingScreen = document.querySelector('.loading-screen');
+  if (loadingScreen) {
+    loadingScreen.style.display = 'none';
+    console.log('✅ Loader visual removido com sucesso');
+  }
   animate();
-});
+}
 
 // Verificação final
 console.log("Configuração inicial concluída");

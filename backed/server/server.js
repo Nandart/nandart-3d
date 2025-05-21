@@ -1,44 +1,34 @@
 const express = require("express");
 const path = require("path");
 
-// Routers
 const submitRouter = require('./routes/server/submit');
 const entradasRouter = require('./routes/server/entradas');
 const centralesRouter = require('./routes/server/centrales');
 
 const app = express();
 
-// ================== CONFIGURAÇÃO DE CORS ==================
-const cors = require("cors");
+// Configuração CORS manual
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://nandartart.art");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
-const corsOptions = {
-  origin: "https://nandartart.art",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-  optionsSuccessStatus: 200 // Para navegadores mais antigos
-};
-
-// Aplicar CORS antes de outras middlewares
-app.use(cors(corsOptions));
-
-// ================== PARSERS DE REQUEST ==================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ================== ROTAS PRINCIPAIS ==================
+// Rotas
 app.use('/api', submitRouter);
 app.use('/api/entradas', entradasRouter);
 app.use('/api/centrales', centralesRouter);
 
-// ================== FICHEIROS ESTÁTICOS E FALLBACK ==================
+// Static + fallback
 app.use(express.static(path.join(__dirname, '../../')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../index.html'));
 });
 
-// ================== INÍCIO DO SERVIDOR ==================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor iniciado na porta ${PORT}`);
-});
+// Início do servidor
+app.listen(3000, () => console.log("Servidor na porta 3000"));

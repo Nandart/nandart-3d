@@ -75,22 +75,23 @@ function updateLoadingProgress() {
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const loadingManager = new THREE.LoadingManager(
-  () => {
-    console.log('✅ Todos os recursos carregados');
-    updateLoadingProgress();
-  },
-  (item, loaded, total) => {
-    console.log(`📦 Carregando recurso ${loaded}/${total}: ${item}`);
-    updateLoadingProgress();
-  },
-try {
-  } catch (err) {
-    console.error('❌ Erro ao carregar recurso:', error);
-    const erro = document.getElementById('loading-error');
-    if (erro) erro.style.display = 'block';
-  }
-);
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onLoad = () => {
+  console.log('✅ Todos os recursos carregados');
+  updateLoadingProgress();
+};
+
+loadingManager.onProgress = (item, loaded, total) => {
+  console.log(`📦 Carregando recurso ${loaded}/${total}: ${item}`);
+  updateLoadingProgress();
+};
+
+loadingManager.onError = (url) => {
+  console.error(`❌ Erro ao carregar recurso: ${url}`);
+  const erro = document.getElementById('loading-error');
+  if (erro) erro.style.display = 'block';
+};
 
 const textureLoader = new THREE.TextureLoader(loadingManager);
 

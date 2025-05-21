@@ -8,8 +8,15 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
 
-// ==================== INITIAL CHECKS ====================
-console.log("Initializing 3D Gallery...");
+// ==================== DEBUG INITIALIZATION ====================
+console.log("Initializing 3D Gallery with debug mode...");
+
+// Debug stats
+const debugStats = {
+  texturesLoaded: 0,
+  objectsCreated: 0,
+  lastError: null
+};
 
 // Verify dependencies
 if (!THREE || !gsap || !ethers) {
@@ -25,6 +32,7 @@ if (!THREE || !gsap || !ethers) {
       <h2>Missing Required Libraries</h2>
       <p>Essential libraries failed to load. Please refresh the page.</p>
       <p>If the problem persists, check your network connection.</p>
+      <p>Missing: ${!THREE ? 'THREE.js' : ''} ${!gsap ? 'GSAP' : ''} ${!ethers ? 'Ethers.js' : ''}</p>
     </div>
   `;
   document.body.appendChild(errorMsg);
@@ -35,7 +43,7 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 // ==================== RESOURCE TRACKING ====================
 let loadedResources = 0;
-const totalResources = 10 + obrasSuspensas.length; // Estimate based on typical resources
+const totalResources = 10 + obrasSuspensas.length;
 
 function updateLoadingProgress() {
   loadedResources++;
@@ -47,6 +55,7 @@ function updateLoadingProgress() {
       document.querySelector('.loading-screen').style.opacity = '0';
       setTimeout(() => {
         document.querySelector('.loading-screen').style.display = 'none';
+        console.log('All resources loaded successfully');
       }, 500);
     }, 500);
   }
@@ -71,11 +80,30 @@ function getViewportLevel() {
 let config = configMap[getViewportLevel()];
 const velocidadeObras = 0.3;
 
+console.log('Initial viewport config:', config);
+
 // ==================== SCENE AND RENDERER ====================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Enhanced texture loader with error handling
+// Debug texture for testing
+const createDebugTexture = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#333333';
+  ctx.fillRect(0, 0, 512, 512);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(0, 0, 512, 512);
+  ctx.font = '48px Arial';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText('DEBUG TEXTURE', 256, 256);
+  return canvas;
+};
+
 const loadingManager = new THREE.LoadingManager(
   () => {
     console.log('All resources loaded');
@@ -87,13 +115,14 @@ const loadingManager = new THREE.LoadingManager(
   },
   (error) => {
     console.error('Error loading resource:', error);
+    debugStats.lastError = error;
     document.getElementById('loading-error').style.display = 'block';
   }
 );
 
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
-// Renderer with enhanced configuration
+// Renderer with debug information
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
@@ -108,6 +137,27 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// Add debug info overlay
+const debugOverlay = document.createElement('div');
+debugOverlay.style.cssText = `
+  position: fixed; bottom: 10px; left: 10px;
+  background: rgba(0,0,0,0.7); color: #fff;
+  padding: 10px; font-family: monospace;
+  z-index: 1000; border-radius: 5px;
+  font-size: 12px; pointer-events: none;
+`;
+document.body.appendChild(debugOverlay);
+
+function updateDebugOverlay() {
+  debugOverlay.innerHTML = `
+    Viewport: ${getViewportLevel()}<br>
+    Objects: ${scene.children.length}<br>
+    Textures: ${debugStats.texturesLoaded}<br>
+    Last Error: ${debugStats.lastError || 'none'}<br>
+    Camera: ${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}
+  `;
+}
 
 // ==================== LIGHTING ====================
 const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
@@ -156,10 +206,10 @@ function updateCamera() {
   camera.position.set(0, config.cameraY + 6.5, config.cameraZ + 15.2);
   camera.lookAt(0, 7.3, -config.wallDistance + 0.8);
   camera.updateProjectionMatrix();
+  console.log('Camera updated to:', camera.position);
 }
 updateCamera();
 
-// Enhanced resize handler
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
@@ -170,6 +220,7 @@ window.addEventListener('resize', () => {
       window.innerWidth * window.devicePixelRatio,
       window.innerHeight * window.devicePixelRatio
     );
+    console.log('Resized to:', window.innerWidth, 'x', window.innerHeight);
   }, 200);
 });
 
@@ -178,8 +229,9 @@ const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
 const aplicarTexturaParede = (textura) => {
+  const debugTexture = new THREE.CanvasTexture(createDebugTexture());
   const paredeMaterial = new THREE.MeshStandardMaterial({
-    map: textura,
+    map: textura || debugTexture,
     color: 0xffffff,
     emissive: 0x111111,
     emissiveIntensity: 0.25,
@@ -187,46 +239,53 @@ const aplicarTexturaParede = (textura) => {
     metalness: 0.15
   });
 
-  // Parede de fundo
+  // Back wall
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
   paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // Parede lateral esquerda
+  // Left wall
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // Parede lateral direita
+  // Right wall
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
   paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
+
+  debugStats.objectsCreated += 3;
+  updateDebugOverlay();
 };
 
-// Enhanced texture loading with fallbacks
+// Load wall texture with enhanced error handling
 textureLoader.load(
   '/assets/antracite-realista.jpg',
   (texture) => {
+    debugStats.texturesLoaded++;
     aplicarTexturaParede(texture);
     updateLoadingProgress();
   },
   undefined,
   (error) => {
     console.error('Error loading primary wall texture:', error);
+    debugStats.lastError = error;
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
       (fallbackTexture) => {
+        debugStats.texturesLoaded++;
         aplicarTexturaParede(fallbackTexture);
         updateLoadingProgress();
       },
       undefined,
       (fallbackError) => {
         console.error('Error loading fallback wall texture:', fallbackError);
+        debugStats.lastError = fallbackError;
         aplicarTexturaParede(null);
         updateLoadingProgress();
       }
@@ -235,7 +294,19 @@ textureLoader.load(
 );
 
 // ==================== CENTRAL ARTWORK ====================
-const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg', updateLoadingProgress);
+const texturaCentral = textureLoader.load('/assets/obras/obra-central.jpg', 
+  () => {
+    debugStats.texturesLoaded++;
+    updateLoadingProgress();
+  },
+  undefined,
+  (error) => {
+    console.error('Error loading central artwork:', error);
+    debugStats.lastError = error;
+    updateLoadingProgress();
+  }
+);
+
 const quadroCentralGrupo = new THREE.Group();
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
@@ -266,6 +337,8 @@ quadroCentralGrupo.add(pinturaCentral);
 
 quadroCentralGrupo.position.set(0, 10.3, -config.wallDistance + 0.001);
 scene.add(quadroCentralGrupo);
+debugStats.objectsCreated += 2;
+updateDebugOverlay();
 
 // ==================== DECORATIVE TRIMS ====================
 const frisoMaterial = new THREE.MeshStandardMaterial({
@@ -284,6 +357,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   friso.position.set(x, y, z);
   friso.rotation.y = rotY;
   scene.add(friso);
+  debugStats.objectsCreated++;
   return friso;
 }
 
@@ -312,10 +386,18 @@ function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
   group.position.set(x, y, z);
   group.rotation.y = rotY;
   scene.add(group);
+  debugStats.objectsCreated += 4;
   return group;
 }
 
-// [Restante do código para criar frisos...]
+// Create decorative trims
+criarFrisoLinha(0, 16, -config.wallDistance - 2, 18);
+criarFrisoLinha(0, 10, -config.wallDistance - 2, 18);
+criarFrisoLinha(-9, 13, -config.wallDistance - 2, 0.06, 4, Math.PI/2);
+criarFrisoLinha(9, 13, -config.wallDistance - 2, 0.06, 4, Math.PI/2);
+criarFrisoRect(0, 19.5, -config.wallDistance - 2, 20, 0.5);
+criarFrisoRect(-15, 13.4, -config.wallDistance/2, 0.5, 28, Math.PI/2);
+criarFrisoRect(15, 13.4, -config.wallDistance/2, 0.5, 28, Math.PI/2);
 
 // ==================== SUSPENDED CUBES ====================
 const cubosSuspensos = [];
@@ -348,10 +430,10 @@ function criarCuboSuspenso(obra, indice) {
   const pos = posicoes[indice % posicoes.length];
   cubo.position.set(pos.x, pos.y, pos.z);
 
-  // Enhanced texture loading for cube artwork
   textureLoader.load(
     obra.imagem,
     (texture) => {
+      debugStats.texturesLoaded++;
       const gema = new THREE.Mesh(
         new THREE.IcosahedronGeometry(0.6, 1),
         new THREE.MeshStandardMaterial({
@@ -364,11 +446,12 @@ function criarCuboSuspenso(obra, indice) {
       );
       cubo.add(gema);
       updateLoadingProgress();
+      updateDebugOverlay();
     },
     undefined,
     (error) => {
       console.error(`Error loading artwork texture for ${obra.titulo}:`, error);
-      // Create placeholder gem
+      debugStats.lastError = error;
       const gema = new THREE.Mesh(
         new THREE.IcosahedronGeometry(0.6, 1),
         new THREE.MeshStandardMaterial({
@@ -387,6 +470,8 @@ function criarCuboSuspenso(obra, indice) {
   cubo.userData = { obra };
   cubosSuspensos.push(cubo);
   scene.add(cubo);
+  debugStats.objectsCreated++;
+  updateDebugOverlay();
 
   cubo.onClick = () => {
     if (!walletAddress) {
@@ -467,6 +552,7 @@ function abrirModal(dados, cubo) {
     onComplete: () => cameraIsAnimating = false
   });
   cameraIsAnimating = true;
+  console.log('Modal opened for artwork:', dados.titulo);
 }
 
 function fecharModal() {
@@ -477,6 +563,7 @@ function fecharModal() {
       overlay.style.display = 'none';
       infoPanel.style.display = 'none';
       obraSelecionada = null;
+      console.log('Modal closed');
     }
   });
   gsap.to(camera.position, { x: 0, y: 11, z: 15, duration: 0.8 });
@@ -501,6 +588,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
 
   const intersects = raycaster.intersectObjects([...cubosSuspensos]);
   if (intersects.length > 0 && intersects[0].object.onClick) {
+    console.log('Clicked on artwork:', intersects[0].object.userData.obra.titulo);
     intersects[0].object.onClick();
   }
 });
@@ -571,6 +659,7 @@ async function ligarCarteira() {
 
   } catch (err) {
     console.error('Erro ao ligar carteira:', err);
+    debugStats.lastError = err;
     alert('Erro ao ligar a carteira. Tenta novamente.');
   }
 }
@@ -600,6 +689,7 @@ window.addEventListener('load', async () => {
       }
     } catch (err) {
       console.error('Erro ao restaurar carteira:', err);
+      debugStats.lastError = err;
       localStorage.removeItem('walletAddress');
     }
   }
@@ -630,6 +720,7 @@ function criarObrasNormais() {
     textureLoader.load(
       dados.imagem,
       (texture) => {
+        debugStats.texturesLoaded++;
         const obra = new THREE.Mesh(
           new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
           new THREE.MeshStandardMaterial({
@@ -645,12 +736,14 @@ function criarObrasNormais() {
 
         scene.add(obra);
         obrasNormais.push(obra);
+        debugStats.objectsCreated++;
         updateLoadingProgress();
+        updateDebugOverlay();
       },
       undefined,
       (error) => {
         console.error(`Error loading circular artwork ${dados.titulo}:`, error);
-        // Create placeholder artwork
+        debugStats.lastError = error;
         const obra = new THREE.Mesh(
           new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
           new THREE.MeshStandardMaterial({
@@ -669,6 +762,7 @@ function criarObrasNormais() {
 
         scene.add(obra);
         obrasNormais.push(obra);
+        debugStats.objectsCreated++;
         updateLoadingProgress();
       }
     );
@@ -694,8 +788,10 @@ function animarObrasCirculares(delta) {
 
 function animate() {
   requestAnimationFrame(animate);
-  animarObrasCirculares(relogio.getDelta());
+  const delta = relogio.getDelta();
+  animarObrasCirculares(delta);
   renderer.render(scene, camera);
+  updateDebugOverlay();
 }
 
 animate();
@@ -728,9 +824,15 @@ modalElements.botao.addEventListener('click', async () => {
 
   } catch (err) {
     console.error('Erro na compra:', err);
+    debugStats.lastError = err;
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 });
 
 // Initial loading progress update
 updateLoadingProgress();
+updateDebugOverlay();
+
+// Final scene verification
+console.log('Scene initialization complete. Objects:', scene.children);
+scene.children.forEach(obj => console.log(obj.type, obj.name || 'unnamed', obj.position));

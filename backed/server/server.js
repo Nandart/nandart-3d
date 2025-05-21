@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const path = require("path");
 
 // Routers
@@ -16,9 +15,11 @@ const corsOptions = {
   origin: "https://nandartart.art",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // Para navegadores mais antigos
 };
 
+// Aplicar CORS antes de outras middlewares
 app.use(cors(corsOptions));
 
 // ================== PARSERS DE REQUEST ==================
@@ -37,6 +38,7 @@ app.get('*', (req, res) => {
 });
 
 // ================== INÍCIO DO SERVIDOR ==================
-app.listen(3000, () => {
-  console.log("🚀 Servidor iniciado na porta 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor iniciado na porta ${PORT}`);
 });

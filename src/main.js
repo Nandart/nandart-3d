@@ -52,7 +52,7 @@ function getViewportLevel() {
 }
 
 let config = configMap[getViewportLevel()];
-
+const velocidadeObras = 0.003;
 // Contador de recursos para carregamento visual
 let loadedResources = 0;
 const totalResources = 10 + obrasSuspensas.length;

@@ -198,28 +198,22 @@ function aplicarTexturaParede(textura) {
 
 textureLoader.load(
   'assets/antracite-realista.jpg',
-  (texture) => {
-    aplicarTexturaParede(texture);
-    updateLoadingProgress();
-  },
+  (texture) => aplicarTexturaParede(texture),
   undefined,
   (error) => {
-    console.warn('⚠️ Erro ao carregar textura local. Tentativa de fallback remoto...');
+    console.warn('⚠️ Erro ao carregar textura local. Tentativa com fallback...');
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
-      (fallbackTexture) => {
-        aplicarTexturaParede(fallbackTexture);
-        updateLoadingProgress();
-      },
+      (fallbackTexture) => aplicarTexturaParede(fallbackTexture),
       undefined,
       (fallbackError) => {
-        console.error('❌ Falha no fallback remoto da textura:', fallbackError);
+        console.error('❌ Falha também no fallback da textura:', fallbackError);
         aplicarTexturaParede(null);
-        updateLoadingProgress();
       }
     );
   }
 );
+
 // ==================== BLOCO 7 — OBRA CENTRAL COM MOLDURA ====================
 const texturaCentral = textureLoader.load('assets/obras/obra-central.jpg', updateLoadingProgress);
 const quadroCentralGrupo = new THREE.Group();

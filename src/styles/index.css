@@ -1,3 +1,13 @@
+/* ==================== RESET BÁSICO ==================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html, body {
   width: 100%;
   height: 100%;
@@ -8,7 +18,7 @@ html, body {
   color: #e0e0e0;
 }
 
-/* Canvas 3D */
+/* ==================== CANVAS 3D ==================== */
 #scene {
   position: absolute;
   top: 0;
@@ -20,7 +30,7 @@ html, body {
   filter: brightness(1.05) contrast(1.1);
 }
 
-/* Modal de obra */
+/* ==================== MODAL DE OBRA ==================== */
 .art-modal {
   position: fixed;
   bottom: 10%;
@@ -37,9 +47,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6),
-              0 0 0 1px rgba(196, 181, 130, 0.3) inset;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(196, 181, 130, 0.3) inset;
   transition: all 0.3s ease;
 }
 
@@ -76,11 +84,6 @@ html, body {
   font-family: inherit;
 }
 
-.art-modal #buy-art:focus {
-  outline: 2px solid #c4b582;
-  outline-offset: 2px;
-}
-
 .art-modal #buy-art:hover {
   background: linear-gradient(to bottom, #d4c592, #b8a97e);
   transform: translateY(-1px);
@@ -92,7 +95,12 @@ html, body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Ícones */
+.art-modal #buy-art:focus {
+  outline: 2px solid #c4b582;
+  outline-offset: 2px;
+}
+
+/* ==================== ÍCONES FIXOS ==================== */
 .menu-icon, .info-icon {
   position: absolute;
   top: 20px;
@@ -106,8 +114,7 @@ html, body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.menu-icon:hover,
-.info-icon:hover {
+.menu-icon:hover, .info-icon:hover {
   opacity: 1;
   transform: scale(1.05);
   filter: drop-shadow(0 2px 6px rgba(196, 181, 130, 0.4));
@@ -120,7 +127,7 @@ html, body {
   width: 34px;
 }
 
-/* Menu dropdown */
+/* ==================== MENU DROPDOWN ==================== */
 .menu-dropdown {
   position: absolute;
   top: 70px;
@@ -134,7 +141,6 @@ html, body {
   flex-direction: column;
   min-width: 180px;
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
@@ -151,7 +157,7 @@ html, body {
   color: #c4b582;
 }
 
-/* Ícone ajuda flutuante */
+/* ==================== ÍCONE AJUDA FLUTUANTE ==================== */
 .ajuda-icon {
   position: fixed;
   bottom: 20px;
@@ -178,7 +184,7 @@ html, body {
   100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(10px); }
 }
 
-/* Notificação de interação */
+/* ==================== NOTIFICAÇÃO DE INTERAÇÃO ==================== */
 .interaction-hint {
   position: fixed;
   bottom: 80px;
@@ -206,21 +212,7 @@ html, body {
   }
 }
 
-/* Efeitos dourados */
-.gold-glow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: radial-gradient(circle at center, rgba(196, 181, 130, 0.3) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-/* Tela de carregamento */
+/* ==================== LOADING SCREEN ==================== */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -258,7 +250,7 @@ html, body {
   opacity: 0.8;
 }
 
-/* Scroll personalizado para páginas verticais */
+/* ==================== ARTISTAS - SUBMISSÃO ==================== */
 body.pagina-scrollavel {
   overflow-y: auto;
   touch-action: auto;
@@ -337,7 +329,7 @@ body.pagina-scrollavel {
   background: #d1c08f;
 }
 
-/* Navegação fixa */
+/* ==================== NAVEGAÇÃO FIXA ==================== */
 .navigation-bar {
   position: fixed;
   top: 20px;
@@ -359,7 +351,6 @@ body.pagina-scrollavel {
   transition: background-color 0.3s ease, color 0.3s ease;
   border: 1px solid #c4b582;
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
 }
 
@@ -367,38 +358,8 @@ body.pagina-scrollavel {
   background-color: rgba(196, 181, 130, 0.3);
   color: #ffffff;
 }
-/* Saldo da carteira */
-#wallet-balance {
-  transition: opacity 0.4s ease;
-}
-/* Responsividade refinada */
-@media (max-width: 1200px) {
-  .art-modal { width: 150px; padding: 12px; }
-}
-@media (max-width: 1024px) {
-  .art-modal { width: 140px; padding: 10px; }
-  .menu-icon, .info-icon { width: 34px; height: 34px; }
-  .ajuda-icon { width: 42px; height: 42px; }
-}
-@media (max-width: 768px) {
-  .art-modal { width: 130px; bottom: 9%; padding: 9px; }
-  .menu-icon, .info-icon { width: 32px; height: 32px; }
-  .ajuda-icon { width: 40px; height: 40px; }
-}
-@media (max-width: 480px) {
-  .art-modal { width: 120px; bottom: 8%; padding: 8px; }
-  .menu-icon, .info-icon { width: 30px; height: 30px; top: 15px; left: 15px; }
-  .info-icon { top: 10px; right: 15px; left: auto; }
-  .ajuda-icon { width: 38px; height: 38px; bottom: 15px; right: 15px; }
-  .menu-dropdown { top: 60px; left: 15px; min-width: 160px; }
-}
-@media (max-width: 360px) {
-  .art-modal { width: 110px; bottom: 7%; padding: 7px; }
-  .menu-icon, .info-icon { width: 28px; height: 28px; }
-  .ajuda-icon { width: 36px; height: 36px; }
-}
 
-/* Botão Connect Wallet com ícone da MetaMask */
+/* ==================== BOTÃO DE CARTEIRA ==================== */
 #wallet-button {
   position: fixed;
   top: 18px;
@@ -432,6 +393,35 @@ body.pagina-scrollavel {
 #wallet-button:active {
   transform: scale(0.97);
 }
+
 #wallet-balance {
   transition: opacity 0.4s ease;
-}  
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 1200px) {
+  .art-modal { width: 150px; padding: 12px; }
+}
+@media (max-width: 1024px) {
+  .art-modal { width: 140px; padding: 10px; }
+  .menu-icon, .info-icon { width: 34px; height: 34px; }
+  .ajuda-icon { width: 42px; height: 42px; }
+}
+@media (max-width: 768px) {
+  .art-modal { width: 130px; bottom: 9%; padding: 9px; }
+  .menu-icon, .info-icon { width: 32px; height: 32px; }
+  .ajuda-icon { width: 40px; height: 40px; }
+}
+@media (max-width: 480px) {
+  .art-modal { width: 120px; bottom: 8%; padding: 8px; }
+  .menu-icon, .info-icon { width: 30px; height: 30px; top: 15px; left: 15px; }
+  .info-icon { top: 10px; right: 15px; left: auto; }
+  .ajuda-icon { width: 38px; height: 38px; bottom: 15px; right: 15px; }
+  .menu-dropdown { top: 60px; left: 15px; min-width: 160px; }
+}
+@media (max-width: 360px) {
+  .art-modal { width: 110px; bottom: 7%; padding: 7px; }
+  .menu-icon, .info-icon { width: 28px; height: 28px; }
+  .ajuda-icon { width: 36px; height: 36px; }
+}
+

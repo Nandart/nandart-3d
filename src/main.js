@@ -84,7 +84,8 @@ const loadingManager = new THREE.LoadingManager(
     console.log(`📦 Carregando recurso ${loaded}/${total}: ${item}`);
     updateLoadingProgress();
   },
-  (error) => {
+try {
+  } catch (err) {
     console.error('❌ Erro ao carregar recurso:', error);
     const erro = document.getElementById('loading-error');
     if (erro) erro.style.display = 'block';

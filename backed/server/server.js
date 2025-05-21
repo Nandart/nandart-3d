@@ -1,9 +1,30 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const router = express.Router();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
-const FICHEIRO = path.join(__dirname, '../entradas.json');
+const submitRouter = require('./routes/submit');
+const entradasRouter = require('./routes/entradas');
+const centralesRouter = require('./routes/centrales'); // <-- AQUI
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Rotas
+app.use('/api', submitRouter);
+app.use('/api/entradas', entradasRouter);
+app.use('/api/centrales', centralesRouter); // <-- AQUI
+
+// Static + fallback
+app.use(express.static(path.join(__dirname, '../../')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../index.html'));
+});
+
+// Início do servidor
+app.listen(3000, () => console.log("Servidor na porta 3000"));
 
 function lerEntradas() {
   try {

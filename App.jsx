@@ -16,3 +16,6 @@ async function mintNFT() {
     alert("Erro ao criar NFT. Ver consola.");
   }
 }
+<button onClick={mintNFT} className="btn btn-primary">
+  Criar NFT com Curadoria
+</button>

@@ -15,3 +15,4 @@ export async function connectWallet() {
 
   return { signer, account: accounts[0], contract: new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer) };
 }
+

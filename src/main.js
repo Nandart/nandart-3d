@@ -879,10 +879,13 @@ function criarCuboSuspenso(obra, indice) {
 }
 // ==================== BLOCO 19 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
 
+// URL do backend onde está o Express na Render
+const BACKEND_URL = 'https://nandart-3d.onrender.com';
+
 // Regista entrada de obra suspensa no backend
 async function registarEntradaBackend(obraId) {
   try {
-    const resposta = await fetch('https://nandartart.art/api/entradas', {
+    const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ obraId })
@@ -899,7 +902,7 @@ async function registarEntradaBackend(obraId) {
 async function verificarMigracoesBackend() {
   for (const obra of obrasSuspensas) {
     try {
-      const resposta = await fetch(`https://nandartart.art/api/entradas/${obra.id}`);
+      const resposta = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`);
       if (!resposta.ok) continue;
 
       const { data } = await resposta.json();
@@ -908,7 +911,7 @@ async function verificarMigracoesBackend() {
       if (diasPassados >= 30) {
         console.log(`⏳ Obra ${obra.id} ultrapassou os 30 dias. Migrando...`);
         migrarParaCirculo(obra);
-        await fetch(`https://nandartart.art/api/entradas/${obra.id}`, { method: 'DELETE' });
+        await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`, { method: 'DELETE' });
       }
     } catch (err) {
       console.error(`Erro ao verificar/migrar obra ${obra.id}:`, err);

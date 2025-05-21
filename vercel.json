@@ -5,8 +5,7 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "cleanUrls": true
+        "distDir": "dist"
       }
     }
   ],
@@ -25,17 +24,14 @@
     {
       "src": "/",
       "dest": "/index.html"
-    }
-  ],
-  "headers": [
+    },
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "script-src 'self' 'unsafe-eval'; object-src 'none'"
-        }
-      ]
+      "src": "/(.*)",
+      "headers": {
+        "Content-Security-Policy": "script-src 'self' 'unsafe-eval'; object-src 'none'"
+      },
+      "dest": "/$1"
     }
   ]
 }
+

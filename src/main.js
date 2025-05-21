@@ -562,26 +562,6 @@ function animarObrasCirculares(delta) {
     obra.lookAt(0, 4.2, 0);
   });
 }
-// ==================== BLOCO 13 — INÍCIO DA GALERIA ====================
-function iniciarGaleria() {
-  criarObrasNormais();
-  obrasSuspensas.forEach((obra, idx) => criarCuboSuspenso(obra, idx));
-  verificarMigracoesBackend();
-}
-
-window.addEventListener('load', iniciarGaleria);
-// ==================== BLOCO 14 — ANIMAÇÃO GLOBAL ====================
-function animate() {
-  requestAnimationFrame(animate);
-
-  const delta = relogio.getDelta();
-
-  animarObrasCirculares(delta);
-
-  renderer.render(scene, camera);
-}
-
-animate();
 // ==================== BLOCO 15 — DETECÇÃO DE CLIQUE NAS OBRAS ====================
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (obraDestacada) return;

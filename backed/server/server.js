@@ -10,11 +10,15 @@ const centralesRouter = require('./routes/server/centrales');
 const app = express();
 
 // ================== CONFIGURAÇÃO DE CORS ==================
+const cors = require("cors");
+
 const corsOptions = {
-  origin: 'https://nandartart.art',
-  methods: ['GET', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type']
+  origin: "https://nandartart.art",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 };
+
 app.use(cors(corsOptions));
 
 // ================== PARSERS DE REQUEST ==================

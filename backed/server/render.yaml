@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: nandart-3d
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health

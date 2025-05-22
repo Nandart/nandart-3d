@@ -1003,3 +1003,193 @@ function animate() {
 
 // Inicia o loop de animação
 animate();
+const cubosSuspensos = [];
+
+function criarCuboSuspenso(obra, indice) {
+  const tamanhoCubo = 1.5;
+
+  const materialCubo = new THREE.MeshPhysicalMaterial({
+    color: 0x222222,
+    transparent: true,
+    opacity: 0.18,
+    roughness: 0.25,
+    metalness: 0.5,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.2,
+    reflectivity: 0.3
+  });
+
+  const cubo = new THREE.Mesh(
+    new THREE.BoxGeometry(tamanhoCubo, tamanhoCubo, tamanhoCubo),
+    materialCubo
+  );
+  cubo.castShadow = cubo.receiveShadow = true;
+
+  // Posições elevadas, com leve variação
+  const altura = 8.2;
+  const posicoes = [
+    { x: -5, y: altura, z: 0 },
+    { x: 5, y: altura, z: 0 },
+    { x: -5, y: altura, z: -5 },
+    { x: 5, y: altura, z: -5 }
+  ];
+  const pos = posicoes[indice % posicoes.length];
+  cubo.position.set(pos.x, pos.y, pos.z);
+
+  // Gema luminosa (com ou sem textura da obra)
+  textureLoader.load(
+    obra.imagem,
+    (texture) => {
+      const gema = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.6, 1),
+        new THREE.MeshStandardMaterial({
+          map: texture,
+          emissive: 0x3399cc,
+          emissiveIntensity: 2.0,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      cubo.add(gema);
+      updateLoadingProgress();
+    },
+    undefined,
+    () => {
+      const gemaFallback = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.6, 1),
+        new THREE.MeshStandardMaterial({
+          color: 0x3399cc,
+          emissive: 0x3399cc,
+          emissiveIntensity: 2.0,
+          transparent: true,
+          opacity: 0.9
+        })
+      );
+      cubo.add(gemaFallback);
+      updateLoadingProgress();
+    }
+  );
+
+  cubo.userData = { obra };
+  cubosSuspensos.push(cubo);
+  scene.add(cubo);
+
+  return cubo;
+}
+// URL do backend Express alojado no Render
+const BACKEND_URL = 'https://nandart-3d.onrender.com';
+
+// Registar a entrada de uma nova obra suspensa
+async function registarEntradaBackend(obraId) {
+  try {
+    const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ obraId })
+    });
+
+    if (!resposta.ok) {
+      throw new Error(`Resposta não OK: ${resposta.status}`);
+    }
+
+    const json = await resposta.json();
+    const dataFormatada = new Date(json.data).toLocaleDateString('pt-PT');
+    console.log(`📌 Entrada registada: ${obraId} → ${dataFormatada}`);
+  } catch (err) {
+    console.error(`❌ Erro ao registar entrada da obra ${obraId}:`, err.message || err);
+  }
+}
+
+// Verificar quais obras ultrapassaram os 30 dias e migrar
+async function verificarMigracoesBackend() {
+  for (const obra of obrasSuspensas) {
+    try {
+      const resposta = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`);
+
+      if (!resposta.ok) {
+        console.warn(`ℹ️ Obra ${obra.id} ainda não tem entrada ou resposta inválida.`);
+        continue;
+      }
+
+      const { data } = await resposta.json();
+      const diasPassados = (Date.now() - Number(data)) / (1000 * 60 * 60 * 24);
+
+      if (diasPassados >= 30) {
+        console.log(`⏳ Obra ${obra.id} ultrapassou 30 dias. Migrando para o círculo central...`);
+        migrarParaCirculo(obra);
+
+        const apagar = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`, {
+          method: 'DELETE'
+        });
+
+        if (apagar.ok) {
+          console.log(`🗑️ Entrada da obra ${obra.id} removida do backend.`);
+        } else {
+          console.warn(`⚠️ Não foi possível remover a entrada da obra ${obra.id}`);
+        }
+      }
+    } catch (err) {
+      console.error(`❌ Erro ao verificar/migrar a obra ${obra.id}:`, err.message || err);
+    }
+  }
+}
+function migrarParaCirculo(obra) {
+  const tamanho = config.obraSize;
+
+  const textura = textureLoader.load(obra.imagem, updateLoadingProgress);
+
+  const novaObra = new THREE.Mesh(
+    new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+    new THREE.MeshStandardMaterial({
+      map: textura,
+      roughness: 0.2,
+      metalness: 0.1,
+      side: THREE.DoubleSide,
+      transparent: true
+    })
+  );
+
+  const index = obrasNormais.length;
+  const angulo = (index / (obrasNormais.length + 1)) * Math.PI * 2;
+
+  novaObra.position.set(
+    Math.cos(angulo) * config.circleRadius,
+    4.2,
+    Math.sin(angulo) * config.circleRadius
+  );
+  novaObra.lookAt(0, 4.2, 0);
+
+  novaObra.userData = { dados: obra, index };
+  scene.add(novaObra);
+  obrasNormais.push(novaObra);
+}
+function iniciarGaleria() {
+  // 1. Criar as obras normais do círculo rotativo
+  criarObrasNormais();
+
+  // 2. Adicionar cubos suspensos com obras em pré-venda
+  obrasSuspensas.forEach((obra, idx) => {
+    criarCuboSuspenso(obra, idx);
+    registarEntradaBackend(obra.id);
+  });
+
+  // 3. Verificar se alguma obra ultrapassou o tempo de suspensão
+  verificarMigracoesBackend();
+}
+
+// Executar ao carregar a página
+window.addEventListener('load', iniciarGaleria);
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = relogio.getDelta();
+
+  // Animação contínua das obras rotativas (se nenhuma estiver destacada)
+  animarObrasCirculares(delta);
+
+  // Renderizar a cena com a câmara atual
+  renderer.render(scene, camera);
+}
+
+// Inicia o ciclo de animação ao fim da configuração
+animate();

@@ -22,3 +22,4 @@ export const obrasSuspensas = [
     imagem: '/assets/obras/obra-cubo2.jpg'
   }
 ];
+

@@ -157,178 +157,6 @@ html, body {
   color: #c4b582;
 }
 
-/* ==================== ÍCONE AJUDA FLUTUANTE ==================== */
-.ajuda-icon {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 44px;
-  height: 44px;
-  z-index: 200;
-  cursor: pointer;
-  opacity: 0.95;
-  animation: fadeInOut 22s forwards;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.ajuda-icon:hover {
-  opacity: 1;
-  transform: scale(1.1) rotate(15deg);
-}
-
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(10px); }
-  5% { opacity: 0.95; transform: translateY(0); }
-  90% { opacity: 0.95; transform: translateY(0); }
-  100% { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(10px); }
-}
-
-/* ==================== NOTIFICAÇÃO DE INTERAÇÃO ==================== */
-.interaction-hint {
-  position: fixed;
-  bottom: 80px;
-  right: 30px;
-  background: rgba(20, 20, 20, 0.9);
-  border: 1px solid #c4b582;
-  border-radius: 6px;
-  padding: 10px 15px;
-  color: #e0e0e0;
-  font-size: 0.85rem;
-  z-index: 150;
-  backdrop-filter: blur(5px);
-  transform: translateY(20px);
-  opacity: 0;
-  animation: slideIn 0.5s forwards 1s;
-  max-width: 200px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-@keyframes slideIn {
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* ==================== LOADING SCREEN ==================== */
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #111111;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 1s ease-out;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid rgba(196, 181, 130, 0.3);
-  border-radius: 50%;
-  border-top-color: #c4b582;
-  animation: spin 1s ease-in-out infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  color: #c4b582;
-  font-size: 1rem;
-  letter-spacing: 1px;
-  margin-top: 15px;
-  opacity: 0.8;
-}
-
-/* ==================== ARTISTAS - SUBMISSÃO ==================== */
-body.pagina-scrollavel {
-  overflow-y: auto;
-  touch-action: auto;
-  height: auto;
-  min-height: 100vh;
-  background-color: #111111;
-  color: #e0e0e0;
-  font-family: 'Playfair Display', serif;
-  padding: 40px 20px 60px;
-}
-
-.artist-page-content {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.intro-box {
-  border: 1px solid #c4b582;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.intro-box h1 {
-  color: #c4b582;
-  font-size: 1.8rem;
-  margin-bottom: 16px;
-}
-
-.intro-box p {
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.artist-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.artist-form label {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.artist-form input[type="text"],
-.artist-form input[type="number"],
-.artist-form input[type="file"] {
-  padding: 10px;
-  background: #1a1a1a;
-  border: 1px solid #555;
-  border-radius: 5px;
-  color: #f0f0f0;
-  font-size: 0.95rem;
-}
-
-.artist-form input[type="checkbox"] {
-  margin-right: 8px;
-}
-
-.artist-form button {
-  background: #c4b582;
-  color: #111;
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 10px;
-  transition: background 0.3s ease;
-}
-
-.artist-form button:hover {
-  background: #d1c08f;
-}
-
 /* ==================== NAVEGAÇÃO FIXA ==================== */
 .navigation-bar {
   position: fixed;
@@ -405,23 +233,18 @@ body.pagina-scrollavel {
 @media (max-width: 1024px) {
   .art-modal { width: 140px; padding: 10px; }
   .menu-icon, .info-icon { width: 34px; height: 34px; }
-  .ajuda-icon { width: 42px; height: 42px; }
 }
 @media (max-width: 768px) {
   .art-modal { width: 130px; bottom: 9%; padding: 9px; }
   .menu-icon, .info-icon { width: 32px; height: 32px; }
-  .ajuda-icon { width: 40px; height: 40px; }
 }
 @media (max-width: 480px) {
   .art-modal { width: 120px; bottom: 8%; padding: 8px; }
   .menu-icon, .info-icon { width: 30px; height: 30px; top: 15px; left: 15px; }
   .info-icon { top: 10px; right: 15px; left: auto; }
-  .ajuda-icon { width: 38px; height: 38px; bottom: 15px; right: 15px; }
   .menu-dropdown { top: 60px; left: 15px; min-width: 160px; }
 }
 @media (max-width: 360px) {
   .art-modal { width: 110px; bottom: 7%; padding: 7px; }
   .menu-icon, .info-icon { width: 28px; height: 28px; }
-  .ajuda-icon { width: 36px; height: 36px; }
 }
-

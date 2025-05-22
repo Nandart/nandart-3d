@@ -614,7 +614,22 @@ function animarObrasCirculares(delta) {
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (obraDestacada) return; // Impede múltiplos destaques ao mesmo tempo
 
-  const mouse = new THREE.Vector2(// ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(obrasNormais, false);
+  if (intersects.length > 0) {
+    const obraClicada = intersects[0].object;
+    destacarObra(obraClicada);
+  }
+});
+
+  // ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
 
 function destacarObra(obra) {
   if (obraDestacada) return;
@@ -666,6 +681,7 @@ function destacarObra(obra) {
     }
   });
 }
+
 // ==================== BLOCO 13 — FECHAR MODAL AO CLICAR FORA ====================
 
 window.addEventListener('pointerdown', (e) => {

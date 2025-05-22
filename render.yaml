@@ -2,6 +2,20 @@ services:
   - type: web
     name: nandart-3d
     env: node
+    rootDir: backed
     buildCommand: npm install
     startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ADMIN_USERNAME
+        value: teu_utilizador
+      - key: ADMIN_PASSWORD
+        value: tua_senha
+      - key: JWT_SECRET
+        value: segredo_muito_forte
+      - key: GITHUB_TOKEN
+        value: token_do_github
     healthCheckPath: /api/health

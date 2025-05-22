@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
   <meta name="theme-color" content="#111111">
   <title>NANdART 3D Gallery</title>
@@ -68,7 +68,7 @@
       top: 60px;
       left: 18px;
       background: rgba(0, 0, 0, 0.85);
-      -webkit-backdrop-filter: blur(8px); /* Compatibilidade com Safari 9+ */
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       border-radius: 8px;
       padding: 12px;
@@ -100,6 +100,51 @@
     <a href="contactos.html">Contacts</a>
     <a href="artists.html">Artists</a>
     <a href="web3.html">Web3 & NFT</a>
+  </div>
+
+  <!-- Modal Informativo da Obra Destacada -->
+  <div id="overlay" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.7);
+    z-index: 150;
+    display: none;
+    backdrop-filter: blur(4px);
+  "></div>
+
+  <div id="info-panel" style="
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(34, 34, 34, 0.92);
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.4);
+    color: #f0f0f0;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    z-index: 200;
+    display: none;
+    max-width: 80vw;
+  ">
+    <h2 id="obra-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
+    <p id="obra-artista" style="margin: 4px 0; font-style: italic;"></p>
+    <p id="obra-ano" style="margin: 4px 0;"></p>
+    <p id="obra-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
+    <p id="obra-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
+    <button id="obra-buy" style="
+      margin-top: 14px;
+      padding: 10px 20px;
+      background: #d8b26c;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    ">Buy</button>
   </div>
 
   <!-- WebGL e menu JS -->

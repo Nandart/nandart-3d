@@ -46,6 +46,7 @@
       left: 0;
       z-index: 0;
     }
+
     .navigation-icons {
       position: fixed;
       top: 16px;
@@ -55,10 +56,12 @@
       gap: 16px;
       align-items: center;
     }
+
     .navigation-icons img {
       height: 28px;
       cursor: pointer;
     }
+
     #connect-wallet {
       position: fixed;
       top: 16px;
@@ -74,9 +77,11 @@
       z-index: 100;
       transition: background 0.3s;
     }
+
     #connect-wallet:hover {
       background-color: rgba(216, 178, 108, 0.1);
     }
+
     #menu-dropdown {
       display: none;
       position: fixed;
@@ -89,12 +94,14 @@
       flex-direction: column;
       z-index: 200;
     }
+
     #menu-dropdown a {
       color: #d8b26c;
       text-decoration: none;
       font-family: 'Playfair Display', serif;
       margin: 6px 0;
     }
+
     .loading-screen {
       position: fixed;
       top: 0;
@@ -110,6 +117,7 @@
       font-family: 'Playfair Display', serif;
       color: #d8b26c;
     }
+
     .loading-error {
       display: none;
       color: #ff6b6b;
@@ -139,7 +147,7 @@
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Tela de Carregamento -->
+  <!-- Tela de Carregamento Elegante -->
   <div class="loading-screen">
     <div class="loading-text" id="loading-progress">
       <span id="loaded-resources">0</span>/<span id="total-resources">0</span> resources loaded
@@ -149,7 +157,7 @@
     </div>
   </div>
 
-  <!-- Script Inicial -->
+  <!-- Verificação de WebGL -->
   <script>
     function checkWebGL() {
       try {
@@ -185,7 +193,7 @@
   <!-- Script Principal -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- Fallback -->
+  <!-- Fallback para browsers antigos -->
   <script nomodule>
     document.querySelector('.loading-screen').innerHTML = `
       <h2>Browser Not Supported</h2>

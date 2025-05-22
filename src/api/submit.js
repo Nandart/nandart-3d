@@ -35,7 +35,7 @@ export async function handleSubmission(formData, isInternal = false) {
   }
 
   // Envio dos dados para o backend
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
+  const backendURL = 'https://nandart-3d.onrender.com/api/submit-artwork';
   const submission = {
     titulo: formData.get("titulo"),
     artista: formData.get("artista"),

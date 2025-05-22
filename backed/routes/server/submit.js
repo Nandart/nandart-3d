@@ -67,7 +67,7 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
 
     const sanitize = (str) => str.trim().replace(/[^\w\-]/g, '_');
     const fileName = `${termsAcceptedAt.replace(/[-:]/g, '').replace('T', '_').slice(0, 15)}_${sanitize(artTitle)}_${sanitize(artistName)}.json`;
-    const jsonFolder = path.join(__dirname, '../submissoes-json');
+    const jsonFolder = path.join(__dirname, '../../submissoes-json');
 
     if (!fs.existsSync(jsonFolder)) {
       fs.mkdirSync(jsonFolder);

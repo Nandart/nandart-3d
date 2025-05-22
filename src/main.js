@@ -628,6 +628,20 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     destacarObra(obraClicada);
   }
 });
+// ==================== BLOCO 10.5 — ELEMENTOS DO MODAL INFORMATIVO ====================
+
+// Elementos do modal (devem existir no HTML com os IDs correspondentes)
+const overlay = document.getElementById('overlay');
+const infoPanel = document.getElementById('info-panel');
+
+const modalElements = {
+  titulo: document.getElementById('obra-titulo'),
+  artista: document.getElementById('obra-artista'),
+  ano: document.getElementById('obra-ano'),
+  descricao: document.getElementById('obra-descricao'),
+  preco: document.getElementById('obra-preco'),
+  botao: document.getElementById('obra-buy')
+};
 
   // ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
 

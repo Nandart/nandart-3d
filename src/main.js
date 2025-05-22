@@ -1058,3 +1058,16 @@ function iniciarGaleria() {
 
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
+// ==================== BLOCO FINAL — ANIMAÇÃO GLOBAL E RENDER ====================
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = relogio.getDelta();
+  animarObrasCirculares(delta);
+
+  renderer.render(scene, camera);
+}
+
+animate(); // ← CHAMADA INICIAL
+

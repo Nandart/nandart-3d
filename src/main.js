@@ -879,10 +879,10 @@ function criarCuboSuspenso(obra, indice) {
 }
 // ==================== BLOCO 19 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
 
-// URL do backend onde está o Express na Render
+// URL do backend onde está o Express no Render
 const BACKEND_URL = 'https://nandart-3d.onrender.com';
 
-// Regista entrada de obra suspensa no backend
+// Regista a entrada de uma obra suspensa no backend
 async function registarEntradaBackend(obraId) {
   try {
     const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
@@ -890,11 +890,16 @@ async function registarEntradaBackend(obraId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ obraId })
     });
-    if (!resposta.ok) throw new Error('Erro no registo da entrada');
+
+    if (!resposta.ok) {
+      throw new Error(`Resposta não OK: ${resposta.status}`);
+    }
+
     const json = await resposta.json();
-    console.log(`📌 Entrada registada: ${obraId} → ${new Date(json.data).toLocaleDateString()}`);
+    const dataFormatada = new Date(json.data).toLocaleDateString('pt-PT');
+    console.log(`📌 Entrada registada: ${obraId} → ${dataFormatada}`);
   } catch (err) {
-    console.error('❌ Erro ao registar entrada:', err);
+    console.error(`❌ Erro ao registar entrada da obra ${obraId}:`, err.message || err);
   }
 }
 
@@ -903,21 +908,35 @@ async function verificarMigracoesBackend() {
   for (const obra of obrasSuspensas) {
     try {
       const resposta = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`);
-      if (!resposta.ok) continue;
+
+      if (!resposta.ok) {
+        console.warn(`ℹ️ Obra ${obra.id} ainda não tem entrada ou resposta inválida.`);
+        continue;
+      }
 
       const { data } = await resposta.json();
-      const diasPassados = (Date.now() - parseInt(data)) / (1000 * 60 * 60 * 24);
+      const diasPassados = (Date.now() - Number(data)) / (1000 * 60 * 60 * 24);
 
       if (diasPassados >= 30) {
-        console.log(`⏳ Obra ${obra.id} ultrapassou os 30 dias. Migrando...`);
+        console.log(`⏳ Obra ${obra.id} ultrapassou 30 dias. Migrando para o círculo central...`);
         migrarParaCirculo(obra);
-        await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`, { method: 'DELETE' });
+
+        const apagar = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`, {
+          method: 'DELETE'
+        });
+
+        if (apagar.ok) {
+          console.log(`🗑️ Entrada da obra ${obra.id} removida do backend.`);
+        } else {
+          console.warn(`⚠️ Não foi possível remover a entrada da obra ${obra.id}`);
+        }
       }
     } catch (err) {
-      console.error(`Erro ao verificar/migrar obra ${obra.id}:`, err);
+      console.error(`❌ Erro ao verificar/migrar a obra ${obra.id}:`, err.message || err);
     }
   }
 }
+
 // ==================== BLOCO 20 — MIGRAR OBRA PARA O CÍRCULO ROTATIVO ====================
 
 function migrarParaCirculo(obra) {

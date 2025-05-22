@@ -1038,6 +1038,25 @@ function iniciarGaleria() {
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
 
+// ==================== BLOCO 20 — INICIALIZAÇÃO FINAL DA GALERIA ====================
+
+function iniciarGaleria() {
+  // 1. Criar as obras normais do círculo rotativo
+  criarObrasNormais();
+
+  // 2. Adicionar cubos suspensos com obras em pré-venda
+  obrasSuspensas.forEach((obra, idx) => {
+    criarCuboSuspenso(obra, idx);
+    registarEntradaBackend(obra.id);
+  });
+
+  // 3. Verificar se alguma obra ultrapassou o tempo de suspensão
+  verificarMigracoesBackend();
+}
+
+// Executar ao carregar a página
+window.addEventListener('load', iniciarGaleria);
+
 // ==================== BLOCO FINAL — ANIMAÇÃO GLOBAL E RENDER ====================
 
 function animate() {
@@ -1050,19 +1069,3 @@ function animate() {
 }
 
 animate(); // ← CHAMADA INICIAL DEFINITIVA
-
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(obrasNormais, false);
-  if (intersects.length > 0) {
-    const obraClicada = intersects[0].object;
-    destacarObra(obraClicada);
-  }
-});
-
-

@@ -53,6 +53,7 @@ function getViewportLevel() {
 
 let config = configMap[getViewportLevel()];
 const velocidadeObras = 0.003;
+
 // Contador de recursos para carregamento visual
 let loadedResources = 0;
 const totalResources = 10 + obrasSuspensas.length;
@@ -122,12 +123,12 @@ renderer.toneMappingExposure = 2.8;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 // ==================== BLOCO 4 — LUZES E CÂMARA ====================
 
-// Iluminação ambiente suave mas clara (triplicada)
-const ambientLight = new THREE.AmbientLight(0xffffff, 3.0);
+// Iluminação ambiente equilibrada
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
 scene.add(ambientLight);
 
-// Luz direcional principal (ao centro)
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+// Luz direcional principal (ao centro, com sombras)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
 directionalLight.position.set(0, 10, 10);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
@@ -137,24 +138,24 @@ directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
 // Luz de preenchimento esquerda
-const fillLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
 fillLight1.position.set(-6, 6, 4);
 scene.add(fillLight1);
 
 // Luz de preenchimento direita
-const fillLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
+const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
 fillLight2.position.set(6, 6, -4);
 scene.add(fillLight2);
 
-// Luz superior tipo spotlight para foco cenográfico
-const spotLight = new THREE.SpotLight(0xffffff, 2.2, 30, Math.PI / 6, 0.5, 1);
+// Luz cenográfica superior (spotlight) com foco suave
+const spotLight = new THREE.SpotLight(0xffffff, 1.1, 30, Math.PI / 6, 0.5, 1);
 spotLight.position.set(0, 16, 5);
 spotLight.castShadow = true;
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 scene.add(spotLight);
 
-// Câmara com posicionamento recuado, revelando o espaço completo
+// Câmara com posicionamento recuado, abrangendo o espaço completo
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
 
 function updateCamera() {
@@ -189,8 +190,8 @@ floorMirror.position.y = -0.05;
 scene.add(floorMirror);
 
 // Geometrias base das paredes (ajustadas conforme layout e câmara)
-const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
-const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
+const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);       // Parede de fundo, mais larga
+const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);     // Paredes laterais
 // ==================== BLOCO 6 — TEXTURA DAS PAREDES COM FALLBACK ====================
 
 function aplicarTexturaParede(textura) {
@@ -449,19 +450,19 @@ const circuloLuzGeometry = new THREE.RingGeometry(
 );
 
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffdca0,                  // dourado claro suave
-  emissive: 0xffc878,               // brilho interior quente
-  emissiveIntensity: 1.15,
-  roughness: 0.4,
-  metalness: 0.3,
+  color: 0xffffff,                // branco neutro
+  emissive: 0xf5f5f5,             // leve brilho difuso
+  emissiveIntensity: 0.5,
+  roughness: 0.6,
+  metalness: 0.05,
   transparent: true,
-  opacity: 0.36,
+  opacity: 0.25,
   side: THREE.DoubleSide
 });
 
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.y = 0.005; // ligeiramente acima do chão reflectivo para evitar z-fighting
+circuloLuz.position.y = 0.006; // ligeiramente acima do chão para evitar z-fighting
 scene.add(circuloLuz);
 // ==================== BLOCO 11 — OBRAS CIRCULARES SUSPENSAS ====================
 
@@ -620,7 +621,7 @@ function animarObrasCirculares(delta) {
 // ==================== BLOCO 13 — DETECÇÃO DE CLIQUE NAS OBRAS ====================
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (obraDestacada) return; // impedir clique duplo
+  if (obraDestacada) return; // Impede clique duplo ou múltiplos focos
 
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
@@ -647,7 +648,7 @@ overlay.style.cssText = `
 `;
 document.body.appendChild(overlay);
 
-// Painel informativo
+// Painel informativo com detalhes da obra
 const infoPanel = document.createElement('div');
 infoPanel.style.cssText = `
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
@@ -776,7 +777,7 @@ modalElements.botao.addEventListener('click', async () => {
 
     // Criar e enviar transacção
     const tx = await signer.sendTransaction({
-      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // Endereço da galeria
+      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // Endereço da galeria NANdART
       value: ethers.parseEther(dados.preco)
     });
 
@@ -815,7 +816,7 @@ function criarCuboSuspenso(obra, indice) {
   );
   cubo.castShadow = cubo.receiveShadow = true;
 
-  // Posições elevadas sobre o círculo de luz (variação poética)
+  // Posições elevadas e poéticas sobre o círculo
   const altura = 8.2;
   const posicoes = [
     { x: -5, y: altura, z: 0 },
@@ -826,217 +827,7 @@ function criarCuboSuspenso(obra, indice) {
   const pos = posicoes[indice % posicoes.length];
   cubo.position.set(pos.x, pos.y, pos.z);
 
-  // Carregamento da gema interior com textura da obra
-  textureLoader.load(
-    obra.imagem,
-    (texture) => {
-      const gema = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.6, 1),
-        new THREE.MeshStandardMaterial({
-          map: texture,
-          emissive: 0x3399cc,
-          emissiveIntensity: 2.0,
-          transparent: true,
-          opacity: 0.9
-        })
-      );
-      cubo.add(gema);
-      updateLoadingProgress();
-    },
-    undefined,
-    (error) => {
-      console.error(`Erro ao carregar textura da obra no cubo (${obra.titulo}):`, error);
-      const gema = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.6, 1),
-        new THREE.MeshStandardMaterial({
-          color: 0x3399cc,
-          emissive: 0x3399cc,
-          emissiveIntensity: 2.0,
-          transparent: true,
-          opacity: 0.9
-        })
-      );
-      cubo.add(gema);
-      updateLoadingProgress();
-    }
-  );
-
-  // Registo para interacções futuras
-  cubo.userData = { obra };
-  cubosSuspensos.push(cubo);
-  scene.add(cubo);
-
-  // Comportamento em pré-venda — clique sugere ligação de carteira
-  cubo.onClick = () => {
-    if (!walletAddress) {
-      alert('Esta obra encontra-se em pré-venda. Liga a tua carteira para participar.');
-    } else {
-      abrirModal(obra, cubo);
-    }
-  };
-
-  return cubo;
-}
-// ==================== BLOCO 19 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
-
-// URL do backend onde está o Express no Render
-const BACKEND_URL = 'https://nandart-3d.onrender.com';
-
-// Regista a entrada de uma obra suspensa no backend
-async function registarEntradaBackend(obraId) {
-  try {
-    const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ obraId })
-    });
-
-    if (!resposta.ok) {
-      throw new Error(`Resposta não OK: ${resposta.status}`);
-    }
-
-    const json = await resposta.json();
-    const dataFormatada = new Date(json.data).toLocaleDateString('pt-PT');
-    console.log(`📌 Entrada registada: ${obraId} → ${dataFormatada}`);
-  } catch (err) {
-    console.error(`❌ Erro ao registar entrada da obra ${obraId}:`, err.message || err);
-  }
-}
-
-// Verifica obras suspensas e migra após 30 dias
-async function verificarMigracoesBackend() {
-  for (const obra of obrasSuspensas) {
-    try {
-      const resposta = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`);
-
-      if (!resposta.ok) {
-        console.warn(`ℹ️ Obra ${obra.id} ainda não tem entrada ou resposta inválida.`);
-        continue;
-      }
-
-      const { data } = await resposta.json();
-      const diasPassados = (Date.now() - Number(data)) / (1000 * 60 * 60 * 24);
-
-      if (diasPassados >= 30) {
-        console.log(`⏳ Obra ${obra.id} ultrapassou 30 dias. Migrando para o círculo central...`);
-        migrarParaCirculo(obra);
-
-        const apagar = await fetch(`${BACKEND_URL}/api/entradas/${obra.id}`, {
-          method: 'DELETE'
-        });
-
-        if (apagar.ok) {
-          console.log(`🗑️ Entrada da obra ${obra.id} removida do backend.`);
-        } else {
-          console.warn(`⚠️ Não foi possível remover a entrada da obra ${obra.id}`);
-        }
-      }
-    } catch (err) {
-      console.error(`❌ Erro ao verificar/migrar a obra ${obra.id}:`, err.message || err);
-    }
-  }
-}
-
-// ==================== BLOCO 20 — MIGRAR OBRA PARA O CÍRCULO ROTATIVO ====================
-
-function migrarParaCirculo(obra) {
-  const tamanho = config.obraSize;
-
-  const textura = textureLoader.load(obra.imagem, updateLoadingProgress);
-
-  const novaObra = new THREE.Mesh(
-    new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-    new THREE.MeshStandardMaterial({
-      map: textura,
-      roughness: 0.2,
-      metalness: 0.1,
-      side: THREE.DoubleSide,
-      transparent: true
-    })
-  );
-
-  const index = obrasNormais.length;
-  const angulo = (index / (obrasNormais.length + 1)) * Math.PI * 2;
-
-  novaObra.position.set(
-    Math.cos(angulo) * config.circleRadius,
-    4.2,
-    Math.sin(angulo) * config.circleRadius
-  );
-  novaObra.lookAt(0, 4.2, 0);
-
-  novaObra.userData = { dados: obra, index };
-  scene.add(novaObra);
-  obrasNormais.push(novaObra);
-}
-// ==================== BLOCO 21 — INICIALIZAÇÃO FINAL DA GALERIA ====================
-
-function iniciarGaleria() {
-  // Obras normais suspensas em rotação
-  criarObrasNormais();
-
-  // Cubos suspensos com obras em pré-venda
-  obrasSuspensas.forEach((obra, idx) => {
-    criarCuboSuspenso(obra, idx);
-    registarEntradaBackend(obra.id);
-  });
-
-  // Verificar se alguma obra ultrapassou o tempo de suspensão
-  verificarMigracoesBackend();
-}
-
-// Inicia ao carregar a página
-window.addEventListener('load', iniciarGaleria);
-// ==================== BLOCO 22 — ANIMAÇÃO GLOBAL DA CENA ====================
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  const delta = relogio.getDelta();
-
-  // Animação das obras rotativas
-  animarObrasCirculares(delta);
-
-  // Renderização da cena
-  renderer.render(scene, camera);
-}
-
-// Inicia o loop de animação
-animate();
-const cubosSuspensos = [];
-
-function criarCuboSuspenso(obra, indice) {
-  const tamanhoCubo = 1.5;
-
-  const materialCubo = new THREE.MeshPhysicalMaterial({
-    color: 0x222222,
-    transparent: true,
-    opacity: 0.18,
-    roughness: 0.25,
-    metalness: 0.5,
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.2,
-    reflectivity: 0.3
-  });
-
-  const cubo = new THREE.Mesh(
-    new THREE.BoxGeometry(tamanhoCubo, tamanhoCubo, tamanhoCubo),
-    materialCubo
-  );
-  cubo.castShadow = cubo.receiveShadow = true;
-
-  // Posições elevadas, com leve variação
-  const altura = 8.2;
-  const posicoes = [
-    { x: -5, y: altura, z: 0 },
-    { x: 5, y: altura, z: 0 },
-    { x: -5, y: altura, z: -5 },
-    { x: 5, y: altura, z: -5 }
-  ];
-  const pos = posicoes[indice % posicoes.length];
-  cubo.position.set(pos.x, pos.y, pos.z);
-
-  // Gema luminosa (com ou sem textura da obra)
+  // Gema com textura da obra ou fallback
   textureLoader.load(
     obra.imagem,
     (texture) => {
@@ -1076,10 +867,12 @@ function criarCuboSuspenso(obra, indice) {
 
   return cubo;
 }
-// URL do backend Express alojado no Render
+// ==================== BLOCO 19 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
+
+// URL do backend onde está alojado o servidor Express (Render ou outro)
 const BACKEND_URL = 'https://nandart-3d.onrender.com';
 
-// Registar a entrada de uma nova obra suspensa
+// Regista a entrada de uma nova obra suspensa no backend
 async function registarEntradaBackend(obraId) {
   try {
     const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
@@ -1100,7 +893,8 @@ async function registarEntradaBackend(obraId) {
   }
 }
 
-// Verificar quais obras ultrapassaram os 30 dias e migrar
+// Verifica quais obras suspensas ultrapassaram o limite de 30 dias
+// e migra automaticamente para o círculo central
 async function verificarMigracoesBackend() {
   for (const obra of obrasSuspensas) {
     try {
@@ -1133,6 +927,8 @@ async function verificarMigracoesBackend() {
     }
   }
 }
+// ==================== BLOCO 20 — MIGRAR OBRA PARA O CÍRCULO ROTATIVO ====================
+
 function migrarParaCirculo(obra) {
   const tamanho = config.obraSize;
 
@@ -1163,6 +959,89 @@ function migrarParaCirculo(obra) {
   scene.add(novaObra);
   obrasNormais.push(novaObra);
 }
+// ==================== BLOCO 23 — BOTÃO "CONNECT WALLET" ====================
+
+// Elemento do botão na interface
+const walletBtn = document.createElement('button');
+walletBtn.id = 'wallet-button';
+walletBtn.textContent = 'Connect Wallet';
+walletBtn.style.cssText = `
+  position: fixed;
+  top: 20px; right: 20px;
+  z-index: 90;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #d8b26c;
+  border-radius: 8px;
+  color: #f9f3e9;
+  font-family: 'Georgia', serif;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+`;
+document.body.appendChild(walletBtn);
+
+// Variável para armazenar a carteira ligada
+let walletAddress = null;
+
+// Atualiza o botão com estado e saldo
+async function atualizarEstadoCarteira() {
+  if (walletAddress) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const saldo = await provider.getBalance(walletAddress);
+    const eth = ethers.formatEther(saldo);
+    walletBtn.textContent = `Disconnect (${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${parseFloat(eth).toFixed(4)} ETH)`;
+  } else {
+    walletBtn.textContent = 'Connect Wallet';
+  }
+}
+
+// Função para ligar a carteira
+async function conectarCarteira() {
+  try {
+    if (!window.ethereum) {
+      alert('MetaMask não está instalada. Por favor, instala-a para continuar.');
+      return;
+    }
+
+    const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddress = contas[0];
+    localStorage.setItem('walletConnected', 'true');
+    atualizarEstadoCarteira();
+  } catch (erro) {
+    console.error('❌ Erro ao ligar carteira:', erro);
+    alert('Não foi possível ligar a carteira. Tenta novamente.');
+  }
+}
+
+// Função para desligar a carteira
+function desligarCarteira() {
+  walletAddress = null;
+  localStorage.removeItem('walletConnected');
+  atualizarEstadoCarteira();
+}
+
+// Alternância ao clicar no botão
+walletBtn.addEventListener('click', () => {
+  if (walletAddress) {
+    desligarCarteira();
+  } else {
+    conectarCarteira();
+  }
+});
+
+// Verificação automática ao carregar a página
+window.addEventListener('load', async () => {
+  if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
+    const contas = await window.ethereum.request({ method: 'eth_accounts' });
+    if (contas.length > 0) {
+      walletAddress = contas[0];
+      atualizarEstadoCarteira();
+    }
+  }
+});
+// ==================== BLOCO 21 — INICIALIZAÇÃO FINAL DA GALERIA ====================
+
 function iniciarGaleria() {
   // 1. Criar as obras normais do círculo rotativo
   criarObrasNormais();
@@ -1179,17 +1058,3 @@ function iniciarGaleria() {
 
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
-function animate() {
-  requestAnimationFrame(animate);
-
-  const delta = relogio.getDelta();
-
-  // Animação contínua das obras rotativas (se nenhuma estiver destacada)
-  animarObrasCirculares(delta);
-
-  // Renderizar a cena com a câmara atual
-  renderer.render(scene, camera);
-}
-
-// Inicia o ciclo de animação ao fim da configuração
-animate();

@@ -41,3 +41,4 @@ const PORT = process.env.PORT || 10000; // Use 10000 como fallback
 app.listen(PORT, '0.0.0.0', () => { // Adicione '0.0.0.0' para aceitar conexões externas
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+

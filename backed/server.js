@@ -1,9 +1,9 @@
 const express = require("express");
 const path = require("path");
 
-const submitRouter = require('../routes/server/submit');
-const entradasRouter = require('../routes/server/entradas');
-const centralesRouter = require('../routes/server/centrales');
+const submitRouter = require('./routes/server/submit');
+const entradasRouter = require('./routes/server/entradas');
+const centralesRouter = require('./routes/server/centrales');
 
 const app = express();
 
@@ -35,9 +35,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // Conteúdo estático + fallback
-app.use(express.static(path.join(__dirname, '../../')));
+app.use(express.static(path.join(__dirname, '../')));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // Inicialização

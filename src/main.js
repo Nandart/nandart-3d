@@ -36,13 +36,14 @@ if (!THREE || !gsap || !ethers) {
 // Registo de plugins do GSAP
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// Variáveis globais essenciais
+// Variáveis globais essenciais (sem duplicações)
 let config;
 let obraDestacada = null;
 let ambienteDesacelerado = false;
 const obrasNormais = [];
 const cubosSuspensos = [];
 const relogio = new THREE.Clock();
+let anguloAtual = 0;
 // ==================== BLOCO 2 — VIEWPORT, CONFIGURAÇÕES E RENDERER ====================
 
 // Configuração adaptativa por viewport
@@ -313,7 +314,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   scene.add(friso);
 }
 
-// Friso vertical duplo embutido
+// Friso vertical duplo embutido (camada exterior e interior)
 function criarFrisoDuploVertical(x, y, z, altura, lado) {
   const offset = lado === 'esquerda' ? -0.4 : 0.4;
 
@@ -383,6 +384,7 @@ const gemaMaterial = new THREE.MeshStandardMaterial({
   opacity: 0.85
 });
 
+// Função para criar pedestais com vitrine e gema suspensa
 function criarPedestalRetangular(posX, posZ) {
   const largura = 0.8;
   const profundidade = 0.8;
@@ -425,13 +427,14 @@ criarPedestalRetangular(-deslocamento, deslocamento);  // Fundo esquerda
 criarPedestalRetangular(deslocamento, deslocamento);   // Fundo direita
 // ==================== BLOCO 8 — CÍRCULO DE LUZ CENTRAL NO CHÃO ====================
 
+// Geometria do círculo de luz — contorno suave e elegante
 const circuloLuzGeometry = new THREE.RingGeometry(
   config.circleRadius + 0.6,  // raio interior
   config.circleRadius + 1.4,  // raio exterior
   64
 );
 
-// Material com brilho e cor realista
+// Material com brilho dourado subtil
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   color: 0xf6e9c2,              // tom quente e elegante (dourado claro)
   emissive: 0xf6e9c2,
@@ -443,9 +446,10 @@ const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   side: THREE.DoubleSide
 });
 
+// Criação do círculo e posicionamento sobre o chão reflectivo
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.y = 0.005; // assente sobre o chão
+circuloLuz.position.y = 0.005; // Assente no chão
 scene.add(circuloLuz);
 
 // Friso dourado horizontal imediatamente a seguir ao círculo (no chão)
@@ -532,6 +536,7 @@ const dadosObras = [
   }
 ];
 
+// Criação das obras normais que circulam no centro da galeria
 function criarObrasNormais() {
   const raio = config.circleRadius;
   const tamanho = config.obraSize;
@@ -589,7 +594,7 @@ function criarObrasNormais() {
 }
 // ==================== BLOCO 10 — ANIMAÇÃO CONTÍNUA DAS OBRAS CIRCULARES ====================
 
-let anguloAtual = 0;
+const velocidadeObras = 0.25;
 
 function animarObrasCirculares(delta) {
   if (!obraDestacada) {
@@ -607,23 +612,9 @@ function animarObrasCirculares(delta) {
 // ==================== BLOCO 11 — DETECÇÃO DE CLIQUE NAS OBRAS CIRCULARES ====================
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (obraDestacada) return; // Evita múltiplos destaques simultâneos
+  if (obraDestacada) return; // Impede múltiplos destaques ao mesmo tempo
 
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(obrasNormais, false);
-  if (intersects.length > 0) {
-    const obraClicada = intersects[0].object;
-    destacarObra(obraClicada);
-  }
-});
-// ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
+  const mouse = new THREE.Vector2(// ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
 
 function destacarObra(obra) {
   if (obraDestacada) return;
@@ -638,7 +629,7 @@ function destacarObra(obra) {
     if (o !== obra) o.visible = false;
   });
 
-  // Elevar a obra acima das restantes (posição e destaque)
+  // Elevar a obra acima das restantes com destaque cénico
   gsap.to(obra.scale, {
     x: 2,
     y: 2,
@@ -655,7 +646,7 @@ function destacarObra(obra) {
     ease: 'power2.inOut'
   });
 
-  // Reposicionar a câmara para foco preciso na obra
+  // Reposicionar a câmara para foco suave e poético na obra
   gsap.to(camera.position, {
     x: 0,
     y: 7.4,
@@ -663,7 +654,7 @@ function destacarObra(obra) {
     duration: 1.2,
     ease: 'power2.inOut',
     onComplete: () => {
-      // Mostrar o modal apenas quando a animação estiver concluída
+      // Mostrar modal informativo após a animação
       overlay.style.display = 'block';
       infoPanel.style.display = 'block';
 
@@ -687,7 +678,7 @@ function fecharObraDestacada() {
 
   const obra = obraDestacada;
 
-  // Animar regresso da obra à escala normal e esconder modal
+  // Animação de regresso da obra à sua escala original
   gsap.to(obra.scale, {
     x: 1,
     y: 1,
@@ -696,6 +687,7 @@ function fecharObraDestacada() {
     ease: 'power2.out'
   });
 
+  // Reposicionamento vertical suave para voltar à órbita
   gsap.to(obra.position, {
     y: 4.2,
     duration: 0.6,
@@ -706,39 +698,20 @@ function fecharObraDestacada() {
       obraDestacada = null;
       ambienteDesacelerado = false;
 
-      // Tornar todas as outras obras visíveis novamente
+      // Tornar visíveis todas as outras obras novamente
       obrasNormais.forEach(o => {
         o.visible = true;
       });
     }
   });
 
-  // Restaurar posição da câmara
+  // Reposicionar a câmara para a vista geral da galeria
   gsap.to(camera.position, {
     x: 0,
     y: config.cameraY,
     z: config.cameraZ,
     duration: 0.8,
     ease: 'power2.inOut'
-  });
-}
-// ==================== BLOCO 14 — ANIMAÇÃO CIRCULAR DAS OBRAS ====================
-
-let anguloAtual = 0;
-const relogio = new THREE.Clock();
-
- {
-  // Apenas avança o ângulo se não houver obra destacada
-  if (!obraDestacada) {
-    anguloAtual += velocidadeObras * delta;
-  }
-
-  const raio = config.circleRadius;
-
-  obrasNormais.forEach((obra, i) => {
-    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
-    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-    obra.lookAt(0, 4.2, 0);
   });
 }
 // ==================== BLOCO 15 — BOTÃO "BUY" — TRANSACÇÃO EM ETH ====================
@@ -781,8 +754,6 @@ modalElements.botao.addEventListener('click', async () => {
 });
 // ==================== BLOCO 16 — CUBOS SUSPENSOS COM GEMAS ====================
 
-const cubosSuspensos = [];
-
 function criarCuboSuspenso(obra, indice) {
   const tamanhoCubo = 1.5;
 
@@ -803,7 +774,7 @@ function criarCuboSuspenso(obra, indice) {
   );
   cubo.castShadow = cubo.receiveShadow = true;
 
-  // Posições elevadas e poéticas sobre o círculo
+  // Posições elevadas e simbólicas sobre o círculo
   const altura = 8.2;
   const posicoes = [
     { x: -5, y: altura, z: 0 },
@@ -856,7 +827,7 @@ function criarCuboSuspenso(obra, indice) {
 }
 // ==================== BLOCO 17 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
 
-// URL do backend onde está alojado o servidor Express (Render ou outro)
+// URL do backend onde está alojado o servidor Express (ex: Render)
 const BACKEND_URL = 'https://nandart-3d.onrender.com';
 
 // Regista a entrada de uma nova obra suspensa no backend
@@ -880,8 +851,7 @@ async function registarEntradaBackend(obraId) {
   }
 }
 
-// Verifica quais obras suspensas ultrapassaram o limite de 30 dias
-// e migra automaticamente para o círculo central
+// Verifica obras suspensas com mais de 30 dias e migra para o círculo rotativo
 async function verificarMigracoesBackend() {
   for (const obra of obrasSuspensas) {
     try {
@@ -1063,4 +1033,20 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-animate(); // ← CHAMADA INICIAL
+animate(); // ← CHAMADA INICIAL DEFINITIVA
+
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(obrasNormais, false);
+  if (intersects.length > 0) {
+    const obraClicada = intersects[0].object;
+    destacarObra(obraClicada);
+  }
+});
+
+

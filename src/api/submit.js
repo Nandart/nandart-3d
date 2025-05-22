@@ -1,70 +1,30 @@
-export async function handleSubmission(formData, isInternal = false) {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
+// public/src/api/submit.js
+const backendURL = 'https://nandart-3d.onrender.com/api/submit-artwork';
 
-  // Validação básica dos campos obrigatórios
-  const requiredFields = ["titulo", "artista", "imagem"];
-  for (const field of requiredFields) {
-    if (!formData.get(field)) {
-      throw new Error(`O campo ${field} é obrigatório.`);
-    }
-  }
+document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-  // Upload para o Cloudinary
-  const imageFile = formData.get("imagem");
-  const cloudinaryData = new FormData();
-  cloudinaryData.append("file", imageFile);
-  cloudinaryData.append("upload_preset", uploadPreset);
+  const form = e.target;
+  const errorEl = document.getElementById("submission-error");
+  errorEl.style.display = "none";
 
-  let uploadedImage;
-  try {
-    const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: "POST",
-      body: cloudinaryData,
-    });
-
-    if (!cloudinaryResponse.ok) {
-      const errorDetails = await cloudinaryResponse.json();
-      throw new Error(`Erro no upload: ${errorDetails.error.message}`);
-    }
-
-    uploadedImage = await cloudinaryResponse.json();
-  } catch (error) {
-    console.error("Erro no Cloudinary:", error);
-    throw new Error("Erro ao fazer upload da imagem. Tente novamente.");
-  }
-
-  // Envio dos dados para o backend
-  const backendURL = 'https://nandart-3d.onrender.com/api/submit-artwork';
-  const submission = {
-    titulo: formData.get("titulo"),
-    artista: formData.get("artista"),
-    estilo: formData.get("estilo"),
-    tecnica: formData.get("tecnica"),
-    ano: formData.get("ano"),
-    local: formData.get("local"),
-    materiais: formData.get("materiais"),
-    dimensoes: formData.get("dimensoes"),
-    descricao: formData.get("descricao"),
-    imagem: uploadedImage.secure_url,
-    tipo: isInternal ? "colecao" : "normal",
-  };
+  const formData = new FormData(form);
 
   try {
-    const response = await fetch(`${backendUrl}/api/submit`, {
+    const response = await fetch(backendURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(submission),
+      body: formData
     });
 
     if (!response.ok) {
-      const errorDetails = await response.text();
-      throw new Error("Erro ao submeter obra: " + errorDetails);
+      const msg = await response.text();
+      throw new Error(msg);
     }
 
-    return await response.json();
-  } catch (error) {
-    console.error("Erro ao enviar submissão:", error);
-    throw new Error("Erro ao submeter os dados. Tente novamente.");
+    alert("Your artwork has been submitted successfully!");
+    form.reset();
+  } catch (err) {
+    console.error("Erro ao submeter:", err);
+    errorEl.style.display = "block";
   }
-}
+});

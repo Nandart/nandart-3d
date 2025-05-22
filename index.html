@@ -62,31 +62,11 @@
       cursor: pointer;
     }
 
-    #connect-wallet {
-      position: fixed;
-      top: 16px;
-      right: 18px;
-      background: transparent;
-      border: 1px solid #d8b26c;
-      color: #d8b26c;
-      font-family: 'Playfair Display', serif;
-      font-size: 1em;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      z-index: 100;
-      transition: background 0.3s;
-    }
-
-    #connect-wallet:hover {
-      background-color: rgba(216, 178, 108, 0.1);
-    }
-
     #menu-dropdown {
       display: none;
       position: fixed;
       top: 60px;
-      right: 18px;
+      left: 18px;
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(8px);
       border-radius: 8px;
@@ -101,29 +81,6 @@
       font-family: 'Playfair Display', serif;
       margin: 6px 0;
     }
-
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #111;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      color: #d8b26c;
-    }
-
-    .loading-error {
-      display: none;
-      color: #ff6b6b;
-      margin-top: 20px;
-      text-align: center;
-    }
   </style>
 </head>
 
@@ -137,9 +94,6 @@
     <img src="/assets/icons/info.png" alt="Info" onclick="window.location.href='info.html'" aria-label="Info">
   </div>
 
-  <!-- Botão Connect Wallet -->
-  <button id="connect-wallet" aria-label="Connect Wallet">Connect</button>
-
   <!-- Menu Dropdown -->
   <div id="menu-dropdown">
     <a href="contactos.html">Contacts</a>
@@ -147,17 +101,7 @@
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Tela de Carregamento Elegante -->
-  <div class="loading-screen">
-    <div class="loading-text" id="loading-progress">
-      <span id="loaded-resources">0</span>/<span id="total-resources">0</span> resources loaded
-    </div>
-    <div class="loading-error" id="loading-error">
-      Error loading gallery. Please check your connection and refresh the page.
-    </div>
-  </div>
-
-  <!-- Verificação de WebGL -->
+  <!-- WebGL e menu JS -->
   <script>
     function checkWebGL() {
       try {
@@ -171,7 +115,6 @@
 
     window.onerror = function(message, source, lineno, colno, error) {
       console.error('Global error:', { message, source, lineno, colno, error });
-      document.getElementById('loading-error').style.display = 'block';
       return true;
     };
 
@@ -181,11 +124,7 @@
     });
 
     if (!checkWebGL()) {
-      document.querySelector('.loading-screen').innerHTML = `
-        <h2>WebGL Not Supported</h2>
-        <p>Your browser doesn't support WebGL or it's disabled.</p>
-        <p>Please use a recent version of Chrome, Firefox or Edge.</p>
-      `;
+      alert('O teu navegador não suporta WebGL. Usa uma versão recente do Chrome, Firefox ou Edge.');
       throw new Error('WebGL not supported');
     }
   </script>
@@ -193,13 +132,9 @@
   <!-- Script Principal -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- Fallback para browsers antigos -->
+  <!-- Fallback -->
   <script nomodule>
-    document.querySelector('.loading-screen').innerHTML = `
-      <h2>Browser Not Supported</h2>
-      <p>Your browser doesn't support JavaScript modules.</p>
-      <a href="https://www.google.com/chrome/" style="color: #d8b26c;">Download Chrome</a>
-    `;
+    alert('O teu navegador não suporta JavaScript moderno. Usa o Google Chrome ou Firefox.');
   </script>
 </body>
 </html>

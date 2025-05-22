@@ -8,12 +8,11 @@
   <title>NANdART 3D Gallery</title>
 
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/src/styles/index.css">
+  <link rel="stylesheet" href="/src/styles/index.css">
 
   <!-- Preloads -->
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
-  <link rel="preload" href="/assets/icons/ajuda-flutuante.png" as="image">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +46,6 @@
       left: 0;
       z-index: 0;
     }
-
     .navigation-icons {
       position: fixed;
       top: 16px;
@@ -57,12 +55,10 @@
       gap: 16px;
       align-items: center;
     }
-
     .navigation-icons img {
       height: 28px;
       cursor: pointer;
     }
-
     #connect-wallet {
       position: fixed;
       top: 16px;
@@ -78,11 +74,9 @@
       z-index: 100;
       transition: background 0.3s;
     }
-
     #connect-wallet:hover {
       background-color: rgba(216, 178, 108, 0.1);
     }
-
     #menu-dropdown {
       display: none;
       position: fixed;
@@ -95,14 +89,12 @@
       flex-direction: column;
       z-index: 200;
     }
-
     #menu-dropdown a {
       color: #d8b26c;
       text-decoration: none;
       font-family: 'Playfair Display', serif;
       margin: 6px 0;
     }
-
     .loading-screen {
       position: fixed;
       top: 0;
@@ -118,7 +110,6 @@
       font-family: 'Playfair Display', serif;
       color: #d8b26c;
     }
-
     .loading-error {
       display: none;
       color: #ff6b6b;
@@ -138,21 +129,17 @@
     <img src="/assets/icons/info.png" alt="Info" onclick="window.location.href='info.html'" aria-label="Info">
   </div>
 
-  <!-- Ícone de Ajuda (temporário) -->
-  <img src="/assets/icons/ajuda-flutuante.png" alt="Help" class="ajuda-icon" onclick="window.location.href='como-navegar.html'" aria-label="Help" style="position: fixed; bottom: 16px; right: 18px; z-index: 90; animation: fadeOut 20s forwards;">
-
   <!-- Botão Connect Wallet -->
   <button id="connect-wallet" aria-label="Connect Wallet">Connect</button>
 
   <!-- Menu Dropdown -->
   <div id="menu-dropdown">
     <a href="contactos.html">Contacts</a>
-    <a href="como-navegar.html">How to Navigate</a>
     <a href="artists.html">Artists</a>
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Tela de Carregamento Elegante -->
+  <!-- Tela de Carregamento -->
   <div class="loading-screen">
     <div class="loading-text" id="loading-progress">
       <span id="loaded-resources">0</span>/<span id="total-resources">0</span> resources loaded
@@ -198,7 +185,7 @@
   <!-- Script Principal -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- Fallback para browsers antigos -->
+  <!-- Fallback -->
   <script nomodule>
     document.querySelector('.loading-screen').innerHTML = `
       <h2>Browser Not Supported</h2>
@@ -208,4 +195,3 @@
   </script>
 </body>
 </html>
-

@@ -1,4 +1,4 @@
-// public/src/api/submit.js
+// src/api/submit.js
 const backendURL = 'https://nandart-3d.onrender.com/api/submit-artwork';
 
 document.getElementById("artwork-form").addEventListener("submit", async function (e) {

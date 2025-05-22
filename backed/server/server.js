@@ -1,9 +1,9 @@
 const express = require("express");
 const path = require("path");
 
-const submitRouter = require('./routes/server/submit');
-const entradasRouter = require('./routes/server/entradas');
-const centralesRouter = require('./routes/server/centrales');
+const submitRouter = require('../routes/server/submit');
+const entradasRouter = require('../routes/server/entradas');
+const centralesRouter = require('../routes/server/centrales');
 
 const app = express();
 

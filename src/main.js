@@ -11,7 +11,7 @@ import { obrasSuspensas } from './data/obras-suspensas.js';
 
 console.log('🎨 A iniciar a galeria 3D NANdART...');
 
-// Validação das bibliotecas carregadas
+// Validação das bibliotecas essenciais
 if (!THREE || !gsap || !ethers) {
   const errorMsg = document.createElement('div');
   errorMsg.style.cssText = `
@@ -33,9 +33,19 @@ if (!THREE || !gsap || !ethers) {
   throw new Error('❌ Bibliotecas essenciais em falta');
 }
 
-// Registo dos plugins do GSAP
+// Registo de plugins do GSAP
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
-// ==================== BLOCO 2 — CONFIGURAÇÃO DE VIEWPORT E VARIÁVEIS ====================
+
+// Variáveis globais essenciais
+let config;
+let obraDestacada = null;
+let ambienteDesacelerado = false;
+const obrasNormais = [];
+const cubosSuspensos = [];
+const relogio = new THREE.Clock();
+// ==================== BLOCO 2 — VIEWPORT, CONFIGURAÇÕES E RENDERER ====================
+
+// Configuração adaptativa por viewport
 const configMap = {
   XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 7.2, textSize: 0.4 },
   SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 19.5, cameraY: 7.6, textSize: 0.45 },
@@ -51,62 +61,27 @@ function getViewportLevel() {
   return 'LG';
 }
 
-let config = configMap[getViewportLevel()];
-const velocidadeObras = 0.003;
+config = configMap[getViewportLevel()];
 
-// Contador de recursos para carregamento visual
+// Contador de recursos para carregamento silencioso
 let loadedResources = 0;
 const totalResources = 10 + obrasSuspensas.length;
 
 function updateLoadingProgress() {
   loadedResources++;
-  const carregados = document.getElementById('loaded-resources');
-  const total = document.getElementById('total-resources');
-
-  if (carregados && total) {
-    carregados.textContent = loadedResources;
-    total.textContent = totalResources;
-  }
-
-  // Quando todos os recursos estiverem carregados
   if (loadedResources >= totalResources) {
-    const loadingScreen = document.querySelector('.loading-screen');
-    if (loadingScreen) {
-      loadingScreen.style.transition = 'opacity 0.6s ease';
-      loadingScreen.style.opacity = '0';
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-      }, 600);
-    }
+    console.log('🖼️ Recursos carregados silenciosamente.');
   }
 }
-// ==================== BLOCO 3 — INICIALIZAÇÃO DA CENA E TEXTURAS ====================
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
 
-// Gestor de carregamento para monitorizar progresso de texturas
+// Loader de texturas com fallback integrado
 const loadingManager = new THREE.LoadingManager();
+loadingManager.onLoad = updateLoadingProgress;
+loadingManager.onError = url => console.warn(`⚠️ Falha ao carregar recurso: ${url}`);
 
-loadingManager.onLoad = () => {
-  console.log('✅ Todos os recursos carregados com sucesso.');
-  updateLoadingProgress();
-};
-
-loadingManager.onProgress = (item, loaded, total) => {
-  console.log(`📦 Recurso ${loaded}/${total} carregado: ${item}`);
-  updateLoadingProgress();
-};
-
-loadingManager.onError = (url) => {
-  console.error(`❌ Erro ao carregar recurso: ${url}`);
-  const erro = document.getElementById('loading-error');
-  if (erro) erro.style.display = 'block';
-};
-
-// Loader de texturas com fallback incorporado
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
-// Instância do renderizador
+// Renderizador com alta qualidade e realismo
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
@@ -121,52 +96,23 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.8;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-// ==================== BLOCO 4 — LUZES E CÂMARA ====================
 
-// Iluminação ambiente equilibrada
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
-scene.add(ambientLight);
+// Cena e fundo
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
 
-// Luz direcional principal (ao centro, com sombras)
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-directionalLight.position.set(0, 10, 10);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 50;
-scene.add(directionalLight);
-
-// Luz de preenchimento esquerda
-const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-fillLight1.position.set(-6, 6, 4);
-scene.add(fillLight1);
-
-// Luz de preenchimento direita
-const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
-fillLight2.position.set(6, 6, -4);
-scene.add(fillLight2);
-
-// Luz cenográfica superior (spotlight) com foco suave
-const spotLight = new THREE.SpotLight(0xffffff, 1.1, 30, Math.PI / 6, 0.5, 1);
-spotLight.position.set(0, 16, 5);
-spotLight.castShadow = true;
-spotLight.shadow.mapSize.width = 1024;
-spotLight.shadow.mapSize.height = 1024;
-scene.add(spotLight);
-
-// Câmara com posicionamento recuado, abrangendo o espaço completo
+// Câmara
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
 
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.position.set(0, config.cameraY + 1.6, config.cameraZ + 6.5); // mais recuada e elevada
-  camera.lookAt(0, 6.5, -config.wallDistance + 0.4); // foco mais amplo na sala
+  camera.position.set(0, config.cameraY + 1.6, config.cameraZ + 6.5);
+  camera.lookAt(0, 6.5, -config.wallDistance + 0.4);
   camera.updateProjectionMatrix();
 }
 updateCamera();
 
-// Resize responsivo com debounce
+// Resize adaptativo com debounce
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
@@ -175,83 +121,113 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   }, 200);
 });
-// ==================== BLOCO 5 — CHÃO REFLECTOR E GEOMETRIAS DAS PAREDES ====================
+// ==================== BLOCO 3 — LUZES, CÂMARA E CHÃO REFLECTIVO ====================
 
-// Chão espelhado com reflexo subtil (cor antracite)
-const floorGeometry = new THREE.PlaneGeometry(60, 60);
+// Iluminação ambiente triplicada para visibilidade total
+const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
+scene.add(ambientLight);
+
+// Luz direcional principal (alta e central)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
+directionalLight.position.set(0, 16, 12);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+scene.add(directionalLight);
+
+// Luzes de preenchimento suaves laterais
+const fillLeft = new THREE.DirectionalLight(0xffffff, 1.0);
+fillLeft.position.set(-8, 8, 4);
+scene.add(fillLeft);
+
+const fillRight = new THREE.DirectionalLight(0xffffff, 1.0);
+fillRight.position.set(8, 8, -4);
+scene.add(fillRight);
+
+// Spot cenográfico superior para atmosfera dramática
+const spotLight = new THREE.SpotLight(0xffffff, 1.4, 30, Math.PI / 5, 0.4, 1);
+spotLight.position.set(0, 20, 5);
+spotLight.castShadow = true;
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+scene.add(spotLight);
+
+// Geometria e material do chão reflectivo (obsidiana líquida)
+const floorGeometry = new THREE.PlaneGeometry(80, 80);
 const floorMirror = new Reflector(floorGeometry, {
   clipBias: 0.003,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x1a1a1a
+  color: 0x121212
 });
 floorMirror.rotation.x = -Math.PI / 2;
-floorMirror.position.y = -0.05;
+floorMirror.position.y = -0.03; // Ligeiramente abaixo da base das obras
 scene.add(floorMirror);
+// ==================== BLOCO 4 — PAREDES COM TEXTURA REALISTA ====================
 
-// Geometrias base das paredes (ajustadas conforme layout e câmara)
-const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);       // Parede de fundo, mais larga
-const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);     // Paredes laterais
-// ==================== BLOCO 6 — TEXTURA DAS PAREDES COM FALLBACK ====================
+// Geometrias das paredes: dimensões fiéis ao layout
+const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
+const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
 
+// Aplicação da textura antracite com fallback automático
 function aplicarTexturaParede(textura) {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura || null,
     color: 0xffffff,
     emissive: 0x111111,
     emissiveIntensity: 0.25,
-    roughness: 0.65,
+    roughness: 0.55,
     metalness: 0.15
   });
 
-  // Parede de fundo (posição mais recuada para profundidade visual)
+  // Parede de fundo (recuada para profundidade)
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
-  paredeFundo.position.set(0, 14.5, -config.wallDistance - 5.2);
+  paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // Parede esquerda (vista lateral, rotação positiva)
+  // Parede lateral esquerda (vista lateral direita)
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-  paredeEsquerda.position.set(-16.5, 14.4, -config.wallDistance / 2);
+  paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // Parede direita (vista lateral, rotação negativa)
+  // Parede lateral direita (vista lateral esquerda)
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-  paredeDireita.position.set(16.5, 14.4, -config.wallDistance / 2);
+  paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
 }
 
-// Aplicação com fallback automático
+// Aplica a textura local e, em caso de falha, tenta fallback remoto
 textureLoader.load(
   'assets/antracite-realista.jpg',
-  (texture) => aplicarTexturaParede(texture),
+  textura => aplicarTexturaParede(textura),
   undefined,
-  (error) => {
-    console.warn('⚠️ Erro ao carregar textura local. A tentar fallback...');
+  () => {
+    console.warn('⚠️ Textura local falhou. A aplicar fallback externo...');
     textureLoader.load(
       'https://nandart.art/assets/antracite-realista.jpg',
-      (fallbackTexture) => aplicarTexturaParede(fallbackTexture),
+      fallback => aplicarTexturaParede(fallback),
       undefined,
-      (fallbackError) => {
-        console.error('❌ Falhou também o fallback da textura:', fallbackError);
+      erro => {
+        console.error('❌ Falhou também o fallback externo. Aplicar cor base.');
         aplicarTexturaParede(null);
       }
     );
   }
 );
-// ==================== BLOCO 7 — OBRA CENTRAL COM MOLDURA ====================
+// ==================== BLOCO 5 — QUADRO CENTRAL E FRISO COM RESPIRO ====================
 
-const texturaCentral = textureLoader.load('assets/obras/obra-central.jpg', updateLoadingProgress);
+// Grupo para o quadro com moldura saliente
 const quadroCentralGrupo = new THREE.Group();
 
 const larguraQuadro = 4.6;
 const alturaQuadro = 5.8;
 
-// Moldura externa saliente e escura (com profundidade)
+// Moldura externa escura com profundidade
 const molduraCentral = new THREE.Mesh(
   new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
   new THREE.MeshStandardMaterial({
@@ -262,10 +238,11 @@ const molduraCentral = new THREE.Mesh(
     emissiveIntensity: 0.15
   })
 );
-molduraCentral.position.z = -0.1; // ligeiramente recuada
+molduraCentral.position.z = -0.1; // ligeiramente recuada em relação à pintura
 quadroCentralGrupo.add(molduraCentral);
 
-// Pintura principal com textura carregada
+// Pintura central carregada da galeria
+const texturaCentral = textureLoader.load('assets/obras/obra-central.jpg', updateLoadingProgress);
 const pinturaCentral = new THREE.Mesh(
   new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
   new THREE.MeshStandardMaterial({
@@ -277,44 +254,55 @@ const pinturaCentral = new THREE.Mesh(
 pinturaCentral.position.z = 0.01; // ligeiramente à frente da moldura
 quadroCentralGrupo.add(pinturaCentral);
 
-// Posicionamento centrado e elevado na parede de fundo
+// Posicionar o quadro no centro da parede de fundo, ligeiramente elevado
 quadroCentralGrupo.position.set(0, 11.2, -config.wallDistance - 5.19);
 scene.add(quadroCentralGrupo);
-// ==================== BLOCO 8 — FRISOS DECORATIVOS ====================
 
+// Material dos frisos dourados
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21, // dourado médio fiel ao layout
+  color: 0x8a5c21, // dourado vivo fiel à imagem “dourado para friso.png”
   metalness: 1,
   roughness: 0.08,
   emissive: 0x2f1b08,
   emissiveIntensity: 0.33
 });
 
-// === Friso rectangular à volta do quadro central ===
-function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
+// Friso retangular à volta do quadro com espaço de respiro
+function criarFrisoCentral(x, y, z, largura, altura) {
   const grupo = new THREE.Group();
-  const esp = 0.06;
+  const espessura = 0.06;
 
-  // Barras horizontais (cima e baixo)
-  [1, -1].forEach(i => {
-    const h = new THREE.Mesh(new THREE.BoxGeometry(largura, esp, 0.02), frisoMaterial);
-    h.position.set(0, altura / 2 * i, 0);
-    grupo.add(h);
+  // Horizontais
+  [1, -1].forEach(dy => {
+    const barra = new THREE.Mesh(
+      new THREE.BoxGeometry(largura, espessura, 0.02),
+      frisoMaterial
+    );
+    barra.position.set(0, altura / 2 * dy, 0);
+    grupo.add(barra);
   });
 
-  // Barras verticais (direita e esquerda)
-  [1, -1].forEach(i => {
-    const v = new THREE.Mesh(new THREE.BoxGeometry(esp, altura - esp * 2, 0.02), frisoMaterial);
-    v.position.set(largura / 2 * i - esp / 2 * i, 0, 0);
-    grupo.add(v);
+  // Verticais
+  [1, -1].forEach(dx => {
+    const barra = new THREE.Mesh(
+      new THREE.BoxGeometry(espessura, altura - espessura * 2, 0.02),
+      frisoMaterial
+    );
+    barra.position.set(largura / 2 * dx - espessura / 2 * dx, 0, 0);
+    grupo.add(barra);
   });
 
   grupo.position.set(x, y, z);
-  grupo.rotation.y = rotY;
   scene.add(grupo);
 }
 
-// === Frisos horizontais inferiores contínuos nas três paredes ===
+// Aplicar o friso com dimensões maiores do que o quadro, para dar espaço
+criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
+// ==================== BLOCO 6 — FRISOS DECORATIVOS ====================
+
+// Reutiliza o frisoMaterial já definido no bloco anterior
+
+// Friso horizontal — barra única
 function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   const friso = new THREE.Mesh(
     new THREE.BoxGeometry(largura, altura, 0.02),
@@ -325,7 +313,7 @@ function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
   scene.add(friso);
 }
 
-// === Frisos verticais duplos embutidos nas paredes laterais ===
+// Friso vertical duplo embutido
 function criarFrisoDuploVertical(x, y, z, altura, lado) {
   const offset = lado === 'esquerda' ? -0.4 : 0.4;
 
@@ -348,45 +336,39 @@ function criarFrisoDuploVertical(x, y, z, altura, lado) {
   scene.add(interno);
 }
 
-// === Aplicação dos frisos ===
-
-// 1. Friso central à volta do quadro
-criarFrisoRect(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
-
-// 2. Frisos horizontais inferiores — dupla camada por parede
-
-// Parede de fundo (duas faixas paralelas)
+// 1. Frisos horizontais inferiores — parede de fundo
 criarFrisoLinha(0, 1.6, -config.wallDistance - 5.18, 42);     // inferior
 criarFrisoLinha(0, 2.2, -config.wallDistance - 5.18, 42);     // superior
 
-// Parede lateral esquerda (com rotação positiva)
-criarFrisoLinha(-16.5, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
-criarFrisoLinha(-16.5, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
+// 2. Frisos horizontais inferiores — parede lateral esquerda
+criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
+criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
 
-// Parede lateral direita (com rotação negativa)
-criarFrisoLinha(16.5, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
-criarFrisoLinha(16.5, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+// 3. Frisos horizontais inferiores — parede lateral direita
+criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
 
-// 3. Frisos verticais embutidos nas laterais
-criarFrisoDuploVertical(-16.5, 14.5, -config.wallDistance / 2, 7.5, 'esquerda');
-criarFrisoDuploVertical(16.5, 14.5, -config.wallDistance / 2, 7.5, 'direita');
-// ==================== BLOCO 9 — PEDESTAIS COM VITRINES ====================
+// 4. Frisos verticais embutidos — esquerda e direita
+criarFrisoDuploVertical(-16.7, 14.5, -config.wallDistance / 2, 7.5, 'esquerda');
+criarFrisoDuploVertical(16.7, 14.5, -config.wallDistance / 2, 7.5, 'direita');
+// ==================== BLOCO 7 — PEDESTAIS E VITRINES FIEIS AO LAYOUT ====================
 
+// Materiais
 const pedestalMaterial = new THREE.MeshStandardMaterial({
   color: 0x2b2b2b,
-  roughness: 0.4,
+  roughness: 0.5,
   metalness: 0.25
 });
 
 const vitrineMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  metalness: 0,
+  color: 0x1a1a1a,
+  metalness: 0.1,
   roughness: 0,
   transparent: true,
-  opacity: 0.22,
+  opacity: 0.18,
   transmission: 1,
   thickness: 0.25,
-  reflectivity: 0.45,
+  reflectivity: 0.5,
   clearcoat: 1,
   clearcoatRoughness: 0.1
 });
@@ -394,38 +376,38 @@ const vitrineMaterial = new THREE.MeshPhysicalMaterial({
 const gemaMaterial = new THREE.MeshStandardMaterial({
   color: 0x33ccff,
   emissive: 0x33ccff,
-  emissiveIntensity: 1.7,
-  roughness: 0.15,
-  metalness: 0.4,
+  emissiveIntensity: 1.8,
+  roughness: 0.1,
+  metalness: 0.3,
   transparent: true,
   opacity: 0.85
 });
 
-function criarPedestalComVitrine(posX, posZ) {
-  const alturaPedestal = 1.8;
-  const raioPedestal = 0.6;
+function criarPedestalRetangular(posX, posZ) {
+  const largura = 0.8;
+  const profundidade = 0.8;
+  const alturaPedestal = 1.5;
   const alturaVitrine = 1.3;
-  const raioVitrine = 0.5;
 
-  // Base escura do pedestal
+  // Base rectangular escura
   const base = new THREE.Mesh(
-    new THREE.CylinderGeometry(raioPedestal, raioPedestal, alturaPedestal, 64),
+    new THREE.BoxGeometry(largura, alturaPedestal, profundidade),
     pedestalMaterial
   );
   base.position.set(posX, alturaPedestal / 2, posZ);
   base.castShadow = base.receiveShadow = true;
   scene.add(base);
 
-  // Vitrine transparente em vidro
+  // Vitrine quadrada
   const vitrine = new THREE.Mesh(
-    new THREE.CylinderGeometry(raioVitrine, raioVitrine, alturaVitrine, 64, 1, true),
+    new THREE.BoxGeometry(largura * 0.9, alturaVitrine, profundidade * 0.9),
     vitrineMaterial
   );
   vitrine.position.set(posX, alturaPedestal + alturaVitrine / 2, posZ);
   vitrine.castShadow = vitrine.receiveShadow = true;
   scene.add(vitrine);
 
-  // Gema luminosa suspensa
+  // Gema luminosa dentro da vitrine
   const gema = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.35, 1),
     gemaMaterial
@@ -434,37 +416,46 @@ function criarPedestalComVitrine(posX, posZ) {
   scene.add(gema);
 }
 
-// Posições nos extremos do círculo central, ajustadas para ficar encostadas às paredes
-const raioCubo = config.circleRadius + 2.1;
+// Posições encostadas às paredes laterais, nas pontas do círculo de luz
+const deslocamento = config.circleRadius + 3.3;
 
-criarPedestalComVitrine(-raioCubo, -raioCubo); // Frente esquerda
-criarPedestalComVitrine(raioCubo, -raioCubo);  // Frente direita
-criarPedestalComVitrine(-raioCubo, raioCubo);  // Fundo esquerda
-criarPedestalComVitrine(raioCubo, raioCubo);   // Fundo direita
-// ==================== BLOCO 10 — CÍRCULO DE LUZ CENTRAL ====================
+criarPedestalRetangular(-deslocamento, -deslocamento); // Frente esquerda
+criarPedestalRetangular(deslocamento, -deslocamento);  // Frente direita
+criarPedestalRetangular(-deslocamento, deslocamento);  // Fundo esquerda
+criarPedestalRetangular(deslocamento, deslocamento);   // Fundo direita
+// ==================== BLOCO 8 — CÍRCULO DE LUZ CENTRAL NO CHÃO ====================
 
 const circuloLuzGeometry = new THREE.RingGeometry(
-  config.circleRadius + 0.6, // raio interior
-  config.circleRadius + 1.3, // raio exterior
+  config.circleRadius + 0.6,  // raio interior
+  config.circleRadius + 1.4,  // raio exterior
   64
 );
 
+// Material com brilho e cor realista
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,                // branco neutro
-  emissive: 0xf5f5f5,             // leve brilho difuso
-  emissiveIntensity: 0.5,
-  roughness: 0.6,
-  metalness: 0.05,
+  color: 0xf6e9c2,              // tom quente e elegante (dourado claro)
+  emissive: 0xf6e9c2,
+  emissiveIntensity: 1.2,
+  roughness: 0.4,
+  metalness: 0.15,
   transparent: true,
-  opacity: 0.25,
+  opacity: 0.5,
   side: THREE.DoubleSide
 });
 
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.y = 0.006; // ligeiramente acima do chão para evitar z-fighting
+circuloLuz.position.y = 0.005; // assente sobre o chão
 scene.add(circuloLuz);
-// ==================== BLOCO 11 — OBRAS CIRCULARES SUSPENSAS ====================
+
+// Friso dourado horizontal imediatamente a seguir ao círculo (no chão)
+const frisoChao = new THREE.Mesh(
+  new THREE.BoxGeometry(config.circleRadius * 2 + 2.5, 0.04, 0.02),
+  frisoMaterial
+);
+frisoChao.position.set(0, 0.0055, -config.wallDistance / 2 + 0.2);
+scene.add(frisoChao);
+// ==================== BLOCO 9 — CRIAÇÃO DAS OBRAS CIRCULARES SUSPENSAS ====================
 
 const obrasNormais = [];
 
@@ -575,7 +566,7 @@ function criarObrasNormais() {
       (error) => {
         console.error(`Erro ao carregar imagem da obra ${dados.titulo}:`, error);
 
-        const obra = new THREE.Mesh(
+        const obraFallback = new THREE.Mesh(
           new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
           new THREE.MeshStandardMaterial({
             color: 0x333333,
@@ -587,18 +578,18 @@ function criarObrasNormais() {
         );
 
         const angulo = (i / dadosObras.length) * Math.PI * 2;
-        obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-        obra.lookAt(0, 4.2, 0);
-        obra.userData = { dados, index: i };
+        obraFallback.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+        obraFallback.lookAt(0, 4.2, 0);
+        obraFallback.userData = { dados, index: i };
 
-        scene.add(obra);
-        obrasNormais.push(obra);
+        scene.add(obraFallback);
+        obrasNormais.push(obraFallback);
         updateLoadingProgress();
       }
     );
   });
 }
-// ==================== BLOCO 12 — ANIMAÇÃO CIRCULAR DAS OBRAS ====================
+// ==================== BLOCO 10 — ANIMAÇÃO CONTÍNUA DAS OBRAS CIRCULARES ====================
 
 let anguloAtual = 0;
 const relogio = new THREE.Clock();
@@ -618,10 +609,10 @@ function animarObrasCirculares(delta) {
     obra.lookAt(0, 4.2, 0);
   });
 }
-// ==================== BLOCO 13 — DETECÇÃO DE CLIQUE NAS OBRAS ====================
+// ==================== BLOCO 11 — DETECÇÃO DE CLIQUE NAS OBRAS CIRCULARES ====================
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (obraDestacada) return; // Impede clique duplo ou múltiplos focos
+  if (obraDestacada) return; // Evita múltiplos destaques simultâneos
 
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
@@ -631,58 +622,13 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  const intersects = raycaster.intersectObjects(obrasNormais);
+  const intersects = raycaster.intersectObjects(obrasNormais, false);
   if (intersects.length > 0) {
     const obraClicada = intersects[0].object;
     destacarObra(obraClicada);
   }
 });
-// ==================== BLOCO 14 — ELEMENTOS DO MODAL DE OBRA DESTACADA ====================
-
-// Overlay de fundo desfocado
-const overlay = document.createElement('div');
-overlay.style.cssText = `
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  backdrop-filter: blur(6px); background-color: rgba(0,0,0,0.4);
-  z-index: 50; display: none;
-`;
-document.body.appendChild(overlay);
-
-// Painel informativo com detalhes da obra
-const infoPanel = document.createElement('div');
-infoPanel.style.cssText = `
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, 0);
-  margin-top: calc(260px + 10px); padding: 20px;
-  background: rgba(255,255,255,0.07); backdrop-filter: blur(4px);
-  border-radius: 12px; color: #fffbe6; font-family: Georgia, serif;
-  text-align: center; z-index: 60; display: none; max-width: 320px;
-`;
-infoPanel.innerHTML = `
-  <div id="art-title" style="font-size: 1.6em; font-weight: bold;"></div>
-  <div id="art-artist" style="margin-top: 6px;"></div>
-  <div id="art-year" style="margin-top: 2px;"></div>
-  <div id="art-description" style="margin-top: 10px; font-style: italic;"></div>
-  <div id="art-price" style="margin-top: 10px; font-weight: bold;"></div>
-  <button id="buy-art" style="
-    margin-top: 16px; padding: 10px 18px;
-    background-color: #d8b26c; color: #111;
-    border: none; border-radius: 6px;
-    font-size: 1em; cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-  ">Buy</button>
-`;
-document.body.appendChild(infoPanel);
-
-// Referência aos elementos do modal para uso posterior
-const modalElements = {
-  titulo: infoPanel.querySelector('#art-title'),
-  artista: infoPanel.querySelector('#art-artist'),
-  ano: infoPanel.querySelector('#art-year'),
-  descricao: infoPanel.querySelector('#art-description'),
-  preco: infoPanel.querySelector('#art-price'),
-  botao: infoPanel.querySelector('#buy-art')
-};
-// ==================== BLOCO 15 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
+// ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
 
 function destacarObra(obra) {
   if (obraDestacada) return;
@@ -692,39 +638,51 @@ function destacarObra(obra) {
 
   const dados = obra.userData.dados;
 
-  // Mostrar modal e overlay
-  overlay.style.display = 'block';
-  infoPanel.style.display = 'block';
+  // Ocultar todas as outras obras para evitar sobreposição visual
+  obrasNormais.forEach(o => {
+    if (o !== obra) o.visible = false;
+  });
 
-  modalElements.titulo.textContent = dados.titulo;
-  modalElements.artista.textContent = dados.artista;
-  modalElements.ano.textContent = dados.ano;
-  modalElements.descricao.textContent = dados.descricao || 'Obra em destaque na galeria NANdART.';
-  modalElements.preco.textContent = `${dados.preco} ETH`;
-
-  // Animações com GSAP
-  gsap.to(obra.scale, { x: 2, y: 2, z: 2, duration: 0.8, ease: 'power2.out' });
+  // Elevar a obra acima das restantes (posição e destaque)
+  gsap.to(obra.scale, {
+    x: 2,
+    y: 2,
+    z: 2,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
 
   gsap.to(obra.position, {
     x: 0,
     y: 6.5,
     z: 0,
-    duration: 0.9,
-    ease: 'power2.inOut'
-  });
-
-  // Reposicionar a câmara para foco na obra destacada
-  gsap.to(camera.position, {
-    x: 0,
-    y: 7.2,
-    z: 6.5,
     duration: 1.1,
     ease: 'power2.inOut'
   });
-}
-// ==================== BLOCO 16 — FECHAR MODAL AO CLICAR FORA ====================
 
-window.addEventListener('pointerdown', e => {
+  // Reposicionar a câmara para foco preciso na obra
+  gsap.to(camera.position, {
+    x: 0,
+    y: 7.4,
+    z: 6.4,
+    duration: 1.2,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      // Mostrar o modal apenas quando a animação estiver concluída
+      overlay.style.display = 'block';
+      infoPanel.style.display = 'block';
+
+      modalElements.titulo.textContent = dados.titulo;
+      modalElements.artista.textContent = dados.artista;
+      modalElements.ano.textContent = dados.ano;
+      modalElements.descricao.textContent = dados.descricao || 'Obra em destaque na galeria NANdART.';
+      modalElements.preco.textContent = `${dados.preco} ETH`;
+    }
+  });
+}
+// ==================== BLOCO 13 — FECHAR MODAL AO CLICAR FORA ====================
+
+window.addEventListener('pointerdown', (e) => {
   if (!obraDestacada || infoPanel.contains(e.target)) return;
   fecharObraDestacada();
 });
@@ -732,29 +690,63 @@ window.addEventListener('pointerdown', e => {
 function fecharObraDestacada() {
   if (!obraDestacada) return;
 
-  // Animar regresso da obra à sua posição normal
-  gsap.to(obraDestacada.scale, { x: 1, y: 1, z: 1, duration: 0.6 });
+  const obra = obraDestacada;
 
-  gsap.to(obraDestacada.position, {
+  // Animar regresso da obra à escala normal e esconder modal
+  gsap.to(obra.scale, {
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: 0.6,
+    ease: 'power2.out'
+  });
+
+  gsap.to(obra.position, {
     y: 4.2,
     duration: 0.6,
+    ease: 'power2.inOut',
     onComplete: () => {
       overlay.style.display = 'none';
       infoPanel.style.display = 'none';
       obraDestacada = null;
       ambienteDesacelerado = false;
+
+      // Tornar todas as outras obras visíveis novamente
+      obrasNormais.forEach(o => {
+        o.visible = true;
+      });
     }
   });
 
-  // Restaurar posição original da câmara
+  // Restaurar posição da câmara
   gsap.to(camera.position, {
     x: 0,
     y: config.cameraY,
     z: config.cameraZ,
-    duration: 0.8
+    duration: 0.8,
+    ease: 'power2.inOut'
   });
 }
-// ==================== BLOCO 17 — BOTÃO "BUY" — TRANSACÇÃO EM ETH ====================
+// ==================== BLOCO 14 — ANIMAÇÃO CIRCULAR DAS OBRAS ====================
+
+let anguloAtual = 0;
+const relogio = new THREE.Clock();
+
+function animarObrasCirculares(delta) {
+  // Apenas avança o ângulo se não houver obra destacada
+  if (!obraDestacada) {
+    anguloAtual += velocidadeObras * delta;
+  }
+
+  const raio = config.circleRadius;
+
+  obrasNormais.forEach((obra, i) => {
+    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+    obra.lookAt(0, 4.2, 0);
+  });
+}
+// ==================== BLOCO 15 — BOTÃO "BUY" — TRANSACÇÃO EM ETH ====================
 
 modalElements.botao.addEventListener('click', async () => {
   if (!obraDestacada?.userData?.dados) {
@@ -792,7 +784,7 @@ modalElements.botao.addEventListener('click', async () => {
     alert('Ocorreu um erro ao tentar comprar esta obra. Verifica a tua carteira e tenta novamente.');
   }
 });
-// ==================== BLOCO 18 — CUBOS SUSPENSOS COM GEMAS ====================
+// ==================== BLOCO 16 — CUBOS SUSPENSOS COM GEMAS ====================
 
 const cubosSuspensos = [];
 
@@ -867,7 +859,7 @@ function criarCuboSuspenso(obra, indice) {
 
   return cubo;
 }
-// ==================== BLOCO 19 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
+// ==================== BLOCO 17 — MIGRAÇÃO DE OBRAS DOS CUBOS ====================
 
 // URL do backend onde está alojado o servidor Express (Render ou outro)
 const BACKEND_URL = 'https://nandart-3d.onrender.com';
@@ -927,7 +919,7 @@ async function verificarMigracoesBackend() {
     }
   }
 }
-// ==================== BLOCO 20 — MIGRAR OBRA PARA O CÍRCULO ROTATIVO ====================
+// ==================== BLOCO 18 — MIGRAR OBRA PARA O CÍRCULO ROTATIVO ====================
 
 function migrarParaCirculo(obra) {
   const tamanho = config.obraSize;
@@ -959,7 +951,7 @@ function migrarParaCirculo(obra) {
   scene.add(novaObra);
   obrasNormais.push(novaObra);
 }
-// ==================== BLOCO 23 — BOTÃO "CONNECT WALLET" ====================
+// ==================== BLOCO 19 — BOTÃO "CONNECT WALLET" ====================
 
 // Elemento do botão na interface
 const walletBtn = document.createElement('button');
@@ -967,17 +959,23 @@ walletBtn.id = 'wallet-button';
 walletBtn.textContent = 'Connect Wallet';
 walletBtn.style.cssText = `
   position: fixed;
-  top: 20px; right: 20px;
-  z-index: 90;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid #d8b26c;
-  border-radius: 8px;
-  color: #f9f3e9;
-  font-family: 'Georgia', serif;
-  font-size: 0.9em;
+  top: 18px;
+  right: 20px;
+  z-index: 250;
+  padding: 10px 18px 10px 42px;
+  font-size: 1em;
+  background-color: #d8b26c;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
   cursor: pointer;
-  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  background-image: url('/assets/icons/metamask.svg');
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 20px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 `;
 document.body.appendChild(walletBtn);
 
@@ -1040,7 +1038,7 @@ window.addEventListener('load', async () => {
     }
   }
 });
-// ==================== BLOCO 21 — INICIALIZAÇÃO FINAL DA GALERIA ====================
+// ==================== BLOCO 20 — INICIALIZAÇÃO FINAL DA GALERIA ====================
 
 function iniciarGaleria() {
   // 1. Criar as obras normais do círculo rotativo
@@ -1058,6 +1056,7 @@ function iniciarGaleria() {
 
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
+
 // ==================== BLOCO FINAL — ANIMAÇÃO GLOBAL E RENDER ====================
 
 function animate() {

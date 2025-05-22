@@ -161,14 +161,7 @@
 
     window.onerror = function(message, source, lineno, colno, error) {
       <script>
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.error(`📛 Erro global detectado:
-    → Mensagem: ${message}
-    → Fonte: ${source}
-    → Linha: ${lineno}
-    → Coluna: ${colno}
-    → Stack: ${error?.stack || 'sem stack'}
-    → Objeto de erro:`, error);
+  console.error('Global error:', { message, source, lineno, colno, error });
 
     return true;
   };

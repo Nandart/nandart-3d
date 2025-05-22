@@ -590,7 +590,6 @@ function criarObrasNormais() {
 // ==================== BLOCO 10 — ANIMAÇÃO CONTÍNUA DAS OBRAS CIRCULARES ====================
 
 let anguloAtual = 0;
-let ambienteDesacelerado = false;
 
 function animarObrasCirculares(delta) {
   if (!obraDestacada) {

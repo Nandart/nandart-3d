@@ -1019,24 +1019,6 @@ window.addEventListener('load', async () => {
     }
   }
 });
-// ==================== BLOCO 20 — INICIALIZAÇÃO FINAL DA GALERIA ====================
-
-function iniciarGaleria() {
-  // 1. Criar as obras normais do círculo rotativo
-  criarObrasNormais();
-
-  // 2. Adicionar cubos suspensos com obras em pré-venda
-  obrasSuspensas.forEach((obra, idx) => {
-    criarCuboSuspenso(obra, idx);
-    registarEntradaBackend(obra.id);
-  });
-
-  // 3. Verificar se alguma obra ultrapassou o tempo de suspensão
-  verificarMigracoesBackend();
-}
-
-// Executar ao carregar a página
-window.addEventListener('load', iniciarGaleria);
 
 // ==================== BLOCO 20 — INICIALIZAÇÃO FINAL DA GALERIA ====================
 

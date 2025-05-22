@@ -457,8 +457,6 @@ frisoChao.position.set(0, 0.0055, -config.wallDistance / 2 + 0.2);
 scene.add(frisoChao);
 // ==================== BLOCO 9 — CRIAÇÃO DAS OBRAS CIRCULARES SUSPENSAS ====================
 
-const obrasNormais = [];
-
 const dadosObras = [
   {
     id: 'obra1',

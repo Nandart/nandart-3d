@@ -29,9 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(msg);
       }
 
-      alert("✅ Your artwork has been submitted successfully!");
       console.log("🎉 Submissão completa.");
-      form.reset();
+      window.location.href = "/thanks.html";
     } catch (err) {
       console.error("❌ Erro ao submeter:", err);
       errorEl.style.display = "block";

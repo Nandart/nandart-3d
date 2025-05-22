@@ -1069,4 +1069,3 @@ function animate() {
 }
 
 animate(); // ← CHAMADA INICIAL
-

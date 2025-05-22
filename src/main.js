@@ -729,7 +729,7 @@ function fecharObraDestacada() {
 let anguloAtual = 0;
 const relogio = new THREE.Clock();
 
-function animarObrasCirculares(delta) {
+ {
   // Apenas avança o ângulo se não houver obra destacada
   if (!obraDestacada) {
     anguloAtual += velocidadeObras * delta;

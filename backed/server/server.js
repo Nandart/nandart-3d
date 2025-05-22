@@ -7,12 +7,18 @@ const centralesRouter = require('../routes/server/centrales');
 
 const app = express();
 
-// Configuração CORS manual
+// Configuração CORS manual melhorada
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://nandartart.art");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
+  
+  // Resposta imediata para requisições OPTIONS (pré-voo)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   next();
 });
 
@@ -31,6 +37,7 @@ app.get('*', (req, res) => {
 });
 
 // Início do servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor na porta ${PORT}`));
-
+const PORT = process.env.PORT || 10000; // Use 10000 como fallback
+app.listen(PORT, '0.0.0.0', () => { // Adicione '0.0.0.0' para aceitar conexões externas
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

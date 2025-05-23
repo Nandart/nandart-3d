@@ -260,6 +260,15 @@ const textureMarble = new THREE.TextureLoader().load(
   }
 );
 
+// Material dourado para frisos decorativos
+const frisoMaterial = new THREE.MeshStandardMaterial({
+  color: 0x8a5c21, // cor dourada como definida no layout
+  metalness: 0.7,
+  roughness: 0.3,
+  emissive: 0x000000,
+  emissiveIntensity: 0.1
+});
+
 // Friso arredondado ao centro da parede de fundo
 function criarFrisoCentral(x, y, z, largura, altura) {
   const raio = 0.3;
@@ -277,7 +286,7 @@ function criarFrisoCentral(x, y, z, largura, altura) {
   forma.quadraticCurveTo(-largura / 2, -altura / 2, -largura / 2 + raio, -altura / 2);
 
   const extrudeConfig = {
-    depth: espessura,
+    depth: 0.02,
     bevelEnabled: false
   };
 
@@ -286,16 +295,9 @@ function criarFrisoCentral(x, y, z, largura, altura) {
   friso.position.set(x, y, z);
   scene.add(friso);
 }
+
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
 
-// Material dourado para frisos decorativos
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21, // cor dourada como definida no layout
-  metalness: 0.7,
-  roughness: 0.3,
-  emissive: 0x000000,
-  emissiveIntensity: 0.1
-});
 // ==================== BLOCO 6 — FRISOS DECORATIVOS ====================
 
 // Friso horizontal — barra simples

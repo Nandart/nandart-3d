@@ -673,9 +673,6 @@ document.addEventListener('pointerdown', (e) => {
   fecharObraDestacada();
 });
 
-
-});
-
 // Função que repõe a obra na sua posição original na órbita
 function fecharObraDestacada() {
   if (!obraDestacada) return;

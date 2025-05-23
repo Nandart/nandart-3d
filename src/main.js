@@ -135,31 +135,31 @@ window.addEventListener('resize', () => {
 });
 // ==================== BLOCO 3 — LUZES, CÂMARA E CHÃO REFLECTIVO ====================
 
-// Luz ambiente principal — intensificada para visibilidade completa da sala
-const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
+// Luz ambiente — suavizada para manter definição
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
 scene.add(ambientLight);
 
-// Luz direcional frontal — iluminação principal vinda de cima para o espaço expositivo
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
+// Luz direcional frontal — suavizada para preservar detalhes das texturas
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.1);
 directionalLight.position.set(0, 16, 12);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 scene.add(directionalLight);
 
-// Luzes de preenchimento laterais suaves — equilibram as sombras
-const fillLeft = new THREE.DirectionalLight(0xffffff, 1.0);
+// Luzes de preenchimento laterais — reduzidas para evitar realces exagerados
+const fillLeft = new THREE.DirectionalLight(0xffffff, 0.6);
 fillLeft.position.set(-8, 8, 4);
 fillLeft.castShadow = true;
 scene.add(fillLeft);
 
-const fillRight = new THREE.DirectionalLight(0xffffff, 1.0);
+const fillRight = new THREE.DirectionalLight(0xffffff, 0.6);
 fillRight.position.set(8, 8, -4);
 fillRight.castShadow = true;
 scene.add(fillRight);
 
-// Luz cénica superior — cria atmosfera e profundidade
-const spotLight = new THREE.SpotLight(0xffffff, 1.4, 30, Math.PI / 5, 0.4, 1);
+// Luz cénica superior — mantida mas com intensidade menor para atmosfera sem sobreposição
+const spotLight = new THREE.SpotLight(0xffffff, 1.0, 30, Math.PI / 5, 0.4, 1);
 spotLight.position.set(0, 20, 5);
 spotLight.castShadow = true;
 spotLight.shadow.mapSize.width = 1024;

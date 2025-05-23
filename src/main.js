@@ -260,7 +260,33 @@ const textureMarble = new THREE.TextureLoader().load(
   }
 );
 
-// Aplicar friso maior que o quadro central para criar espaço de “respiro”
+// Friso arredondado ao centro da parede de fundo
+function criarFrisoCentral(x, y, z, largura, altura) {
+  const raio = 0.3;
+  const espessura = 0.02;
+
+  const forma = new THREE.Shape();
+  forma.moveTo(-largura / 2 + raio, -altura / 2);
+  forma.lineTo(largura / 2 - raio, -altura / 2);
+  forma.quadraticCurveTo(largura / 2, -altura / 2, largura / 2, -altura / 2 + raio);
+  forma.lineTo(largura / 2, altura / 2 - raio);
+  forma.quadraticCurveTo(largura / 2, altura / 2, largura / 2 - raio, altura / 2);
+  forma.lineTo(-largura / 2 + raio, altura / 2);
+  forma.quadraticCurveTo(-largura / 2, altura / 2, -largura / 2, altura / 2 - raio);
+  forma.lineTo(-largura / 2, -altura / 2 + raio);
+  forma.quadraticCurveTo(-largura / 2, -altura / 2, -largura / 2 + raio, -altura / 2);
+
+  const extrudeConfig = {
+    depth: espessura,
+    bevelEnabled: false
+  };
+
+  const geometria = new THREE.ExtrudeGeometry(forma, extrudeConfig);
+  const friso = new THREE.Mesh(geometria, frisoMaterial);
+  friso.position.set(x, y, z);
+  scene.add(friso);
+}
+
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
 // ==================== BLOCO 6 — FRISOS DECORATIVOS ====================
 

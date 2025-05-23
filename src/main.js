@@ -721,8 +721,6 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     destacarObra(obraClicada);
   }
 });
-// ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
-
 function destacarObra(obra) {
   if (obraDestacada) return; // Garante que apenas uma obra pode estar destacada
 
@@ -760,15 +758,14 @@ function destacarObra(obra) {
     ease: 'power2.out'
   });
 
-  // Exibe o painel informativo após a transição visual
+  // Apresenta o painel informativo após a animação
   setTimeout(() => {
+    overlay = document.getElementById('overlay');
+    infoPanel = document.getElementById('info-panel');
+
     if (!overlay || !infoPanel) {
-      overlay = document.getElementById('overlay');
-      infoPanel = document.getElementById('info-panel');
-      if (!overlay || !infoPanel) {
-        console.error('❌ Elementos do modal não encontrados.');
-        return;
-      }
+      console.error('❌ Elementos do modal não encontrados.');
+      return;
     }
 
     overlay.style.display = 'block';
@@ -779,49 +776,29 @@ function destacarObra(obra) {
     modalElements.ano.textContent = dados.ano;
     modalElements.descricao.textContent = dados.descricao || 'Obra em destaque na galeria NANdART.';
     modalElements.preco.textContent = `${dados.preco} ETH`;
+
+    // Projectar a posição da obra no ecrã
+    const obraScreenPos = obraDestacada.position.clone().project(camera);
+    const centerX = (obraScreenPos.x * 0.5 + 0.5) * window.innerWidth;
+    const centerY = (1 - (obraScreenPos.y * 0.5 + 0.5)) * window.innerHeight;
+
+    const larguraObra = 260; // Ajustável conforme design
+
+    infoPanel.style.position = 'absolute';
+    infoPanel.style.left = `${centerX - larguraObra / 2}px`;
+    infoPanel.style.top = `${centerY + 160}px`;
+    infoPanel.style.width = `${larguraObra}px`;
+    infoPanel.style.zIndex = '200';
+    infoPanel.style.transition = 'all 0.3s ease';
   }, 1100);
-  // Posicionamento milimétrico do modal abaixo da obra destacada
-setTimeout(() => {
-  if (!overlay || !infoPanel) {
-    overlay = document.getElementById('overlay');
-    infoPanel = document.getElementById('info-panel');
-    if (!overlay || !infoPanel) {
-      console.error('❌ Elementos do modal não encontrados.');
-      return;
-    }
-  }
-
-  overlay.style.display = 'block';
-  infoPanel.style.display = 'block';
-
-  modalElements.titulo.textContent = dados.titulo;
-  modalElements.artista.textContent = dados.artista;
-  modalElements.ano.textContent = dados.ano;
-  modalElements.descricao.textContent = dados.descricao || 'Obra em destaque na galeria NANdART.';
-  modalElements.preco.textContent = `${dados.preco} ETH`;
-
-  // ⚙️ Alinhamento do modal com a obra destacada
-  const bounding = obraDestacada?.material?.map?.image?.getBoundingClientRect?.() ||
-                   document.querySelector('canvas')?.getBoundingClientRect();
-
-  const obraScreenPos = obraDestacada?.position?.clone()?.project(camera);
-  const centerX = (obraScreenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const centerY = (1 - (obraScreenPos.y * 0.5 + 0.5)) * window.innerHeight;
-
-  const larguraObra = 260; // Ajustável consoante design (em px)
-
-  infoPanel.style.position = 'absolute';
-  infoPanel.style.left = `${centerX - larguraObra / 2}px`;
-  infoPanel.style.top = `${centerY + 160}px`;
-  infoPanel.style.width = `${larguraObra}px`;
-}, 1100);
-
 }
+
 // ==================== BLOCO 13 — FECHAR MODAL AO CLICAR FORA ====================
 
 // Fecha a obra destacada se o utilizador clicar fora do painel informativo
 document.addEventListener('pointerdown', (e) => {
-  if (!obraDestacada || !infoPanel || infoPanel.contains(e.target)) return;
+  if (!obraDestacada) return;
+  if (infoPanel && infoPanel.contains(e.target)) return;
   fecharObraDestacada();
 });
 
@@ -841,19 +818,13 @@ function fecharObraDestacada() {
     duration: 1.2,
     ease: 'power2.inOut',
     onComplete: () => {
-      // Restaura a visibilidade das outras obras
-      obrasNormais.forEach(o => o.visible = true);
-
-      // Oculta o painel e o overlay
-      overlay.style.display = 'none';
-      infoPanel.style.display = 'none';
-
+      obrasNormais.forEach(o => o.visible = true); // Restaurar visibilidade
       obraDestacada = null;
       ambienteDesacelerado = false;
     }
   });
 
-  // Reverte a escala da obra para o tamanho normal
+  // Reverter a escala visual
   gsap.to(obra.scale, {
     x: 1,
     y: 1,
@@ -861,26 +832,23 @@ function fecharObraDestacada() {
     duration: 0.6,
     ease: 'power2.out'
   });
+
+  // Transição suave do painel e overlay
+  if (infoPanel && overlay) {
+    infoPanel.style.transition = 'opacity 0.4s ease';
+    overlay.style.transition = 'opacity 0.4s ease';
+    infoPanel.style.opacity = '0';
+    overlay.style.opacity = '0';
+
+    setTimeout(() => {
+      infoPanel.style.display = 'none';
+      overlay.style.display = 'none';
+      infoPanel.style.opacity = '1';
+      overlay.style.opacity = '1';
+    }, 400);
+  }
 }
-// Projectar a posição da obra destacada no ecrã
-const vector = new THREE.Vector3();
-vector.copy(obra.position).project(camera);
 
-// Converter para coordenadas de pixel
-const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-
-// Calcular largura com base na escala atual e na distância à câmara
-const escala = obra.scale.x; // assume proporção igual em x e y
-const larguraObraPx = (config.obraSize * escala * renderer.domElement.height) / (camera.position.z * 0.75);
-
-// Aplicar largura e posição ao modal
-infoPanel.style.position = 'fixed';
-infoPanel.style.width = `${larguraObraPx}px`;
-infoPanel.style.left = `${x - larguraObraPx / 2}px`;
-infoPanel.style.top = `${y + 20}px`; // 20px abaixo da obra
-infoPanel.style.zIndex = '200';
-infoPanel.style.transition = 'all 0.3s ease';
 // ==================== BLOCO 15 — BOTÃO “BUY” E INTEGRAÇÃO COM METAMASK ====================
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -1088,7 +1056,7 @@ walletBtn.style.cssText = `
   font-family: 'Playfair Display', serif;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-  background-image: url('/assets/icons/metamask.svg');
+  background-image: url('assets/icons/metamask.svg');
   background-repeat: no-repeat;
   background-position: 12px center;
   background-size: 20px 20px;

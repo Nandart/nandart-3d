@@ -159,13 +159,13 @@
       }
     }
 
-    window.onerror = function(message, source, lineno, colno, error) {
-      <script>
-  console.error('Global error:', { message, source, lineno, colno, error });
-
+<script>
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.error('Global error:', { message, source, lineno, colno, error });
     return true;
   };
 </script>
+
 
       return true;
     };

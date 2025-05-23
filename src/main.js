@@ -746,50 +746,60 @@ function fecharObraDestacada() {
 }
 // ==================== BLOCO 14 — BOTÃO “BUY” E INTEGRAÇÃO COM METAMASK ====================
 
-modalElements.botao.addEventListener('click', async () => {
-  const dados = obraDestacada?.userData?.dados;
+window.addEventListener('DOMContentLoaded', () => {
+  const botaoBuy = document.getElementById('obra-buy');
+  if (botaoBuy) {
+    modalElements.botao = botaoBuy;
 
-  if (!dados || !dados.preco || !dados.titulo) {
-    alert('Erro: dados da obra não encontrados.');
-    return;
-  }
+    botaoBuy.addEventListener('click', async () => {
+      const dados = obraDestacada?.userData?.dados;
 
-  if (!window.ethereum) {
-    alert('MetaMask não está instalada. Por favor, instala-a para continuares.');
-    return;
-  }
+      if (!dados || !dados.preco || !dados.titulo) {
+        alert('Erro: dados da obra não encontrados.');
+        return;
+      }
 
-  try {
-    // Estado visual: processar
-    modalElements.botao.disabled = true;
-    modalElements.botao.textContent = 'A processar...';
+      if (!window.ethereum) {
+        alert('MetaMask não está instalada. Por favor, instala-a para continuares.');
+        return;
+      }
 
-    // Solicitar ligação à carteira
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
+      try {
+        // Estado visual: a processar
+        modalElements.botao.disabled = true;
+        modalElements.botao.textContent = 'A processar...';
 
-    // Enviar transacção de compra
-    const tx = await signer.sendTransaction({
-      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // endereço da galeria
-      value: ethers.parseEther(dados.preco)
+        // Solicitar ligação à carteira
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        // Enviar transacção de compra
+        const tx = await signer.sendTransaction({
+          to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // endereço da galeria
+          value: ethers.parseEther(dados.preco)
+        });
+
+        // Confirmação visual
+        alert(`🧾 Transacção enviada!\n\nHash:\n${tx.hash}`);
+        await tx.wait();
+
+        alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.');
+        fecharObraDestacada();
+
+      } catch (err) {
+        console.error('❌ Erro na compra:', err);
+        alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.');
+      } finally {
+        modalElements.botao.disabled = false;
+        modalElements.botao.textContent = 'Buy';
+      }
     });
-
-    // Confirmação visual
-    alert(`🧾 Transacção enviada!\n\nHash:\n${tx.hash}`);
-    await tx.wait();
-
-    alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.');
-    fecharObraDestacada();
-
-  } catch (err) {
-    console.error('❌ Erro na compra:', err);
-    alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.');
-  } finally {
-    modalElements.botao.disabled = false;
-    modalElements.botao.textContent = 'Buy';
+  } else {
+    console.error('❌ Botão Buy não encontrado no DOM.');
   }
 });
+
 // ==================== BLOCO 15 — CRIAÇÃO E GESTÃO DE CUBOS SUSPENSOS ====================
 
 // Função para criar cubo suspenso com gema luminosa e obra

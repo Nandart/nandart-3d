@@ -1,0 +1,27 @@
+{
+  "name": "nandart-3d",
+  "version": "1.0.0",
+  "description": "Frontend da galeria tridimensional NANdART",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "vite",
+    "three.js",
+    "web3",
+    "galeria",
+    "NFT",
+    "arte"
+  ],
+  "author": "Nandart",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.160.0",
+    "ethers": "^6.10.0"
+  },
+  "devDependencies": {
+    "vite": "^4.5.0"
+  }
+}

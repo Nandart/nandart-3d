@@ -178,16 +178,20 @@ floorMirror.rotation.x = -Math.PI / 2;
 floorMirror.position.y = -0.03;
 floorMirror.receiveShadow = true;
 scene.add(floorMirror);
+
+
 // ==================== BLOCO 4 — PAREDES COM TEXTURA REALISTA ====================
 
-// Geometrias das paredes com dimensões fiéis ao layout
-const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
-const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
+const texturaParede = textureLoader.load('assets/antracite-realista.jpg', updateLoadingProgress);
+const normalParede = textureLoader.load('assets/antracite-normal.jpg', updateLoadingProgress);
+aplicarTexturaParede(texturaParede, normalParede);
 
-// Função de aplicação de textura (com fallback automático)
-function aplicarTexturaParede(textura) {
+// Função para aplicar material com ou sem textura a todas as paredes
+function aplicarTexturaParede(textura, normalMap = null) {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura || null,
+    normalMap: normalMap || null,
+    normalScale: new THREE.Vector2(1, 1),
     color: textura ? 0xffffff : 0x1a1a1a,
     emissive: 0x111111,
     emissiveIntensity: 0.2,
@@ -196,112 +200,26 @@ function aplicarTexturaParede(textura) {
   });
 
   // PAREDE DE FUNDO
-  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
+  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
   paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
   // PAREDE LATERAL ESQUERDA
-  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
+  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
   paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
   // PAREDE LATERAL DIREITA
-  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
+  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
   paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
 }
 
-// Carrega a textura antracite realista com tratamento de erro
-textureLoader.load(
-  'assets/antracite-realista.jpg',
-  textura => aplicarTexturaParede(textura),
-  undefined,
-  () => {
-    console.warn('⚠️ Falha ao carregar a textura antracite. Aplicar cor fallback.');
-    aplicarTexturaParede(null);
-  }
-);
-// ==================== BLOCO 5 — QUADRO CENTRAL E FRISO COM RESPIRO ====================
-
-// Grupo que agrupa a moldura e a pintura
-const quadroCentralGrupo = new THREE.Group();
-
-const larguraQuadro = 4.6;
-const alturaQuadro = 5.8;
-
-// Moldura escura com profundidade e ligeiro brilho
-const molduraCentral = new THREE.Mesh(
-  new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
-  new THREE.MeshStandardMaterial({
-    color: 0x1e1a16,
-    metalness: 0.6,
-    roughness: 0.3,
-    emissive: 0x0d0c0a,
-    emissiveIntensity: 0.15
-  })
-);
-molduraCentral.position.z = -0.1; // ligeiramente recuada
-quadroCentralGrupo.add(molduraCentral);
-
-// Pintura central com textura
-const texturaCentral = textureLoader.load('assets/obras/obra-central.jpg', updateLoadingProgress);
-const pinturaCentral = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-  new THREE.MeshStandardMaterial({
-    map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
-  })
-);
-pinturaCentral.position.z = 0.01; // ligeiramente à frente da moldura
-quadroCentralGrupo.add(pinturaCentral);
-
-// Posicionamento no centro da parede de fundo, com ligeiro levantamento
-quadroCentralGrupo.position.set(0, 11.2, -config.wallDistance - 5.19);
-scene.add(quadroCentralGrupo);
-
-// Material dos frisos com tom dourado extraído de "dourado para friso.png"
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21, // #8a5c21 = RGB (138, 92, 33)
-  metalness: 1,
-  roughness: 0.08,
-  emissive: 0x2f1b08,
-  emissiveIntensity: 0.33
-});
-
-// Função para criar friso com espaço de respiro
-function criarFrisoCentral(x, y, z, largura, altura) {
-  const grupo = new THREE.Group();
-  const espessura = 0.06;
-
-  // Barras horizontais
-  [1, -1].forEach(dy => {
-    const barra = new THREE.Mesh(
-      new THREE.BoxGeometry(largura, espessura, 0.02),
-      frisoMaterial
-    );
-    barra.position.set(0, altura / 2 * dy, 0);
-    grupo.add(barra);
-  });
-
-  // Barras verticais
-  [1, -1].forEach(dx => {
-    const barra = new THREE.Mesh(
-      new THREE.BoxGeometry(espessura, altura - espessura * 2, 0.02),
-      frisoMaterial
-    );
-    barra.position.set(largura / 2 * dx - espessura / 2 * dx, 0, 0);
-    grupo.add(barra);
-  });
-
-  grupo.position.set(x, y, z);
-  scene.add(grupo);
-}
 
 // Aplicar friso maior que o quadro central para criar espaço de “respiro”
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
@@ -670,7 +588,13 @@ function destacarObra(obra) {
     y: 6.5,
     z: 0,
     duration: 1.1,
-    ease: 'power2.inOut'
+    ease: 'power2.inOut',
+    onUpdate: () => {
+      obra.lookAt(new THREE.Vector3(0, 6.5, 0)); // Corrige a inclinação durante a animação
+    },
+    onComplete: () => {
+      obra.lookAt(new THREE.Vector3(0, 6.5, 0)); // Garante orientação final
+    }
   });
 
   // Escala a obra para dar-lhe maior presença visual
@@ -685,8 +609,12 @@ function destacarObra(obra) {
   // Exibe o painel informativo após a transição visual
   setTimeout(() => {
     if (!overlay || !infoPanel) {
-      console.error('❌ Elementos do modal não encontrados.');
-      return;
+      overlay = document.getElementById('overlay');
+      infoPanel = document.getElementById('info-panel');
+      if (!overlay || !infoPanel) {
+        console.error('❌ Elementos do modal não encontrados.');
+        return;
+      }
     }
 
     overlay.style.display = 'block';
@@ -699,12 +627,16 @@ function destacarObra(obra) {
     modalElements.preco.textContent = `${dados.preco} ETH`;
   }, 1100);
 }
+
 // ==================== BLOCO 13 — FECHAR MODAL AO CLICAR FORA ====================
 
 // Fecha a obra destacada se o utilizador clicar fora do painel informativo
-window.addEventListener('pointerdown', (e) => {
-  if (!obraDestacada || infoPanel.contains(e.target)) return;
+document.addEventListener('pointerdown', (e) => {
+  if (!obraDestacada || !infoPanel || infoPanel.contains(e.target)) return;
   fecharObraDestacada();
+});
+
+
 });
 
 // Função que repõe a obra na sua posição original na órbita

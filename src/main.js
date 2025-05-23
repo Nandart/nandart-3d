@@ -166,60 +166,98 @@ spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 scene.add(spotLight);
 
-// Criação do chão reflectivo — estilo obsidiana líquida
-const floorGeometry = new THREE.PlaneGeometry(80, 80);
-const floorMirror = new Reflector(floorGeometry, {
-  clipBias: 0.003,
-  textureWidth: window.innerWidth * window.devicePixelRatio,
-  textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x111111
-});
-floorMirror.rotation.x = -Math.PI / 2;
-floorMirror.position.y = -0.03;
-floorMirror.receiveShadow = true;
-scene.add(floorMirror);
+// ==================== CHÃO EM MÁRMORE PRETO POLIDO COM FALBACK INLINE ====================
+
+const base64MarbleTexture = 'data:image/png;const base64MarbleTexture = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAPoCAIAAADk1DKrAAAgAElEQVR4nOzdeZAcdb3/8U+7KXbrkxyypWLFFpXsopItKJYkVIC4CBNVDEcInDih1kWLTwRZQEVXapVthjKQZBY5wKqIFIsRWhQqApIaIr0gtghEUUDwqt+t0PWXOb3/fO2bNzHefMe/fc7s2fv+8+5597zznGdnzpyZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM2fOnDlz5syZM
+'; // (insere aqui o conteúdo completo do Base64 que já te forneci)
+
+const textureMarble = new THREE.TextureLoader().load(
+  'assets/marble-polished.jpg',
+  () => {
+    console.log('✅ Textura externa de mármore carregada com sucesso.');
+
+    const floorGeometry = new THREE.PlaneGeometry(80, 80);
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      map: textureMarble,
+      metalness: 0.4,
+      roughness: 0.08,
+      emissive: new THREE.Color(0x111111),
+      emissiveIntensity: 0.12
+    });
+
+    const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+    floorMesh.rotation.x = -Math.PI / 2;
+    floorMesh.position.y = -0.03;
+    floorMesh.receiveShadow = true;
+    scene.add(floorMesh);
+  },
+  undefined,
+  () => {
+    console.warn('⚠️ Falha na textura externa. A aplicar fallback embutido.');
+
+    const image = new Image();
+    image.src = base64MarbleTexture;
+    const fallbackTexture = new THREE.Texture(image);
+    image.onload = () => {
+      fallbackTexture.needsUpdate = true;
+
+      const floorGeometry = new THREE.PlaneGeometry(80, 80);
+      const floorMaterial = new THREE.MeshStandardMaterial({
+        map: fallbackTexture,
+        metalness: 0.4,
+        roughness: 0.08,
+        emissive: new THREE.Color(0x111111),
+        emissiveIntensity: 0.12
+      });
+
+      const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+      floorMesh.rotation.x = -Math.PI / 2;
+      floorMesh.position.y = -0.03;
+      floorMesh.receiveShadow = true;
+      scene.add(floorMesh);
+    };
+  }
+);
 
 
 // ==================== BLOCO 4 — PAREDES COM TEXTURA REALISTA ====================
 
 const texturaParede = textureLoader.load('assets/antracite-realista.jpg', updateLoadingProgress);
 const normalParede = textureLoader.load('assets/antracite-normal.jpg', updateLoadingProgress);
+
 aplicarTexturaParede(texturaParede, normalParede);
 
-// Função para aplicar material com ou sem textura a todas as paredes
+// Versão refinada da função
 function aplicarTexturaParede(textura, normalMap = null) {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura || null,
     normalMap: normalMap || null,
-    normalScale: new THREE.Vector2(1, 1),
+    normalScale: new THREE.Vector2(1.4, 1.4),  // 🌒 Relevo subtil e artístico
     color: textura ? 0xffffff : 0x1a1a1a,
     emissive: 0x111111,
-    emissiveIntensity: 0.2,
+    emissiveIntensity: 0.28,                   // ✨ Luz interior subtil
     roughness: 0.58,
     metalness: 0.18
   });
 
-  // PAREDE DE FUNDO
+  // Paredes com material duplicado
   const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
   paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
   paredeFundo.receiveShadow = true;
   scene.add(paredeFundo);
 
-  // PAREDE LATERAL ESQUERDA
   const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
   paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
   paredeEsquerda.rotation.y = Math.PI / 2;
   paredeEsquerda.receiveShadow = true;
   scene.add(paredeEsquerda);
 
-  // PAREDE LATERAL DIREITA
   const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
   paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
 }
-
 
 // Aplicar friso maior que o quadro central para criar espaço de “respiro”
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);

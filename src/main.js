@@ -166,9 +166,51 @@ spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 scene.add(spotLight);
 
-// ==================== CHÃO EM MÁRMORE PRETO POLIDO COM FALBACK INLINE ====================
+// ==================== BLOCO 4 — PAREDES E CHÃO COM TEXTURAS REALISTAS ====================
 
-const base64MarbleTexture = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; // cola aqui o Base64 completo real
+// Geometrias das paredes (definidas antes da função que as usa)
+const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
+const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
+
+// Texturas das paredes
+const texturaParede = textureLoader.load('assets/antracite-realista.jpg', updateLoadingProgress);
+const normalParede = textureLoader.load('assets/antracite-normal.jpg', updateLoadingProgress);
+
+// Função para aplicar texturas às paredes
+function aplicarTexturaParede(textura, normalMap = null) {
+  const paredeMaterial = new THREE.MeshStandardMaterial({
+    map: textura || null,
+    normalMap: normalMap || null,
+    normalScale: new THREE.Vector2(1.4, 1.4),
+    color: textura ? 0xffffff : 0x1a1a1a,
+    emissive: 0x111111,
+    emissiveIntensity: 0.28,
+    roughness: 0.58,
+    metalness: 0.18
+  });
+
+  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
+  paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
+  paredeFundo.receiveShadow = true;
+  scene.add(paredeFundo);
+
+  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+  paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
+  paredeEsquerda.rotation.y = Math.PI / 2;
+  paredeEsquerda.receiveShadow = true;
+  scene.add(paredeEsquerda);
+
+  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+  paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
+  paredeDireita.rotation.y = -Math.PI / 2;
+  paredeDireita.receiveShadow = true;
+  scene.add(paredeDireita);
+}
+aplicarTexturaParede(texturaParede, normalParede);
+
+// ==================== CHÃO EM MÁRMORE PRETO POLIDO COM FALLBACK INLINE ====================
+
+const base64MarbleTexture = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA..."; // sem quebras de linha
 
 const textureMarble = new THREE.TextureLoader().load(
   'assets/marble-polished.jpg',
@@ -217,46 +259,6 @@ const textureMarble = new THREE.TextureLoader().load(
     };
   }
 );
-
-
-// ==================== BLOCO 4 — PAREDES COM TEXTURA REALISTA ====================
-
-const texturaParede = textureLoader.load('assets/antracite-realista.jpg', updateLoadingProgress);
-const normalParede = textureLoader.load('assets/antracite-normal.jpg', updateLoadingProgress);
-
-aplicarTexturaParede(texturaParede, normalParede);
-
-// Versão refinada da função
-function aplicarTexturaParede(textura, normalMap = null) {
-  const paredeMaterial = new THREE.MeshStandardMaterial({
-    map: textura || null,
-    normalMap: normalMap || null,
-    normalScale: new THREE.Vector2(1.4, 1.4),  // 🌒 Relevo subtil e artístico
-    color: textura ? 0xffffff : 0x1a1a1a,
-    emissive: 0x111111,
-    emissiveIntensity: 0.28,                   // ✨ Luz interior subtil
-    roughness: 0.58,
-    metalness: 0.18
-  });
-
-  // Paredes com material duplicado
-  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
-  paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
-  paredeFundo.receiveShadow = true;
-  scene.add(paredeFundo);
-
-  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-  paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
-  paredeEsquerda.rotation.y = Math.PI / 2;
-  paredeEsquerda.receiveShadow = true;
-  scene.add(paredeEsquerda);
-
-  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-  paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
-  paredeDireita.rotation.y = -Math.PI / 2;
-  paredeDireita.receiveShadow = true;
-  scene.add(paredeDireita);
-}
 
 // Aplicar friso maior que o quadro central para criar espaço de “respiro”
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);

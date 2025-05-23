@@ -1062,3 +1062,35 @@ function iniciarGaleria() {
 
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
+// ==================== BLOCO 22 — VERIFICAÇÃO DE MIGRAÇÕES NO BACKEND ====================
+
+async function verificarMigracoesBackend() {
+  try {
+    const resposta = await fetch(`${BACKEND_URL}/api/verificar-migracoes`);
+    if (!resposta.ok) {
+      throw new Error(`Resposta não OK: ${resposta.status}`);
+    }
+
+    const migracoes = await resposta.json();
+    if (Array.isArray(migracoes)) {
+      migracoes.forEach(obra => {
+        migrarParaCirculo(obra);
+      });
+      console.log(`🔄 Migrações processadas: ${migracoes.length}`);
+    }
+  } catch (err) {
+    console.error('❌ Erro ao verificar migrações no backend:', err.message || err);
+  }
+}
+// ==================== BLOCO 23 — FUNÇÃO DE ANIMAÇÃO CONTÍNUA ====================
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = relogio.getDelta();
+  animarObrasCirculares(delta);
+
+  renderer.render(scene, camera);
+}
+
+animate();

@@ -68,7 +68,6 @@
       top: 60px;
       left: 18px;
       background: rgba(0, 0, 0, 0.85);
-      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       border-radius: 8px;
       padding: 12px;
@@ -102,7 +101,7 @@
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Modal Informativo da Obra Destacada -->
+  <!-- Overlay escuro por trás do modal -->
   <div id="overlay" style="
     position: fixed;
     top: 0; left: 0;
@@ -113,6 +112,7 @@
     backdrop-filter: blur(4px);
   "></div>
 
+  <!-- Painel informativo flutuante -->
   <div id="info-panel" style="
     position: fixed;
     bottom: 10%;
@@ -147,7 +147,10 @@
     ">Buy</button>
   </div>
 
-  <!-- WebGL e menu JS -->
+  <!-- Script Principal -->
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Inicializações Seguras -->
   <script>
     function checkWebGL() {
       try {
@@ -159,75 +162,30 @@
       }
     }
 
-<script>
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.error('Global error:', { message, source, lineno, colno, error });
-    return true;
-  };
-</script>
-
-
+    // Gestão de erros globais
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Global error:', { message, source, lineno, colno, error });
       return true;
     };
 
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
+    // Verificação de suporte WebGL
     if (!checkWebGL()) {
       alert('O teu navegador não suporta WebGL. Usa uma versão recente do Chrome, Firefox ou Edge.');
       throw new Error('WebGL not supported');
     }
+
+    // Ativação do menu apenas após o DOM estar carregado
+    window.addEventListener('DOMContentLoaded', () => {
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuDropdown = document.getElementById('menu-dropdown');
+
+      if (menuToggle && menuDropdown) {
+        menuToggle.addEventListener('click', () => {
+          menuDropdown.style.display = menuDropdown.style.display === 'flex' ? 'none' : 'flex';
+        });
+      }
+    });
   </script>
-<!-- Overlay escuro por trás do modal -->
-<div id="overlay" style="
-  display: none;
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 150;">
-</div>
-
-<!-- Painel informativo flutuante -->
-<div id="info-panel" style="
-  display: none;
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 500px;
-  background: rgba(20, 20, 20, 0.88);
-  padding: 24px;
-  border-radius: 12px;
-  font-family: 'Playfair Display', serif;
-  color: #f4e9d8;
-  box-shadow: 0 0 16px rgba(255, 215, 0, 0.3);
-  z-index: 200;
-  text-align: center;
-  line-height: 1.5;
-">
-  <h2 id="obra-titulo" style="font-size: 1.6em; margin-bottom: 6px;"></h2>
-  <p id="obra-artista" style="font-style: italic; margin-bottom: 4px;"></p>
-  <p id="obra-ano" style="margin-bottom: 8px;"></p>
-  <p id="obra-descricao" style="font-size: 0.95em; margin-bottom: 14px;"></p>
-  <p id="obra-preco" style="font-weight: bold; font-size: 1.1em; margin-bottom: 16px;"></p>
-  <button id="obra-buy" style="
-    padding: 10px 20px;
-    font-size: 1em;
-    background-color: #d8b26c;
-    color: #111;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  ">Buy</button>
-</div>
-
-  <!-- Script Principal -->
-  <script type="module" src="/src/main.js"></script>
 
   <!-- Fallback -->
   <script nomodule>
@@ -235,3 +193,4 @@
   </script>
 </body>
 </html>
+

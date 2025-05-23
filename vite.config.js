@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default {
+export default defineConfig({
   base: './',
   resolve: {
     alias: {

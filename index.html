@@ -112,7 +112,7 @@
     backdrop-filter: blur(4px);
   "></div>
 
-  <!-- Painel informativo flutuante -->
+  <!-- Painel informativo flutuante com IDs corrigidos -->
   <div id="info-panel" style="
     position: fixed;
     bottom: 10%;
@@ -129,11 +129,11 @@
     display: none;
     max-width: 80vw;
   ">
-    <h2 id="obra-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
-    <p id="obra-artista" style="margin: 4px 0; font-style: italic;"></p>
-    <p id="obra-ano" style="margin: 4px 0;"></p>
-    <p id="obra-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
-    <p id="obra-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
+    <h2 id="modal-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
+    <p id="modal-artista" style="margin: 4px 0; font-style: italic;"></p>
+    <p id="modal-ano" style="margin: 4px 0;"></p>
+    <p id="modal-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
+    <p id="modal-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
     <button id="obra-buy" style="
       margin-top: 14px;
       padding: 10px 20px;
@@ -162,19 +162,16 @@
       }
     }
 
-    // Gestão de erros globais
     window.onerror = function(message, source, lineno, colno, error) {
       console.error('Global error:', { message, source, lineno, colno, error });
       return true;
     };
 
-    // Verificação de suporte WebGL
     if (!checkWebGL()) {
       alert('O teu navegador não suporta WebGL. Usa uma versão recente do Chrome, Firefox ou Edge.');
       throw new Error('WebGL not supported');
     }
 
-    // Ativação do menu apenas após o DOM estar carregado
     window.addEventListener('DOMContentLoaded', () => {
       const menuToggle = document.getElementById('menu-toggle');
       const menuDropdown = document.getElementById('menu-dropdown');
@@ -193,4 +190,3 @@
   </script>
 </body>
 </html>
-

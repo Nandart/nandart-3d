@@ -112,8 +112,7 @@
     backdrop-filter: blur(4px);
   "></div>
 
-  <!-- Painel informativo flutuante com IDs corrigidos -->
-  <!-- Painel de Informação da Obra Destacada -->
+ <!-- Painel informativo flutuante com IDs compatíveis com main.js -->
 <div id="info-panel" style="
   display: none;
   position: fixed;
@@ -131,12 +130,12 @@
   font-family: 'Playfair Display', serif;
   text-align: center;
 ">
-  <h2 id="modal-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
-  <p id="modal-artista" style="margin: 4px 0; font-style: italic;"></p>
-  <p id="modal-ano" style="margin: 4px 0;"></p>
-  <p id="modal-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
-  <p id="modal-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
-  <button id="modal-buy-button" style="
+  <h2 id="obra-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
+  <p id="obra-artista" style="margin: 4px 0; font-style: italic;"></p>
+  <p id="obra-ano" style="margin: 4px 0;"></p>
+  <p id="obra-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
+  <p id="obra-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
+  <button id="obra-buy" style="
     margin-top: 12px;
     padding: 10px 24px;
     background-color: #d8b26c;
@@ -150,6 +149,7 @@
     transition: transform 0.2s ease;
   ">Buy</button>
 </div>
+
   
   <!-- Script Principal -->
   <script type="module" src="/src/main.js"></script>

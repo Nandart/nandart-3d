@@ -286,8 +286,16 @@ function criarFrisoCentral(x, y, z, largura, altura) {
   friso.position.set(x, y, z);
   scene.add(friso);
 }
-
 criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
+
+// Material dourado para frisos decorativos
+const frisoMaterial = new THREE.MeshStandardMaterial({
+  color: 0x8a5c21, // cor dourada como definida no layout
+  metalness: 0.7,
+  roughness: 0.3,
+  emissive: 0x000000,
+  emissiveIntensity: 0.1
+});
 // ==================== BLOCO 6 — FRISOS DECORATIVOS ====================
 
 // Friso horizontal — barra simples
@@ -738,9 +746,17 @@ function fecharObraDestacada() {
     ease: 'power2.out'
   });
 }
+
 // ==================== BLOCO 14 — BOTÃO “BUY” E INTEGRAÇÃO COM METAMASK ====================
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Associar elementos informativos do modal
+  modalElements.titulo = document.getElementById('modal-titulo');
+  modalElements.artista = document.getElementById('modal-artista');
+  modalElements.ano = document.getElementById('modal-ano');
+  modalElements.descricao = document.getElementById('modal-descricao');
+  modalElements.preco = document.getElementById('modal-preco');
+
   const botaoBuy = document.getElementById('obra-buy');
   if (botaoBuy) {
     modalElements.botao = botaoBuy;
@@ -793,6 +809,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.error('❌ Botão Buy não encontrado no DOM.');
   }
 });
+
 
 // ==================== BLOCO 15 — CRIAÇÃO E GESTÃO DE CUBOS SUSPENSOS ====================
 

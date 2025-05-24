@@ -13,6 +13,7 @@
   <!-- Preloads -->
   <link rel="preload" href="/assets/icons/info.png" as="image">
   <link rel="preload" href="/assets/icons/horizontes.png" as="image">
+  <link rel="preload" href="/assets/icons/metamask.svg" as="image">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,68 +47,14 @@
       left: 0;
       z-index: 0;
     }
-
-    .navigation-icons {
-      position: fixed;
-      top: 16px;
-      left: 18px;
-      z-index: 100;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .navigation-icons img {
-      height: 28px;
-      cursor: pointer;
-    }
-
-    #menu-dropdown {
-      display: none;
-      position: fixed;
-      top: 60px;
-      left: 18px;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 12px;
-      flex-direction: column;
-      z-index: 200;
-    }
-
-    #menu-dropdown a {
-      color: #d8b26c;
-      text-decoration: none;
-      font-family: 'Playfair Display', serif;
-      margin: 6px 0;
-    }
-
-    /* Correções para fixar ícones e botões à parede de fundo */
-    #wallet-button {
-      position: fixed;
-      top: 18px;
-      right: 20px;
-      z-index: 150;
-    }
-
-    .navigation-icons {
-      position: fixed;
-      top: 16px;
-      left: 18px;
-      z-index: 150;
-    }
-
-    #overlay {
-      backdrop-filter: blur(4px);
-    }
   </style>
 </head>
 
 <body>
-  <!-- Canvas Principal -->
+  <!-- Canvas da Galeria 3D -->
   <canvas id="scene"></canvas>
 
-  <!-- Ícones de Navegação Fixos -->
+  <!-- Ícones de Navegação -->
   <div class="navigation-icons">
     <img src="/assets/icons/horizontes.png" alt="Menu" id="menu-toggle" aria-label="Menu">
     <img src="/assets/icons/info.png" alt="Info" onclick="window.location.href='info.html'" aria-label="Info">
@@ -120,55 +67,20 @@
     <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Botão Wallet (posição fixa e elegante) -->
+  <!-- Botão Connect Wallet (irá ser controlado dinamicamente) -->
   <button id="wallet-button">Connect Wallet</button>
 
-  <!-- Overlay escuro para desfoque do fundo -->
-  <div id="overlay" style="
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    z-index: 150;
-  "></div>
+  <!-- Overlay para Modal -->
+  <div id="overlay"></div>
 
-  <!-- Painel Informativo -->
-  <div id="info-panel" style="
-    display: none;
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(24, 22, 20, 0.9);
-    padding: 20px 26px;
-    border-radius: 12px;
-    max-width: 90%;
-    width: 420px;
-    z-index: 200;
-    color: #f5f5f5;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
-    font-family: 'Playfair Display', serif;
-    text-align: center;
-  ">
-    <h2 id="obra-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
-    <p id="obra-artista" style="margin: 4px 0; font-style: italic;"></p>
-    <p id="obra-ano" style="margin: 4px 0;"></p>
-    <p id="obra-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
-    <p id="obra-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
-    <button id="obra-buy" style="
-      margin-top: 12px;
-      padding: 10px 24px;
-      background-color: #d8b26c;
-      color: #111;
-      border: none;
-      border-radius: 6px;
-      font-size: 1em;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-      transition: transform 0.2s ease;
-    ">Buy</button>
+  <!-- Painel de Informação da Obra -->
+  <div id="info-panel">
+    <h2 id="obra-titulo"></h2>
+    <p id="obra-artista"></p>
+    <p id="obra-ano"></p>
+    <p id="obra-descricao"></p>
+    <p id="obra-preco"></p>
+    <button id="obra-buy">Buy</button>
   </div>
 
   <!-- Script Principal -->
@@ -176,39 +88,18 @@
 
   <!-- Inicializações Seguras -->
   <script>
-    function checkWebGL() {
-      try {
-        const canvas = document.createElement('canvas');
-        return !!window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-      } catch (e) {
-        return false;
-      }
-    }
-
-    window.onerror = function(message, source, lineno, colno, error) {
-      console.error('Global error:', { message, source, lineno, colno, error });
-      return true;
-    };
-
-    if (!checkWebGL()) {
-      alert('O teu navegador não suporta WebGL. Usa uma versão recente do Chrome, Firefox ou Edge.');
-      throw new Error('WebGL not supported');
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
       const menuToggle = document.getElementById('menu-toggle');
       const menuDropdown = document.getElementById('menu-dropdown');
-      if (menuToggle && menuDropdown) {
-        menuToggle.addEventListener('click', () => {
-          menuDropdown.style.display = menuDropdown.style.display === 'flex' ? 'none' : 'flex';
-        });
-      }
+      menuToggle.addEventListener('click', () => {
+        menuDropdown.style.display = (menuDropdown.style.display === 'flex') ? 'none' : 'flex';
+      });
     });
-  </script>
 
-  <script nomodule>
-    alert('O teu navegador não suporta JavaScript moderno. Usa o Google Chrome ou Firefox.');
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Erro global:', { message, source, lineno, colno, error });
+      return true;
+    };
   </script>
 </body>
 </html>
-

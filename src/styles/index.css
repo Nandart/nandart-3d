@@ -1,4 +1,4 @@
-/* RESET */
+/* RESET E BASE */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -14,10 +14,10 @@ html, body {
   overflow: hidden;
   background-color: #111;
   font-family: 'Playfair Display', serif;
-  color: #e0e0e0;
+  color: #e8e8e8;
 }
 
-/* CANVAS */
+/* CANVAS 3D */
 #scene {
   position: fixed;
   top: 0;
@@ -25,71 +25,117 @@ html, body {
   width: 100vw;
   height: 100vh;
   z-index: 1;
+  outline: none;
+}
+
+/* ELEMENTOS DE INTERFACE FIXOS */
+.interface-fixed {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+/* BARRA SUPERIOR */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(17,17,17,0.9) 0%, rgba(17,17,17,0) 100%);
+  z-index: 800;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
 }
 
 /* NAVEGAÇÃO */
 .navigation-icons {
-  position: fixed;
-  top: 16px;
-  left: 18px;
-  z-index: 800;
   display: flex;
-  gap: 16px;
+  gap: 18px;
+  align-items: center;
 }
 
 .navigation-icons img {
-  height: 28px;
+  height: 24px;
+  width: 24px;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .navigation-icons img:hover {
-  opacity: 0.8;
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 6px rgba(216, 178, 108, 0.4));
 }
 
+/* MENU DROPDOWN */
 #menu-dropdown {
   display: none;
-  position: fixed;
-  top: 60px;
-  left: 18px;
-  background: rgba(0, 0, 0, 0.85);
-  padding: 12px;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  background: rgba(24, 22, 20, 0.98);
+  padding: 16px;
   border-radius: 8px;
-  z-index: 700;
-  flex-direction: column;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(216, 178, 108, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 900;
 }
 
 #menu-dropdown a {
   color: #d8b26c;
   text-decoration: none;
-  font-family: 'Playfair Display', serif;
-  margin: 6px 0;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  display: block;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#menu-dropdown a:hover {
+  background: rgba(216, 178, 108, 0.1);
+  color: #f5e7c8;
 }
 
 /* BOTÃO WALLET */
 #wallet-button {
-  position: fixed;
-  top: 18px;
-  right: 20px;
-  padding: 10px 24px;
-  background-color: #d8b26c;
+  padding: 10px 22px;
+  background-color: #d4af37;
   color: #111;
   border: none;
   border-radius: 6px;
-  font-size: 1em;
-  font-weight: bold;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  z-index: 800;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #wallet-button:hover {
   background-color: #e2c278;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
 #wallet-button:active {
-  transform: scale(0.97);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#wallet-button::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23111111"><path d="M20 4H4c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm0 14H4V8h16v10zm-8-2h2v-4h4v-2h-4V6h-2v4H8v2h4v4z"/></svg>');
+  background-size: contain;
 }
 
 /* MODAL DE OBRA */
@@ -99,56 +145,124 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(17, 17, 17, 0.7);
+  background-color: rgba(17, 17, 17, 0.85);
   display: none;
-  z-index: 850;
+  z-index: 950;
+  backdrop-filter: blur(5px);
 }
 
 #info-panel {
-  position: fixed;
-  bottom: 40px;
+  position: absolute;
+  bottom: 5vh;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(24, 22, 20, 0.95);
-  padding: 20px 26px;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 24px;
   border-radius: 12px;
-  max-width: 90%;
-  width: 420px;
-  z-index: 900;
+  width: auto;
+  min-width: 300px;
+  max-width: 90vw;
+  z-index: 1000;
   color: #f5f5f5;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-  font-family: 'Playfair Display', serif;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   text-align: center;
   display: none;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 #info-panel h2 {
-  color: #d8b26c;
-  margin-bottom: 8px;
+  color: #d4af37;
+  margin-bottom: 12px;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 #info-panel p {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+#info-panel .info-row {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 6px;
 }
 
+#info-panel .info-label {
+  color: #d4af37;
+  font-weight: 500;
+}
+
 #info-panel button {
-  margin-top: 12px;
-  padding: 10px 24px;
-  background-color: #d8b26c;
+  margin-top: 16px;
+  padding: 12px 28px;
+  background-color: #d4af37;
   color: #111;
   border: none;
   border-radius: 6px;
-  font-size: 1em;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s ease;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  width: 100%;
 }
 
 #info-panel button:hover {
   background-color: #e2c278;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
 #info-panel button:active {
-  transform: translateY(0) scale(0.97);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .top-bar {
+    padding: 0 15px;
+    height: 50px;
+  }
+  
+  .navigation-icons img {
+    height: 20px;
+    width: 20px;
+  }
+  
+  #wallet-button {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+  
+  #info-panel {
+    padding: 18px;
+    bottom: 3vh;
+  }
+  
+  #info-panel h2 {
+    font-size: 1.2rem;
+  }
+  
+  #info-panel p {
+    font-size: 0.85rem;
+  }
+  
+  #info-panel button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }

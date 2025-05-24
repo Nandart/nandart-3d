@@ -1,1 +1,896 @@
-import * as THREE from 'three';import{Reflector}from 'three/addons/objects/Reflector.js';import{FontLoader}from 'three/addons/loaders/FontLoader.js';import{TextGeometry}from 'three/addons/geometries/TextGeometry.js';import gsap from 'gsap';import{ScrollTrigger}from 'gsap/ScrollTrigger';import{MotionPathPlugin}from 'gsap/MotionPathPlugin';import{ethers}from 'ethers';import{obrasSuspensas}from './data/obras-suspensas.js';console.log('🎨 A iniciar a galeria 3D NANdART...');if(!THREE||!gsap||!ethers){const e=document.createElement('div');e.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#111;color:#ff6b6b;display:flex;justify-content:center;align-items:center;font-family:Arial,sans-serif;text-align:center;z-index:10000;padding:20px;';e.innerHTML='<div><h2>Erro crítico</h2><p>Bibliotecas essenciais não foram carregadas.</p><p>Verifica a ligação à internet e recarrega a página.</p></div>';document.body.appendChild(e);throw new Error('❌ Bibliotecas essenciais em falta')}gsap.registerPlugin(ScrollTrigger,MotionPathPlugin);let config,obraDestacada=null,ambienteDesacelerado=!1,obrasNormais=[],cubosSuspensos=[],relogio=new THREE.Clock(),anguloAtual=0,overlay,infoPanel,modalElements={titulo:null,artista:null,ano:null,descricao:null,preco:null,botao:null},efeitoDesfoque=null,nomeGaleria="NANdART";const loadingManager=new THREE.LoadingManager,textureLoader=new THREE.TextureLoader(loadingManager);let loadedResources=0,totalResources=10+obrasSuspensas.length;function updateLoadingProgress(){loadedResources++,loadedResources>=totalResources&&console.log('🖼️ Recursos carregados silenciosamente.')}loadingManager.onLoad=updateLoadingProgress,loadingManager.onError=e=>console.warn(`⚠️ Falha ao carregar recurso: ${e}`);const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('scene'),antialias:!0,powerPreference:'high-performance',failIfMajorPerformanceCaveat:!0});renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)),renderer.setSize(window.innerWidth,window.innerHeight),renderer.shadowMap.enabled=!0,renderer.shadowMap.type=THREE.PCFSoftShadowMap,renderer.toneMapping=THREE.ACESFilmicToneMapping,renderer.toneMappingExposure=2.8,renderer.outputColorSpace=THREE.SRGBColorSpace;const scene=new THREE.Scene;scene.background=new THREE.Color(1118481);const camera=new THREE.PerspectiveCamera(34,window.innerWidth/window.innerHeight,.1,100),configMap={XS:{obraSize:.9,circleRadius:2.4,wallDistance:8,cameraZ:22,cameraY:7.8,textSize:.4},SM:{obraSize:1.1,circleRadius:2.8,wallDistance:9.5,cameraZ:24,cameraY:8.3,textSize:.45},MD:{obraSize:1.3,circleRadius:3.3,wallDistance:10.5,cameraZ:26,cameraY:8.9,textSize:.5},LG:{obraSize:1.45,circleRadius:3.6,wallDistance:11,cameraZ:28,cameraY:9.2,textSize:.55}};function getViewportLevel(){const e=window.innerWidth;return e<480?'XS':e<768?'SM':e<1024?'MD':'LG'}config=configMap[getViewportLevel()];function updateCamera(){config=configMap[getViewportLevel()],camera.position.set(0,config.cameraY+1.6,config.cameraZ+6.5),camera.lookAt(0,6.5,-config.wallDistance+.4),camera.updateProjectionMatrix()}updateCamera();let resizeTimeout;window.addEventListener('resize',()=>{clearTimeout(resizeTimeout),resizeTimeout=setTimeout(()=>{updateCamera(),renderer.setSize(window.innerWidth,window.innerHeight),obraDestacada&&'block'===infoPanel?.style?.display&&(e=>{const t=obraDestacada.position.clone().project(camera),n=(t.x*.5+.5)*window.innerWidth,i=(1-(t.y*.5+.5))*window.innerHeight,a=260;infoPanel.style.left=`${n-a/2}px`,infoPanel.style.top=`${i+160}px`,infoPanel.style.width=`${a}px`})()},200)});const ambientLight=new THREE.AmbientLight(16766790,1.4);scene.add(ambientLight);const directionalLight=new THREE.DirectionalLight(16772292,1);directionalLight.position.set(4,15,10),directionalLight.castShadow=!0,directionalLight.shadow.mapSize.width=2048,directionalLight.shadow.mapSize.height=2048,directionalLight.shadow.bias=-5e-4,scene.add(directionalLight);const fillLeft=new THREE.DirectionalLight(16772428,.55);fillLeft.position.set(-10,9,3),fillLeft.castShadow=!0,scene.add(fillLeft);const fillRight=new THREE.DirectionalLight(16772428,.55);fillRight.position.set(10,9,-3),fillRight.castShadow=!0,scene.add(fillRight);const spotCentral=new THREE.SpotLight(16773077,1.2,25,Math.PI/6,.3,1);spotCentral.position.set(0,15,0),spotCentral.target.position.set(0,0,0),spotCentral.castShadow=!0,spotCentral.shadow.mapSize.width=1024,spotCentral.shadow.mapSize.height=1024,scene.add(spotCentral),scene.add(spotCentral.target);const paredeGeoFundo=new THREE.BoxGeometry(42,29,.4),paredeGeoLateral=new THREE.BoxGeometry(30,29,.4),texturaParede=textureLoader.load('assets/antracite-realista.jpg',updateLoadingProgress),normalParede=textureLoader.load('assets/antracite-normal.jpg',updateLoadingProgress);function aplicarTexturaParede(e,t=null){const n=new THREE.MeshStandardMaterial({map:e||null,normalMap:t||null,normalScale:new THREE.Vector2(1.4,1.4),color:16777215,emissive:1118481,emissiveIntensity:.28,roughness:.58,metalness:.18}),i=new THREE.Mesh(paredeGeoFundo,n.clone());i.position.set(0,14.6,-config.wallDistance-5.2),i.receiveShadow=!0,scene.add(i);const a=new THREE.Mesh(paredeGeoLateral,n.clone());a.position.set(-16.7,14.5,-config.wallDistance/2),a.rotation.y=Math.PI/2,a.receiveShadow=!0,scene.add(a);const r=new THREE.Mesh(paredeGeoLateral,n.clone());r.position.set(16.7,14.5,-config.wallDistance/2),r.rotation.y=-Math.PI/2,r.receiveShadow=!0,scene.add(r)}aplicarTexturaParede(texturaParede,normalParede);const base64MarbleTexture="data:image/png;base64,iVBORw0KGgoAAA...",textureMarble=new THREE.TextureLoader().load('assets/marble-polished.jpg',()=>{console.log('✅ Textura externa de mármore carregada com sucesso.');const e=new THREE.PlaneGeometry(80,80),t=new THREE.MeshStandardMaterial({map:textureMarble,metalness:.4,roughness:.08,emissive:new THREE.Color(1118481),emissiveIntensity:.12}),n=new THREE.Mesh(e,t);n.rotation.x=-Math.PI/2,n.position.y=-.03,n.receiveShadow=!0,scene.add(n)},void 0,()=>{console.warn('⚠️ Falha na textura externa. A aplicar fallback embutido.');const e=new Image;e.src=base64MarbleTexture;const t=new THREE.Texture(e);e.onload=()=>{t.needsUpdate=!0;const n=new THREE.PlaneGeometry(80,80),i=new THREE.MeshStandardMaterial({map:t,metalness:.4,roughness:.08,emissive:new THREE.Color(1118481),emissiveIntensity:.12}),a=new THREE.Mesh(n,i);a.rotation.x=-Math.PI/2,a.position.y=-.03,a.receiveShadow=!0,scene.add(a)}});const frisoMaterial=new THREE.MeshStandardMaterial({color:9067041,metalness:.7,roughness:.3,emissive:0,emissiveIntensity:.1});function criarFrisoCentral(e,t,n,i,a){const r=.3,o=.02,s=new THREE.Shape;s.moveTo(-i/2+r,-a/2),s.lineTo(i/2-r,-a/2),s.quadraticCurveTo(i/2,-a/2,i/2,-a/2+r),s.lineTo(i/2,a/2-r),s.quadraticCurveTo(i/2,a/2,i/2-r,a/2),s.lineTo(-i/2+r,a/2),s.quadraticCurveTo(-i/2,a/2,-i/2,a/2-r),s.lineTo(-i/2,-a/2+r),s.quadraticCurveTo(-i/2,-a/2,-i/2+r,-a/2);const l={depth:o,bevelEnabled:!1},c=new THREE.ExtrudeGeometry(s,l),d=new THREE.Mesh(c,frisoMaterial);d.position.set(e,t,n),scene.add(d)}criarFrisoCentral(0,11.2,-config.wallDistance-5.17,5.2,6.3);function criarFrisoLinha(e,t,n,i,a=.06,r=0){const o=new THREE.Mesh(new THREE.BoxGeometry(i,a,.02),frisoMaterial);o.position.set(e,t,n),o.rotation.y=r,scene.add(o)}function criarFrisoDuploVertical(e,t,n,i,a){const r='esquerda'===a?-0.4:.4,o=new THREE.Mesh(new THREE.BoxGeometry(.18,i,.02),frisoMaterial);o.position.set(e,t,n),o.rotation.y='esquerda'===a?Math.PI/2:-Math.PI/2,scene.add(o);const s=new THREE.Mesh(new THREE.BoxGeometry(.08,i-.4,.02),frisoMaterial);s.position.set(e+r,t,n+.01),s.rotation.y=o.rotation.y,scene.add(s)}criarFrisoLinha(0,1.6,-config.wallDistance-5.18,42),criarFrisoLinha(0,2.2,-config.wallDistance-5.18,42),criarFrisoLinha(-16.7,1.6,-config.wallDistance/2,30,.06,Math.PI/2),criarFrisoLinha(-16.7,2.2,-config.wallDistance/2,30,.06,Math.PI/2),criarFrisoLinha(16.7,1.6,-config.wallDistance/2,30,.06,-Math.PI/2),criarFrisoLinha(16.7,2.2,-config.wallDistance/2,30,.06,-Math.PI/2),criarFrisoDuploVertical(-16.7,14.5,-config.wallDistance/2,7.5,'esquerda'),criarFrisoDuploVertical(16.7,14.5,-config.wallDistance/2,7.5,'direita');const icones=[{imagem:'assets/icons/horizontes.png',largura:1.8,altura:1.2,posicao:new THREE.Vector3(-6.2,22.2,-config.wallDistance-5.19)},{imagem:'assets/icons/info.png',largura:1.6,altura:1.1,posicao:new THREE.Vector3(-6.2,23.6,-config.wallDistance-5.19)},{imagem:'assets/icons/metamask.svg',largura:1.7,altura:1.3,posicao:new THREE.Vector3(6.2,22.6,-config.wallDistance-5.19)}];icones.forEach(({imagem:e,largura:t,altura:n,posicao:i})=>{textureLoader.load(e,e=>{const t=new THREE.Mesh(new THREE.PlaneGeometry(n,i),new THREE.MeshBasicMaterial({map:e,transparent:!0,side:THREE.DoubleSide}));t.position.copy(i),scene.add(t)},void 0,()=>{console.warn(`⚠️ Falha ao carregar o ícone: ${e}`)})});const pedestalMaterial=new THREE.MeshStandardMaterial({color:2829099,roughness:.5,metalness:.25}),vitrineMaterial=new THREE.MeshPhysicalMaterial({color:1703968,metalness:.1,roughness:0,transparent:!0,opacity:.18,transmission:1,thickness:.25,reflectivity:.5,clearcoat:1,clearcoatRoughness:.1}),gemaMaterial=new THREE.MeshStandardMaterial({color:3394815,emissive:3394815,emissiveIntensity:1.8,roughness:.1,metalness:.3,transparent:!0,opacity:.85});function criarPedestalRetangular(e,t){const n=.8,i=1.5,a=1.3,r=new THREE.Mesh(new THREE.BoxGeometry(n,i,n),pedestalMaterial);r.position.set(e,i/2,t),r.castShadow=r.receiveShadow=!0,scene.add(r);const o=new THREE.Mesh(new THREE.BoxGeometry(n*.9,a,n*.9),vitrineMaterial);o.position.set(e,i+a/2,t),o.castShadow=o.receiveShadow=!0,scene.add(o);const s=new THREE.Mesh(new THREE.IcosahedronGeometry(.35,1),gemaMaterial);s.position.set(e,i+a/2,t),scene.add(s)}const deslocamento=config.circleRadius+3.3;criarPedestalRetangular(-deslocamento,-deslocamento),criarPedestalRetangular(deslocamento,-deslocamento),criarPedestalRetangular(-deslocamento,deslocamento),criarPedestalRetangular(deslocamento,deslocamento);const circuloLuzGeometry=new THREE.RingGeometry(config.circleRadius+.6,config.circleRadius+1.4,64),circuloLuzMaterial=new THREE.MeshStandardMaterial({color:16772804,emissive:16772804,emissiveIntensity:.9,roughness:.4,metalness:.1,transparent:!0,opacity:.48,side:THREE.DoubleSide}),circuloLuz=new THREE.Mesh(circuloLuzGeometry,circuloLuzMaterial);circuloLuz.rotation.x=-Math.PI/2,circuloLuz.position.y=2e-5,scene.add(circuloLuz);const frisoChao=new THREE.Mesh(new THREE.BoxGeometry(config.circleRadius*2+2.5,.04,.02),frisoMaterial);frisoChao.position.set(0,.0055,-config.wallDistance/2+.2),scene.add(frisoChao);const dadosObras=[{id:'obra1',titulo:'Obra 1',artista:'Artista A',ano:'2024',descricao:'Descrição da Obra 1.',preco:'0.5',imagem:'assets/obras/obra1.jpg'},{id:'obra2',titulo:'Obra 2',artista:'Artista B',ano:'2023',descricao:'Descrição da Obra 2.',preco:'0.6',imagem:'assets/obras/obra2.jpg'},{id:'obra3',titulo:'Obra 3',artista:'Artista C',ano:'2025',descricao:'Descrição da Obra 3.',preco:'0.45',imagem:'assets/obras/obra3.jpg'},{id:'obra4',titulo:'Obra 4',artista:'Artista D',ano:'2022',descricao:'Descrição da Obra 4.',preco:'0.55',imagem:'assets/obras/obra4.jpg'},{id:'obra5',titulo:'Obra 5',artista:'Artista E',ano:'2021',descricao:'Descrição da Obra 5.',preco:'0.65',imagem:'assets/obras/obra5.jpg'},{id:'obra6',titulo:'Obra 6',artista:'Artista F',ano:'2021',descricao:'Descrição da Obra 6.',preco:'0.42',imagem:'assets/obras/obra6.jpg'},{id:'obra7',titulo:'Obra 7',artista:'Artista G',ano:'2020',descricao:'Descrição da Obra 7.',preco:'0.48',imagem:'assets/obras/obra7.jpg'},{id:'obra8',titulo:'Obra 8',artista:'Artista H',ano:'2020',descricao:'Descrição da Obra 8.',preco:'0.58',imagem:'assets/obras/obra8.jpg'}];function criarObrasNormais(){const e=config.circleRadius,t=config.obraSize;dadosObras.forEach((n,i)=>{textureLoader.load(n.imagem,a=>{const r=new THREE.Mesh(new THREE.PlaneGeometry(t*1.3,t*1.6),new THREE.MeshStandardMaterial({map:a,roughness:.2,metalness:.1,side:THREE.DoubleSide,transparent:!0}));const o=i/dadosObras.length*Math.PI*2;r.position.set(Math.cos(o)*e,4.2,Math.sin(o)*e),r.lookAt(0,4.2,0),r.castShadow=r.receiveShadow=!0,r.userData={dados:n,index:i},scene.add(r),obrasNormais.push(r),updateLoadingProgress()},void 0,e=>{console.error(`Erro ao carregar imagem da obra ${n.titulo}:`,e);const a=new THREE.Mesh(new THREE.PlaneGeometry(t*1.3,t*1.6),new THREE.MeshStandardMaterial({color:3355443,roughness:.2,metalness:.1,side:THREE.DoubleSide,transparent:!0}));const r=i/dadosObras.length*Math.PI*2;a.position.set(Math.cos(r)*e,4.2,Math.sin(r)*e),a.lookAt(0,4.2,0),a.castShadow=a.receiveShadow=!0,a.userData={dados:n,index:i},scene.add(a),obrasNormais.push(a),updateLoadingProgress()})})}const velocidadeObras=.2;function animarObrasCirculares(e){obraDestacada||(anguloAtual+=velocidadeObras*e),ambienteDesacelerado&&(anguloAtual+=.1*velocidadeObras*e);const t=config.circleRadius;obrasNormais.forEach((n,i)=>{if(n===obraDestacada)return;const a=i/obrasNormais.length*Math.PI*2+anguloAtual;n.position.set(Math.cos(a)*t,4.2,Math.sin(a)*t),n.lookAt(0,4.2,0)})}renderer.domElement.addEventListener('pointerdown',e=>{if(obraDestacada)return;const t=new THREE.Vector2(e.clientX/window.innerWidth*2-1,-(e.clientY/window.innerHeight)*2+1),n=new THREE.Raycaster;n.setFromCamera(t,camera);const i=n.intersectObjects(obrasNormais,!1);i.length>0&&destacarObra(i[0].object)});function destacarObra(e){if(obraDestacada)return;obraDestacada=e,ambienteDesacelerado=!0;const t=e.userData.dados;obrasNormais.forEach(e=>{e!==obraDestacada&&(e.visible=!1)}),gsap.to(e.position,{x:0,y:6.5,z:0,duration:1.1,ease:'power2.inOut',onUpdate:()=>{e.lookAt(new THREE.Vector3(0,6.5,0))},onComplete:()=>{e.lookAt(new THREE.Vector3(0,6.5,0))}}),gsap.to(e.scale,{x:2,y:2,z:2,duration:.9,ease:'power2.out'}),setTimeout(()=>{overlay=document.getElementById('overlay'),infoPanel=document.getElementById('info-panel');overlay&&infoPanel&&(overlay.style.display='block',infoPanel.style.display='block',modalElements.titulo.textContent=t.titulo,modalElements.artista.textContent=t.artista,modalElements.ano.textContent=t.ano,modalElements.descricao.textContent=t.descricao||'Obra em destaque na galeria NANdART.',modalElements.preco.textContent=`${t.preco} ETH`,(e=>{const t=obraDestacada.position.clone().project(camera),n=(t.x*.5+.5)*window.innerWidth,i=(1-(t.y*.5+.5))*window.innerHeight,a=260;infoPanel.style.position='absolute',infoPanel.style.left=`${n-a/2}px`,infoPanel.style.top=`${i+160}px`,infoPanel.style.width=`${a}px`,infoPanel.style.zIndex='200',infoPanel.style.transition='all 0.3s ease'})())},1100)}document.addEventListener('pointerdown',e=>{obraDestacada&&(!infoPanel||!infoPanel.contains(e.target))&&fecharObraDestacada()});function fecharObraDestacada(){if(!obraDestacada)return;const e=obraDestacada,t=e.userData.index,n=t/obrasNormais.length*Math.PI*2;gsap.to(e.position,{x:Math.cos(n)*config.circleRadius,y:4.2,z:Math.sin(n)*config.circleRadius,duration:1.2,ease:'power2.inOut',onComplete:()=>{obrasNormais.forEach(e=>e.visible=!0),obraDestacada=null,ambienteDesacelerado=!1}}),gsap.to(e.scale,{x:1,y:1,z:1,duration:.6,ease:'power2.out'}),infoPanel&&overlay&&(infoPanel.style.transition='opacity 0.4s ease',overlay.style.transition='opacity 0.4s ease',infoPanel.style.opacity='0',overlay.style.opacity='0',setTimeout(()=>{infoPanel.style.display='none',overlay.style.display='none',infoPanel.style.opacity='1',overlay.style.opacity='1'},400))}window.addEventListener('DOMContentLoaded',()=>{modalElements.titulo=document.getElementById('modal-titulo'),modalElements.artista=document.getElementById('modal-artista'),modalElements.ano=document.getElementById('modal-ano'),modalElements.descricao=document.getElementById('modal-descricao'),modalElements.preco=document.getElementById('modal-preco');const e=document.getElementById('obra-buy');e&&(modalElements.botao=e,e.addEventListener('click',async()=>{const t=obraDestacada?.userData?.dados;if(!t||!t.preco||!t.titulo)return void alert('Erro: dados da obra não encontrados.');if(!window.ethereum)return void alert('MetaMask não está instalada. Por favor, instala-a para continuares.');try{modalElements.botao.disabled=!0,modalElements.botao.textContent='A processar...',await window.ethereum.request({method:'eth_requestAccounts'});const e=new ethers.BrowserProvider(window.ethereum),n=await e.getSigner(),i=await n.sendTransaction({to:'0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',value:ethers.parseEther(t.preco)});alert(`🧾 Transacção enviada!\n\nHash:\n${i.hash}`),await i.wait(),alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.'),fecharObraDestacada()}catch(e){console.error('❌ Erro na compra:',e),alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.')}finally{modalElements.botao.disabled=!1,modalElements.botao.textContent='Buy'}}),console.error('❌ Botão Buy não encontrado no DOM.'))});function criarCuboSuspenso(e,t){const n=1.5,i=new THREE.MeshPhysicalMaterial({color:2236962,transparent:!0,opacity:.18,roughness:.25,metalness:.5,clearcoat:.8,clearcoatRoughness:.2,reflectivity:.3}),a=new THREE.Mesh(new THREE.BoxGeometry(n,n,n),i);a.castShadow=a.receiveShadow=!0;const r=8.2,o=[{x:-5,y:r,z:0},{x:5,y:r,z:0},{x:-5,y:r,z:-5},{x:5,y:r,z:-5}],s=o[t%o.length];a.position.set(s.x,s.y,s.z),textureLoader.load(e.imagem,t=>{const n=new THREE.Mesh(new THREE.IcosahedronGeometry(.6,1),new THREE.MeshStandardMaterial({map:t,emissive:3374668,emissiveIntensity:2,transparent:!0,opacity:.9}));n.castShadow=n.receiveShadow=!0,a.add(n),updateLoadingProgress()},void 0,()=>{const e=new THREE.Mesh(new THREE.IcosahedronGeometry(.6,1),new THREE.MeshStandardMaterial({color:3374668,emissive:3374668,emissiveIntensity:2,transparent:!0,opacity:.9}));e.castShadow=e.receiveShadow=!0,a.add(e),updateLoadingProgress()}),a.userData={obra:e},cubosSuspensos.push(a),scene.add(a);return a}const BACKEND_URL='https://nandart-3d.onrender.com';async function registarEntradaBackend(e){try{const t=await fetch(`${BACKEND_URL}/api/entradas`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({obraId:e})});if(!t.ok)throw new Error(`Resposta não OK: ${t.status}`);const n=await t.json(),i=new Date(n.data).toLocaleDateString('pt-PT');console.log(`📌 Entrada registada: ${e} → ${i}`)}catch(e){console.error(`❌ Erro ao registar entrada da obra ${e}:`,e.message||e)}}async function verificarMigracoesBackend(){try{const e=await fetch(`${BACKEND_URL}/api/verificar-migracoes`);if(!e.ok)throw new Error(`Resposta não OK: ${e.status}`);const t=await e.json();Array.isArray(t)&&(t.forEach(e=>{migrarParaCirculo(e)}),console.log(`🔄 Migrações processadas: ${t.length}`))}catch(e){console.error('❌ Erro ao verificar migrações no backend:',e.message||e)}}const walletBtn=document.createElement('button');walletBtn.id='wallet-button',walletBtn.textContent='Connect Wallet',walletBtn.style.cssText='position:fixed;top:18px;right:20px;z-index:250;padding:10px 18px 10px 42px;font-size:1em;background-color:#d8b26c;color:#111;border:none;border-radius:6px;font-family:\'Playfair Display\',serif;cursor:pointer;box-shadow:0 0 8px rgba(255,215,0,0.3);background-image:url(\'assets/icons/metamask.svg\');background-repeat:no-repeat;background-position:12px center;background-size:20px 20px;transition:background-color 0.3s ease,transform 0.2s ease;',document.body.appendChild(walletBtn);let walletAddress=null;async function atualizarEstadoCarteira(){if(walletAddress){const e=new ethers.BrowserProvider(window.ethereum),t=await e.getBalance(walletAddress),n=ethers.formatEther(t);walletBtn.textContent=`Disconnect (${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} | ${parseFloat(n).toFixed(4)} ETH)`}else walletBtn.textContent='Connect Wallet'}async function conectarCarteira(){try{if(!window.ethereum)return void alert('MetaMask não está instalada. Por favor, instala-a para continuar.');const e=await window.ethereum.request({method:'eth_requestAccounts'});walletAddress=e[0],localStorage.setItem('walletConnected','true'),atualizarEstadoCarteira()}catch(e){console.error('❌ Erro ao ligar carteira:',e),alert('Não foi possível ligar a carteira. Tenta novamente.')}}function desligarCarteira(){walletAddress=null,localStorage.removeItem('walletConnected'),atualizarEstadoCarteira()}walletBtn.addEventListener('click',()=>{walletAddress?desligarCarteira():conectarCarteira()}),window.addEventListener('load',async()=>{if(window.ethereum&&'true'===localStorage.getItem('walletConnected'))try{const e=await window.ethereum.request({method:'eth_accounts'});e.length>0?(walletAddress=e[0],atualizarEstadoCarteira()):(localStorage.removeItem('walletConnected'),walletAddress=null,atualizarEstadoCarteira())}catch(e){console.error('❌ Erro ao verificar ligação persistente da carteira:',e),localStorage.removeItem('walletConnected')}});function iniciarGaleria(){criarObrasNormais(),obrasSuspensas.forEach((e,t)=>{criarCuboSuspenso(e,t),registarEntradaBackend(e.id)}),verificarMigracoesBackend()}window.addEventListener('load',iniciarGaleria);function animate(){requestAnimationFrame(animate);const e=relogio.getDelta();animarObrasCirculares(e),renderer.render(scene,camera)}animate();
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { ethers } from 'ethers';
+import { obrasSuspensas } from './data/obras-suspensas.js';
+
+console.log('🎨 A iniciar a galeria 3D NANdART...');
+
+// Validação das bibliotecas essenciais
+if (!THREE || !gsap || !ethers) {
+  const errorMsg = document.createElement('div');
+  errorMsg.style.cssText = `
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #111; color: #ff6b6b;
+    display: flex; justify-content: center; align-items: center;
+    font-family: Arial, sans-serif; text-align: center;
+    z-index: 10000; padding: 20px;
+  `;
+  errorMsg.innerHTML = `
+    <div>
+      <h2>Erro crítico</h2>
+      <p>Bibliotecas essenciais não foram carregadas.</p>
+      <p>Verifica a ligação à internet e recarrega a página.</p>
+    </div>
+  `;
+  document.body.appendChild(errorMsg);
+  throw new Error('❌ Bibliotecas essenciais em falta');
+}
+
+// Registo de plugins do GSAP
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+// Variáveis globais principais
+let config;
+let obraDestacada = null;
+let ambienteDesacelerado = false;
+const obrasNormais = [];
+const cubosSuspensos = [];
+const relogio = new THREE.Clock();
+let anguloAtual = 0;
+
+// Elementos do modal (vão ser criados dinamicamente no DOM mais à frente)
+let overlay, infoPanel;
+const modalElements = {
+  titulo: null,
+  artista: null,
+  ano: null,
+  descricao: null,
+  preco: null,
+  botao: null
+};
+// Configurações adaptativas por viewport
+const configMap = {
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 7.2, textSize: 0.4 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 19.5, cameraY: 7.6, textSize: 0.45 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 21, cameraY: 8.1, textSize: 0.5 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 22, cameraY: 8.4, textSize: 0.55 }
+};
+
+function getViewportLevel() {
+  const width = window.innerWidth;
+  if (width < 480) return 'XS';
+  if (width < 768) return 'SM';
+  if (width < 1024) return 'MD';
+  return 'LG';
+}
+
+config = configMap[getViewportLevel()];
+
+// Carregamento silencioso com controlo de progresso
+let loadedResources = 0;
+const totalResources = 10 + obrasSuspensas.length;
+
+function updateLoadingProgress() {
+  loadedResources++;
+  if (loadedResources >= totalResources) {
+    console.log('🖼️ Recursos carregados silenciosamente.');
+  }
+}
+
+// Loader de texturas com fallback
+const loadingManager = new THREE.LoadingManager();
+loadingManager.onLoad = updateLoadingProgress;
+loadingManager.onError = url => console.warn(`⚠️ Falha ao carregar recurso: ${url}`);
+
+const textureLoader = new THREE.TextureLoader(loadingManager);
+
+// Renderizador configurado para performance e realismo
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('scene'),
+  antialias: true,
+  powerPreference: 'high-performance',
+  failIfMajorPerformanceCaveat: true
+});
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 2.4; // 🔆 Atenuação da intensidade geral para metade
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// Cena tridimensional
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+// Câmara — com posição adaptável e mais distante para maior profundidade
+const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
+
+function updateCamera() {
+  config = configMap[getViewportLevel()];
+  camera.position.set(0, config.cameraY + 1.6, config.cameraZ + 9); // 📏 Distância maior para sensação de profundidade
+  camera.lookAt(0, 6.5, -config.wallDistance + 0.4);
+  camera.updateProjectionMatrix();
+}
+updateCamera();
+
+// Adaptação dinâmica ao redimensionamento da janela
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    updateCamera();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 200);
+});
+// Luz ambiente — ajustada para criar uma atmosfera realista e subtil
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // 🔆 Metade da intensidade original
+scene.add(ambientLight);
+// Geometrias das paredes
+const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
+const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
+
+// Textura antracite-realista (com fallback embutido)
+const base64Antracite = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAQABAADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi";
+
+const imagem = new Image();
+imagem.src = base64Antracite;
+const texturaFallback = new THREE.Texture(imagem);
+imagem.onload = () => {
+  texturaFallback.needsUpdate = true;
+};
+
+// Carregador de textura com fallback
+let texturaParede = textureLoader.load(
+  'assets/parede-antracite.jpg',
+  updateLoadingProgress,
+  undefined,
+  () => {
+    console.warn('⚠️ Falha ao carregar textura externa, a aplicar fallback incorporado.');
+    texturaParede = texturaFallback;
+  }
+);
+
+// Função para aplicar textura às paredes
+function aplicarTexturaParede(textura) {
+  const paredeMaterial = new THREE.MeshStandardMaterial({
+    map: textura,
+    color: 0xffffff,
+    emissive: 0x111111,
+    emissiveIntensity: 0.28,
+    roughness: 0.58,
+    metalness: 0.18
+  });
+
+  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
+  paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
+  paredeFundo.receiveShadow = true;
+  scene.add(paredeFundo);
+
+  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+  paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
+  paredeEsquerda.rotation.y = Math.PI / 2;
+  paredeEsquerda.receiveShadow = true;
+  scene.add(paredeEsquerda);
+
+  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+  paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
+  paredeDireita.rotation.y = -Math.PI / 2;
+  paredeDireita.receiveShadow = true;
+  scene.add(paredeDireita);
+}
+
+aplicarTexturaParede(texturaParede);
+
+// Chão reflexivo (preparado para os reflexos reais)
+const planoChao = new THREE.PlaneGeometry(80, 80);
+const materialChao = new THREE.MeshStandardMaterial({
+  color: 0x222222,
+  metalness: 0.8,
+  roughness: 0.05,
+  emissive: new THREE.Color(0x111111),
+  emissiveIntensity: 0.15
+});
+const chao = new THREE.Mesh(planoChao, materialChao);
+chao.rotation.x = -Math.PI / 2;
+chao.position.y = -0.03;
+chao.receiveShadow = true;
+scene.add(chao);
+// Material dourado para os frisos
+const frisoMaterial = new THREE.MeshStandardMaterial({
+  color: 0x8a5c21, // Dourado vibrante e elegante
+  metalness: 0.7,
+  roughness: 0.3,
+  emissive: 0x000000,
+  emissiveIntensity: 0.1
+});
+
+// Friso central com contornos arredondados (precisão arquitetónica)
+function criarFrisoCentral(x, y, z, largura, altura) {
+  const raio = 0.3;
+  const espessura = 0.02;
+
+  const forma = new THREE.Shape();
+  forma.moveTo(-largura / 2 + raio, -altura / 2);
+  forma.lineTo(largura / 2 - raio, -altura / 2);
+  forma.quadraticCurveTo(largura / 2, -altura / 2, largura / 2, -altura / 2 + raio);
+  forma.lineTo(largura / 2, altura / 2 - raio);
+  forma.quadraticCurveTo(largura / 2, altura / 2, largura / 2 - raio, altura / 2);
+  forma.lineTo(-largura / 2 + raio, altura / 2);
+  forma.quadraticCurveTo(-largura / 2, altura / 2, -largura / 2, altura / 2 - raio);
+  forma.lineTo(-largura / 2, -altura / 2 + raio);
+  forma.quadraticCurveTo(-largura / 2, -altura / 2, -largura / 2 + raio, -altura / 2);
+
+  const extrudeConfig = {
+    depth: espessura,
+    bevelEnabled: false
+  };
+
+  const geometria = new THREE.ExtrudeGeometry(forma, extrudeConfig);
+  const friso = new THREE.Mesh(geometria, frisoMaterial);
+  friso.position.set(x, y, z);
+  scene.add(friso);
+}
+
+// Criar o friso central exato
+criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
+
+// Frisos horizontais — precisão milimétrica
+function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
+  const friso = new THREE.Mesh(
+    new THREE.BoxGeometry(largura, altura, 0.02),
+    frisoMaterial
+  );
+  friso.position.set(x, y, z);
+  friso.rotation.y = rotY;
+  scene.add(friso);
+}
+
+// Frisos horizontais contínuos e alinhados
+criarFrisoLinha(0, 1.6, -config.wallDistance - 5.18, 42); // linha inferior fundo
+criarFrisoLinha(0, 2.2, -config.wallDistance - 5.18, 42); // linha superior fundo
+criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2); // linha lateral esquerda
+criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
+criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2); // linha lateral direita
+criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+
+// Frisos verticais embutidos com camada dupla — laterais esquerda e direita
+function criarFrisoDuploVertical(x, y, z, altura, lado) {
+  const offset = lado === 'esquerda' ? -0.4 : 0.4;
+
+  const externo = new THREE.Mesh(
+    new THREE.BoxGeometry(0.18, altura, 0.02),
+    frisoMaterial
+  );
+  externo.position.set(x, y, z);
+  externo.rotation.y = lado === 'esquerda' ? Math.PI / 2 : -Math.PI / 2;
+  scene.add(externo);
+
+  const interno = new THREE.Mesh(
+    new THREE.BoxGeometry(0.08, altura - 0.4, 0.02),
+    frisoMaterial
+  );
+  interno.position.set(x + offset, y, z + 0.01);
+  interno.rotation.y = externo.rotation.y;
+  scene.add(interno);
+}
+
+// Frisos duplos verticais nas laterais
+criarFrisoDuploVertical(-16.7, 14.5, -config.wallDistance / 2, 7.5, 'esquerda');
+criarFrisoDuploVertical(16.7, 14.5, -config.wallDistance / 2, 7.5, 'direita');
+// Materiais para pedestal, vitrine e gema
+const pedestalMaterial = new THREE.MeshStandardMaterial({
+  color: 0x2b2b2b,
+  roughness: 0.5,
+  metalness: 0.25
+});
+
+const vitrineMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x1a1a1a,
+  metalness: 0.1,
+  roughness: 0,
+  transparent: true,
+  opacity: 0.18,
+  transmission: 1,
+  thickness: 0.25,
+  reflectivity: 0.5,
+  clearcoat: 1,
+  clearcoatRoughness: 0.1
+});
+
+const gemaMaterial = new THREE.MeshStandardMaterial({
+  color: 0x33ccff,
+  emissive: 0x33ccff,
+  emissiveIntensity: 1.8,
+  roughness: 0.1,
+  metalness: 0.3,
+  transparent: true,
+  opacity: 0.85
+});
+
+// Função para criar pedestais com vitrine e gema luminosa
+function criarPedestalRetangular(posX, posZ) {
+  const largura = 0.8;
+  const profundidade = 0.8;
+  const alturaPedestal = 1.5;
+  const alturaVitrine = 1.3;
+
+  // Base do pedestal
+  const base = new THREE.Mesh(
+    new THREE.BoxGeometry(largura, alturaPedestal, profundidade),
+    pedestalMaterial
+  );
+  base.position.set(posX, alturaPedestal / 2, posZ);
+  base.castShadow = base.receiveShadow = true;
+  scene.add(base);
+
+  // Vitrine translúcida
+  const vitrine = new THREE.Mesh(
+    new THREE.BoxGeometry(largura * 0.9, alturaVitrine, profundidade * 0.9),
+    vitrineMaterial
+  );
+  vitrine.position.set(posX, alturaPedestal + alturaVitrine / 2, posZ);
+  vitrine.castShadow = vitrine.receiveShadow = true;
+  scene.add(vitrine);
+
+  // Gema luminosa suspensa dentro da vitrine
+  const gema = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.35, 1),
+    gemaMaterial
+  );
+  gema.position.set(posX, alturaPedestal + alturaVitrine / 2, posZ);
+  scene.add(gema);
+}
+
+// Posicionamento preciso nos quatro cantos do círculo de luz
+const deslocamento = config.circleRadius + 3.3;
+
+criarPedestalRetangular(-deslocamento, -deslocamento); // Frente esquerda
+criarPedestalRetangular(deslocamento, -deslocamento);  // Frente direita
+criarPedestalRetangular(-deslocamento, deslocamento);  // Fundo esquerda
+criarPedestalRetangular(deslocamento, deslocamento);   // Fundo direita
+// Geometria do círculo de luz — design fino e fiel ao layout
+const circuloLuzGeometry = new THREE.RingGeometry(
+  config.circleRadius + 0.6,  // Raio interior fino
+  config.circleRadius + 0.7,  // Raio exterior ligeiramente maior
+  64
+);
+
+// Material branco vivo e luminoso
+const circuloLuzMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffffff,            // Branco puro
+  emissive: 0xffffff,
+  emissiveIntensity: 2.5,     // Brilho mais intenso para realce
+  roughness: 0.2,
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.7,
+  side: THREE.DoubleSide
+});
+
+// Criação do círculo de luz no chão reflectivo
+const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
+circuloLuz.rotation.x = -Math.PI / 2;
+circuloLuz.position.y = 0.005; // Ligeiramente acima do chão para evitar z-fighting
+scene.add(circuloLuz);
+
+// ⚠️ Friso dourado imediatamente a seguir ao círculo foi removido conforme solicitado
+// Dados das obras a serem usadas na criação do círculo suspenso
+const dadosObras = [
+  {
+    id: 'obra1',
+    titulo: 'Obra 1',
+    artista: 'Artista A',
+    ano: '2024',
+    descricao: 'Descrição da Obra 1.',
+    preco: '0.5',
+    imagem: 'assets/obras/obra1.jpg'
+  },
+  {
+    id: 'obra2',
+    titulo: 'Obra 2',
+    artista: 'Artista B',
+    ano: '2023',
+    descricao: 'Descrição da Obra 2.',
+    preco: '0.6',
+    imagem: 'assets/obras/obra2.jpg'
+  },
+  {
+    id: 'obra3',
+    titulo: 'Obra 3',
+    artista: 'Artista C',
+    ano: '2025',
+    descricao: 'Descrição da Obra 3.',
+    preco: '0.45',
+    imagem: 'assets/obras/obra3.jpg'
+  },
+  {
+    id: 'obra4',
+    titulo: 'Obra 4',
+    artista: 'Artista D',
+    ano: '2022',
+    descricao: 'Descrição da Obra 4.',
+    preco: '0.55',
+    imagem: 'assets/obras/obra4.jpg'
+  },
+  {
+    id: 'obra5',
+    titulo: 'Obra 5',
+    artista: 'Artista E',
+    ano: '2021',
+    descricao: 'Descrição da Obra 5.',
+    preco: '0.65',
+    imagem: 'assets/obras/obra5.jpg'
+  },
+  {
+    id: 'obra6',
+    titulo: 'Obra 6',
+    artista: 'Artista F',
+    ano: '2021',
+    descricao: 'Descrição da Obra 6.',
+    preco: '0.42',
+    imagem: 'assets/obras/obra6.jpg'
+  },
+  {
+    id: 'obra7',
+    titulo: 'Obra 7',
+    artista: 'Artista G',
+    ano: '2020',
+    descricao: 'Descrição da Obra 7.',
+    preco: '0.48',
+    imagem: 'assets/obras/obra7.jpg'
+  },
+  {
+    id: 'obra8',
+    titulo: 'Obra 8',
+    artista: 'Artista H',
+    ano: '2020',
+    descricao: 'Descrição da Obra 8.',
+    preco: '0.58',
+    imagem: 'assets/obras/obra8.jpg'
+  }
+];
+
+// Criação das obras normais que circulam no centro da galeria
+function criarObrasNormais() {
+  const raio = config.circleRadius;
+  const tamanho = config.obraSize;
+
+  dadosObras.forEach((dados, i) => {
+    textureLoader.load(
+      dados.imagem,
+      (texture) => {
+        const obra = new THREE.Mesh(
+          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+          new THREE.MeshStandardMaterial({
+            map: texture,
+            roughness: 0.2,
+            metalness: 0.1,
+            side: THREE.DoubleSide,
+            transparent: true
+          })
+        );
+
+        const angulo = (i / dadosObras.length) * Math.PI * 2;
+        obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+        obra.lookAt(0, 4.2, 0);
+        obra.castShadow = true;
+        obra.receiveShadow = true;
+
+        obra.userData = { dados, index: i };
+
+        scene.add(obra);
+        obrasNormais.push(obra);
+        updateLoadingProgress();
+      },
+      undefined,
+      (error) => {
+        console.error(`Erro ao carregar imagem da obra ${dados.titulo}:`, error);
+
+        const obraFallback = new THREE.Mesh(
+          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+          new THREE.MeshStandardMaterial({
+            color: 0x333333,
+            roughness: 0.2,
+            metalness: 0.1,
+            side: THREE.DoubleSide,
+            transparent: true
+          })
+        );
+
+        const angulo = (i / dadosObras.length) * Math.PI * 2;
+        obraFallback.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+        obraFallback.lookAt(0, 4.2, 0);
+        obraFallback.castShadow = true;
+        obraFallback.receiveShadow = true;
+
+        obraFallback.userData = { dados, index: i };
+
+        scene.add(obraFallback);
+        obrasNormais.push(obraFallback);
+        updateLoadingProgress();
+      }
+    );
+  });
+}
+
+criarObrasNormais();
+// Definição da velocidade de rotação das obras circulantes
+const velocidadeObras = 0.20;
+const velocidadeDesacelerada = 0.08; // Velocidade mais lenta durante o destaque
+
+// Função que anima a rotação circular das obras normais
+function animarObrasCirculares(delta) {
+  // Define a velocidade consoante o estado de destaque
+  const velocidadeAtual = obraDestacada ? velocidadeDesacelerada : velocidadeObras;
+  anguloAtual += velocidadeAtual * delta;
+
+  const raio = config.circleRadius;
+
+  obrasNormais.forEach((obra, i) => {
+    // Se for a obra destacada, fixa no centro e não roda
+    if (obra === obraDestacada) return;
+
+    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+    obra.lookAt(0, 4.2, 0);
+  });
+}
+// Evento de pointerdown para detetar interação do utilizador (clique ou toque)
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  // Converte a posição do clique para coordenadas normalizadas de ecrã
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  // Detetar interseções com as obras normais
+  const intersects = raycaster.intersectObjects(obrasNormais, false);
+
+  if (intersects.length > 0) {
+    const obraClicada = intersects[0].object;
+
+    // Se a obra clicada já estiver destacada, ignorar
+    if (obraDestacada === obraClicada) return;
+
+    // Se existir outra obra destacada, fechar primeiro
+    if (obraDestacada) {
+      fecharObraDestacada(() => destacarObra(obraClicada));
+    } else {
+      destacarObra(obraClicada);
+    }
+  }
+});
+function destacarObra(obra) {
+  if (obraDestacada) return; // Garante que apenas uma obra pode estar destacada
+
+  obraDestacada = obra;
+  ambienteDesacelerado = true;
+
+  const dados = obra.userData.dados;
+
+  // Animação para mover a obra até ao centro da cena, fixando em altura superior à posição circular
+  gsap.to(obra.position, {
+    x: 0,
+    y: 6.5, // Altura ligeiramente superior ao círculo de obras
+    z: 0,
+    duration: 1.1,
+    ease: 'power2.inOut',
+    onUpdate: () => {
+      obra.lookAt(new THREE.Vector3(0, 6.5, 0)); // Mantém orientação para o centro
+    },
+    onComplete: () => {
+      obra.lookAt(new THREE.Vector3(0, 6.5, 0)); // Garante orientação final
+    }
+  });
+
+  // Escala a obra para dar-lhe maior presença visual
+  gsap.to(obra.scale, {
+    x: 2,
+    y: 2,
+    z: 2,
+    duration: 0.9,
+    ease: 'power2.out'
+  });
+
+  // Aplicar desfoque apenas ao fundo (não à obra nem ao modal)
+  const fundo = document.getElementById('scene');
+  if (fundo) {
+    fundo.style.filter = 'blur(6px)';
+  }
+
+  // Exibe o painel informativo após a transição visual
+  setTimeout(() => {
+    if (!overlay || !infoPanel) {
+      overlay = document.getElementById('overlay');
+      infoPanel = document.getElementById('info-panel');
+      if (!overlay || !infoPanel) {
+        console.error('❌ Elementos do modal não encontrados.');
+        return;
+      }
+    }
+
+    // Garantir que o modal está posicionado corretamente e com largura igual à obra destacada
+    infoPanel.style.display = 'block';
+    infoPanel.style.width = `${obra.scale.x * obra.geometry.parameters.width}px`;
+    infoPanel.style.left = `${window.innerWidth / 2 - (obra.scale.x * obra.geometry.parameters.width) / 2}px`;
+    infoPanel.style.top = `${window.innerHeight / 2 + obra.scale.y * obra.geometry.parameters.height / 2 + 10}px`;
+
+    overlay.style.display = 'block';
+
+    modalElements.titulo.textContent = dados.titulo;
+    modalElements.artista.textContent = dados.artista;
+    modalElements.ano.textContent = dados.ano;
+    modalElements.descricao.textContent = dados.descricao || 'Obra em destaque na galeria NANdART.';
+    modalElements.preco.textContent = `${dados.preco} ETH`;
+  }, 1100);
+}
+// Fecha a obra destacada se o utilizador clicar fora do painel informativo
+document.addEventListener('pointerdown', (e) => {
+  if (!obraDestacada || !infoPanel || infoPanel.contains(e.target)) return;
+  fecharObraDestacada();
+});
+
+// Função que repõe a obra na sua posição original na órbita
+function fecharObraDestacada(callback) {
+  if (!obraDestacada) return;
+
+  const obra = obraDestacada;
+  const indexOriginal = obra.userData.index;
+  const angulo = (indexOriginal / obrasNormais.length) * Math.PI * 2;
+
+  // Animação para regressar à posição circular
+  gsap.to(obra.position, {
+    x: Math.cos(angulo) * config.circleRadius,
+    y: 4.2,
+    z: Math.sin(angulo) * config.circleRadius,
+    duration: 1.2,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      // Restaura a visibilidade e a rotação normal
+      ambienteDesacelerado = false;
+      obraDestacada = null;
+
+      // Remove o desfoque do fundo
+      const fundo = document.getElementById('scene');
+      if (fundo) {
+        fundo.style.filter = 'none';
+      }
+
+      // Oculta o painel informativo e o overlay
+      overlay.style.display = 'none';
+      infoPanel.style.display = 'none';
+
+      // Se foi passado um callback (por exemplo, para destacar outra obra), chama-o agora
+      if (callback) callback();
+    }
+  });
+
+  // Reverte a escala da obra para o tamanho normal
+  gsap.to(obra.scale, {
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: 0.6,
+    ease: 'power2.out'
+  });
+}
+window.addEventListener('DOMContentLoaded', () => {
+  // Associar elementos informativos do modal
+  modalElements.titulo = document.getElementById('modal-titulo');
+  modalElements.artista = document.getElementById('modal-artista');
+  modalElements.ano = document.getElementById('modal-ano');
+  modalElements.descricao = document.getElementById('modal-descricao');
+  modalElements.preco = document.getElementById('modal-preco');
+
+  const botaoBuy = document.getElementById('obra-buy');
+  if (botaoBuy) {
+    modalElements.botao = botaoBuy;
+
+    botaoBuy.addEventListener('click', async () => {
+      const dados = obraDestacada?.userData?.dados;
+
+      if (!dados || !dados.preco || !dados.titulo) {
+        alert('Erro: dados da obra não encontrados.');
+        return;
+      }
+
+      if (!window.ethereum) {
+        alert('MetaMask não está instalada. Por favor, instala-a para continuares.');
+        return;
+      }
+
+      try {
+        // Estado visual: a processar
+        modalElements.botao.disabled = true;
+        modalElements.botao.textContent = 'A processar...';
+
+        // Solicitar ligação à carteira
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        // Enviar transacção de compra para o endereço da galeria
+        const tx = await signer.sendTransaction({
+          to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // Endereço da galeria
+          value: ethers.parseEther(dados.preco)
+        });
+
+        // Confirmação visual
+        alert(`🧾 Transacção enviada!\n\nHash:\n${tx.hash}`);
+        await tx.wait();
+
+        alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.');
+        fecharObraDestacada();
+
+      } catch (err) {
+        console.error('❌ Erro na compra:', err);
+        alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.');
+      } finally {
+        modalElements.botao.disabled = false;
+        modalElements.botao.textContent = 'Buy';
+      }
+    });
+  } else {
+    console.error('❌ Botão Buy não encontrado no DOM.');
+  }
+});
+function iniciarGaleria() {
+  // 1. Criar as obras normais do círculo rotativo
+  criarObrasNormais();
+
+  // ⚠️ REMOVIDO: Não há cubos suspensos nem verificação de migrações
+}
+
+// Executar ao carregar a página
+window.addEventListener('load', iniciarGaleria);
+// Elemento visual do botão na interface
+const walletBtn = document.createElement('button');
+walletBtn.id = 'wallet-button';
+walletBtn.textContent = 'Connect Wallet';
+walletBtn.style.cssText = `
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 250;
+  padding: 10px 18px 10px 42px;
+  font-size: 1em;
+  background-color: #d8b26c;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  background-image: url('/assets/icons/metamask.svg');
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 20px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+`;
+document.body.appendChild(walletBtn);
+
+// Variável global para guardar o endereço da carteira ligada
+let walletAddress = null;
+
+// Atualiza o botão com estado atual e saldo (se ligado)
+async function atualizarEstadoCarteira() {
+  if (walletAddress) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const saldo = await provider.getBalance(walletAddress);
+    const eth = ethers.formatEther(saldo);
+    walletBtn.textContent = `Disconnect (${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${parseFloat(eth).toFixed(4)} ETH)`;
+  } else {
+    walletBtn.textContent = 'Connect Wallet';
+  }
+}
+
+// Função para ligar a carteira MetaMask
+async function conectarCarteira() {
+  try {
+    if (!window.ethereum) {
+      alert('MetaMask não está instalada. Por favor, instala-a para continuar.');
+      return;
+    }
+
+    const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddress = contas[0];
+    localStorage.setItem('walletConnected', 'true');
+    atualizarEstadoCarteira();
+  } catch (erro) {
+    console.error('❌ Erro ao ligar carteira:', erro);
+    alert('Não foi possível ligar a carteira. Tenta novamente.');
+  }
+}
+
+// Função para desligar a carteira
+function desligarCarteira() {
+  walletAddress = null;
+  localStorage.removeItem('walletConnected');
+  atualizarEstadoCarteira();
+}
+
+// Alternância entre ligar/desligar ao clicar no botão
+walletBtn.addEventListener('click', () => {
+  if (walletAddress) {
+    desligarCarteira();
+  } else {
+    conectarCarteira();
+  }
+});
+// Verificação automática ao carregar a página
+window.addEventListener('load', async () => {
+  if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
+    try {
+      const contas = await window.ethereum.request({ method: 'eth_accounts' });
+
+      if (contas.length > 0) {
+        walletAddress = contas[0];
+        atualizarEstadoCarteira();
+      } else {
+        // A carteira foi desligada fora do site — limpar estado
+        localStorage.removeItem('walletConnected');
+        walletAddress = null;
+        atualizarEstadoCarteira();
+      }
+    } catch (err) {
+      console.error('❌ Erro ao verificar ligação persistente da carteira:', err);
+      localStorage.removeItem('walletConnected');
+      walletAddress = null;
+      atualizarEstadoCarteira();
+    }
+  }
+});
+// Controlo para assegurar atualização dinâmica das dimensões do renderer e da câmara
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    updateCamera();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 200);
+});
+
+// Controlo para garantir sempre o carregamento inicial com todas as dimensões e texturas corretas
+window.addEventListener('load', () => {
+  updateCamera();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Mensagem final de confirmação da galeria carregada
+console.log('✨ A galeria 3D NANdART está totalmente pronta e funcional.');
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = relogio.getDelta();
+
+  // Animação das obras circulantes, mesmo quando há obra destacada (mas mais lento)
+  if (ambienteDesacelerado && !obraDestacada) {
+    anguloAtual += (velocidadeObras * 0.2) * delta; // 20% da velocidade normal
+  } else if (!ambienteDesacelerado) {
+    anguloAtual += velocidadeObras * delta;
+  }
+
+  const raio = config.circleRadius;
+  obrasNormais.forEach((obra, i) => {
+    if (obra !== obraDestacada) {
+      const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+      obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+      obra.lookAt(0, 4.2, 0);
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+animate();
+

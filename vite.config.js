@@ -1,24 +1,33 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
   base: './',
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src')
-    }
-  },
+  plugins: [
+    nodeResolve({
+      browser: true,
+      preferBuiltins: false
+    })
+  ],
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        info: resolve(__dirname, 'info.html')
+        main: resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: {
+          three: ['three'],
+          gsap: ['gsap'],
+          ethers: ['ethers']
+        }
       }
     }
   },
   server: {
+    https: true,
     open: true
   }
 });

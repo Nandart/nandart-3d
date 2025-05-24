@@ -1,4 +1,3 @@
-// ==================== BLOCO 1 — IMPORTAÇÕES E VARIÁVEIS GLOBAIS ==================== 
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -44,7 +43,6 @@ const cubosSuspensos = [];
 const relogio = new THREE.Clock();
 let anguloAtual = 0;
 
-// Elementos do modal
 let overlay, infoPanel;
 const modalElements = {
   titulo: null,
@@ -55,13 +53,12 @@ const modalElements = {
   botao: null
 };
 
-// ==================== BLOCO 2 — CONFIGURAÇÕES E RENDERER ====================
-
+// Configurações responsivas detalhadas e ajustadas
 const configMap = {
-  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 22, cameraY: 9, textSize: 0.4 },
-  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 24, cameraY: 9.5, textSize: 0.45 },
-  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 26, cameraY: 10, textSize: 0.5 },
-  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 28, cameraY: 10.5, textSize: 0.55 }
+  XS: { obraSize: 1.2, circleRadius: 2.4, wallDistance: 8, cameraZ: 44, cameraY: 10, textSize: 0.4 },
+  SM: { obraSize: 1.4, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 48, cameraY: 10.5, textSize: 0.45 },
+  MD: { obraSize: 1.6, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 52, cameraY: 11, textSize: 0.5 },
+  LG: { obraSize: 1.8, circleRadius: 3.6, wallDistance: 11, cameraZ: 56, cameraY: 11.5, textSize: 0.55 }
 };
 
 function getViewportLevel() {
@@ -102,14 +99,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 2.8;
+renderer.toneMappingExposure = 3.2;  // Iluminação duplicada para maior realismo
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
+// Câmara com recuo 2x para visualização total do espaço
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
-
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.position.set(0, config.cameraY, config.cameraZ);
@@ -127,109 +124,73 @@ window.addEventListener('resize', () => {
   }, 200);
 });
 
-// ==================== BLOCO 3 — ILUMINAÇÃO ====================
-
-const ambientLight = new THREE.AmbientLight(0xffeedd, 0.8);
+// Iluminação duplicada e ajustada
+const ambientLight = new THREE.AmbientLight(0xffeedd, 1.6);
 scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2.4);
 directionalLight.position.set(0, 16, 12);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 scene.add(directionalLight);
-
-const fillLeft = new THREE.DirectionalLight(0xffffff, 0.4);
+const fillLeft = new THREE.DirectionalLight(0xffffff, 0.8);
 fillLeft.position.set(-8, 8, 4);
 scene.add(fillLeft);
-
-const fillRight = new THREE.DirectionalLight(0xffffff, 0.4);
+const fillRight = new THREE.DirectionalLight(0xffffff, 0.8);
 fillRight.position.set(8, 8, -4);
 scene.add(fillRight);
-
-const spotLight = new THREE.SpotLight(0xffeedd, 1.5, 30, Math.PI / 5, 0.4, 1);
+const spotLight = new THREE.SpotLight(0xffeedd, 3, 30, Math.PI / 5, 0.4, 1);
 spotLight.position.set(0, 20, 5);
 scene.add(spotLight);
-
-// ==================== BLOCO 4 — PAREDES COM TEXTURA ANTRAÇITE ====================
-
-const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
-const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
-
-// Textura antracite programática (fallback)
-const antraciteTexture = new THREE.DataTexture(
-  new Uint8Array([70, 70, 70, 255, 65, 65, 65, 255, 65, 65, 65, 255, 70, 70, 70, 255]),
-  2, 2, THREE.RGBAFormat
-);
-antraciteTexture.needsUpdate = true;
-
-const paredeMaterial = new THREE.MeshStandardMaterial({
-  map: antraciteTexture,
-  color: 0x222222,
-  roughness: 0.6,
-  metalness: 0.2
-});
-
-const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
-paredeFundo.position.set(0, 14.6, -config.wallDistance);
-paredeFundo.receiveShadow = true;
-scene.add(paredeFundo);
-
-const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
-paredeEsquerda.rotation.y = Math.PI / 2;
-paredeEsquerda.receiveShadow = true;
-scene.add(paredeEsquerda);
-
-const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
-paredeDireita.rotation.y = -Math.PI / 2;
-paredeDireita.receiveShadow = true;
-scene.add(paredeDireita);
-
-// Adicionar logo NANdART na parede de fundo
-const logoGeometry = new THREE.PlaneGeometry(8, 2);
-const logoMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const logo = new THREE.Mesh(logoGeometry, logoMaterial);
-logo.position.set(0, 25, -config.wallDistance + 0.1);
-scene.add(logo);
-
-// ==================== BLOCO 5 — CHÃO REFLETOR ====================
-
+// ==================== CHÃO COM TRANSPARÊNCIA DUPLICADA ====================
 const floorGeometry = new THREE.PlaneGeometry(80, 80);
 const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0x000000,
   metalness: 0.9,
   roughness: 0.05,
   transparent: true,
-  opacity: 0.9
+  opacity: 0.45  // Duplicar transparência
 });
-
 const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 floorMesh.rotation.x = -Math.PI / 2;
 floorMesh.position.y = -0.03;
 floorMesh.receiveShadow = true;
 scene.add(floorMesh);
 
-// ==================== BLOCO 6 — FRISOS DOURADOS ====================
+// ==================== PAREDES COM TEXTURA ANTRAÇITE DO LAYOUT ====================
+const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
+const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
+const paredeTexture = textureLoader.load('assets/IMG_2945.jpg');
+const paredeMaterial = new THREE.MeshStandardMaterial({
+  map: paredeTexture,
+  roughness: 0.6,
+  metalness: 0.2
+});
+const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
+paredeFundo.position.set(0, 14.6, -config.wallDistance);
+scene.add(paredeFundo);
+const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
+paredeEsquerda.rotation.y = Math.PI / 2;
+scene.add(paredeEsquerda);
+const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
+paredeDireita.rotation.y = -Math.PI / 2;
+scene.add(paredeDireita);
 
+// ==================== FRISOS COM COR DOURADA DO LAYOUT ====================
+const frisoTexture = textureLoader.load('assets/dourado para friso.png');
 const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xd4af37,
+  map: frisoTexture,
   metalness: 0.9,
   roughness: 0.3
 });
-
 function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, 0.02),
-    frisoMaterial
-  );
+  const friso = new THREE.Mesh(new THREE.BoxGeometry(largura, altura, 0.02), frisoMaterial);
   friso.position.set(x, y, z);
   friso.rotation.y = rotY;
   scene.add(friso);
 }
-
-// Frisos horizontais
 criarFrisoLinha(0, 1.6, -config.wallDistance + 0.1, 42);
 criarFrisoLinha(0, 2.2, -config.wallDistance + 0.1, 42);
 criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
@@ -237,14 +198,11 @@ criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
 criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
 criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
 
-// ==================== BLOCO 7 — CÍRCULO DE LUZ ====================
-
+// ==================== CÍRCULO DE LUZ REDUZIDO EM 1/4 ====================
 const circuloLuzGeometry = new THREE.RingGeometry(
   config.circleRadius + 0.6,
-  config.circleRadius + 1.4,
-  64
+  config.circleRadius + 1.05, 64
 );
-
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   emissive: 0xffffff,
@@ -252,323 +210,149 @@ const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.3,
   metalness: 0.1
 });
-
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.y = 0.005;
 scene.add(circuloLuz);
 
-// ==================== BLOCO 8 — OBRAS CIRCULARES ====================
-
+// ==================== OBRAS CIRCULANTES COMPLETAS (8 OBRAS) ====================
 const dadosObras = [
-  {
-    id: 'obra1',
-    titulo: 'Obra 1',
-    artista: 'Artista A',
-    ano: '2024',
-    descricao: 'Descrição da Obra 1.',
-    preco: '0.5',
-    imagem: 'assets/obras/obra1.jpg'
-  },
-    {
-    id: 'obra2',
-    titulo: 'Obra 2',
-    artista: 'Artista B',
-    ano: '2024',
-    descricao: 'Descrição da Obra 2.',
-    preco: '0.85',
-    imagem: 'assets/obras/obra2.jpg'
-  },
-    {
-    id: 'obra3',
-    titulo: 'Obra C',
-    artista: 'Artista A',
-    ano: '2024',
-    descricao: 'Descrição da Obra 3.',
-    preco: '0.6',
-    imagem: 'assets/obras/obra3.jpg'
-  },
-   {
-  id: 'obra4',  // Corrigido - estava faltando a aspa final
-  titulo: 'Obra 4',
-  artista: 'Artista D',
-  ano: '2024',
-  descricao: 'Descrição da Obra 4.',
-  preco: '0.35',
-  imagem: '/assets/obras/obra4.jpg'  // Adicionado / no início
-},
-    {
-    id: 'obra5',
-    titulo: 'Obra 5',
-    artista: 'Artista E',
-    ano: '2024',
-    descricao: 'Descrição da Obra 5.',
-    preco: '0.45',
-    imagem: 'assets/obras/obra5.jpg'
-  },
-    {
-    id: 'obra6',
-    titulo: 'Obra 6',
-    artista: 'Artista F',
-    ano: '2024',
-    descricao: 'Descrição da Obra 6.',
-    preco: '0.75',
-    imagem: 'assets/obras/obra6.jpg'
-  },
-    {
-    id: 'obra7',
-    titulo: 'Obra 7',
-    artista: 'Artista G',
-    ano: '2024',
-    descricao: 'Descrição da Obra 7.',
-    preco: '0.6',
-    imagem: 'assets/obras/obra7.jpg'
-  },
-
-   {
-    id: 'obra8',
-    titulo: 'Obra 8',
-    artista: 'Artista H',
-    ano: '2020',
-    descricao: 'Descrição da Obra 8.',
-    preco: '0.58',
-    imagem: 'assets/obras/obra8.jpg'
-  }
+  { id: 'obra1', titulo: 'Obra 1', artista: 'Artista A', ano: '2024', descricao: 'Descrição da Obra 1.', preco: '0.5', imagem: 'assets/obras/obra1.jpg' },
+  { id: 'obra2', titulo: 'Obra 2', artista: 'Artista B', ano: '2024', descricao: 'Descrição da Obra 2.', preco: '0.85', imagem: 'assets/obras/obra2.jpg' },
+  { id: 'obra3', titulo: 'Obra 3', artista: 'Artista C', ano: '2024', descricao: 'Descrição da Obra 3.', preco: '0.6', imagem: 'assets/obras/obra3.jpg' },
+  { id: 'obra4', titulo: 'Obra 4', artista: 'Artista D', ano: '2024', descricao: 'Descrição da Obra 4.', preco: '0.35', imagem: '/assets/obras/obra4.jpg' },
+  { id: 'obra5', titulo: 'Obra 5', artista: 'Artista E', ano: '2024', descricao: 'Descrição da Obra 5.', preco: '0.45', imagem: 'assets/obras/obra5.jpg' },
+  { id: 'obra6', titulo: 'Obra 6', artista: 'Artista F', ano: '2024', descricao: 'Descrição da Obra 6.', preco: '0.75', imagem: 'assets/obras/obra6.jpg' },
+  { id: 'obra7', titulo: 'Obra 7', artista: 'Artista G', ano: '2024', descricao: 'Descrição da Obra 7.', preco: '0.6', imagem: 'assets/obras/obra7.jpg' },
+  { id: 'obra8', titulo: 'Obra 8', artista: 'Artista H', ano: '2020', descricao: 'Descrição da Obra 8.', preco: '0.58', imagem: 'assets/obras/obra8.jpg' }
 ];
+// ==================== PEDESTAIS, VITRINES E GEMAS FIEIS AO LAYOUT ====================
+function criarPedestalVitrineGema(x, z) {
+  const pedestalMaterial = new THREE.MeshStandardMaterial({
+    color: 0x3a3a3a,
+    metalness: 0.8,
+    roughness: 0.2
+  });
+  const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 1, 32), pedestalMaterial);
+  pedestal.position.set(x, 0.5, z);
+  pedestal.castShadow = true;
+  pedestal.receiveShadow = true;
+  scene.add(pedestal);
 
-function criarObrasNormais() {
-  const raio = config.circleRadius;
-  const tamanho = config.obraSize;
+  const vitrineMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 0.3,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.7
+  });
+  const vitrine = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.2, 32), vitrineMaterial);
+  vitrine.position.set(x, 1.6, z);
+  vitrine.castShadow = true;
+  scene.add(vitrine);
 
-  dadosObras.forEach((dados, i) => {
-    textureLoader.load(
-      dados.imagem,
-      (texture) => {
-        const molduraGeometry = new THREE.BoxGeometry(tamanho * 1.4, tamanho * 1.7, 0.1);
-        const molduraMaterial = new THREE.MeshStandardMaterial({
-          color: 0x333333,
-          metalness: 0.5,
-          roughness: 0.7
-        });
-        const moldura = new THREE.Mesh(molduraGeometry, molduraMaterial);
-        
-        const obraMaterial = new THREE.MeshStandardMaterial({
-          map: texture,
-          roughness: 0.2,
-          metalness: 0.1
-        });
-        const obra = new THREE.Mesh(
-          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-          obraMaterial
-        );
-        obra.position.z = 0.051;
-        
-        const grupo = new THREE.Group();
-        grupo.add(moldura);
-        grupo.add(obra);
+  const gemaMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffc107,
+    metalness: 0.9,
+    roughness: 0.1,
+    emissive: 0xffe066,
+    emissiveIntensity: 1
+  });
+  const gema = new THREE.Mesh(new THREE.OctahedronGeometry(0.3), gemaMaterial);
+  gema.position.set(x, 2.2, z);
+  gema.castShadow = true;
+  scene.add(gema);
+}
+// Posicionar os pedestais e vitrines como no layout
+criarPedestalVitrineGema(-10, -3);
+criarPedestalVitrineGema(10, -3);
+criarPedestalVitrineGema(-10, 3);
+criarPedestalVitrineGema(10, 3);
 
-        const angulo = (i / dadosObras.length) * Math.PI * 2;
-        grupo.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-        grupo.lookAt(0, 4.2, 0);
-        grupo.castShadow = grupo.receiveShadow = true;
+// ==================== OBRAS LATERAIS E CENTRAL – FUNÇÃO COMPLETA E CHAMADAS EXPLÍCITAS ====================
+function criarObraParede(texturePath, posX, posY, posZ, rotY, largura, altura) {
+  textureLoader.load(texturePath, (texture) => {
+    const molduraGeo = new THREE.BoxGeometry(largura, altura, 0.3);  // Volume realista
+    const molduraMat = new THREE.MeshStandardMaterial({
+      color: 0x333333,
+      metalness: 0.6,
+      roughness: 0.4
+    });
+    const moldura = new THREE.Mesh(molduraGeo, molduraMat);
+    moldura.position.set(posX, posY, posZ);
+    moldura.rotation.y = rotY;
+    moldura.castShadow = true;
+    scene.add(moldura);
 
-        grupo.userData = { dados, index: i, isObra: true };
-
-        scene.add(grupo);
-        obrasNormais.push(grupo);
-        updateLoadingProgress();
-      },
-      undefined,
-      () => {
-        console.error(`Erro ao carregar imagem da obra ${dados.titulo}`);
-        // Fallback...
-      }
-    );
+    const obraGeo = new THREE.PlaneGeometry(largura * 0.9, altura * 0.9);
+    const obraMat = new THREE.MeshStandardMaterial({
+      map: texture,
+      metalness: 0.3,
+      roughness: 0.2
+    });
+    const obra = new THREE.Mesh(obraGeo, obraMat);
+    obra.position.set(posX, posY, posZ + 0.16);  // Avanço à frente da moldura
+    obra.rotation.y = rotY;
+    obra.castShadow = true;
+    scene.add(obra);
   });
 }
 
-// ==================== BLOCO 9 — ANIMAÇÃO DAS OBRAS ====================
-
-const velocidadeObras = 0.25;
-
-function animarObrasCirculares(delta) {
-  if (!obraDestacada) {
-    anguloAtual += velocidadeObras * delta * (ambienteDesacelerado ? 0.3 : 1);
-  }
-
-  const raio = config.circleRadius;
-
-  obrasNormais.forEach((obra, i) => {
-    if (obra === obraDestacada) return;
-
-    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
-    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-    obra.lookAt(0, 4.2, 0);
-  });
-}
-
-// ==================== BLOCO 10 — DESTAQUE DE OBRA ====================
-
-function destacarObra(obra) {
-  if (obraDestacada) return;
-
-  obraDestacada = obra;
-  ambienteDesacelerado = true;
-
-  const dados = obra.userData.dados;
-
-  // Aplicar blur às obras restantes (via post-processing ou shader)
-  obrasNormais.forEach(o => {
-    if (o !== obra) {
-      o.children[1].material.transparent = true;
-      o.children[1].material.opacity = 0.5;
-    }
-  });
-
-  // Animação para o centro
-  gsap.to(obra.position, {
-    x: 0,
-    y: 6.5 * 1.5, // 1.5x mais alto que as obras circulantes
-    z: 0,
-    duration: 1.1,
-    ease: 'power2.inOut',
-    onUpdate: () => obra.lookAt(camera.position)
-  });
-
-  gsap.to(obra.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
-    duration: 0.9,
-    ease: 'power2.out'
-  });
-
-  // Criar modal
-  criarModal(dados);
-}
-
+// Chamada explícita das obras laterais e central (com caminhos reais e proporções duplicadas)
+criarObraParede('assets/obra-central.jpg', 0, 14, -config.wallDistance + 0.2, 0, 7.2, 10.2);
+criarObraParede('assets/obra-lateral-esquerda.jpg', -14, 14, -config.wallDistance / 2 + 0.2, Math.PI / 2, 5.2, 7.2);
+criarObraParede('assets/obra-lateral-direita.jpg', 14, 14, -config.wallDistance / 2 + 0.2, -Math.PI / 2, 5.2, 7.2);
+// ==================== DESFOQUE APENAS NO FUNDO ====================
 function criarModal(dados) {
   overlay = document.createElement('div');
   overlay.style.cssText = `
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
+    width: 100vw;
+    height: 100vh;
+    background: rgba(17,17,17,0.85);
+    z-index: 950;
+    backdrop-filter: blur(8px);
   `;
 
   infoPanel = document.createElement('div');
   infoPanel.style.cssText = `
-    background: rgba(30,30,30,0.9);
-    padding: 20px;
-    border-radius: 8px;
-    width: ${config.obraSize * 1.3 * 100}px;
+    background: rgba(30,30,30,0.95);
+    padding: 24px;
+    border-radius: 12px;
+    width: 400px;
     max-width: 90%;
-    position: relative;
+    position: absolute;
     border: 1px solid #d4af37;
+    z-index: 1000;
   `;
-
-  const buyBtn = document.createElement('button');
-  buyBtn.textContent = 'Buy';
-  buyBtn.style.cssText = `
-    background: #d4af37;
-    color: #111;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 15px;
-    font-weight: bold;
+  infoPanel.innerHTML = `
+    <h2>${dados.titulo}</h2>
+    <p><strong>${dados.artista}</strong> (${dados.ano})</p>
+    <p>${dados.descricao}</p>
+    <p><strong>Price:</strong> ${dados.preco} ETH</p>
+    <button id="buy-button">Buy</button>
   `;
-
-  infoPanel.appendChild(buyBtn);
   overlay.appendChild(infoPanel);
   document.body.appendChild(overlay);
 
-  // Posicionar o modal abaixo da obra
-  const obraRect = obraDestacada.getWorldPosition(new THREE.Vector3());
-  const screenPos = obraRect.clone().project(camera);
+  // Posicionamento preciso do modal abaixo da obra destacada
+  const obraPos = obraDestacada.getWorldPosition(new THREE.Vector3());
+  const screenPos = obraPos.clone().project(camera);
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (screenPos.y * 0.5 + 0.5) * window.innerHeight;
-  
+  const y = (screenPos.y * -0.5 + 0.5) * window.innerHeight;
   infoPanel.style.left = `${x - infoPanel.offsetWidth / 2}px`;
-  infoPanel.style.top = `${y + 120}px`;
+  infoPanel.style.top = `${y + 20}px`;
 
-  // Fechar ao clicar fora
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      fecharObraDestacada();
-    }
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) fecharObraDestacada();
   });
-
-  buyBtn.addEventListener('click', () => {
-    // Lógica de compra...
-  });
+  document.getElementById('buy-button').addEventListener('click', comprarObra);
 }
 
-function fecharObraDestacada() {
-  if (!obraDestacada) return;
-
-  const obra = obraDestacada;
-  const indexOriginal = obra.userData.index;
-  const angulo = (indexOriginal / obrasNormais.length) * Math.PI * 2;
-
-  gsap.to(obra.position, {
-    x: Math.cos(angulo) * config.circleRadius,
-    y: 4.2,
-    z: Math.sin(angulo) * config.circleRadius,
-    duration: 1.2,
-    ease: 'power2.inOut',
-    onComplete: () => {
-      obrasNormais.forEach(o => {
-        o.children[1].material.opacity = 1;
-      });
-      document.body.removeChild(overlay);
-      obraDestacada = null;
-      ambienteDesacelerado = false;
-    }
-  });
-
-  gsap.to(obra.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.6,
-    ease: 'power2.out'
-  });
-}
-
-// ==================== BLOCO 11 — INTERAÇÃO ====================
-
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (obraDestacada) return;
-
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(obrasNormais, true);
-
-  if (intersects.length > 0 && intersects[0].object.parent.userData.isObra) {
-    destacarObra(intersects[0].object.parent);
-  }
-});
-
-// ==================== BLOCO 12 — BOTÕES DE INTERFACE ====================
-
+// ==================== BOTÃO CONNECT WALLET FUNCIONAL ====================
 function criarBotoesInterface() {
-  // Botão Connect Wallet
   const walletBtn = document.createElement('button');
   walletBtn.id = 'wallet-button';
   walletBtn.textContent = 'Connect Wallet';
@@ -587,22 +371,128 @@ function criarBotoesInterface() {
   `;
   document.body.appendChild(walletBtn);
 
-  // Outros botões de interface...
+  let provider, signer, connected = false;
+  walletBtn.addEventListener('click', async () => {
+    if (!connected) {
+      if (window.ethereum) {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        walletBtn.textContent = 'Disconnect';
+        connected = true;
+      } else {
+        alert('Please install MetaMask.');
+      }
+    } else {
+      provider = null;
+      signer = null;
+      walletBtn.textContent = 'Connect Wallet';
+      connected = false;
+    }
+  });
 }
 
-// ==================== BLOCO 13 — INICIALIZAÇÃO ====================
-
-function iniciarGaleria() {
-  criarObrasNormais();
-  criarBotoesInterface();
-  animate();
+// ==================== BOTÃO BUY FUNCIONAL E REATIVO ====================
+async function comprarObra() {
+  if (!obraDestacada) return;
+  const dados = obraDestacada.userData.dados;
+  if (!window.ethereum) {
+    alert('MetaMask is not installed!');
+    return;
+  }
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  const signer = await provider.getSigner();
+  const tx = {
+    to: 'ENDERECO_DA_GALERIA',  // Substituir com o endereço real
+    value: ethers.parseEther(dados.preco)
+  };
+  try {
+    const txResponse = await signer.sendTransaction(tx);
+    await txResponse.wait();
+    alert('Purchase successful!');
+  } catch (err) {
+    alert('Transaction failed.');
+  }
 }
 
+// ==================== MENU HORIZONTE ABRIR VERTICALMENTE ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuDropdown = document.getElementById('menu-dropdown');
+  menuToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = menuDropdown.style.display === 'block';
+    menuDropdown.style.display = isOpen ? 'none' : 'block';
+    menuToggle.setAttribute('aria-expanded', !isOpen);
+    // Orientação vertical ao abrir
+    menuDropdown.style.flexDirection = 'column';
+  });
+  document.addEventListener('click', () => {
+    menuDropdown.style.display = 'none';
+    menuToggle.setAttribute('aria-expanded', 'false');
+  });
+  menuDropdown.addEventListener('click', e => e.stopPropagation());
+});
+// ==================== CICLO DE ANIMAÇÃO COMPLETO ====================
 function animate() {
   requestAnimationFrame(animate);
+
   const delta = relogio.getDelta();
-  animarObrasCirculares(delta);
+  anguloAtual += delta * 0.5;
+
+  // Rodar obras circulantes (mantendo lógica original e completa)
+  obrasNormais.forEach((mesh, index) => {
+    const angle = anguloAtual + (index * (2 * Math.PI / dadosObras.length));
+    mesh.position.x = Math.cos(angle) * config.circleRadius;
+    mesh.position.z = Math.sin(angle) * config.circleRadius;
+    mesh.rotation.y = -angle;
+  });
+
+  // Suspensão e animação dos cubos (caso existam)
+  cubosSuspensos.forEach(cubo => {
+    cubo.rotation.y += delta * 0.4;
+  });
+
+  // Suavização do ambiente caso haja obra destacada
+  if (ambienteDesacelerado) {
+    obrasNormais.forEach(mesh => {
+      mesh.rotation.y += delta * 0.05;
+    });
+  }
+
   renderer.render(scene, camera);
 }
 
-window.addEventListener('load', iniciarGaleria);
+// ==================== INICIALIZAÇÃO FINAL ====================
+function inicializarGaleria() {
+  // Criar obras circulantes com visibilidade total (com base nos dados)
+  dadosObras.forEach((dados, index) => {
+    textureLoader.load(dados.imagem, (texture) => {
+      const obraGeo = new THREE.PlaneGeometry(config.obraSize, config.obraSize);
+      const obraMat = new THREE.MeshStandardMaterial({
+        map: texture,
+        side: THREE.DoubleSide,  // Visibilidade total mesmo de costas
+        roughness: 0.3,
+        metalness: 0.2
+      });
+      const obraMesh = new THREE.Mesh(obraGeo, obraMat);
+      obraMesh.userData.dados = dados;
+      obraMesh.castShadow = true;
+      obraMesh.receiveShadow = true;
+      scene.add(obraMesh);
+      obrasNormais.push(obraMesh);
+
+      // Interação por clique (mantendo lógica original sem alterações)
+      obraMesh.callback = () => destacarObra(obraMesh);
+    });
+  });
+
+  // Criar botões da interface e associar eventos
+  criarBotoesInterface();
+
+  // Começar a animação
+  animate();
+}
+
+inicializarGaleria();

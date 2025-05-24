@@ -185,6 +185,7 @@ const paredeMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.8,
   metalness: 0.4
 });
+
 const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
 paredeFundo.position.set(0, 14.6, -config.wallDistance);
 paredeFundo.receiveShadow = true;

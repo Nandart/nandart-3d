@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
+// Configurações iniciais e verificação de dependências
 console.log('🎨 A iniciar a galeria 3D NANdART...');
 
 if (!THREE || !gsap || !ethers) {
@@ -32,24 +33,7 @@ if (!THREE || !gsap || !ethers) {
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-let config;
-let obraDestacada = null;
-let ambienteDesacelerado = false;
-const obrasNormais = [];
-const relogio = new THREE.Clock();
-let anguloAtual = 0;
-
-let overlay = document.getElementById('overlay');
-let infoPanel = document.getElementById('info-panel');
-const modalElements = {
-  titulo: document.getElementById('obra-titulo'),
-  artista: document.getElementById('obra-artista'),
-  ano: document.getElementById('obra-ano'),
-  descricao: document.getElementById('obra-descricao'),
-  preco: document.getElementById('obra-preco'),
-  botao: document.getElementById('obra-buy')
-};
-
+// Configurações responsivas
 const configMap = {
   XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 7.2, textSize: 0.4 },
   SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 19.5, cameraY: 7.6, textSize: 0.45 },
@@ -65,29 +49,35 @@ function getViewportLevel() {
   return 'LG';
 }
 
-config = configMap[getViewportLevel()];
+// Estado da aplicação
+let config = configMap[getViewportLevel()];
+let obraDestacada = null;
+let ambienteDesacelerado = false;
+const obrasNormais = [];
+const relogio = new THREE.Clock();
+let anguloAtual = 0;
+let walletAddress = null;
 
-let loadedResources = 0;
-const totalResources = 10;
-function updateLoadingProgress() {
-  loadedResources++;
-  if (loadedResources >= totalResources) {
-    console.log('🖼️ Recursos carregados.');
-  }
-}
+// Elementos do DOM
+const overlay = document.getElementById('overlay');
+const infoPanel = document.getElementById('info-panel');
+const modalElements = {
+  titulo: document.getElementById('obra-titulo'),
+  artista: document.getElementById('obra-artista'),
+  ano: document.getElementById('obra-ano'),
+  descricao: document.getElementById('obra-descricao'),
+  preco: document.getElementById('obra-preco'),
+  botao: document.getElementById('obra-buy')
+};
 
-const loadingManager = new THREE.LoadingManager();
-loadingManager.onLoad = updateLoadingProgress;
-loadingManager.onError = url => console.warn(`⚠️ Falha ao carregar recurso: ${url}`);
-
-const textureLoader = new THREE.TextureLoader(loadingManager);
-
+// Inicialização do Three.js
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
   powerPreference: 'high-performance',
   failIfMajorPerformanceCaveat: true
 });
+
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -100,269 +90,145 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
+
+// Funções de configuração da cena
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.position.set(0, config.cameraY + 1.6, config.cameraZ + 6.5);
   camera.lookAt(0, 6.5, -config.wallDistance + 0.4);
   camera.updateProjectionMatrix();
 }
-updateCamera();
 
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    updateCamera();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }, 200);
-});
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-scene.add(ambientLight);
-
-const floorGeometry = new THREE.PlaneGeometry(80, 80);
-const floorMirror = new Reflector(floorGeometry, {
-  clipBias: 0.003,
-  textureWidth: window.innerWidth * window.devicePixelRatio,
-  textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x111111
-});
-floorMirror.rotation.x = -Math.PI / 2;
-floorMirror.position.y = -0.03;
-floorMirror.receiveShadow = true;
-scene.add(floorMirror);
-
-const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
-const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
-
-function aplicarTexturaParede(textura) {
-  const paredeMaterial = new THREE.MeshStandardMaterial({
-    map: textura || null,
-    color: textura ? 0xffffff : 0x1a1a1a,
-    emissive: 0x111111,
-    emissiveIntensity: 0.2,
-    roughness: 0.58,
-    metalness: 0.18
-  });
-
-  const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
-  paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
-  paredeFundo.receiveShadow = true;
-  scene.add(paredeFundo);
-
-  const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-  paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
-  paredeEsquerda.rotation.y = Math.PI / 2;
-  paredeEsquerda.receiveShadow = true;
-  scene.add(paredeEsquerda);
-
-  const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-  paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
-  paredeDireita.rotation.y = -Math.PI / 2;
-  paredeDireita.receiveShadow = true;
-  scene.add(paredeDireita);
+function setupLights() {
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+  scene.add(ambientLight);
 }
 
-textureLoader.load(
-  'assets/antracite-realista.jpg',
-  textura => aplicarTexturaParede(textura),
-  undefined,
-  () => {
-    console.warn('⚠️ Falha ao carregar a textura antracite. Aplicar cor fallback.');
-    aplicarTexturaParede(null);
+function createFloor() {
+  const floorGeometry = new THREE.PlaneGeometry(80, 80);
+  const floorMirror = new Reflector(floorGeometry, {
+    clipBias: 0.003,
+    textureWidth: window.innerWidth * window.devicePixelRatio,
+    textureHeight: window.innerHeight * window.devicePixelRatio,
+    color: 0x111111
+  });
+  floorMirror.rotation.x = -Math.PI / 2;
+  floorMirror.position.y = -0.03;
+  floorMirror.receiveShadow = true;
+  scene.add(floorMirror);
+}
+
+function createWalls() {
+  const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
+  const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
+  
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load(
+    'assets/antracite-realista.jpg',
+    (textura) => {
+      const paredeMaterial = new THREE.MeshStandardMaterial({
+        map: textura,
+        color: 0xffffff,
+        emissive: 0x111111,
+        emissiveIntensity: 0.2,
+        roughness: 0.58,
+        metalness: 0.18
+      });
+
+      const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
+      paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
+      paredeFundo.receiveShadow = true;
+      scene.add(paredeFundo);
+
+      const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
+      paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
+      paredeEsquerda.rotation.y = Math.PI / 2;
+      paredeEsquerda.receiveShadow = true;
+      scene.add(paredeEsquerda);
+
+      const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
+      paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
+      paredeDireita.rotation.y = -Math.PI / 2;
+      paredeDireita.receiveShadow = true;
+      scene.add(paredeDireita);
+    },
+    undefined,
+    () => {
+      console.warn('⚠️ Falha ao carregar a textura antracite. Aplicar cor fallback.');
+      const fallbackMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        emissive: 0x111111,
+        emissiveIntensity: 0.2,
+        roughness: 0.58,
+        metalness: 0.18
+      });
+      
+      const paredeFundo = new THREE.Mesh(paredeGeoFundo, fallbackMaterial);
+      paredeFundo.position.set(0, 14.6, -config.wallDistance - 5.2);
+      scene.add(paredeFundo);
+
+      const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, fallbackMaterial);
+      paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
+      paredeEsquerda.rotation.y = Math.PI / 2;
+      scene.add(paredeEsquerda);
+
+      const paredeDireita = new THREE.Mesh(paredeGeoLateral, fallbackMaterial);
+      paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
+      paredeDireita.rotation.y = -Math.PI / 2;
+      scene.add(paredeDireita);
+    }
+  );
+}
+
+function createMoldings() {
+  const frisoMaterial = new THREE.MeshStandardMaterial({
+    color: 0x8a5c21,
+    metalness: 1,
+    roughness: 0.08,
+    emissive: 0x2f1b08,
+    emissiveIntensity: 0.33
+  });
+
+  function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
+    const friso = new THREE.Mesh(
+      new THREE.BoxGeometry(largura, altura, 0.02),
+      frisoMaterial
+    );
+    friso.position.set(x, y, z);
+    friso.rotation.y = rotY;
+    scene.add(friso);
   }
-);
 
-const quadroCentralGrupo = new THREE.Group();
-const larguraQuadro = 4.6;
-const alturaQuadro = 5.8;
-
-const molduraCentral = new THREE.Mesh(
-  new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
-  new THREE.MeshStandardMaterial({
-    color: 0x1e1a16,
-    metalness: 0.6,
-    roughness: 0.3,
-    emissive: 0x0d0c0a,
-    emissiveIntensity: 0.15
-  })
-);
-molduraCentral.position.z = -0.1;
-quadroCentralGrupo.add(molduraCentral);
-
-const texturaCentral = textureLoader.load('assets/obras/obra-central.jpg', updateLoadingProgress);
-const pinturaCentral = new THREE.Mesh(
-  new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-  new THREE.MeshStandardMaterial({
-    map: texturaCentral,
-    roughness: 0.15,
-    metalness: 0.1
-  })
-);
-pinturaCentral.position.z = 0.01;
-quadroCentralGrupo.add(pinturaCentral);
-
-quadroCentralGrupo.position.set(0, 11.2, -config.wallDistance - 5.19);
-scene.add(quadroCentralGrupo);
-
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0x8a5c21,
-  metalness: 1,
-  roughness: 0.08,
-  emissive: 0x2f1b08,
-  emissiveIntensity: 0.33
-});
-
-function criarFrisoCentral(x, y, z, largura, altura) {
-  const grupo = new THREE.Group();
-  const espessura = 0.06;
-  [1, -1].forEach(dy => {
-    const barra = new THREE.Mesh(
-      new THREE.BoxGeometry(largura, espessura, 0.02),
+  function criarFrisoDuploVertical(x, y, z, altura, lado) {
+    const offset = lado === 'esquerda' ? -0.4 : 0.4;
+    const externo = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, altura, 0.02),
       frisoMaterial
     );
-    barra.position.set(0, altura / 2 * dy, 0);
-    grupo.add(barra);
-  });
-  [1, -1].forEach(dx => {
-    const barra = new THREE.Mesh(
-      new THREE.BoxGeometry(espessura, altura - espessura * 2, 0.02),
+    externo.position.set(x, y, z);
+    externo.rotation.y = lado === 'esquerda' ? Math.PI / 2 : -Math.PI / 2;
+    scene.add(externo);
+
+    const interno = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, altura - 0.4, 0.02),
       frisoMaterial
     );
-    barra.position.set(largura / 2 * dx - espessura / 2 * dx, 0, 0);
-    grupo.add(barra);
-  });
-  grupo.position.set(x, y, z);
-  scene.add(grupo);
+    interno.position.set(x + offset, y, z + 0.01);
+    interno.rotation.y = externo.rotation.y;
+    scene.add(interno);
+  }
+
+  criarFrisoLinha(0, 1.6, -config.wallDistance - 5.18, 42);
+  criarFrisoLinha(0, 2.2, -config.wallDistance - 5.18, 42);
+  criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
+  criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
+  criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+  criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+  criarFrisoDuploVertical(-16.7, 14.5, -config.wallDistance / 2, 7.5, 'esquerda');
+  criarFrisoDuploVertical(16.7, 14.5, -config.wallDistance / 2, 7.5, 'direita');
 }
 
-criarFrisoCentral(0, 11.2, -config.wallDistance - 5.17, 5.2, 6.3);
-
-function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, 0.02),
-    frisoMaterial
-  );
-  friso.position.set(x, y, z);
-  friso.rotation.y = rotY;
-  scene.add(friso);
-}
-
-function criarFrisoDuploVertical(x, y, z, altura, lado) {
-  const offset = lado === 'esquerda' ? -0.4 : 0.4;
-  const externo = new THREE.Mesh(
-    new THREE.BoxGeometry(0.18, altura, 0.02),
-    frisoMaterial
-  );
-  externo.position.set(x, y, z);
-  externo.rotation.y = lado === 'esquerda' ? Math.PI / 2 : -Math.PI / 2;
-  scene.add(externo);
-
-  const interno = new THREE.Mesh(
-    new THREE.BoxGeometry(0.08, altura - 0.4, 0.02),
-    frisoMaterial
-  );
-  interno.position.set(x + offset, y, z + 0.01);
-  interno.rotation.y = externo.rotation.y;
-  scene.add(interno);
-}
-
-criarFrisoLinha(0, 1.6, -config.wallDistance - 5.18, 42);
-criarFrisoLinha(0, 2.2, -config.wallDistance - 5.18, 42);
-criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
-criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
-criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
-criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
-criarFrisoDuploVertical(-16.7, 14.5, -config.wallDistance / 2, 7.5, 'esquerda');
-criarFrisoDuploVertical(16.7, 14.5, -config.wallDistance / 2, 7.5, 'direita');
-
-const pedestalMaterial = new THREE.MeshStandardMaterial({
-  color: 0x2b2b2b,
-  roughness: 0.5,
-  metalness: 0.25
-});
-
-const vitrineMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0x1a1a1a,
-  metalness: 0.1,
-  roughness: 0,
-  transparent: true,
-  opacity: 0.18,
-  transmission: 1,
-  thickness: 0.25,
-  reflectivity: 0.5,
-  clearcoat: 1,
-  clearcoatRoughness: 0.1
-});
-
-const gemaMaterial = new THREE.MeshStandardMaterial({
-  color: 0x33ccff,
-  emissive: 0x33ccff,
-  emissiveIntensity: 1.8,
-  roughness: 0.1,
-  metalness: 0.3,
-  transparent: true,
-  opacity: 0.85
-});
-
-function criarPedestalRetangular(posX, posZ) {
-  const largura = 0.8;
-  const profundidade = 0.8;
-  const alturaPedestal = 1.5;
-  const alturaVitrine = 1.3;
-
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, alturaPedestal, profundidade),
-    pedestalMaterial
-  );
-  base.position.set(posX, alturaPedestal / 2, posZ);
-  base.castShadow = base.receiveShadow = true;
-  scene.add(base);
-
-  const vitrine = new THREE.Mesh(
-    new THREE.BoxGeometry(largura * 0.9, alturaVitrine, profundidade * 0.9),
-    vitrineMaterial
-  );
-  vitrine.position.set(posX, alturaPedestal + alturaVitrine / 2, posZ);
-  vitrine.castShadow = vitrine.receiveShadow = true;
-  scene.add(vitrine);
-
-  const gema = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.35, 1),
-    gemaMaterial
-  );
-  gema.position.set(posX, alturaPedestal + alturaVitrine / 2, posZ);
-  scene.add(gema);
-}
-
-const deslocamento = config.circleRadius + 3.3;
-criarPedestalRetangular(-deslocamento, -deslocamento);
-criarPedestalRetangular(deslocamento, -deslocamento);
-criarPedestalRetangular(-deslocamento, deslocamento);
-criarPedestalRetangular(deslocamento, deslocamento);
-
-const circuloLuzGeometry = new THREE.RingGeometry(
-  config.circleRadius + 0.4,
-  config.circleRadius + 1.1,
-  128
-);
-
-const circuloLuzMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
-  emissive: 0xffffff,
-  emissiveIntensity: 1.8,
-  roughness: 0.2,
-  metalness: 0.1,
-  transparent: true,
-  opacity: 0.6,
-  side: THREE.DoubleSide
-});
-
-const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
-circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.y = 0.01;
-scene.add(circuloLuz);
-
+// Dados das obras de arte
 const dadosObras = [
   { id: 'obra1', titulo: 'Obra 1', artista: 'Artista A', ano: '2024', descricao: 'Descrição da Obra 1.', preco: '0.5', imagem: 'assets/obras/obra1.jpg' },
   { id: 'obra2', titulo: 'Obra 2', artista: 'Artista B', ano: '2023', descricao: 'Descrição da Obra 2.', preco: '0.6', imagem: 'assets/obras/obra2.jpg' },
@@ -374,65 +240,33 @@ const dadosObras = [
   { id: 'obra8', titulo: 'Obra 8', artista: 'Artista H', ano: '2020', descricao: 'Descrição da Obra 8.', preco: '0.58', imagem: 'assets/obras/obra8.jpg' }
 ];
 
+// Criação e animação das obras
 function criarObrasNormais() {
   const raio = config.circleRadius;
   const tamanho = config.obraSize;
+  const textureLoader = new THREE.TextureLoader();
 
   dadosObras.forEach((dados, i) => {
-    textureLoader.load(
-      dados.imagem,
-      (texture) => {
-        const obra = new THREE.Mesh(
-          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-          new THREE.MeshStandardMaterial({
-            map: texture,
-            roughness: 0.2,
-            metalness: 0.1,
-            side: THREE.DoubleSide,
-            transparent: true
-          })
-        );
+    textureLoader.load(dados.imagem, (texture) => {
+      const obra = new THREE.Mesh(
+        new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
+        new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 0.2,
+          metalness: 0.1,
+          side: THREE.DoubleSide,
+          transparent: true
+        })
+      );
 
-        const angulo = (i / dadosObras.length) * Math.PI * 2;
-        obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-        obra.lookAt(0, 4.2, 0);
-        obra.castShadow = true;
-        obra.receiveShadow = true;
-
-        obra.userData = { dados, index: i };
-
-        scene.add(obra);
-        obrasNormais.push(obra);
-        updateLoadingProgress();
-      },
-      undefined,
-      (error) => {
-        console.error(`Erro ao carregar imagem da obra ${dados.titulo}:`, error);
-
-        const obraFallback = new THREE.Mesh(
-          new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-          new THREE.MeshStandardMaterial({
-            color: 0x333333,
-            roughness: 0.2,
-            metalness: 0.1,
-            side: THREE.DoubleSide,
-            transparent: true
-          })
-        );
-
-        const angulo = (i / dadosObras.length) * Math.PI * 2;
-        obraFallback.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-        obraFallback.lookAt(0, 4.2, 0);
-        obraFallback.castShadow = true;
-        obraFallback.receiveShadow = true;
-
-        obraFallback.userData = { dados, index: i };
-
-        scene.add(obraFallback);
-        obrasNormais.push(obraFallback);
-        updateLoadingProgress();
-      }
-    );
+      const angulo = (i / dadosObras.length) * Math.PI * 2;
+      obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+      obra.lookAt(0, 4.2, 0);
+      obra.castShadow = obra.receiveShadow = true;
+      obra.userData = { dados, index: i };
+      scene.add(obra);
+      obrasNormais.push(obra);
+    });
   });
 }
 
@@ -441,7 +275,6 @@ const velocidadeObras = 0.07;
 function animarObrasCirculares(delta) {
   const velocidadeReal = obraDestacada ? velocidadeObras * 0.15 : velocidadeObras;
   anguloAtual += velocidadeReal * delta;
-
   const raio = config.circleRadius;
 
   obrasNormais.forEach((obra, i) => {
@@ -453,48 +286,42 @@ function animarObrasCirculares(delta) {
   });
 }
 
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (obraDestacada) return;
+// Interação com as obras
+function setupObraInteractions() {
+  renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (obraDestacada) return;
 
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
+    const mouse = new THREE.Vector2(
+      (e.clientX / window.innerWidth) * 2 - 1,
+      -(e.clientY / window.innerHeight) * 2 + 1
+    );
 
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(obrasNormais, false);
 
-  const intersects = raycaster.intersectObjects(obrasNormais, false);
+    if (intersects.length > 0) {
+      const obraClicada = intersects[0].object;
+      destacarObra(obraClicada);
+    }
+  });
 
-  if (intersects.length > 0) {
-    const obraClicada = intersects[0].object;
-    destacarObra(obraClicada);
-  }
-});
+  window.addEventListener('pointerdown', (e) => {
+    if (!obraDestacada || (infoPanel && !infoPanel.contains(e.target))) {
+      fecharObraDestacada();
+    }
+  });
+}
 
 function destacarObra(obra) {
   if (obraDestacada) return;
-
+  
   obraDestacada = obra;
   ambienteDesacelerado = true;
-
   const dados = obra.userData.dados;
 
-  gsap.to(obra.position, {
-    x: 0,
-    y: 6.5,
-    z: 0,
-    duration: 1.1,
-    ease: 'power2.inOut'
-  });
-
-  gsap.to(obra.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
-    duration: 0.9,
-    ease: 'power2.out'
-  });
+  gsap.to(obra.position, { x: 0, y: 6.5, z: 0, duration: 1.1, ease: 'power2.inOut' });
+  gsap.to(obra.scale, { x: 2, y: 2, z: 2, duration: 0.9, ease: 'power2.out' });
 
   setTimeout(() => {
     if (!overlay || !infoPanel) {
@@ -504,7 +331,7 @@ function destacarObra(obra) {
 
     overlay.style.display = 'block';
     infoPanel.style.display = 'block';
-
+    
     modalElements.titulo.textContent = dados.titulo;
     modalElements.artista.textContent = dados.artista;
     modalElements.ano.textContent = dados.ano;
@@ -524,187 +351,197 @@ function fecharObraDestacada() {
     x: Math.cos(angulo) * config.circleRadius,
     y: 4.2,
     z: Math.sin(angulo) * config.circleRadius,
-    duration: 1.2,
+    duration: 1.2, 
     ease: 'power2.inOut',
     onComplete: () => {
-      overlay.style.display = 'none';
-      infoPanel.style.display = 'none';
+      if (overlay) overlay.style.display = 'none';
+      if (infoPanel) infoPanel.style.display = 'none';
       obraDestacada = null;
       ambienteDesacelerado = false;
     }
   });
 
-  gsap.to(obra.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.6,
-    ease: 'power2.out'
-  });
+  gsap.to(obra.scale, { x: 1, y: 1, z: 1, duration: 0.6, ease: 'power2.out' });
 }
 
-window.addEventListener('pointerdown', (e) => {
-  if (!obraDestacada || infoPanel.contains(e.target)) return;
-  fecharObraDestacada();
-});
+// Integração com MetaMask
+function setupWalletIntegration() {
+  const walletBtn = document.createElement('button');
+  walletBtn.textContent = 'Connect Wallet';
+  walletBtn.style.cssText = 'position:fixed;top:20px;right:20px;z-index:250;padding:10px;background:#d8b26c;border:none;border-radius:6px;';
+  document.body.appendChild(walletBtn);
 
-modalElements.botao.addEventListener('click', async () => {
-  const dados = obraDestacada?.userData?.dados;
-
-  if (!dados || !dados.preco || !dados.titulo) {
-    alert('Erro: dados da obra não encontrados.');
-    return;
-  }
-
-  if (!window.ethereum) {
-    alert('MetaMask não está instalada. Por favor, instala-a para continuares.');
-    return;
-  }
-
-  try {
-    modalElements.botao.disabled = true;
-    modalElements.botao.textContent = 'A processar...';
-
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-
-    const tx = await signer.sendTransaction({
-      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
-      value: ethers.parseEther(dados.preco)
-    });
-
-    alert(`🧾 Transacção enviada!\n\nHash:\n${tx.hash}`);
-    await tx.wait();
-
-    alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.');
-    fecharObraDestacada();
-
-  } catch (err) {
-    console.error('❌ Erro na compra:', err);
-    alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.');
-  } finally {
-    modalElements.botao.disabled = false;
-    modalElements.botao.textContent = 'Buy';
-  }
-});
-
-const walletBtn = document.createElement('button');
-walletBtn.id = 'wallet-button';
-walletBtn.textContent = 'Connect Wallet';
-walletBtn.style.cssText = `
-  position: fixed;
-  top: 18px;
-  right: 20px;
-  z-index: 250;
-  padding: 10px 18px 10px 42px;
-  font-size: 1em;
-  background-color: #d8b26c;
-  color: #111;
-  border: none;
-  border-radius: 6px;
-  font-family: 'Playfair Display', serif;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-  background-image: url('/assets/icons/metamask.svg');
-  background-repeat: no-repeat;
-  background-position: 12px center;
-  background-size: 20px 20px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-`;
-document.body.appendChild(walletBtn);
-
-let walletAddress = null;
-
-async function atualizarEstadoCarteira() {
-  if (walletAddress) {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const saldo = await provider.getBalance(walletAddress);
-    const eth = ethers.formatEther(saldo);
-    walletBtn.textContent = `Disconnect (${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${parseFloat(eth).toFixed(4)} ETH)`;
-  } else {
-    walletBtn.textContent = 'Connect Wallet';
-  }
-}
-
-async function conectarCarteira() {
-  try {
-    if (!window.ethereum) {
-      alert('MetaMask não está instalada. Por favor, instala-a para continuar.');
-      return;
-    }
-
-    const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    walletAddress = contas[0];
-    localStorage.setItem('walletConnected', 'true');
-    atualizarEstadoCarteira();
-  } catch (erro) {
-    console.error('❌ Erro ao ligar carteira:', erro);
-    alert('Não foi possível ligar a carteira. Tenta novamente.');
-  }
-}
-
-function desligarCarteira() {
-  walletAddress = null;
-  localStorage.removeItem('walletConnected');
-  atualizarEstadoCarteira();
-}
-
-walletBtn.addEventListener('click', () => {
-  if (walletAddress) {
-    desligarCarteira();
-  } else {
-    conectarCarteira();
-  }
-});
-
-window.addEventListener('load', async () => {
-  if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
-    try {
-      const contas = await window.ethereum.request({ method: 'eth_accounts' });
-
-      if (contas.length > 0) {
-        walletAddress = contas[0];
-        atualizarEstadoCarteira();
-      } else {
-        localStorage.removeItem('walletConnected');
-        walletAddress = null;
-        atualizarEstadoCarteira();
+  async function atualizarEstadoCarteira() {
+    if (walletAddress) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const saldo = await provider.getBalance(walletAddress);
+        const eth = ethers.formatEther(saldo);
+        walletBtn.textContent = `Disconnect (${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${parseFloat(eth).toFixed(4)} ETH)`;
+      } catch (err) {
+        console.error('Erro ao obter saldo:', err);
+        walletBtn.textContent = `Connected (${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)})`;
       }
-    } catch (err) {
-      console.error('❌ Erro ao verificar ligação persistente da carteira:', err);
-      localStorage.removeItem('walletConnected');
+    } else {
+      walletBtn.textContent = 'Connect Wallet';
     }
   }
-});
 
-function iniciarGaleria() {
-  if (window._galeriaIniciada) {
-    console.warn('⚠️ A galeria já foi iniciada. Ignorando nova inicialização.');
-    return;
+  async function conectarCarteira() {
+    try {
+      if (!window.ethereum) {
+        alert('MetaMask não está instalada. Por favor, instala-a para continuar.');
+        return;
+      }
+      
+      const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      walletAddress = contas[0];
+      localStorage.setItem('walletConnected', 'true');
+      await atualizarEstadoCarteira();
+    } catch (erro) {
+      console.error('❌ Erro ao ligar carteira:', erro);
+      alert('Não foi possível ligar a carteira. Tenta novamente.');
+    }
   }
-  window._galeriaIniciada = true;
 
-  criarObrasNormais();
+  function desligarCarteira() {
+    walletAddress = null;
+    localStorage.removeItem('walletConnected');
+    atualizarEstadoCarteira();
+  }
 
-  console.log('🔍 A verificar integridade visual e interativa da galeria...');
-  console.log('%c🎨 Galeria 3D NANdART inicializada com sucesso!', 'color:#d8b26c;font-size:16px;');
+  walletBtn.addEventListener('click', () => {
+    if (walletAddress) {
+      desligarCarteira();
+    } else {
+      conectarCarteira();
+    }
+  });
+
+  // Verificar conexão persistente ao carregar
+  window.addEventListener('load', async () => {
+    if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
+      try {
+        const contas = await window.ethereum.request({ method: 'eth_accounts' });
+        if (contas.length > 0) {
+          walletAddress = contas[0];
+          await atualizarEstadoCarteira();
+        } else {
+          localStorage.removeItem('walletConnected');
+          walletAddress = null;
+          atualizarEstadoCarteira();
+        }
+      } catch (err) {
+        console.error('❌ Erro ao verificar ligação persistente da carteira:', err);
+        localStorage.removeItem('walletConnected');
+      }
+    }
+  });
+
+  // Configurar botão de compra
+  if (modalElements.botao) {
+    modalElements.botao.addEventListener('click', async () => {
+      const dados = obraDestacada?.userData?.dados;
+      if (!dados || !dados.preco || !dados.titulo) {
+        alert('Erro: dados da obra não encontrados.');
+        return;
+      }
+      
+      if (!window.ethereum) {
+        alert('MetaMask não está instalada. Por favor, instala-a para continuares.');
+        return;
+      }
+      
+      if (!walletAddress) {
+        alert('Por favor, conecta a tua carteira primeiro.');
+        return;
+      }
+
+      try {
+        modalElements.botao.disabled = true;
+        modalElements.botao.textContent = 'A processar...';
+        
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        
+        const tx = await signer.sendTransaction({
+          to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
+          value: ethers.parseEther(dados.preco)
+        });
+        
+        alert(`🧾 Transacção enviada!\n\nHash:\n${tx.hash}`);
+        await tx.wait();
+        alert('🎉 Compra confirmada! Obrigado por apoiar a arte digital.');
+        fecharObraDestacada();
+      } catch (err) {
+        console.error('❌ Erro na compra:', err);
+        alert('⚠️ Ocorreu um erro durante a compra. Verifica a carteira e tenta novamente.');
+      } finally {
+        modalElements.botao.disabled = false;
+        modalElements.botao.textContent = 'Buy';
+      }
+    });
+  }
 }
 
-window.addEventListener('DOMContentLoaded', iniciarGaleria);
+// UI adicional
+function setupUI() {
+  // Ícone de informação
+  const iconInfo = document.createElement('img');
+  iconInfo.src = '/assets/icons/info.png';
+  iconInfo.style.cssText = 'position: absolute; top: 40px; left: 40px; z-index: 300;';
+  document.body.appendChild(iconInfo);
 
-window.addEventListener('beforeunload', () => {
-  console.log('A encerrar a galeria NANdART e a limpar recursos...');
-  renderer.dispose();
-  textureLoader.dispose();
-});
+  // Ícone de menu
+  const iconMenu = document.createElement('img');
+  iconMenu.src = '/assets/icons/horizontes.png';
+  iconMenu.style.cssText = 'position: absolute; top: 40px; left: 100px; z-index: 300;';
+  document.body.appendChild(iconMenu);
+}
 
+// Função de animação principal
 function animate() {
   requestAnimationFrame(animate);
-
   const delta = relogio.getDelta();
   animarObrasCirculares(delta);
   renderer.render(scene, camera);
 }
 
-animate();
+// Inicialização da galeria
+function iniciarGaleria() {
+  if (window._galeriaIniciada) {
+    console.warn('⚠️ A galeria já foi iniciada. Ignorando nova inicialização.');
+    return;
+  }
+  
+  window._galeriaIniciada = true;
+  
+  updateCamera();
+  setupLights();
+  createFloor();
+  createWalls();
+  createMoldings();
+  criarObrasNormais();
+  setupObraInteractions();
+  setupWalletIntegration();
+  setupUI();
+  
+  animate();
+  
+  console.log('%c🎨 Galeria 3D NANdART inicializada com sucesso!', 'color:#d8b26c;font-size:16px;');
+}
+
+// Event listeners
+window.addEventListener('DOMContentLoaded', iniciarGaleria);
+window.addEventListener('resize', () => {
+  clearTimeout(window.resizeTimeout);
+  window.resizeTimeout = setTimeout(() => {
+    updateCamera();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 200);
+});
+
+window.addEventListener('beforeunload', () => {
+  console.log('A encerrar a galeria NANdART e a limpar recursos...');
+  renderer.dispose();
+});

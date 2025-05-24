@@ -130,68 +130,74 @@ window.addEventListener('resize', () => {
 
 // ==================== BLOCO 3 — ILUMINAÇÃO ====================
 
-const ambientLight = new THREE.AmbientLight(0xffeedd, 1.6);
+const ambientLight = new THREE.AmbientLight(0xffeedd, 0.5); // Reduced intensity
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2.4);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2); // Reduced intensity
 directionalLight.position.set(0, 16, 12);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 scene.add(directionalLight);
 
-const fillLeft = new THREE.DirectionalLight(0xffffff, 0.8);
+const fillLeft = new THREE.DirectionalLight(0xffffff, 0.4); // Reduced intensity
 fillLeft.position.set(-8, 8, 4);
 scene.add(fillLeft);
 
-const fillRight = new THREE.DirectionalLight(0xffffff, 0.8);
+const fillRight = new THREE.DirectionalLight(0xffffff, 0.4); // Reduced intensity
 fillRight.position.set(8, 8, -4);
 scene.add(fillRight);
 
-const spotLight = new THREE.SpotLight(0xffeedd, 3, 30, Math.PI / 5, 0.4, 1);
+const spotLight = new THREE.SpotLight(0xffeedd, 1.5, 30, Math.PI / 5, 0.4, 1); // Reduced intensity
 spotLight.position.set(0, 20, 5);
 scene.add(spotLight);
 
-// Adicionar segunda camada de iluminação
-const ambientLight2 = new THREE.AmbientLight(0xffeedd, 1.6);
-scene.add(ambientLight2);
-
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2.4);
-directionalLight2.position.set(0, 16, -12);
-directionalLight2.castShadow = true;
-scene.add(directionalLight2);
-
-const spotLight2 = new THREE.SpotLight(0xffeedd, 3, 30, Math.PI / 5, 0.4, 1);
-spotLight2.position.set(0, 20, -5);
-scene.add(spotLight2);
-
-// ==================== BLOCO 4 — PAREDES COM TEXTURA ANTRAÇITE ====================
+// ==================== BLOCO 4 — PAREDES COM TEXTURA ANTRAÇITE REALISTA ====================
 
 const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
 const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
 
-// Textura antracite programática (fallback)
-const antraciteTexture = new THREE.DataTexture(
-  new Uint8Array([70, 70, 70, 255, 65, 65, 65, 255, 65, 65, 65, 255, 70, 70, 70, 255]),
-  2, 2, THREE.RGBAFormat
-);
-antraciteTexture.needsUpdate = true;
+// Carregar textura antracite realista
+const antraciteTexture = textureLoader.load('assets/textures/antracite.jpg', (texture) => {
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+});
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
   map: antraciteTexture,
   color: 0x222222,
-  roughness: 0.6,
-  metalness: 0.2,
-  emissive: 0x333333,
-  emissiveIntensity: 0.3
+  roughness: 0.8,
+  metalness: 0.4,
+  normalMap: textureLoader.load('assets/textures/antracite-normal.jpg'),
+  normalScale: new THREE.Vector2(0.5, 0.5),
+  bumpMap: textureLoader.load('assets/textures/antracite-bump.jpg'),
+  bumpScale: 0.02
 });
 
-// Carregar texturas para as paredes
+const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
+paredeFundo.position.set(0, 14.6, -config.wallDistance);
+paredeFundo.receiveShadow = true;
+scene.add(paredeFundo);
+
+const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance);
+paredeEsquerda.rotation.y = Math.PI / 2;
+paredeEsquerda.receiveShadow = true;
+scene.add(paredeEsquerda);
+
+const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
+paredeDireita.position.set(16.7, 14.5, -config.wallDistance);
+paredeDireita.rotation.y = -Math.PI / 2;
+paredeDireita.receiveShadow = true;
+scene.add(paredeDireita);
+
+// Carregar obras nas paredes com dimensões 60x80 (0.6x0.8 em unidades 3D)
 const loadWallArt = (path, wallMesh, isVertical = false) => {
   textureLoader.load(path, (texture) => {
-    const frameThickness = 0.15;
-    const frameWidth = isVertical ? 4.5 * 1.5 : 6 * 1.5;
-    const frameHeight = isVertical ? 6 * 1.5 : 4.5 * 1.5;
+    const frameThickness = 0.1;
+    const frameWidth = 0.8;
+    const frameHeight = 1.0;
     
     const frameGeometry = new THREE.BoxGeometry(
       frameWidth + frameThickness * 2,
@@ -211,7 +217,7 @@ const loadWallArt = (path, wallMesh, isVertical = false) => {
       metalness: 0.1
     });
     const art = new THREE.Mesh(
-      new THREE.PlaneGeometry(frameWidth, frameHeight),
+      new THREE.PlaneGeometry(0.6, 0.8),
       artMaterial
     );
     art.position.z = 0.11;
@@ -235,24 +241,6 @@ const loadWallArt = (path, wallMesh, isVertical = false) => {
   });
 };
 
-const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
-paredeFundo.position.set(0, 14.6, -config.wallDistance);
-paredeFundo.receiveShadow = true;
-scene.add(paredeFundo);
-
-const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-paredeEsquerda.position.set(-16.7, 14.5, -config.wallDistance / 2);
-paredeEsquerda.rotation.y = Math.PI / 2;
-paredeEsquerda.receiveShadow = true;
-scene.add(paredeEsquerda);
-
-const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial.clone());
-paredeDireita.position.set(16.7, 14.5, -config.wallDistance / 2);
-paredeDireita.rotation.y = -Math.PI / 2;
-paredeDireita.receiveShadow = true;
-scene.add(paredeDireita);
-
-// Carregar obras nas paredes
 loadWallArt('assets/obras/obra-central.jpg', paredeFundo);
 loadWallArt('assets/obras/obra-lateral-esquerda.jpg', paredeEsquerda, true);
 loadWallArt('assets/obras/obra-lateral-direita.jpg', paredeDireita, true);
@@ -267,51 +255,22 @@ scene.add(logo);
 // ==================== BLOCO 5 — CHÃO REFLETOR ====================
 
 const floorGeometry = new THREE.PlaneGeometry(80, 80);
-const floorMaterial = new THREE.MeshStandardMaterial({
-  color: 0x000000,
-  metalness: 0.9,
-  roughness: 0.05,
-  transparent: true,
-  opacity: 0.8
+const floor = new Reflector(floorGeometry, {
+  clipBias: 0.003,
+  textureWidth: window.innerWidth * window.devicePixelRatio,
+  textureHeight: window.innerHeight * window.devicePixelRatio,
+  color: 0x111111,
+  recursion: 1
 });
-
-const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
-floorMesh.rotation.x = -Math.PI / 2;
-floorMesh.position.y = -0.03;
-floorMesh.receiveShadow = true;
-scene.add(floorMesh);
-
-// ==================== BLOCO 6 — FRISOS DOURADOS ====================
-
-const frisoMaterial = new THREE.MeshStandardMaterial({
-  color: 0xd4af37,
-  metalness: 0.9,
-  roughness: 0.3
-});
-
-function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
-  const friso = new THREE.Mesh(
-    new THREE.BoxGeometry(largura, altura, 0.02),
-    frisoMaterial
-  );
-  friso.position.set(x, y, z);
-  friso.rotation.y = rotY;
-  scene.add(friso);
-}
-
-// Frisos horizontais
-criarFrisoLinha(0, 1.6, -config.wallDistance + 0.1, 42);
-criarFrisoLinha(0, 2.2, -config.wallDistance + 0.1, 42);
-criarFrisoLinha(-16.7, 1.6, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
-criarFrisoLinha(-16.7, 2.2, -config.wallDistance / 2, 30, 0.06, Math.PI / 2);
-criarFrisoLinha(16.7, 1.6, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
-criarFrisoLinha(16.7, 2.2, -config.wallDistance / 2, 30, 0.06, -Math.PI / 2);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.03;
+scene.add(floor);
 
 // ==================== BLOCO 7 — CÍRCULO DE LUZ ====================
 
 const circuloLuzGeometry = new THREE.RingGeometry(
-  config.circleRadius + 0.3, // Reduzido em 1/4
-  config.circleRadius + 0.7, // Reduzido em 1/4
+  config.circleRadius + 0.3,
+  config.circleRadius + 0.7,
   64
 );
 
@@ -320,7 +279,9 @@ const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   emissive: 0xffffff,
   emissiveIntensity: 1.5,
   roughness: 0.3,
-  metalness: 0.1
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.7
 });
 
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
@@ -330,81 +291,6 @@ scene.add(circuloLuz);
 
 // ==================== BLOCO 8 — OBRAS CIRCULARES ====================
 
-const dadosObras = [
-  {
-    id: 'obra1',
-    titulo: 'Obra 1',
-    artista: 'Artista A',
-    ano: '2024',
-    descricao: 'Descrição da Obra 1.',
-    preco: '0.5',
-    imagem: 'assets/obras/obra1.jpg'
-  },
-  {
-    id: 'obra2',
-    titulo: 'Obra 2',
-    artista: 'Artista B',
-    ano: '2024',
-    descricao: 'Descrição da Obra 2.',
-    preco: '0.85',
-    imagem: 'assets/obras/obra2.jpg'
-  },
-  {
-    id: 'obra3',
-    titulo: 'Obra C',
-    artista: 'Artista A',
-    ano: '2024',
-    descricao: 'Descrição da Obra 3.',
-    preco: '0.6',
-    imagem: 'assets/obras/obra3.jpg'
-  },
-  {
-    id: 'obra4',
-    titulo: 'Obra 4',
-    artista: 'Artista D',
-    ano: '2024',
-    descricao: 'Descrição da Obra 4.',
-    preco: '0.35',
-    imagem: 'assets/obras/obra4.jpg'
-  },
-  {
-    id: 'obra5',
-    titulo: 'Obra 5',
-    artista: 'Artista E',
-    ano: '2024',
-    descricao: 'Descrição da Obra 5.',
-    preco: '0.45',
-    imagem: 'assets/obras/obra5.jpg'
-  },
-  {
-    id: 'obra6',
-    titulo: 'Obra 6',
-    artista: 'Artista F',
-    ano: '2024',
-    descricao: 'Descrição da Obra 6.',
-    preco: '0.75',
-    imagem: 'assets/obras/obra6.jpg'
-  },
-  {
-    id: 'obra7',
-    titulo: 'Obra 7',
-    artista: 'Artista G',
-    ano: '2024',
-    descricao: 'Descrição da Obra 7.',
-    preco: '0.6',
-    imagem: 'assets/obras/obra7.jpg'
-  },
-  {
-    id: 'obra8',
-    titulo: 'Obra 8',
-    artista: 'Artista H',
-    ano: '2020',
-    descricao: 'Descrição da Obra 8.',
-    preco: '0.58',
-    imagem: 'assets/obras/obra8.jpg'
-  }
-];
-
 function criarObrasNormais() {
   const raio = config.circleRadius;
   const tamanho = config.obraSize;
@@ -413,12 +299,11 @@ function criarObrasNormais() {
     textureLoader.load(
       dados.imagem,
       (texture) => {
-        // Criar apenas a obra sem moldura
         const obraMaterial = new THREE.MeshStandardMaterial({
           map: texture,
           roughness: 0.2,
           metalness: 0.1,
-          side: THREE.DoubleSide // Visível de ambos os lados
+          side: THREE.DoubleSide
         });
         
         const obra = new THREE.Mesh(
@@ -429,21 +314,19 @@ function criarObrasNormais() {
         const grupo = new THREE.Group();
         grupo.add(obra);
 
+        // Adicionar sombra
+        obra.castShadow = true;
+        obra.receiveShadow = true;
+
         const angulo = (i / dadosObras.length) * Math.PI * 2;
         grupo.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
         grupo.lookAt(0, 4.2, 0);
-        grupo.castShadow = grupo.receiveShadow = true;
 
         grupo.userData = { dados, index: i, isObra: true };
 
         scene.add(grupo);
         obrasNormais.push(grupo);
         updateLoadingProgress();
-      },
-      undefined,
-      () => {
-        console.error(`Erro ao carregar imagem da obra ${dados.titulo}`);
-        // Fallback...
       }
     );
   });
@@ -454,9 +337,8 @@ function criarObrasNormais() {
 const velocidadeObras = 0.25;
 
 function animarObrasCirculares(delta) {
-  if (!obraDestacada) {
-    anguloAtual += velocidadeObras * delta * (ambienteDesacelerado ? 0.3 : 1);
-  }
+  const speedFactor = obraDestacada ? 0.5 : 1; // Metade da velocidade quando obra destacada
+  anguloAtual += velocidadeObras * delta * speedFactor;
 
   const raio = config.circleRadius;
 
@@ -479,15 +361,15 @@ function destacarObra(obra) {
 
   const dados = obra.userData.dados;
 
-  // Aplicar blur apenas às outras obras
-  obrasNormais.forEach(o => {
-    if (o !== obra) {
-      o.children[0].material.transparent = true;
-      o.children[0].material.opacity = 0.5;
+  // Aplicar blur apenas ao ambiente (não à obra destacada)
+  scene.traverse(obj => {
+    if (obj.isMesh && obj !== obra.children[0] && !obj.parent?.userData?.isObra) {
+      obj.material.transparent = true;
+      obj.material.opacity = 0.5;
     }
   });
 
-  // Animação para o centro
+  // Animação para o centro com dobro do tamanho
   gsap.to(obra.position, {
     x: 0,
     y: 6.5 * 1.5,
@@ -510,7 +392,6 @@ function destacarObra(obra) {
 }
 
 function criarModal(dados) {
-  // Remove existing overlay if any
   if (overlay && document.body.contains(overlay)) {
     document.body.removeChild(overlay);
   }
@@ -529,7 +410,6 @@ function criarModal(dados) {
     pointer-events: none;
   `;
 
-  // Fundo desfocado (não intercepta eventos de clique)
   const blurBackground = document.createElement('div');
   blurBackground.style.cssText = `
     position: absolute;
@@ -549,19 +429,17 @@ function criarModal(dados) {
     background: rgba(30,30,30,0.95);
     padding: 20px;
     border-radius: 8px;
-    width: ${config.obraSize * 1.3 * 100}px;
+    width: ${config.obraSize * 1.3 * 200}px;
     max-width: 90%;
     position: relative;
-    border: 1px solid #d4af37;
     margin-top: 20px;
     pointer-events: auto;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   `;
 
-  // Conteúdo do modal
   modalElements.titulo = document.createElement('h2');
   modalElements.titulo.textContent = dados.titulo;
-  modalElements.titulo.style.cssText = 'margin: 0 0 10px 0; color: #d4af37;';
+  modalElements.titulo.style.cssText = 'margin: 0 0 10px 0; color: #ffffff;';
   
   modalElements.artista = document.createElement('p');
   modalElements.artista.textContent = `Artista: ${dados.artista}`;
@@ -582,7 +460,7 @@ function criarModal(dados) {
   const buyBtn = document.createElement('button');
   buyBtn.textContent = 'Comprar';
   buyBtn.style.cssText = `
-    background: #d4af37;
+    background: #ffffff;
     color: #111;
     border: none;
     padding: 10px 20px;
@@ -593,14 +471,7 @@ function criarModal(dados) {
     font-weight: bold;
     transition: all 0.3s;
   `;
-  buyBtn.addEventListener('mouseenter', () => {
-    buyBtn.style.background = '#e8c252';
-  });
-  buyBtn.addEventListener('mouseleave', () => {
-    buyBtn.style.background = '#d4af37';
-  });
   
-  // Adicionar elementos ao painel
   infoPanel.appendChild(modalElements.titulo);
   infoPanel.appendChild(modalElements.artista);
   infoPanel.appendChild(modalElements.ano);
@@ -611,7 +482,7 @@ function criarModal(dados) {
   overlay.appendChild(infoPanel);
   document.body.appendChild(overlay);
 
-  // Posicionar o modal abaixo da obra
+  // Posicionar o modal 1cm abaixo da obra
   const obraWorldPos = new THREE.Vector3();
   obraDestacada.getWorldPosition(obraWorldPos);
   
@@ -622,11 +493,10 @@ function criarModal(dados) {
   infoPanel.style.left = `${x - infoPanel.offsetWidth / 2}px`;
   infoPanel.style.top = `${y + 100}px`;
 
-  // Configurar botão de compra
   buyBtn.addEventListener('click', async () => {
     if (!walletAddress) {
-      alert('Por favor, conecte sua carteira primeiro.');
-      return;
+      await connectWallet();
+      if (!walletAddress) return;
     }
     
     try {
@@ -636,7 +506,6 @@ function criarModal(dados) {
       });
       
       alert(`Transação enviada! Hash: ${tx.hash}`);
-      console.log('Transação:', tx);
     } catch (error) {
       console.error('Erro na compra:', error);
       alert(`Erro na compra: ${error.message}`);
@@ -644,41 +513,7 @@ function criarModal(dados) {
   });
 }
 
-function fecharObraDestacada() {
-  if (!obraDestacada) return;
-
-  const obra = obraDestacada;
-  const indexOriginal = obra.userData.index;
-  const angulo = (indexOriginal / obrasNormais.length) * Math.PI * 2;
-
-  gsap.to(obra.position, {
-    x: Math.cos(angulo) * config.circleRadius,
-    y: 4.2,
-    z: Math.sin(angulo) * config.circleRadius,
-    duration: 1.2,
-    ease: 'power2.inOut',
-    onComplete: () => {
-      obrasNormais.forEach(o => {
-        o.children[0].material.opacity = 1;
-      });
-      if (overlay && document.body.contains(overlay)) {
-        document.body.removeChild(overlay);
-      }
-      obraDestacada = null;
-      ambienteDesacelerado = false;
-    }
-  });
-
-  gsap.to(obra.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.6,
-    ease: 'power2.out'
-  });
-}
-
-// ==================== BLOCO 11 — INTERAÇÃO ====================
+// ==================== BLOCO 12 — INTERAÇÃO ====================
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (obraDestacada) return;
@@ -698,7 +533,7 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   }
 });
 
-// ==================== BLOCO 12 — BOTÕES DE INTERFACE ====================
+// ==================== BLOCO 13 — WALLET CONNECTION ====================
 
 async function connectWallet() {
   try {
@@ -708,7 +543,6 @@ async function connectWallet() {
       walletAddress = await signer.getAddress();
       walletBalance = await provider.getBalance(walletAddress);
       
-      // Atualizar botão
       const walletBtn = document.getElementById('wallet-button');
       if (walletBtn) {
         walletBtn.textContent = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${ethers.formatEther(walletBalance).slice(0, 6)} ETH`;
@@ -716,12 +550,15 @@ async function connectWallet() {
       }
       
       console.log('Carteira conectada:', walletAddress);
+      return true;
     } else {
       alert('Por favor, instale a MetaMask!');
+      return false;
     }
   } catch (error) {
     console.error('Erro ao conectar carteira:', error);
     alert(`Erro ao conectar: ${error.message}`);
+    return false;
   }
 }
 
@@ -739,13 +576,11 @@ async function disconnectWallet() {
 }
 
 function criarBotoesInterface() {
-  // Remover botão existente se houver
   const existingBtn = document.getElementById('wallet-button');
   if (existingBtn && existingBtn.parentNode) {
     existingBtn.parentNode.removeChild(existingBtn);
   }
 
-  // Botão Connect Wallet
   const walletBtn = document.createElement('button');
   walletBtn.id = 'wallet-button';
   walletBtn.textContent = 'Connect Wallet';
@@ -755,7 +590,7 @@ function criarBotoesInterface() {
     right: 20px;
     z-index: 200;
     padding: 10px 20px;
-    background: #d4af37;
+    background: #ffffff;
     color: #111;
     border: none;
     border-radius: 4px;
@@ -764,22 +599,21 @@ function criarBotoesInterface() {
     transition: all 0.3s;
   `;
   
-  walletBtn.addEventListener('mouseenter', () => {
-    walletBtn.style.background = '#e8c252';
-  });
-  walletBtn.addEventListener('mouseleave', () => {
-    walletBtn.style.background = '#d4af37';
-  });
-  
   walletBtn.addEventListener('click', connectWallet);
   document.body.appendChild(walletBtn);
 }
 
-// ==================== BLOCO 13 — INICIALIZAÇÃO ====================
+// ==================== BLOCO 14 — INICIALIZAÇÃO ====================
 
 function iniciarGaleria() {
   criarObrasNormais();
   criarBotoesInterface();
+  
+  // Link menu info
+  document.getElementById('info-button').addEventListener('click', () => {
+    window.location.href = 'about.html';
+  });
+
   animate();
 }
 

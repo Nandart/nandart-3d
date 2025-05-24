@@ -288,15 +288,15 @@ const dadosObras = [
     preco: '0.6',
     imagem: 'assets/obras/obra3.jpg'
   },
-    {
-    id: 'obra4,
-    titulo: 'Obra 4',
-    artista: 'Artista D',
-    ano: '2024',
-    descricao: 'Descrição da Obra 4.',
-    preco: '0.35',
-    imagem: 'assets/obras/obra4.jpg'
-  },
+   {
+  id: 'obra4',  // Corrigido - estava faltando a aspa final
+  titulo: 'Obra 4',
+  artista: 'Artista D',
+  ano: '2024',
+  descricao: 'Descrição da Obra 4.',
+  preco: '0.35',
+  imagem: '/assets/obras/obra4.jpg'  // Adicionado / no início
+},
     {
     id: 'obra5',
     titulo: 'Obra 5',

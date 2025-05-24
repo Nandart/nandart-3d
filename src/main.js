@@ -8,6 +8,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 import { obrasSuspensas } from './data/obras-suspensas.js';
+import { dadosObras } from './dadosObras.js';
+
 
 console.log('🎨 A iniciar a galeria 3D NANdART...');
 
@@ -157,24 +159,32 @@ scene.add(spotLight);
 const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
 const paredeGeoLateral = new THREE.BoxGeometry(30, 29, 0.4);
 
-// Carregar textura antracite realista
-const antraciteTexture = textureLoader.load('assets/textures/antracite.jpg', (texture) => {
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(4, 4);
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-});
+let antraciteTexture;
+try {
+  antraciteTexture = textureLoader.load('assets/antracite-realista.jpg', (texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(4, 4);
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  });
+} catch (error) {
+  console.warn('Failed to load antracite texture, using fallback');
+  // Create a simple gray fallback texture
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext('2d');
+  context.fillStyle = '#222222';
+  context.fillRect(0, 0, size, size);
+  antraciteTexture = new THREE.CanvasTexture(canvas);
+}
 
 const paredeMaterial = new THREE.MeshStandardMaterial({
   map: antraciteTexture,
   color: 0x222222,
   roughness: 0.8,
-  metalness: 0.4,
-  normalMap: textureLoader.load('assets/textures/antracite-normal.jpg'),
-  normalScale: new THREE.Vector2(0.5, 0.5),
-  bumpMap: textureLoader.load('assets/textures/antracite-bump.jpg'),
-  bumpScale: 0.02
+  metalness: 0.4
 });
-
 const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial.clone());
 paredeFundo.position.set(0, 14.6, -config.wallDistance);
 paredeFundo.receiveShadow = true;
@@ -290,6 +300,82 @@ circuloLuz.position.y = 0.005;
 scene.add(circuloLuz);
 
 // ==================== BLOCO 8 — OBRAS CIRCULARES ====================
+
+// dadosObras.js
+export const dadosObras = [
+  {
+    id: 'obra1',
+    titulo: 'Obra 1',
+    artista: 'Artista A',
+    ano: '2024',
+    descricao: 'Descrição da Obra 1.',
+    preco: '0.5',
+    imagem: 'assets/obras/obra1.jpg'
+  },
+  {
+    id: 'obra2',
+    titulo: 'Obra 2',
+    artista: 'Artista B',
+    ano: '2024',
+    descricao: 'Descrição da Obra 2.',
+    preco: '0.85',
+    imagem: 'assets/obras/obra2.jpg'
+  },
+  {
+    id: 'obra3',
+    titulo: 'Obra C',
+    artista: 'Artista A',
+    ano: '2024',
+    descricao: 'Descrição da Obra 3.',
+    preco: '0.6',
+    imagem: 'assets/obras/obra3.jpg'
+  },
+  {
+    id: 'obra4',
+    titulo: 'Obra 4',
+    artista: 'Artista D',
+    ano: '2024',
+    descricao: 'Descrição da Obra 4.',
+    preco: '0.35',
+    imagem: 'assets/obras/obra4.jpg'
+  },
+  {
+    id: 'obra5',
+    titulo: 'Obra 5',
+    artista: 'Artista E',
+    ano: '2024',
+    descricao: 'Descrição da Obra 5.',
+    preco: '0.45',
+    imagem: 'assets/obras/obra5.jpg'
+  },
+  {
+    id: 'obra6',
+    titulo: 'Obra 6',
+    artista: 'Artista F',
+    ano: '2024',
+    descricao: 'Descrição da Obra 6.',
+    preco: '0.75',
+    imagem: 'assets/obras/obra6.jpg'
+  },
+  {
+    id: 'obra7',
+    titulo: 'Obra 7',
+    artista: 'Artista G',
+    ano: '2024',
+    descricao: 'Descrição da Obra 7.',
+    preco: '0.6',
+    imagem: 'assets/obras/obra7.jpg'
+  },
+  {
+    id: 'obra8',
+    titulo: 'Obra 8',
+    artista: 'Artista H',
+    ano: '2020',
+    descricao: 'Descrição da Obra 8.',
+    preco: '0.58',
+    imagem: 'assets/obras/obra8.jpg'
+  }
+];
 
 function criarObrasNormais() {
   const raio = config.circleRadius;

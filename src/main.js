@@ -50,7 +50,6 @@ const modalElements = {
   botao: document.getElementById('obra-buy')
 };
 
-// ==================== BLOCO 2 — VIEWPORT, CONFIGURAÇÕES E RENDERER ====================
 const configMap = {
   XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 7.2, textSize: 0.4 },
   SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 19.5, cameraY: 7.6, textSize: 0.45 },
@@ -117,16 +116,10 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   }, 200);
 });
-// ==================== BLOCO 3 — LUZES, CÂMARA E CHÃO REFLECTIVO ====================
 
-// Luz ambiente ajustada para iluminar a galeria de forma suave e uniforme
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Iluminação reduzida para metade
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
-// Removidas as luzes diretas apontadas para as paredes
-// Mantém-se apenas a luz ambiente geral e o efeito do chão reflectivo
-
-// Criação do chão reflectivo — estilo obsidiana líquida
 const floorGeometry = new THREE.PlaneGeometry(80, 80);
 const floorMirror = new Reflector(floorGeometry, {
   clipBias: 0.003,
@@ -138,6 +131,7 @@ floorMirror.rotation.x = -Math.PI / 2;
 floorMirror.position.y = -0.03;
 floorMirror.receiveShadow = true;
 scene.add(floorMirror);
+
 const paredeGeoFundo = new THREE.PlaneGeometry(42, 32);
 const paredeGeoLateral = new THREE.PlaneGeometry(34, 30);
 
@@ -442,19 +436,20 @@ function criarObrasNormais() {
   });
 }
 
-const velocidadeObras = 0.07; // Reduzida para que as obras continuem a circular suavemente
+const velocidadeObras = 0.07;
 
 function animarObrasCirculares(delta) {
-  anguloAtual += (obraDestacada ? velocidadeObras * 0.05 : velocidadeObras) * delta;
+  const velocidadeReal = obraDestacada ? velocidadeObras * 0.15 : velocidadeObras;
+  anguloAtual += velocidadeReal * delta;
 
   const raio = config.circleRadius;
 
   obrasNormais.forEach((obra, i) => {
-    if (obra === obraDestacada) return;
-
-    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
-    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-    obra.lookAt(0, 4.2, 0);
+    if (obra !== obraDestacada) {
+      const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+      obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+      obra.lookAt(0, 4.2, 0);
+    }
   });
 }
 
@@ -518,11 +513,6 @@ function destacarObra(obra) {
   }, 1100);
 }
 
-window.addEventListener('pointerdown', (e) => {
-  if (!obraDestacada || infoPanel.contains(e.target)) return;
-  fecharObraDestacada();
-});
-
 function fecharObraDestacada() {
   if (!obraDestacada) return;
 
@@ -553,7 +543,10 @@ function fecharObraDestacada() {
   });
 }
 
-// ==================== BLOCO 14 — BOTÃO “BUY” E INTEGRAÇÃO COM METAMASK ====================
+window.addEventListener('pointerdown', (e) => {
+  if (!obraDestacada || infoPanel.contains(e.target)) return;
+  fecharObraDestacada();
+});
 
 modalElements.botao.addEventListener('click', async () => {
   const dados = obraDestacada?.userData?.dados;
@@ -577,7 +570,7 @@ modalElements.botao.addEventListener('click', async () => {
     const signer = await provider.getSigner();
 
     const tx = await signer.sendTransaction({
-      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // endereço da galeria
+      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
       value: ethers.parseEther(dados.preco)
     });
 
@@ -595,8 +588,6 @@ modalElements.botao.addEventListener('click', async () => {
     modalElements.botao.textContent = 'Buy';
   }
 });
-
-// ==================== BLOCO 15 — BOTÃO “CONNECT WALLET” COM LIGAÇÃO E DESCONEXÃO ====================
 
 const walletBtn = document.createElement('button');
 walletBtn.id = 'wallet-button';
@@ -667,8 +658,6 @@ walletBtn.addEventListener('click', () => {
   }
 });
 
-// ==================== BLOCO 16 — PERSISTÊNCIA DA LIGAÇÃO DA CARTEIRA COM LOCALSTORAGE ====================
-
 window.addEventListener('load', async () => {
   if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
     try {
@@ -689,88 +678,6 @@ window.addEventListener('load', async () => {
   }
 });
 
-// ==================== BLOCO 17 — INICIALIZAÇÃO DA GALERIA 3D ====================
-
-  // 1. Criar as obras normais do círculo rotativo
-}
-
-// Executar ao carregar a página
-window.addEventListener('load', iniciarGaleria);
-
-
-// ==================== BLOCO 18 — ENCERRAMENTO SEGURO DA GALERIA ====================
-
-window.addEventListener('beforeunload', () => {
-  console.log('A encerrar a galeria NANdART e a limpar recursos...');
-  renderer.dispose();
-  textureLoader.dispose();
-  // Outras operações de limpeza podem ser incluídas aqui, se necessário.
-});
-
-// ==================== BLOCO 19 — EVENTOS ADICIONAIS E MELHORIAS ====================
-
-const navIcons = document.querySelector('.navigation-icons');
-if (navIcons) {
-  navIcons.style.position = 'absolute'; // Posicionamento absoluto na cena
-  navIcons.style.top = '1.5%';
-  navIcons.style.left = '1.5%';
-  navIcons.style.zIndex = '100'; // Fica sempre à frente
-}
-
-const infoPanel = document.getElementById('info-panel');
-if (infoPanel) {
-  infoPanel.classList.add('painel-informativo-ajustado');
-}
-
-function aplicarDesfoqueFundo(ativo) {
-  const overlay = document.getElementById('overlay');
-  if (overlay) {
-    overlay.style.backdropFilter = ativo ? 'blur(8px)' : 'none';
-    overlay.style.display = ativo ? 'block' : 'none';
-  }
-}
-
-function destacarObraComFundo(obra) {
-  destacarObra(obra);
-  aplicarDesfoqueFundo(true);
-}
-
-function fecharObraDestacadaComFundo() {
-  fecharObraDestacada();
-  aplicarDesfoqueFundo(false);
-}
-
-window.addEventListener('pointerdown', (e) => {
-  if (!obraDestacada || infoPanel.contains(e.target)) return;
-  fecharObraDestacadaComFundo();
-});
-
-const velocidadeObrasLenta = 0.05;
-function animarObrasCirculares(delta) {
-  const velocidade = obraDestacada ? velocidadeObrasLenta : velocidadeObras;
-  anguloAtual += velocidade * delta;
-
-  const raio = config.circleRadius;
-  obrasNormais.forEach((obra, i) => {
-    if (obra === obraDestacada) return;
-    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
-    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-    obra.lookAt(0, 4.2, 0);
-  });
-}
-
-const walletBtn = document.getElementById('wallet-button');
-if (walletBtn) {
-  walletBtn.style.position = 'absolute';
-  walletBtn.style.top = '1.5%';
-  walletBtn.style.right = '1.5%';
-  walletBtn.style.zIndex = '100';
-}
-
-console.log('✅ BLOCO 19 concluído com melhorias visuais e de comportamento.');
-
-// ==================== BLOCO 20 — FINALIZAÇÃO E INICIALIZAÇÃO SEGURA ====================
-
 function iniciarGaleria() {
   if (window._galeriaIniciada) {
     console.warn('⚠️ A galeria já foi iniciada. Ignorando nova inicialização.');
@@ -781,35 +688,22 @@ function iniciarGaleria() {
   criarObrasNormais();
 
   console.log('🔍 A verificar integridade visual e interativa da galeria...');
-  aplicarDesfoqueFundo(false);
-
   console.log('%c🎨 Galeria 3D NANdART inicializada com sucesso!', 'color:#d8b26c;font-size:16px;');
 }
 
 window.addEventListener('DOMContentLoaded', iniciarGaleria);
 
-console.log('%c🖼️ BLOCO 25 concluído: inicialização, ajustes e verificação final da galeria!', 'color:#8a5c21;font-size:14px;');
-
-// ==================== BLOCO 21 — FUNÇÃO PRINCIPAL DE ANIMAÇÃO ====================
+window.addEventListener('beforeunload', () => {
+  console.log('A encerrar a galeria NANdART e a limpar recursos...');
+  renderer.dispose();
+  textureLoader.dispose();
+});
 
 function animate() {
   requestAnimationFrame(animate);
 
   const delta = relogio.getDelta();
-
-  const velocidadeReal = obraDestacada ? velocidadeObras * 0.15 : velocidadeObras;
-  anguloAtual += velocidadeReal * delta;
-
-  const raio = config.circleRadius;
-
-  obrasNormais.forEach((obra, i) => {
-    if (obra !== obraDestacada) {
-      const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
-      obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
-      obra.lookAt(0, 4.2, 0);
-    }
-  });
-
+  animarObrasCirculares(delta);
   renderer.render(scene, camera);
 }
 

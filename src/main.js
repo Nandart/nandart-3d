@@ -599,7 +599,6 @@ function criarModal(dados) {
   infoPanel.appendChild(modalElements.botao);
 
   overlay.appendChild(infoPanel);
-  document.body.appendChild(overlay);
 
 // Adiciona o overlay ao DOM antes de posicionar para garantir dimensões
   document.body.appendChild(overlay);

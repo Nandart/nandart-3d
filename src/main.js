@@ -273,7 +273,7 @@ const dadosObras = [
     {
     id: 'obra2',
     titulo: 'Obra 2',
-    artista: 'Artista A',
+    artista: 'Artista B',
     ano: '2024',
     descricao: 'Descrição da Obra 2.',
     preco: '0.85',
@@ -281,7 +281,7 @@ const dadosObras = [
   },
     {
     id: 'obra3',
-    titulo: 'Obra 3',
+    titulo: 'Obra C',
     artista: 'Artista A',
     ano: '2024',
     descricao: 'Descrição da Obra 3.',
@@ -291,7 +291,7 @@ const dadosObras = [
     {
     id: 'obra4,
     titulo: 'Obra 4',
-    artista: 'Artista A',
+    artista: 'Artista D',
     ano: '2024',
     descricao: 'Descrição da Obra 4.',
     preco: '0.35',
@@ -300,7 +300,7 @@ const dadosObras = [
     {
     id: 'obra5',
     titulo: 'Obra 5',
-    artista: 'Artista A',
+    artista: 'Artista E',
     ano: '2024',
     descricao: 'Descrição da Obra 5.',
     preco: '0.45',
@@ -309,7 +309,7 @@ const dadosObras = [
     {
     id: 'obra6',
     titulo: 'Obra 6',
-    artista: 'Artista A',
+    artista: 'Artista F',
     ano: '2024',
     descricao: 'Descrição da Obra 6.',
     preco: '0.75',
@@ -318,14 +318,14 @@ const dadosObras = [
     {
     id: 'obra7',
     titulo: 'Obra 7',
-    artista: 'Artista A',
+    artista: 'Artista G',
     ano: '2024',
     descricao: 'Descrição da Obra 7.',
     preco: '0.6',
     imagem: 'assets/obras/obra7.jpg'
   },
 
-        {
+   {
     id: 'obra8',
     titulo: 'Obra 8',
     artista: 'Artista H',
@@ -334,9 +334,6 @@ const dadosObras = [
     preco: '0.58',
     imagem: 'assets/obras/obra8.jpg'
   }
-];
-
-  // ... outros objetos de obras
 ];
 
 function criarObrasNormais() {

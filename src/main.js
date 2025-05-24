@@ -464,47 +464,49 @@ function animarObrasCirculares(delta) {
 
 // ==================== BLOCO 10 — DESTAQUE DE OBRA E MODAL MELHORADO ====================
 
-function destacarObra(obra) {
-  if (obraDestacada) return;
+// ==================== BLOCO 10 — DESTAQUE DE OBRA E MODAL MELHORADO ====================
 
-  obraDestacada = obra;
-  ambienteDesacelerado = true;
+function fecharObraDestacada() {
+  if (!obraDestacada) return;
 
-  const dados = obra.userData.dados;
+  const obra = obraDestacada;
+  const indexOriginal = obra.userData.index;
+  const angulo = (indexOriginal / obrasNormais.length) * Math.PI * 2;
 
-  // Aplicar blur apenas às obras restantes
-  obrasNormais.forEach(o => {
-    if (o !== obra) {
-      o.children[0].material.transparent = true;
-      o.children[0].material.opacity = 0.5;
+  // Verifica se o overlay existe antes de tentar remover
+  if (overlay && overlay.parentNode === document.body) {
+    document.body.removeChild(overlay);
+  }
+
+  gsap.to(obra.position, {
+    x: Math.cos(angulo) * config.circleRadius,
+    y: 4.2,
+    z: Math.sin(angulo) * config.circleRadius,
+    duration: 1.2,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      obrasNormais.forEach(o => {
+        o.children[0].material.opacity = 1;
+      });
+      obraDestacada = null;
+      ambienteDesacelerado = false;
     }
   });
 
-  // Animação para o centro
-  gsap.to(obra.position, {
-    x: 0,
-    y: 6.5 * 1.5,
-    z: 0,
-    duration: 1.1,
-    ease: 'power2.inOut',
-    onUpdate: () => obra.lookAt(camera.position)
-  });
-
   gsap.to(obra.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
-    duration: 0.9,
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: 0.6,
     ease: 'power2.out'
   });
-
-  // Criar modal melhor posicionado
-  criarModal(dados);
 }
 
 function criarModal(dados) {
-  // Remove existing modal if any
-  if (overlay) document.body.removeChild(overlay);
+  // Remove existing modal safely
+  if (overlay && overlay.parentNode === document.body) {
+    document.body.removeChild(overlay);
+  }
 
   overlay = document.createElement('div');
   overlay.style.cssText = `
@@ -544,7 +546,6 @@ function criarModal(dados) {
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     z-index: 101;
   `;
-
   // Conteúdo do modal
   modalElements.titulo = document.createElement('h2');
   modalElements.titulo.textContent = dados.titulo;
@@ -600,6 +601,9 @@ function criarModal(dados) {
   overlay.appendChild(infoPanel);
   document.body.appendChild(overlay);
 
+// Adiciona o overlay ao DOM antes de posicionar para garantir dimensões
+  document.body.appendChild(overlay);
+
   // Posicionamento preciso do modal
   const obraWorldPos = new THREE.Vector3();
   obraDestacada.getWorldPosition(obraWorldPos);
@@ -608,8 +612,8 @@ function criarModal(dados) {
   const x = (obraWorldPos.x * 0.5 + 0.5) * window.innerWidth;
   const y = (obraWorldPos.y * 0.5 + 0.5) * window.innerHeight;
   
-  infoPanel.style.left = `${x - infoPanel.offsetWidth / 2}px`;
-  infoPanel.style.top = `${y + 150}px`; // Posicionado abaixo da obra
+  infoPanel.style.left = `${Math.max(10, x - infoPanel.offsetWidth / 2)}px`;
+  infoPanel.style.top = `${Math.min(window.innerHeight - infoPanel.offsetHeight - 10, y + 150)}px`;
 }
 
 async function comprarObra(dados) {
@@ -688,9 +692,11 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
 // ==================== BLOCO 12 — BOTÕES DE INTERFACE MELHORADOS ====================
 
 function criarBotoesInterface() {
-  // Remove existing wallet button if any
+  // Remove existing wallet button safely
   const existingBtn = document.getElementById('wallet-button');
-  if (existingBtn) document.body.removeChild(existingBtn);
+  if (existingBtn && existingBtn.parentNode === document.body) {
+    document.body.removeChild(existingBtn);
+  }
 
   // Botão Connect Wallet funcional
   const walletBtn = document.createElement('button');

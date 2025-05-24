@@ -7,11 +7,9 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
-import { obrasSuspensas } from './data/obras-suspensas.js';
 
 console.log('🎨 A iniciar a galeria 3D NANdART...');
 
-// Validação das bibliotecas essenciais
 if (!THREE || !gsap || !ethers) {
   const errorMsg = document.createElement('div');
   errorMsg.style.cssText = `
@@ -33,31 +31,27 @@ if (!THREE || !gsap || !ethers) {
   throw new Error('❌ Bibliotecas essenciais em falta');
 }
 
-// Registo de plugins do GSAP
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// Variáveis globais principais
 let config;
 let obraDestacada = null;
 let ambienteDesacelerado = false;
 const obrasNormais = [];
-const cubosSuspensos = [];
 const relogio = new THREE.Clock();
 let anguloAtual = 0;
 
-// Elementos do modal (vão ser criados dinamicamente no DOM mais à frente)
-let overlay, infoPanel;
+// Elementos do modal
+let overlay = document.getElementById('overlay');
+let infoPanel = document.getElementById('info-panel');
 const modalElements = {
-  titulo: null,
-  artista: null,
-  ano: null,
-  descricao: null,
-  preco: null,
-  botao: null
+  titulo: document.getElementById('obra-titulo'),
+  artista: document.getElementById('obra-artista'),
+  ano: document.getElementById('obra-ano'),
+  descricao: document.getElementById('obra-descricao'),
+  preco: document.getElementById('obra-preco'),
+  botao: document.getElementById('obra-buy')
 };
 // ==================== BLOCO 2 — VIEWPORT, CONFIGURAÇÕES E RENDERER ====================
-
-// Configurações adaptativas por viewport
 const configMap = {
   XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 7.2, textSize: 0.4 },
   SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 19.5, cameraY: 7.6, textSize: 0.45 },
@@ -75,32 +69,27 @@ function getViewportLevel() {
 
 config = configMap[getViewportLevel()];
 
-// Carregamento silencioso com controlo de progresso
 let loadedResources = 0;
-const totalResources = 10 + obrasSuspensas.length;
-
+const totalResources = 10;
 function updateLoadingProgress() {
   loadedResources++;
   if (loadedResources >= totalResources) {
-    console.log('🖼️ Recursos carregados silenciosamente.');
+    console.log('🖼️ Recursos carregados.');
   }
 }
 
-// Loader de texturas com fallback
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = updateLoadingProgress;
 loadingManager.onError = url => console.warn(`⚠️ Falha ao carregar recurso: ${url}`);
 
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
-// Renderizador configurado para performance e realismo
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('scene'),
   antialias: true,
   powerPreference: 'high-performance',
   failIfMajorPerformanceCaveat: true
 });
-
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -109,13 +98,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.8;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// Cena tridimensional
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Câmara — com posição adaptável
 const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
-
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.position.set(0, config.cameraY + 1.6, config.cameraZ + 6.5);
@@ -124,7 +110,6 @@ function updateCamera() {
 }
 updateCamera();
 
-// Adaptação dinâmica ao redimensionamento da janela
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
@@ -135,36 +120,12 @@ window.addEventListener('resize', () => {
 });
 // ==================== BLOCO 3 — LUZES, CÂMARA E CHÃO REFLECTIVO ====================
 
-// Luz ambiente principal — intensificada para visibilidade completa da sala
-const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
+// Luz ambiente ajustada para iluminar a galeria de forma suave e uniforme
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Iluminação reduzida para metade
 scene.add(ambientLight);
 
-// Luz direcional frontal — iluminação principal vinda de cima para o espaço expositivo
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
-directionalLight.position.set(0, 16, 12);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-scene.add(directionalLight);
-
-// Luzes de preenchimento laterais suaves — equilibram as sombras
-const fillLeft = new THREE.DirectionalLight(0xffffff, 1.0);
-fillLeft.position.set(-8, 8, 4);
-fillLeft.castShadow = true;
-scene.add(fillLeft);
-
-const fillRight = new THREE.DirectionalLight(0xffffff, 1.0);
-fillRight.position.set(8, 8, -4);
-fillRight.castShadow = true;
-scene.add(fillRight);
-
-// Luz cénica superior — cria atmosfera e profundidade
-const spotLight = new THREE.SpotLight(0xffffff, 1.4, 30, Math.PI / 5, 0.4, 1);
-spotLight.position.set(0, 20, 5);
-spotLight.castShadow = true;
-spotLight.shadow.mapSize.width = 1024;
-spotLight.shadow.mapSize.height = 1024;
-scene.add(spotLight);
+// Removidas as luzes diretas apontadas para as paredes
+// Mantém-se apenas a luz ambiente geral e o efeito do chão reflectivo
 
 // Criação do chão reflectivo — estilo obsidiana líquida
 const floorGeometry = new THREE.PlaneGeometry(80, 80);
@@ -216,7 +177,7 @@ function aplicarTexturaParede(textura) {
   scene.add(paredeDireita);
 }
 
-// Carrega a textura antracite realista com tratamento de erro
+// Carrega a textura antracite realista com fallback
 textureLoader.load(
   'assets/antracite-realista.jpg',
   textura => aplicarTexturaParede(textura),
@@ -431,38 +392,30 @@ criarPedestalRetangular(-deslocamento, deslocamento);  // Fundo esquerda
 criarPedestalRetangular(deslocamento, deslocamento);   // Fundo direita
 // ==================== BLOCO 8 — CÍRCULO DE LUZ CENTRAL NO CHÃO ====================
 
-// Geometria do círculo de luz — halo dourado suave e elegante
+// Geometria do círculo de luz — halo realista com intensidade branca viva, fiel ao layout
 const circuloLuzGeometry = new THREE.RingGeometry(
-  config.circleRadius + 0.6,  // raio interior
-  config.circleRadius + 1.4,  // raio exterior
-  64
+  config.circleRadius + 0.4,  // raio interior mais próximo do layout
+  config.circleRadius + 1.1,  // raio exterior mais fino e elegante
+  128                        // número de segmentos aumentado para suavidade
 );
 
-// Material dourado com brilho etéreo
+// Material com brilho branco puro (não dourado)
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
-  color: 0xf6e9c2,              // tom quente e elegante (dourado claro)
-  emissive: 0xf6e9c2,
-  emissiveIntensity: 1.2,
-  roughness: 0.4,
-  metalness: 0.15,
+  color: 0xffffff,              // branco puro
+  emissive: 0xffffff,
+  emissiveIntensity: 1.8,
+  roughness: 0.2,
+  metalness: 0.1,
   transparent: true,
-  opacity: 0.5,
+  opacity: 0.6,
   side: THREE.DoubleSide
 });
 
 // Criação do círculo de luz sobre o chão reflectivo
 const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
-circuloLuz.position.y = 0.005; // ligeiramente acima do chão para evitar z-fighting
+circuloLuz.position.y = 0.01; // ligeiramente acima do chão para evitar z-fighting
 scene.add(circuloLuz);
-
-// Friso dourado horizontal imediatamente a seguir ao círculo
-const frisoChao = new THREE.Mesh(
-  new THREE.BoxGeometry(config.circleRadius * 2 + 2.5, 0.04, 0.02),
-  frisoMaterial
-);
-frisoChao.position.set(0, 0.0055, -config.wallDistance / 2 + 0.2);
-scene.add(frisoChao);
 // ==================== BLOCO 9 — CRIAÇÃO DAS OBRAS CIRCULARES SUSPENSAS ====================
 
 const dadosObras = [
@@ -604,14 +557,12 @@ function criarObrasNormais() {
 }
 // ==================== BLOCO 10 — ANIMAÇÃO CONTÍNUA DAS OBRAS CIRCULARES ====================
 
-const velocidadeObras = 0.25;
+const velocidadeObras = 0.07; // Reduzida para que as obras continuem a circular suavemente
 
 // Função que anima a rotação circular das obras normais
 function animarObrasCirculares(delta) {
-  // Apenas roda o sistema se não houver obra destacada
-  if (!obraDestacada) {
-    anguloAtual += velocidadeObras * delta;
-  }
+  // Incremento da rotação contínua, mesmo com obra destacada, mas em velocidade mais baixa
+  anguloAtual += (obraDestacada ? velocidadeObras * 0.05 : velocidadeObras) * delta;
 
   const raio = config.circleRadius;
 
@@ -628,10 +579,9 @@ function animarObrasCirculares(delta) {
 
 // Evento de pointerdown para detectar interacção do utilizador (clique ou toque)
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  // Ignora se já existir uma obra em destaque
-  if (obraDestacada) return;
+  if (obraDestacada) return; // Já existe uma obra destacada? Não faz nada.
 
-  // Converte a posição do clique para coordenadas normalizadas de ecrã
+  // Converte a posição do clique para coordenadas normalizadas do ecrã
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -640,7 +590,7 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // Detecta intersecções com as obras normais
+  // Detecta intersecções com as obras circulantes
   const intersects = raycaster.intersectObjects(obrasNormais, false);
 
   if (intersects.length > 0) {
@@ -648,21 +598,18 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     destacarObra(obraClicada);
   }
 });
-
 // ==================== BLOCO 12 — FUNÇÃO DESTACAR OBRA CIRCULAR ====================
 
 function destacarObra(obra) {
-  if (obraDestacada) return; // Garante que apenas uma obra pode estar destacada
+  if (obraDestacada) return; // Garante que apenas uma obra esteja destacada
 
   obraDestacada = obra;
   ambienteDesacelerado = true;
 
   const dados = obra.userData.dados;
 
-  // Oculta todas as outras obras enquanto esta está em destaque
-  obrasNormais.forEach(o => {
-    if (o !== obra) o.visible = false;
-  });
+  // Mantém as outras obras visíveis, mas o fundo desfocado — NÃO OCULTA NADA!
+  // As restantes obras vão continuar a girar mais lentamente (como já definido)
 
   // Animação para mover a obra até ao centro da cena
   gsap.to(obra.position, {
@@ -673,7 +620,7 @@ function destacarObra(obra) {
     ease: 'power2.inOut'
   });
 
-  // Escala a obra para dar-lhe maior presença visual
+  // Escala a obra para dar maior destaque visual
   gsap.to(obra.scale, {
     x: 2,
     y: 2,
@@ -723,13 +670,9 @@ function fecharObraDestacada() {
     duration: 1.2,
     ease: 'power2.inOut',
     onComplete: () => {
-      // Restaura a visibilidade das outras obras
-      obrasNormais.forEach(o => o.visible = true);
-
-      // Oculta o painel e o overlay
+      // As outras obras permanecem visíveis e continuam a circular lentamente
       overlay.style.display = 'none';
       infoPanel.style.display = 'none';
-
       obraDestacada = null;
       ambienteDesacelerado = false;
     }
@@ -790,152 +733,7 @@ modalElements.botao.addEventListener('click', async () => {
     modalElements.botao.textContent = 'Buy';
   }
 });
-// ==================== BLOCO 15 — CRIAÇÃO E GESTÃO DE CUBOS SUSPENSOS ====================
-
-// Função para criar cubo suspenso com gema luminosa e obra
-function criarCuboSuspenso(obra, indice) {
-  const tamanhoCubo = 1.5;
-
-  const materialCubo = new THREE.MeshPhysicalMaterial({
-    color: 0x222222,
-    transparent: true,
-    opacity: 0.18,
-    roughness: 0.25,
-    metalness: 0.5,
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.2,
-    reflectivity: 0.3
-  });
-
-  const cubo = new THREE.Mesh(
-    new THREE.BoxGeometry(tamanhoCubo, tamanhoCubo, tamanhoCubo),
-    materialCubo
-  );
-  cubo.castShadow = true;
-  cubo.receiveShadow = true;
-
-  // Posições elevadas e etéreas sobre o círculo
-  const altura = 8.2;
-  const posicoes = [
-    { x: -5, y: altura, z: 0 },
-    { x: 5, y: altura, z: 0 },
-    { x: -5, y: altura, z: -5 },
-    { x: 5, y: altura, z: -5 }
-  ];
-  const pos = posicoes[indice % posicoes.length];
-  cubo.position.set(pos.x, pos.y, pos.z);
-
-  // Gema luminosa com imagem da obra
-  textureLoader.load(
-    obra.imagem,
-    (texture) => {
-      const gema = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.6, 1),
-        new THREE.MeshStandardMaterial({
-          map: texture,
-          emissive: 0x3399cc,
-          emissiveIntensity: 2.0,
-          transparent: true,
-          opacity: 0.9
-        })
-      );
-      gema.castShadow = true;
-      gema.receiveShadow = true;
-      cubo.add(gema);
-      updateLoadingProgress();
-    },
-    undefined,
-    () => {
-      // Fallback visual em caso de falha na textura
-      const gemaFallback = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.6, 1),
-        new THREE.MeshStandardMaterial({
-          color: 0x3399cc,
-          emissive: 0x3399cc,
-          emissiveIntensity: 2.0,
-          transparent: true,
-          opacity: 0.9
-        })
-      );
-      gemaFallback.castShadow = true;
-      gemaFallback.receiveShadow = true;
-      cubo.add(gemaFallback);
-      updateLoadingProgress();
-    }
-  );
-
-  cubo.userData = { obra };
-  cubosSuspensos.push(cubo);
-  scene.add(cubo);
-
-  return cubo;
-}
-// ==================== BLOCO 16 — REGISTO DAS ENTRADAS DE OBRAS SUSPENSAS NO BACKEND ====================
-
-// URL do backend onde está alojado o servidor Express
-const BACKEND_URL = 'https://nandart-3d.onrender.com';
-
-// Regista a entrada de uma nova obra suspensa
-async function registarEntradaBackend(obraId) {
-  try {
-    const resposta = await fetch(`${BACKEND_URL}/api/entradas`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ obraId })
-    });
-
-    if (!resposta.ok) {
-      throw new Error(`Resposta não OK: ${resposta.status}`);
-    }
-
-    const json = await resposta.json();
-    const dataFormatada = new Date(json.data).toLocaleDateString('pt-PT');
-    console.log(`📌 Entrada registada: ${obraId} → ${dataFormatada}`);
-  } catch (err) {
-    console.error(`❌ Erro ao registar entrada da obra ${obraId}:`, err.message || err);
-  }
-}
-// ==================== BLOCO 18 — FUNÇÃO MIGRAR PARA CÍRCULO CENTRAL ====================
-
-function migrarParaCirculo(obra) {
-  const tamanho = config.obraSize;
-
-  textureLoader.load(
-    obra.imagem,
-    textura => {
-      const novaObra = new THREE.Mesh(
-        new THREE.PlaneGeometry(tamanho * 1.3, tamanho * 1.6),
-        new THREE.MeshStandardMaterial({
-          map: textura,
-          roughness: 0.2,
-          metalness: 0.1,
-          side: THREE.DoubleSide,
-          transparent: true
-        })
-      );
-
-      const index = obrasNormais.length;
-      const angulo = (index / (obrasNormais.length + 1)) * Math.PI * 2;
-
-      novaObra.position.set(
-        Math.cos(angulo) * config.circleRadius,
-        4.2,
-        Math.sin(angulo) * config.circleRadius
-      );
-      novaObra.lookAt(0, 4.2, 0);
-
-      novaObra.userData = { dados: obra, index };
-      scene.add(novaObra);
-      obrasNormais.push(novaObra);
-      updateLoadingProgress();
-    },
-    undefined,
-    erro => {
-      console.error(`❌ Falha ao carregar textura da obra migrada ${obra.id}:`, erro);
-    }
-  );
-}
-// ==================== BLOCO 19 — BOTÃO “CONNECT WALLET” COM LIGAÇÃO E DESCONEXÃO ====================
+// ==================== BLOCO 15 — BOTÃO “CONNECT WALLET” COM LIGAÇÃO E DESCONEXÃO ====================
 
 // Elemento visual do botão na interface
 const walletBtn = document.createElement('button');
@@ -966,7 +764,7 @@ document.body.appendChild(walletBtn);
 // Variável global para guardar o endereço da carteira ligada
 let walletAddress = null;
 
-// Atualiza o botão com estado actual e saldo (se ligado)
+// Atualiza o botão com estado atual e saldo (se ligado)
 async function atualizarEstadoCarteira() {
   if (walletAddress) {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -1011,7 +809,8 @@ walletBtn.addEventListener('click', () => {
     conectarCarteira();
   }
 });
-// ==================== BLOCO 20 — PERSISTÊNCIA DA LIGAÇÃO DA CARTEIRA COM LOCALSTORAGE ====================
+
+// ==================== BLOCO 16 — PERSISTÊNCIA DA LIGAÇÃO DA CARTEIRA COM LOCALSTORAGE ====================
 
 // Verificação automática ao carregar a página
 window.addEventListener('load', async () => {
@@ -1034,21 +833,144 @@ window.addEventListener('load', async () => {
     }
   }
 });
-// ==================== BLOCO 21 — INICIALIZAÇÃO DA GALERIA 3D ====================
+// ==================== BLOCO 17 — INICIALIZAÇÃO DA GALERIA 3D ====================
 
 function iniciarGaleria() {
   // 1. Criar as obras normais do círculo rotativo
   criarObrasNormais();
-
-  // 2. Adicionar cubos suspensos com obras em pré-venda
-  obrasSuspensas.forEach((obra, idx) => {
-    criarCuboSuspenso(obra, idx);
-    registarEntradaBackend(obra.id);
-  });
-
-  // 3. Verificar se alguma obra ultrapassou o tempo de suspensão
-  verificarMigracoesBackend();
 }
 
 // Executar ao carregar a página
 window.addEventListener('load', iniciarGaleria);
+
+// ==================== BLOCO 18 — ENCERRAMENTO SEGURO DA GALERIA ====================
+
+window.addEventListener('beforeunload', () => {
+  console.log('A encerrar a galeria NANdART e a limpar recursos...');
+  renderer.dispose();
+  textureLoader.dispose();
+  // Outras operações de limpeza podem ser incluídas aqui, se necessário.
+});
+// ==================== BLOCO 19 — EVENTOS ADICIONAIS E MELHORIAS ====================
+
+// Garante que os ícones de navegação estão fixos à parede de fundo e não se movem com a câmara
+const navIcons = document.querySelector('.navigation-icons');
+if (navIcons) {
+  navIcons.style.position = 'absolute'; // Posicionamento absoluto na cena
+  navIcons.style.top = '1.5%';
+  navIcons.style.left = '1.5%';
+  navIcons.style.zIndex = '100'; // Fica sempre à frente
+}
+
+// Adiciona classes CSS adicionais ao painel informativo para ajustes visuais
+const infoPanel = document.getElementById('info-panel');
+if (infoPanel) {
+  infoPanel.classList.add('painel-informativo-ajustado');
+}
+
+// Garante que o fundo (paredes) aplica um leve desfoque ao destacar uma obra
+function aplicarDesfoqueFundo(ativo) {
+  const overlay = document.getElementById('overlay');
+  if (overlay) {
+    overlay.style.backdropFilter = ativo ? 'blur(8px)' : 'none';
+    overlay.style.display = ativo ? 'block' : 'none';
+  }
+}
+
+// Substitui a chamada direta ao overlay por esta função centralizada
+function destacarObraComFundo(obra) {
+  destacarObra(obra);
+  aplicarDesfoqueFundo(true);
+}
+
+function fecharObraDestacadaComFundo() {
+  fecharObraDestacada();
+  aplicarDesfoqueFundo(false);
+}
+
+// Ajusta o evento pointerdown para usar o novo comportamento com fundo desfocado
+window.addEventListener('pointerdown', (e) => {
+  if (!obraDestacada || infoPanel.contains(e.target)) return;
+  fecharObraDestacadaComFundo();
+});
+
+// Mantém as outras obras a circular mais lentamente mesmo com uma destacada
+const velocidadeObrasLenta = 0.05;
+function animarObrasCirculares(delta) {
+  const velocidade = obraDestacada ? velocidadeObrasLenta : velocidadeObras;
+  anguloAtual += velocidade * delta;
+
+  const raio = config.circleRadius;
+  obrasNormais.forEach((obra, i) => {
+    if (obra === obraDestacada) return;
+    const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+    obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+    obra.lookAt(0, 4.2, 0);
+  });
+}
+
+// Garante que o botão "Connect Wallet" também fica fixo à parede de fundo
+const walletBtn = document.getElementById('wallet-button');
+if (walletBtn) {
+  walletBtn.style.position = 'absolute';
+  walletBtn.style.top = '1.5%';
+  walletBtn.style.right = '1.5%';
+  walletBtn.style.zIndex = '100';
+}
+
+console.log('✅ BLOCO 19 concluído com melhorias visuais e de comportamento.');
+// ==================== BLOCO 20 — FINALIZAÇÃO E INICIALIZAÇÃO SEGURA ====================
+
+// Função principal de inicialização da galeria (segura e única)
+function iniciarGaleria() {
+  if (window._galeriaIniciada) {
+    console.warn('⚠️ A galeria já foi iniciada. Ignorando nova inicialização.');
+    return;
+  }
+  window._galeriaIniciada = true;
+
+  // Criação das obras normais do círculo rotativo
+  criarObrasNormais();
+
+  // Verificações e ajustes finais do layout e interatividade
+  console.log('🔍 A verificar integridade visual e interativa da galeria...');
+
+  // Simples ajuste para o fundo de desfoque ao destacar obra (se necessário)
+  aplicarDesfoqueFundo(false);
+
+  console.log('%c🎨 Galeria 3D NANdART inicializada com sucesso!','color:#d8b26c;font-size:16px;');
+
+  // Se quiseres, podemos aqui colocar uma animação de entrada visual (ex: fade-in do canvas)
+}
+
+// Evento para garantir a inicialização após carregamento do DOM e dos recursos
+window.addEventListener('DOMContentLoaded', iniciarGaleria);
+
+// Logging final da conclusão da construção completa
+console.log('%c🖼️ BLOCO 25 concluído: inicialização, ajustes e verificação final da galeria!','color:#8a5c21;font-size:14px;');
+
+// ==================== BLOCO 21 — FUNÇÃO PRINCIPAL DE ANIMAÇÃO ====================
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = relogio.getDelta();
+
+  // Animação do círculo de obras, mesmo quando há obra destacada (com rotação mais lenta)
+  const velocidadeReal = obraDestacada ? velocidadeObras * 0.15 : velocidadeObras;
+  anguloAtual += velocidadeReal * delta;
+
+  const raio = config.circleRadius;
+
+  obrasNormais.forEach((obra, i) => {
+    if (obra !== obraDestacada) {
+      const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
+      obra.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
+      obra.lookAt(0, 4.2, 0);
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+animate();

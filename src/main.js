@@ -1,4 +1,4 @@
-// ==================== BLOCO 1 — IMPORTAÇÕES E CONFIGURAÇÃO ====================
+// ==================== BLOCO 1 — IMPORTAÇÕES E CONFIGURAÇÃO ==================== 
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -92,8 +92,8 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ==================== ILUMINAÇÃO DUPLICADA, QUENTE, SEM INCIDÊNCIA SOBRE OBRAS ====================
-const ambientLight = new THREE.AmbientLight(0xffe4b5, 2.0); // Light warm tone, duplicated intensity
+// ==================== ILUMINAÇÃO ====================
+const ambientLight = new THREE.AmbientLight(0xffe4b5, 2.0);
 scene.add(ambientLight);
 
 const fillLeft = new THREE.DirectionalLight(0xffe4b5, 0.8);
@@ -107,19 +107,20 @@ scene.add(fillRight);
 const ceilingLight = new THREE.PointLight(0xffe4b5, 1.8, 100);
 ceilingLight.position.set(0, 30, 0);
 scene.add(ceilingLight);
-// ==================== PAREDES COM TEXTURA ANTRACITE ULTRA REALISTA E LARGURA AJUSTADA ====================
+
+// ==================== PAREDES COM TEXTURA ANTRACITE ====================
 const paredeGeoFundo = new THREE.BoxGeometry(42, 29, 0.4);
-const paredeGeoLateral = new THREE.BoxGeometry(45, 29, 0.4);  // Alargadas para bloquear visão externa
+const paredeGeoLateral = new THREE.BoxGeometry(45, 29, 0.4);
 
 let antraciteTexture;
 try {
-  antraciteTexture = textureLoader.load('assets/galeria1.bmp', (texture) => {
+  antraciteTexture = textureLoader.load('/assets/galeria1.bmp', (texture) => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(4, 4);
     texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   });
 } catch (error) {
-  console.warn('Ultra-realistic antracite texture failed, using fallback.');
+  console.warn('Texture load failed, using fallback.');
   const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -150,14 +151,14 @@ paredeDireita.position.set(22, 14.5, -config.wallDistance / 2);
 paredeDireita.rotation.y = -Math.PI / 2;
 scene.add(paredeDireita);
 
-// ==================== CHÃO ESPELHO ULTRA REFLEXIVO COM SOMBRAS DAS OBRAS ====================
+// ==================== CHÃO ESPELHO ====================
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
 const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0x000000,
   metalness: 1.0,
   roughness: 0.0,
   transparent: true,
-  opacity: 0.3  // Alta transparência, quase um espelho negro
+  opacity: 0.3
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
@@ -165,11 +166,7 @@ floor.position.y = -0.03;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// Ativar sombras nas obras circulantes no chão
-renderer.shadowMap.autoUpdate = true;
-renderer.shadowMap.needsUpdate = true;
-
-// ==================== CÍRCULO DE LUZ CENTRAL MAIS REALISTA E REDUZIDO ====================
+// ==================== CÍRCULO DE LUZ CENTRAL ====================
 const circuloLuzGeometry = new THREE.RingGeometry(config.circleRadius + 0.4, config.circleRadius + 0.8, 64);
 const circuloLuzMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
@@ -184,7 +181,8 @@ const circuloLuz = new THREE.Mesh(circuloLuzGeometry, circuloLuzMaterial);
 circuloLuz.rotation.x = -Math.PI / 2;
 circuloLuz.position.y = 0.005;
 scene.add(circuloLuz);
-// ==================== CRIAÇÃO DE OBRAS CIRCULANTES COM SOMBRAS E VISIBILIDADE COMPLETA ====================
+
+// ==================== CRIAÇÃO DE OBRAS CIRCULANTES ====================
 function criarObrasCirculares() {
   dadosObras.forEach((dados, index) => {
     textureLoader.load(dados.imagem, (texture) => {
@@ -210,14 +208,16 @@ function criarObrasCirculares() {
       grupo.userData = { dados, index, isObra: true };
       scene.add(grupo);
       obrasNormais.push(grupo);
+    }, undefined, (err) => {
+      console.error('Error loading artwork texture:', err);
     });
   });
 }
 
-// ==================== CRIAÇÃO DE OBRAS NAS PAREDES COM MOLDURAS VOLUMÉTRICAS ====================
+// ==================== CRIAÇÃO DE OBRAS NAS PAREDES ====================
 function criarObraParede(texturePath, posX, posY, posZ, rotY, largura, altura) {
   textureLoader.load(texturePath, (texture) => {
-    const molduraGeo = new THREE.BoxGeometry(largura, altura, 0.3);  // Moldura com volume
+    const molduraGeo = new THREE.BoxGeometry(largura, altura, 0.3);
     const molduraMat = new THREE.MeshStandardMaterial({
       color: 0x333333,
       metalness: 0.6,
@@ -236,40 +236,52 @@ function criarObraParede(texturePath, posX, posY, posZ, rotY, largura, altura) {
       roughness: 0.2
     });
     const obra = new THREE.Mesh(obraGeo, obraMat);
-    obra.position.set(posX, posY, posZ + 0.16);  // Posicionada à frente da moldura
+    obra.position.set(posX, posY, posZ + 0.16);
     obra.rotation.y = rotY;
     obra.castShadow = true;
     scene.add(obra);
+  }, undefined, (err) => {
+    console.error('Error loading wall artwork texture:', err);
   });
 }
 
-// Chamada explícita das obras nas paredes, encostadas e com tamanho duplicado
-criarObraParede('assets/obras/obra-central.jpg', 0, 14, -config.wallDistance + 0.2, 0, 7.2, 10.2);
-criarObraParede('assets/obras/obra-lateral-esquerda.jpg', -22, 14, -config.wallDistance / 2 + 0.2, Math.PI / 2, 5.2, 7.2);
-criarObraParede('assets/obras/obra-lateral-direita.jpg', 22, 14, -config.wallDistance / 2 + 0.2, -Math.PI / 2, 5.2, 7.2);
-// ==================== MENU VERTICAL (HORIZONTE) COM VÉU INVISÍVEL ====================
+// Obras nas paredes
+criarObraParede('/assets/obras/obra-central.jpg', 0, 14, -config.wallDistance + 0.2, 0, 7.2, 10.2);
+criarObraParede('/assets/obras/obra-lateral-esquerda.jpg', -22, 14, -config.wallDistance / 2 + 0.2, Math.PI / 2, 5.2, 7.2);
+criarObraParede('/assets/obras/obra-lateral-direita.jpg', 22, 14, -config.wallDistance / 2 + 0.2, -Math.PI / 2, 5.2, 7.2);
+
+// ==================== INTERAÇÃO COM O MENU ====================
 document.addEventListener('DOMContentLoaded', () => {
   const menuToggle = document.getElementById('menu-toggle');
   const menuDropdown = document.getElementById('menu-dropdown');
-  menuToggle.addEventListener('click', e => {
-    e.stopPropagation();
-    const isOpen = menuDropdown.style.display === 'block';
-    menuDropdown.style.display = isOpen ? 'none' : 'block';
-    menuDropdown.style.flexDirection = 'column';
-    menuDropdown.style.background = 'rgba(0, 0, 0, 0.05)';  // Véu quase invisível
-    menuToggle.setAttribute('aria-expanded', !isOpen);
-  });
-  document.addEventListener('click', () => {
-    menuDropdown.style.display = 'none';
-    menuToggle.setAttribute('aria-expanded', 'false');
-  });
-  menuDropdown.addEventListener('click', e => e.stopPropagation());
-  document.getElementById('info-button').addEventListener('click', () => {
-    window.location.href = 'about.html';  // Ligação ao "About NANdART"
-  });
+  
+  if (menuToggle && menuDropdown) {
+    menuToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = menuDropdown.style.display === 'block';
+      menuDropdown.style.display = isOpen ? 'none' : 'block';
+      menuDropdown.style.flexDirection = 'column';
+      menuDropdown.style.background = 'rgba(0, 0, 0, 0.05)';
+      menuToggle.setAttribute('aria-expanded', !isOpen);
+    });
+    
+    document.addEventListener('click', () => {
+      menuDropdown.style.display = 'none';
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+    
+    menuDropdown.addEventListener('click', e => e.stopPropagation());
+  }
+
+  const infoButton = document.getElementById('info-button');
+  if (infoButton) {
+    infoButton.addEventListener('click', () => {
+      window.location.href = 'about.html';
+    });
+  }
 });
 
-// ==================== DESTACAR OBRA COM TAMANHO DUPLICADO E MODAL AJUSTADO ====================
+// ==================== DESTACAR OBRA ====================
 function destacarObra(obra) {
   if (obraDestacada) return;
   obraDestacada = obra;
@@ -278,7 +290,6 @@ function destacarObra(obra) {
   const dados = obra.userData.dados;
   const originalScale = obra.scale.clone();
 
-  // Animação de destaque
   gsap.to(obra.position, {
     x: 0, y: 6.5 * 1.5, z: 0,
     duration: 1.1, ease: 'power2.inOut',
@@ -289,7 +300,6 @@ function destacarObra(obra) {
     duration: 0.9, ease: 'power2.out'
   });
 
-  // Desfoque aplicado apenas ao ambiente
   scene.traverse(obj => {
     if (obj.isMesh && obj !== obra.children[0] && !obj.parent?.userData?.isObra) {
       obj.material.transparent = true;
@@ -297,7 +307,6 @@ function destacarObra(obra) {
     }
   });
 
-  // Criar modal ajustado à largura da obra e posicionado 1cm abaixo
   criarModal(dados, originalScale.x * 2 * 200);
 }
 
@@ -329,7 +338,6 @@ function criarModal(dados, larguraModal) {
   overlay.appendChild(infoPanel);
   document.body.appendChild(overlay);
 
-  // Posicionar modal precisamente 1cm abaixo da obra
   const obraPos = obraDestacada.getWorldPosition(new THREE.Vector3());
   const screenPos = obraPos.clone().project(camera);
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
@@ -343,7 +351,7 @@ function criarModal(dados, larguraModal) {
   });
 }
 
-// ==================== BOTÃO CONNECT WALLET FUNCIONAL, DOURADO E COM SALDO ====================
+// ==================== BOTÃO CONNECT WALLET ====================
 function criarBotoesInterface() {
   const existingBtn = document.getElementById('wallet-button');
   if (existingBtn) existingBtn.remove();
@@ -361,17 +369,22 @@ function criarBotoesInterface() {
   walletBtn.addEventListener('click', async () => {
     if (!walletAddress) {
       if (window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        walletAddress = await signer.getAddress();
-        walletBalance = await provider.getBalance(walletAddress);
-        walletBtn.textContent = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${ethers.formatEther(walletBalance).slice(0, 6)} ETH`;
-        walletBtn.onclick = () => {
-          walletAddress = null;
-          walletBtn.textContent = 'Connect Wallet';
-          signer = null;
-        };
+        try {
+          provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+          signer = await provider.getSigner();
+          walletAddress = await signer.getAddress();
+          walletBalance = await provider.getBalance(walletAddress);
+          walletBtn.textContent = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} | ${ethers.formatEther(walletBalance).slice(0, 6)} ETH`;
+          walletBtn.onclick = () => {
+            walletAddress = null;
+            walletBtn.textContent = 'Connect Wallet';
+            signer = null;
+          };
+        } catch (err) {
+          console.error('Wallet connection error:', err);
+          alert('Error connecting wallet');
+        }
       } else {
         alert('Please install MetaMask!');
       }
@@ -382,16 +395,17 @@ function criarBotoesInterface() {
     }
   });
 }
-// ==================== ANIMAÇÃO CONTÍNUA COM DESTAQUE E DESACELERAÇÃO ====================
+
+// ==================== ANIMAÇÃO ====================
 function animate() {
   requestAnimationFrame(animate);
   const delta = relogio.getDelta();
-  const speedFactor = ambienteDesacelerado ? 0.5 : 1;  // Metade da velocidade se obra destacada
+  const speedFactor = ambienteDesacelerado ? 0.5 : 1;
   anguloAtual += 0.25 * delta * speedFactor;
 
   const raio = config.circleRadius;
   obrasNormais.forEach((grupo, i) => {
-    if (grupo === obraDestacada) return;  // Mantém obra destacada parada
+    if (grupo === obraDestacada) return;
     const angulo = (i / obrasNormais.length) * Math.PI * 2 + anguloAtual;
     grupo.position.set(Math.cos(angulo) * raio, 4.2, Math.sin(angulo) * raio);
     grupo.lookAt(0, 4.2, 0);
@@ -400,17 +414,17 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// ==================== FECHAR OBRA DESTACADA AO CLICAR FORA ====================
+// ==================== FECHAR OBRA DESTACADA ====================
 function fecharObraDestacada() {
   if (!obraDestacada) return;
-  // Repor opacidades do ambiente
+  
   scene.traverse(obj => {
     if (obj.isMesh && obj.material && obj.material.opacity < 1) {
       obj.material.transparent = false;
       obj.material.opacity = 1;
     }
   });
-  // Repor posição e escala originais da obra destacada
+
   gsap.to(obraDestacada.position, {
     x: Math.cos((obraDestacada.userData.index / obrasNormais.length) * Math.PI * 2 + anguloAtual) * config.circleRadius,
     y: 4.2,
@@ -419,7 +433,9 @@ function fecharObraDestacada() {
     ease: 'power2.inOut',
     onUpdate: () => obraDestacada.lookAt(0, 4.2, 0)
   });
+  
   gsap.to(obraDestacada.scale, { x: 1, y: 1, z: 1, duration: 0.8, ease: 'power2.out' });
+  
   obraDestacada = null;
   ambienteDesacelerado = false;
 
@@ -428,14 +444,16 @@ function fecharObraDestacada() {
   }
 }
 
-// ==================== COMPRA DE OBRA (BUY BUTTON) ====================
+// ==================== COMPRA DE OBRA ====================
 async function comprarObra() {
   if (!obraDestacada || !window.ethereum) {
     alert('Please connect MetaMask.');
     return;
   }
+  
   const dados = obraDestacada.userData.dados;
   const tx = { to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', value: ethers.parseEther(dados.preco) };
+  
   try {
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
@@ -444,12 +462,12 @@ async function comprarObra() {
     await txResponse.wait();
     alert('Purchase successful!');
   } catch (err) {
-    console.error(err);
+    console.error('Transaction error:', err);
     alert('Transaction failed.');
   }
 }
 
-// ==================== INICIALIZAÇÃO COMPLETA DA GALERIA ====================
+// ==================== INICIALIZAÇÃO ====================
 function iniciarGaleria() {
   criarObrasCirculares();
   criarBotoesInterface();

@@ -691,9 +691,7 @@ window.addEventListener('load', async () => {
 
 // ==================== BLOCO 17 — INICIALIZAÇÃO DA GALERIA 3D ====================
 
-function iniciarGaleria() {
   // 1. Criar as obras normais do círculo rotativo
-  criarObrasNormais();
 }
 
 // Executar ao carregar a página

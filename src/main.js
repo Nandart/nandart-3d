@@ -56,19 +56,17 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Iluminação ambiente duplicada com tons quentes e profundos
-const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 0.9);
-const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 0.9);
-const luzAmbiente3 = new THREE.AmbientLight(0xfff2dd, 0.9);
-const luzAmbiente4 = new THREE.AmbientLight(0xfff2dd, 0.9);
-scene.add(luzAmbiente1, luzAmbiente2, luzAmbiente3, luzAmbiente4);
+// Iluminação ambiente ajustada para não ofuscar as obras
+const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 0.6);
+const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+scene.add(luzAmbiente1, luzAmbiente2);
 
 // Luz hemisférica para brilho subtil do ambiente geral
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.45);
+const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
 scene.add(luzHemisferica);
 
 // Luz rasante esquerda com projecção lateral realista
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.8);
+const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.6);
 luzRasanteEsquerda.position.set(-10, 8, 0);
 luzRasanteEsquerda.angle = Math.PI / 6;
 luzRasanteEsquerda.penumbra = 0.3;
@@ -90,7 +88,7 @@ const floor = new Reflector(floorGeometry, {
   recursion: 2
 });
 
-floor.material.opacity = 0.88;
+floor.material.opacity = 0.44; // 2x mais transparente
 floor.material.roughness = 0.015;
 floor.material.metalness = 0.98;
 floor.material.transparent = true;
@@ -216,10 +214,10 @@ criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, altura
 // 🟡 Frisos horizontais inferiores contínuos entre as paredes
 criarFrisoLinha(0, 1.3, -config.wallDistance + 0.01, 36);     // fundo superior
 criarFrisoLinha(0, 1.0, -config.wallDistance + 0.012, 36);    // fundo inferior
-criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. sup.
-criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
-criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
-criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
+criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);   // lateral esq. sup.
+criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);   // lateral esq. inf.
+criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);    // lateral dir. sup.
+criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);    // lateral dir. inf.
 
 // 🖼️ Textura da obra central com fallback de erro
 const texturaCentral = textureLoader.load(
@@ -269,6 +267,26 @@ quadroCentralGrupo.position.set(
 );
 scene.add(quadroCentralGrupo);
 
+// Textura antracite ultra realista como fallback
+const antraciteTextureData = {
+  data: new Uint8Array([
+    80, 80, 80, 255, 85, 85, 85, 255, 75, 75, 75, 255, 90, 90, 90, 255,
+    85, 85, 85, 255, 80, 80, 80, 255, 75, 75, 75, 255, 70, 70, 70, 255,
+    90, 90, 90, 255, 85, 85, 85, 255, 80, 80, 80, 255, 75, 75, 75, 255,
+    70, 70, 70, 255, 65, 65, 65, 255, 60, 60, 60, 255, 55, 55, 55, 255
+  ]),
+  width: 4,
+  height: 4
+};
+
+const antraciteTexture = new THREE.DataTexture(
+  antraciteTextureData.data,
+  antraciteTextureData.width,
+  antraciteTextureData.height,
+  THREE.RGBAFormat
+);
+antraciteTexture.needsUpdate = true;
+
 // 🧱 Geometrias base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
@@ -277,8 +295,8 @@ const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 const aplicarTexturaParede = textura => {
   const paredeMaterial = new THREE.MeshStandardMaterial({
     map: textura,
-    color: 0xffffff, // realce dos tons claros da textura
-    emissive: new THREE.Color(0x111111), // brilho suave nos tons escuros
+    color: 0xffffff,
+    emissive: new THREE.Color(0x111111),
     emissiveIntensity: 0.25,
     roughness: 0.65,
     metalness: 0.15,
@@ -306,7 +324,7 @@ const aplicarTexturaParede = textura => {
   scene.add(paredeDireita);
 };
 
-// Carregamento da textura antracite com fallback remoto automático
+// Tentar carregar textura antracite, usar fallback se falhar
 textureLoader.load(
   '/assets/antracite-realista.jpg',
   texturaLocal => {
@@ -315,13 +333,8 @@ textureLoader.load(
   },
   undefined,
   () => {
-    console.warn('⚠️ Falha ao carregar textura local. A usar versão remota...');
-    textureLoader.load(
-      'https://nandart.art/assets/antracite-realista.jpg',
-      texturaRemota => aplicarTexturaParede(texturaRemota),
-      undefined,
-      err => console.error('❌ Erro ao carregar textura remota:', err)
-    );
+    console.warn('⚠️ Falha ao carregar textura local. A usar fallback...');
+    aplicarTexturaParede(antraciteTexture);
   }
 );
 
@@ -590,6 +603,7 @@ const dadosObras = [
     artista: "Inês Duarte",
     ano: "2023",
     preco: "0.8",
+    descricao: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
     imagem: "/assets/obras/obra1.jpg"
   },
   {
@@ -597,6 +611,7 @@ const dadosObras = [
     artista: "Miguel Costa",
     ano: "2024",
     preco: "0.5",
+    descricao: "Contraste entre luz e sombra em movimento constante.",
     imagem: "/assets/obras/obra2.jpg"
   },
   {
@@ -604,6 +619,7 @@ const dadosObras = [
     artista: "Clara Mendonça",
     ano: "2022",
     preco: "1.2",
+    descricao: "Perspectivas múltiplas de um mesmo horizonte urbano.",
     imagem: "/assets/obras/obra3.jpg"
   },
   {
@@ -611,6 +627,7 @@ const dadosObras = [
     artista: "Rui Valente",
     ano: "2023",
     preco: "0.6",
+    descricao: "Abstração das memórias que permanecem no silêncio.",
     imagem: "/assets/obras/obra4.jpg"
   },
   {
@@ -618,6 +635,7 @@ const dadosObras = [
     artista: "Joana Serra",
     ano: "2025",
     preco: "0.75",
+    descricao: "Movimento congelado em padrões geométricos precisos.",
     imagem: "/assets/obras/obra5.jpg"
   },
   {
@@ -625,6 +643,7 @@ const dadosObras = [
     artista: "André Luz",
     ano: "2023",
     preco: "1.0",
+    descricao: "Estados emocionais representados através de cores fluidas.",
     imagem: "/assets/obras/obra6.jpg"
   },
   {
@@ -632,6 +651,7 @@ const dadosObras = [
     artista: "Sofia Rocha",
     ano: "2024",
     preco: "0.4",
+    descricao: "Texturas que revelam camadas ocultas da percepção.",
     imagem: "/assets/obras/obra7.jpg"
   },
   {
@@ -639,11 +659,14 @@ const dadosObras = [
     artista: "Tiago Faria",
     ano: "2025",
     preco: "0.9",
+    descricao: "Visão futurista de formas orgânicas em evolução.",
     imagem: "/assets/obras/obra8.jpg"
   }
 ];
 
 const obrasNormais = [];
+let animationSpeed = -0.00012;
+let originalAnimationSpeed = -0.00012;
 
 obraPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
@@ -680,6 +703,8 @@ obraPaths.forEach((src, i) => {
   scene.add(reflexo);
 
   obra.userData.reflexo = reflexo;
+  obra.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
+  obra.userData.originalRotation = new THREE.Euler(0, ry, 0);
   reflexo.userData.targetPos = new THREE.Vector3();
   reflexo.userData.targetRot = new THREE.Euler();
 
@@ -687,14 +712,92 @@ obraPaths.forEach((src, i) => {
 });
 
 let obraSelecionada = null;
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
+const blurOverlay = document.getElementById('blur-overlay');
+const walletButton = document.getElementById('wallet-button');
+
+// Função para destacar uma obra
+function destacarObra(obra) {
+  obraSelecionada = obra;
+  animationSpeed = originalAnimationSpeed * 0.5; // Reduz velocidade pela metade
+  
+  // Mover obra para frente e centralizar
+  gsap.to(obra.position, {
+    x: 0,
+    y: 6.3, // 1.5x superior à altura original
+    z: -config.wallDistance / 2,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+  
+  // Orientar obra para frente
+  gsap.to(obra.rotation, {
+    y: 0,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+  
+  // Ativar blur overlay
+  blurOverlay.classList.add('active');
+  
+  // Posicionar modal abaixo da obra
+  const obraRect = obra.geometry.parameters;
+  modal.style.width = `${obraRect.width * 120}px`;
+  modal.style.display = 'flex';
+  
+  // Ajustar posição do modal após o movimento da obra
+  setTimeout(() => {
+    const obraPos = obra.position.clone();
+    const screenPos = obraPos.clone().project(camera);
+    
+    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (screenPos.y * -0.5 + 0.5) * window.innerHeight;
+    
+    modal.style.left = `${x - modal.offsetWidth / 2}px`;
+    modal.style.top = `${y + 40}px`; // 1cm abaixo da obra
+  }, 800);
+}
+
+// Função para restaurar obra ao círculo
+function restaurarObra() {
+  if (!obraSelecionada) return;
+  
+  animationSpeed = originalAnimationSpeed;
+  
+  gsap.to(obraSelecionada.position, {
+    x: obraSelecionada.userData.originalPosition.x,
+    y: obraSelecionada.userData.originalPosition.y,
+    z: obraSelecionada.userData.originalPosition.z,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+  
+  gsap.to(obraSelecionada.rotation, {
+    y: obraSelecionada.userData.originalRotation.y,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+  
+  blurOverlay.classList.remove('active');
+  modal.style.display = 'none';
+  obraSelecionada = null;
+}
 
 // ✨ Animação contínua das obras circulantes e respetivos reflexos
 function animate() {
   requestAnimationFrame(animate);
 
-  const tempo = Date.now() * -0.00012;
+  const tempo = Date.now() * animationSpeed;
 
   obrasNormais.forEach((obra, i) => {
+    if (obra === obraSelecionada) return;
+    
     const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
     const x = Math.cos(angulo) * config.circleRadius;
     const z = Math.sin(angulo) * config.circleRadius;
@@ -718,48 +821,28 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Modal functionality
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
-
+// Abrir modal com informações da obra
 function abrirModal(dados, obra) {
-  obraSelecionada = obra;
-
   modalTitulo.textContent = dados.titulo;
-  modalDescricao.textContent = dados.descricao || 'Obra exclusiva da galeria NANdART';
+  modalDescricao.textContent = dados.descricao;
   modalArtista.textContent = dados.artista;
   modalAno.textContent = dados.ano;
   modalPreco.textContent = `${dados.preco} ETH`;
-
-  modal.style.display = 'flex';
-
-  gsap.to(obra.scale, { x: 1.5, y: 1.5, duration: 0.6, ease: 'power2.out' });
-  gsap.to(camera.position, {
-    x: obra.position.x,
-    y: obra.position.y + 1.5,
-    z: obra.position.z + 3,
-    duration: 0.8,
-    ease: 'power2.inOut'
-  });
+  
+  destacarObra(obra);
 }
 
 // Fechar modal ao clicar fora da obra/modal
 window.addEventListener('pointerdown', e => {
   if (obraSelecionada && !modal.contains(e.target)) {
-    gsap.to(obraSelecionada.scale, { x: 1, y: 1, duration: 0.6 });
-    updateCamera();
-    modal.style.display = 'none';
-    obraSelecionada = null;
+    restaurarObra();
   }
 });
 
 // Detetar clique/tap numa obra suspensa
 renderer.domElement.addEventListener('pointerdown', e => {
+  if (obraSelecionada) return;
+  
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -775,6 +858,37 @@ renderer.domElement.addEventListener('pointerdown', e => {
     abrirModal(dados, obra);
   }
 });
+
+// Função para conectar/desconectar carteira
+async function toggleWalletConnection() {
+  if (!window.ethereum) {
+    alert('Por favor instale a MetaMask para conectar sua carteira.');
+    return;
+  }
+
+  try {
+    if (walletButton.classList.contains('connected')) {
+      // Desconectar
+      walletButton.classList.remove('connected');
+      walletButton.innerHTML = 'Connect Wallet';
+      walletButton.style.padding = '10px 18px 10px 42px';
+    } else {
+      // Conectar
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const balance = await provider.getBalance(accounts[0]);
+      const formattedBalance = ethers.formatEther(balance);
+      const shortBalance = parseFloat(formattedBalance).toFixed(3);
+
+      walletButton.classList.add('connected');
+      walletButton.innerHTML = `Connected <span id="wallet-balance">${shortBalance} ETH</span>`;
+      walletButton.style.padding = '10px 18px 10px 16px';
+    }
+  } catch (err) {
+    console.error('Erro ao conectar carteira:', err);
+    alert('Ocorreu um erro ao conectar sua carteira. Por favor tente novamente.');
+  }
+}
 
 // Função real de compra com ethers.js e MetaMask
 async function buyHandler(dados) {
@@ -795,7 +909,7 @@ async function buyHandler(dados) {
 
     // Enviar transação para o endereço da galeria
     const tx = await signer.sendTransaction({
-      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12',
+      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
       value: valorETH
     });
 
@@ -810,6 +924,7 @@ async function buyHandler(dados) {
   }
 }
 
+// Event listeners
 if (botaoComprar) {
   botaoComprar.addEventListener('click', () => {
     if (obraSelecionada) {
@@ -819,6 +934,28 @@ if (botaoComprar) {
     }
   });
 }
+
+if (walletButton) {
+  walletButton.addEventListener('click', toggleWalletConnection);
+}
+
+// Verificar se já está conectado ao carregar a página
+window.addEventListener('load', async () => {
+  if (window.ethereum) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.listAccounts();
+    
+    if (accounts.length > 0) {
+      const balance = await provider.getBalance(accounts[0].address);
+      const formattedBalance = ethers.formatEther(balance);
+      const shortBalance = parseFloat(formattedBalance).toFixed(3);
+
+      walletButton.classList.add('connected');
+      walletButton.innerHTML = `Connected <span id="wallet-balance">${shortBalance} ETH</span>`;
+      walletButton.style.padding = '10px 18px 10px 16px';
+    }
+  }
+});
 
 // Iniciar a animação contínua da cena
 animate();

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+document.addEventListeneimport * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
@@ -707,13 +707,28 @@ obraPaths.forEach((src, i) => {
 });
 let obraSelecionada = null;
 
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
+// Wait for DOM to be fully loaded before selecting elements
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.querySelector('.art-modal');
+  const modalTitulo = document.getElementById('art-title');
+  const modalDescricao = document.getElementById('art-description');
+  const modalArtista = document.getElementById('art-artist');
+  const modalAno = document.getElementById('art-year');
+  const modalPreco = document.getElementById('art-price');
+  const botaoComprar = document.getElementById('buy-art');
+
+  // Only add event listener if the button exists
+  if (botaoComprar) {
+    botaoComprar.addEventListener('click', () => {
+      if (obraSelecionada) {
+        const index = obrasNormais.indexOf(obraSelecionada);
+        const dados = dadosObras[index];
+        buyHandler(dados);
+      }
+    });
+  } else {
+    console.error('Buy button not found in the DOM');
+  }
 
 function abrirModal(dados, obra) {
   obraSelecionada = obra;

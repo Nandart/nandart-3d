@@ -7,6 +7,17 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
+/ DOM Elements
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
+const blurOverlay = document.getElementById('blur-overlay');
+const walletButton = document.getElementById('wallet-button');
+
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 // Sistema de responsividade mais eficaz
@@ -714,17 +725,6 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
-// Variáveis globais para controle do destaque
-let obraSelecionada = null;
-let isHighlighted = false;
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
-const blurOverlay = document.getElementById('blur-overlay');
 
 // Função para destacar a obra selecionada
 function destacarObra(obra, dados) {
@@ -989,8 +989,8 @@ if (walletButton) {
 }
 
 // Verificar se já está conectado ao carregar a página
-window.addEventListener('load', async () => {
-  if (window.ethereum) {
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.ethereum && walletButton) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const accounts = await provider.listAccounts();
     
@@ -1004,7 +1004,14 @@ window.addEventListener('load', async () => {
       walletButton.style.padding = '10px 18px 10px 16px';
     }
   }
+
+  if (walletButton) {
+    walletButton.addEventListener('click', toggleWalletConnection);
+  }
 });
+
+// Start animation
+animate();
 
 // Iniciar a animação contínua da cena
 animate();

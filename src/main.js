@@ -478,7 +478,6 @@ async function comprarObra() {
     alert('Transaction failed.');
   }
 }
-
 // ==================== INICIALIZAÇÃO ====================
 function iniciarGaleria() {
   criarObrasCirculares();

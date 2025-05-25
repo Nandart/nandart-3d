@@ -2,25 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="NANdART Virtual Gallery — Immersive 3D Art Experience with Web3 Integration">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
   <meta name="theme-color" content="#111111">
-  <title>NANdART 3D Gallery | Premium Digital Art</title>
+  <title>NANdART 3D Gallery</title>
 
-  
-  <!-- Favicon e assets -->
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
-  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-  
-  <!-- Preload crítico -->
-  <link rel="preload" href="/src/styles/index.css" as="style">
-  <link rel="preload" href="/src/main.js" as="script">
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" as="style">
+  <link rel="stylesheet" href="/src/styles/index.css">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="/src/styles/index.css" media="all">
+  <!-- Preloads -->
+  <link rel="preload" href="/assets/icons/info.png" as="image">
+  <link rel="preload" href="/assets/icons/horizontes.png" as="image">
 
-  <!-- Fontes otimizadas -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -28,7 +22,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   </noscript>
 
-  <!-- Import Maps otimizados -->
+  <!-- Import Maps -->
   <script type="importmap">
   {
     "imports": {
@@ -42,19 +36,7 @@
   }
   </script>
 
-  <!-- Estilos críticos inline -->
   <style>
-    /* Garantir que o canvas ocupe toda a tela sem causar scroll */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      position: fixed;
-    }
-    
-    /* Canvas principal - otimizado para performance */
     canvas#scene {
       display: block;
       width: 100vw;
@@ -63,151 +45,200 @@
       top: 0;
       left: 0;
       z-index: 0;
-      outline: none;
-      touch-action: none;
     }
-    
-    /* Estado inicial dos elementos ocultos */
-    #menu-dropdown,
-    #overlay,
-    #info-panel {
+
+    .navigation-icons {
+      position: fixed;
+      top: 16px;
+      left: 18px;
+      z-index: 100;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .navigation-icons img {
+      height: 28px;
+      cursor: pointer;
+    }
+
+    #menu-dropdown {
       display: none;
+      position: fixed;
+      top: 60px;
+      left: 18px;
+      background: rgba(0, 0, 0, 0.85);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 12px;
+      flex-direction: column;
+      z-index: 200;
     }
-    
-    /* Prevenção de FOUC */
-    .navigation-icons,
-    #wallet-button {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    
-    body.loaded .navigation-icons,
-    body.loaded #wallet-button {
-      opacity: 1;
+
+    #menu-dropdown a {
+      color: #d8b26c;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      margin: 6px 0;
     }
   </style>
 </head>
 
 <body>
-  <!-- Canvas da Galeria 3D -->
-  <canvas id="scene" aria-label="NANdART 3D Gallery Environment"></canvas>
+  <!-- Canvas Principal -->
+  <canvas id="scene"></canvas>
 
-  <!-- Barra superior com elementos de UI -->
-  <div class="top-bar">
-    <!-- Ícones de Navegação -->
-    <div class="navigation-icons">
-      <img src="/assets/icons/horizontes.png" alt="Menu" id="menu-toggle" aria-label="Toggle Menu" width="24" height="24">
-      <img src="/assets/icons/info.png" alt="Information" id="info-button" aria-label="Gallery Information" width="24" height="24">
-    </div>
-
-    <!-- Botão Connect Wallet -->
-    <button id="wallet-button" aria-label="Connect Wallet">
-      <span>Connect Wallet</span>
-    </button>
+  <!-- Ícones de Navegação -->
+  <div class="navigation-icons">
+    <img src="/assets/icons/horizontes.png" alt="Menu" id="menu-toggle" aria-label="Menu">
+    <img src="/assets/icons/info.png" alt="Info" onclick="window.location.href='info.html'" aria-label="Info">
   </div>
 
   <!-- Menu Dropdown -->
-  <nav id="menu-dropdown" aria-label="Main Menu">
-    <a href="contactos.html" class="menu-item">Contacts</a>
-    <a href="artists.html" class="menu-item">Artists</a>
-    <a href="web3.html" class="menu-item">Web3 & NFT</a>
-    <a href="about.html" class="menu-item">About NANdART</a>
-  </nav>
-
-  <!-- Overlay para Modal -->
-  <div id="overlay" role="dialog" aria-modal="true" aria-hidden="true"></div>
-
-  <!-- Painel de Informação da Obra -->
-  <div id="info-panel" class="artwork-modal" role="dialog" aria-modal="true" aria-labelledby="obra-titulo">
-    <div class="artwork-header">
-      <h2 id="obra-titulo" class="artwork-title"></h2>
-      <div class="artwork-meta">
-        <p id="obra-artista" class="artwork-artist"></p>
-        <p id="obra-ano" class="artwork-year"></p>
-      </div>
-    </div>
-    
-    <div class="artwork-details">
-      <p id="obra-descricao" class="artwork-description"></p>
-      <div class="artwork-purchase">
-        <p id="obra-preco" class="artwork-price"></p>
-        <button id="obra-buy" class="buy-button">Purchase</button>
-      </div>
-    </div>
+  <div id="menu-dropdown">
+    <a href="contactos.html">Contacts</a>
+    <a href="artists.html">Artists</a>
+    <a href="web3.html">Web3 & NFT</a>
   </div>
 
-  <!-- Script Principal com carregamento otimizado -->
-  <script type="module" src="/src/main.js" defer></script>
+  <!-- Modal Informativo da Obra Destacada -->
+  <div id="overlay" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.7);
+    z-index: 150;
+    display: none;
+    backdrop-filter: blur(4px);
+  "></div>
 
-  <!-- Inicializações e fallbacks -->
+  <div id="info-panel" style="
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(34, 34, 34, 0.92);
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.4);
+    color: #f0f0f0;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    z-index: 200;
+    display: none;
+    max-width: 80vw;
+  ">
+    <h2 id="obra-titulo" style="margin-bottom: 6px; font-size: 1.6em; color: #d8b26c;"></h2>
+    <p id="obra-artista" style="margin: 4px 0; font-style: italic;"></p>
+    <p id="obra-ano" style="margin: 4px 0;"></p>
+    <p id="obra-descricao" style="margin: 10px 0; font-size: 0.95em;"></p>
+    <p id="obra-preco" style="margin: 10px 0; font-weight: bold; color: #ffe091;"></p>
+    <button id="obra-buy" style="
+      margin-top: 14px;
+      padding: 10px 20px;
+      background: #d8b26c;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    ">Buy</button>
+  </div>
+
+  <!-- WebGL e menu JS -->
   <script>
-    // Marcar body como carregado quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', () => {
-      document.body.classList.add('loaded');
-      
-      // Gerenciamento do menu dropdown
-      const menuToggle = document.getElementById('menu-toggle');
-      const menuDropdown = document.getElementById('menu-dropdown');
-      
-      menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = menuDropdown.style.display === 'flex';
-        menuDropdown.style.display = isOpen ? 'none' : 'flex';
-        menuToggle.setAttribute('aria-expanded', !isOpen);
-      });
-      
-      // Fechar menu ao clicar fora
-      document.addEventListener('click', () => {
-        menuDropdown.style.display = 'none';
-        menuToggle.setAttribute('aria-expanded', 'false');
-      });
-      
-      // Prevenir fechamento quando clicar no próprio menu
-      menuDropdown.addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-      
-      // Fallback para erros globais
-      window.onerror = function(message, source, lineno, colno, error) {
-        console.error('Global error:', { message, source, lineno, colno, error });
-        
-        // Exibir mensagem amigável para o usuário se for um erro crítico
-        if (message.includes('three') || message.includes('WebGL')) {
-          const errorDisplay = document.createElement('div');
-          errorDisplay.className = 'global-error';
-          errorDisplay.innerHTML = `
-            <h2>Gallery Loading Issue</h2>
-            <p>We're having trouble loading the 3D experience. Please try refreshing the page.</p>
-            <button onclick="window.location.reload()">Refresh</button>
-          `;
-          document.body.appendChild(errorDisplay);
-        }
-        
-        return true;
-      };
-    });
-    
-    // Detectar suporte a WebGL
-    function checkWebGLSupport() {
+    function checkWebGL() {
       try {
         const canvas = document.createElement('canvas');
-        return !!window.WebGLRenderingContext && 
+        return !!window.WebGLRenderingContext &&
           (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
       } catch (e) {
         return false;
       }
     }
-    
-    if (!checkWebGLSupport()) {
-      const warning = document.createElement('div');
-      warning.className = 'webgl-warning';
-      warning.innerHTML = `
-        <h2>Browser Incompatible</h2>
-        <p>Your browser does not support WebGL which is required for this experience.</p>
-        <p>Please try using a modern browser like Chrome, Firefox or Edge.</p>
-      `;
-      document.body.appendChild(warning);
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      <script>
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.error(`📛 Erro global detectado:
+    → Mensagem: ${message}
+    → Fonte: ${source}
+    → Linha: ${lineno}
+    → Coluna: ${colno}
+    → Stack: ${error?.stack || 'sem stack'}
+    → Objeto de erro:`, error);
+
+    return true;
+  };
+</script>
+
+      return true;
+    };
+
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    if (!checkWebGL()) {
+      alert('O teu navegador não suporta WebGL. Usa uma versão recente do Chrome, Firefox ou Edge.');
+      throw new Error('WebGL not supported');
     }
+  </script>
+<!-- Overlay escuro por trás do modal -->
+<div id="overlay" style="
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 150;">
+</div>
+
+<!-- Painel informativo flutuante -->
+<div id="info-panel" style="
+  display: none;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: rgba(20, 20, 20, 0.88);
+  padding: 24px;
+  border-radius: 12px;
+  font-family: 'Playfair Display', serif;
+  color: #f4e9d8;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.3);
+  z-index: 200;
+  text-align: center;
+  line-height: 1.5;
+">
+  <h2 id="obra-titulo" style="font-size: 1.6em; margin-bottom: 6px;"></h2>
+  <p id="obra-artista" style="font-style: italic; margin-bottom: 4px;"></p>
+  <p id="obra-ano" style="margin-bottom: 8px;"></p>
+  <p id="obra-descricao" style="font-size: 0.95em; margin-bottom: 14px;"></p>
+  <p id="obra-preco" style="font-weight: bold; font-size: 1.1em; margin-bottom: 16px;"></p>
+  <button id="obra-buy" style="
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #d8b26c;
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  ">Buy</button>
+</div>
+
+  <!-- Script Principal -->
+  <script type="module" src="/src/main.js"></script>
+
+  <!-- Fallback -->
+  <script nomodule>
+    alert('O teu navegador não suporta JavaScript moderno. Usa o Google Chrome ou Firefox.');
   </script>
 </body>
 </html>

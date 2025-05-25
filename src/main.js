@@ -1,4 +1,4 @@
-document.addEventListeneimport * as THREE from 'three';
+import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
@@ -55,6 +55,7 @@ window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 // Iluminação ambiente duplicada com tons quentes e profundos
 const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 0.9);
 const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 0.9);
@@ -132,6 +133,7 @@ const frisoChao = new THREE.Mesh(
 );
 frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
 scene.add(frisoChao);
+
 // Material dourado vivo usado em todos os frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
@@ -218,6 +220,7 @@ criarFrisoLinha(-16.2, 1.3, -config.wallDistance / 2, 2.2);   // lateral esq. su
 criarFrisoLinha(-16.2, 1.0, -config.wallDistance / 2, 2.2);   // lateral esq. inf.
 criarFrisoLinha(16.2, 1.3, -config.wallDistance / 2, 2.2);    // lateral dir. sup.
 criarFrisoLinha(16.2, 1.0, -config.wallDistance / 2, 2.2);    // lateral dir. inf.
+
 // 🖼️ Textura da obra central com fallback de erro
 const texturaCentral = textureLoader.load(
   '/assets/obras/obra-central.jpg',
@@ -265,6 +268,7 @@ quadroCentralGrupo.position.set(
   -config.wallDistance + 0.001 // Z — ligeiramente à frente da parede
 );
 scene.add(quadroCentralGrupo);
+
 // 🧱 Geometrias base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
@@ -320,6 +324,7 @@ textureLoader.load(
     );
   }
 );
+
 // 🖼️ Quadros laterais com moldura saliente e proporções realistas
 const obrasParede = [
   {
@@ -383,6 +388,7 @@ obrasParede.forEach(({ src, x, y, z, rotY }) => {
   grupoQuadro.rotation.y = rotY;
   scene.add(grupoQuadro);
 });
+
 // Material dourado realista para o topo dos pedestais
 const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
@@ -471,6 +477,7 @@ criarVitrine(-9.5, -1.8, 0);
 criarVitrine(-9.5, 1.8, 1);
 criarVitrine(9.5, -1.8, 2);
 criarVitrine(9.5, 1.8, 3);
+
 // ✨ Texto NANdART com dourado vivo e presença centralizada
 const fontLoader = new FontLoader();
 fontLoader.load(
@@ -513,6 +520,7 @@ fontLoader.load(
     scene.add(luzTexto.target);
   }
 );
+
 // ✨ Reflexos animados subtis — frisos, molduras e gemas
 scene.traverse(obj => {
   // Frisos dourados com brilho pulsante
@@ -562,35 +570,7 @@ scene.traverse(obj => {
     });
   }
 });
-// ✨ Animação contínua das obras circulantes e respetivos reflexos
-function animate() {
-  requestAnimationFrame(animate);
 
-  const tempo = Date.now() * -0.00012;
-
-  obrasNormais.forEach((obra, i) => {
-    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-    const x = Math.cos(angulo) * config.circleRadius;
-    const z = Math.sin(angulo) * config.circleRadius;
-    const rotacaoY = -angulo + Math.PI;
-
-    // Atualizar posição e orientação da obra
-    obra.position.x = x;
-    obra.position.z = z;
-    obra.rotation.y = rotacaoY;
-
-    // Atualizar reflexo correspondente
-    const reflexo = obra.userData.reflexo;
-    if (reflexo) {
-      reflexo.userData.targetPos.set(x, -0.01, z);
-      reflexo.userData.targetRot.set(0, rotacaoY, 0);
-      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
-      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
-    }
-  });
-
-  renderer.render(scene, camera);
-}
 // 🖼️ Obras circulantes suspensas (sem moldura) com reflexo no chão
 const obraPaths = [
   "/assets/obras/obra1.jpg",
@@ -705,30 +685,47 @@ obraPaths.forEach((src, i) => {
 
   obrasNormais.push(obra);
 });
+
 let obraSelecionada = null;
 
-// Wait for DOM to be fully loaded before selecting elements
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.querySelector('.art-modal');
-  const modalTitulo = document.getElementById('art-title');
-  const modalDescricao = document.getElementById('art-description');
-  const modalArtista = document.getElementById('art-artist');
-  const modalAno = document.getElementById('art-year');
-  const modalPreco = document.getElementById('art-price');
-  const botaoComprar = document.getElementById('buy-art');
+// ✨ Animação contínua das obras circulantes e respetivos reflexos
+function animate() {
+  requestAnimationFrame(animate);
 
-  // Only add event listener if the button exists
-  if (botaoComprar) {
-    botaoComprar.addEventListener('click', () => {
-      if (obraSelecionada) {
-        const index = obrasNormais.indexOf(obraSelecionada);
-        const dados = dadosObras[index];
-        buyHandler(dados);
-      }
-    });
-  } else {
-    console.error('Buy button not found in the DOM');
-  }
+  const tempo = Date.now() * -0.00012;
+
+  obrasNormais.forEach((obra, i) => {
+    const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
+    const x = Math.cos(angulo) * config.circleRadius;
+    const z = Math.sin(angulo) * config.circleRadius;
+    const rotacaoY = -angulo + Math.PI;
+
+    // Atualizar posição e orientação da obra
+    obra.position.x = x;
+    obra.position.z = z;
+    obra.rotation.y = rotacaoY;
+
+    // Atualizar reflexo correspondente
+    const reflexo = obra.userData.reflexo;
+    if (reflexo) {
+      reflexo.userData.targetPos.set(x, -0.01, z);
+      reflexo.userData.targetRot.set(0, rotacaoY, 0);
+      reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
+      reflexo.rotation.y += (rotacaoY - reflexo.rotation.y) * 0.1;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+// Modal functionality
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
 
 function abrirModal(dados, obra) {
   obraSelecionada = obra;
@@ -750,7 +747,7 @@ function abrirModal(dados, obra) {
     ease: 'power2.inOut'
   });
 }
-  
+
 // Fechar modal ao clicar fora da obra/modal
 window.addEventListener('pointerdown', e => {
   if (obraSelecionada && !modal.contains(e.target)) {
@@ -778,6 +775,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
     abrirModal(dados, obra);
   }
 });
+
 // Função real de compra com ethers.js e MetaMask
 async function buyHandler(dados) {
   if (!window.ethereum) {
@@ -797,7 +795,7 @@ async function buyHandler(dados) {
 
     // Enviar transação para o endereço da galeria
     const tx = await signer.sendTransaction({
-      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12', // Substituir pelo endereço real da galeria
+      to: '0xAbCdEf1234567890abcdef1234567890ABcDef12',
       value: valorETH
     });
 
@@ -811,14 +809,16 @@ async function buyHandler(dados) {
     alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
   }
 }
-// Evento de clique no botão "Comprar" do modal
-botaoComprar.addEventListener('click', () => {
-  if (obraSelecionada) {
-    const index = obrasNormais.indexOf(obraSelecionada);
-    const dados = dadosObras[index];
-    buyHandler(dados);
-  }
-});
+
+if (botaoComprar) {
+  botaoComprar.addEventListener('click', () => {
+    if (obraSelecionada) {
+      const index = obrasNormais.indexOf(obraSelecionada);
+      const dados = dadosObras[index];
+      buyHandler(dados);
+    }
+  });
+}
 
 // Iniciar a animação contínua da cena
 animate();

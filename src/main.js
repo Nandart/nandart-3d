@@ -716,7 +716,9 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
+// Variáveis globais para controle do destaque
 let obraSelecionada = null;
+let isHighlighted = false;
 const modal = document.querySelector('.art-modal');
 const modalTitulo = document.getElementById('art-title');
 const modalDescricao = document.getElementById('art-description');
@@ -725,56 +727,76 @@ const modalAno = document.getElementById('art-year');
 const modalPreco = document.getElementById('art-price');
 const botaoComprar = document.getElementById('buy-art');
 const blurOverlay = document.getElementById('blur-overlay');
-const walletButton = document.getElementById('wallet-button');
 
-// Função para destacar uma obra
-function destacarObra(obra) {
+// Função para destacar a obra selecionada
+function destacarObra(obra, dados) {
+  if (isHighlighted) return;
+  isHighlighted = true;
   obraSelecionada = obra;
-  animationSpeed = originalAnimationSpeed * 0.5; // Reduz velocidade pela metade
-  
-  // Mover obra para frente e centralizar
+
+  // Posição final desejada (1.5x a altura original)
+  const targetY = 6.3; // 4.2 * 1.5 ≈ 6.3
+  const targetZ = -config.wallDistance / 2; // Posição frontal
+
+  // Animação para mover a obra para frente
   gsap.to(obra.position, {
-    x: 0,
-    y: 6.3, // 1.5x superior à altura original
-    z: -config.wallDistance / 2,
+    x: 0, // Centralizado
+    y: targetY, // 1.5x mais alto
+    z: targetZ, // Posição frontal
     duration: 0.8,
-    ease: 'power2.out'
+    ease: 'power2.out',
+    onComplete: () => {
+      // Orientar a obra para frente (perpendicular ao usuário)
+      gsap.to(obra.rotation, {
+        y: 0, // Frente para o usuário
+        duration: 0.5,
+        ease: 'power2.out',
+        onComplete: mostrarModal
+      });
+    }
   });
-  
-  // Orientar obra para frente
-  gsap.to(obra.rotation, {
-    y: 0,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-  
+
   // Ativar blur overlay
   blurOverlay.classList.add('active');
-  
-  // Posicionar modal abaixo da obra
-  const obraRect = obra.geometry.parameters;
-  modal.style.width = `${obraRect.width * 120}px`;
-  modal.style.display = 'flex';
-  
-  // Ajustar posição do modal após o movimento da obra
-  setTimeout(() => {
-    const obraPos = obra.position.clone();
-    const screenPos = obraPos.clone().project(camera);
-    
-    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (screenPos.y * -0.5 + 0.5) * window.innerHeight;
-    
+
+  function mostrarModal() {
+    // Preencher informações do modal
+    modalTitulo.textContent = dados.titulo;
+    modalDescricao.textContent = dados.descricao;
+    modalArtista.textContent = dados.artista;
+    modalAno.textContent = dados.ano;
+    modalPreco.textContent = `${dados.preco} ETH`;
+
+    // Calcular posição do modal (1cm abaixo da obra)
+    const obraWidth = obra.geometry.parameters.width;
+    modal.style.width = `${obraWidth * 100}px`; // Ajustar largura conforme obra
+
+    // Converter posição 3D para coordenadas de tela
+    const vector = new THREE.Vector3();
+    vector.setFromMatrixPosition(obra.matrixWorld);
+    vector.project(camera);
+
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+
+    // Posicionar modal 1cm abaixo (aproximadamente 40px)
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`; // 1cm abaixo da obra
-  }, 800);
+    modal.style.top = `${y + 40}px`;
+
+    // Mostrar modal
+    modal.style.display = 'flex';
+  }
 }
 
 // Função para restaurar obra ao círculo
 function restaurarObra() {
-  if (!obraSelecionada) return;
-  
-  animationSpeed = originalAnimationSpeed;
-  
+  if (!isHighlighted) return;
+  isHighlighted = false;
+
+  // Esconder modal
+  modal.style.display = 'none';
+
+  // Restaurar posição e rotação originais
   gsap.to(obraSelecionada.position, {
     x: obraSelecionada.userData.originalPosition.x,
     y: obraSelecionada.userData.originalPosition.y,
@@ -782,38 +804,62 @@ function restaurarObra() {
     duration: 0.8,
     ease: 'power2.out'
   });
-  
+
   gsap.to(obraSelecionada.rotation, {
     y: obraSelecionada.userData.originalRotation.y,
     duration: 0.8,
     ease: 'power2.out'
   });
-  
+
+  // Desativar blur overlay
   blurOverlay.classList.remove('active');
-  modal.style.display = 'none';
-  obraSelecionada = null;
 }
 
-// ✨ Animação contínua das obras circulantes e respetivos reflexos
+// Detectar clique nas obras
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (isHighlighted) {
+    // Verificar se clique foi fora do modal
+    if (!modal.contains(e.target)) {
+      restaurarObra();
+    }
+    return;
+  }
+
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(obrasNormais);
+  if (intersects.length > 0) {
+    const obra = intersects[0].object;
+    const index = obrasNormais.indexOf(obra);
+    const dados = dadosObras[index];
+    destacarObra(obra, dados);
+  }
+});
+
+// Modificar a animação para reduzir velocidade quando obra está destacada
 function animate() {
   requestAnimationFrame(animate);
 
-  const tempo = Date.now() * animationSpeed;
+  const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012); // Metade da velocidade quando destacado
 
   obrasNormais.forEach((obra, i) => {
     if (obra === obraSelecionada) return;
-    
+
     const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
     const x = Math.cos(angulo) * config.circleRadius;
     const z = Math.sin(angulo) * config.circleRadius;
     const rotacaoY = -angulo + Math.PI;
 
-    // Atualizar posição e orientação da obra
     obra.position.x = x;
     obra.position.z = z;
     obra.rotation.y = rotacaoY;
 
-    // Atualizar reflexo correspondente
     const reflexo = obra.userData.reflexo;
     if (reflexo) {
       reflexo.userData.targetPos.set(x, -0.01, z);

@@ -7,15 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
-/ DOM Elements
-const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
-const blurOverlay = document.getElementById('blur-overlay');
+// Selecionar o botão da carteira
 const walletButton = document.getElementById('wallet-button');
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
@@ -89,7 +81,7 @@ luzRasanteEsquerda.shadow.mapSize.height = 1024;
 luzRasanteEsquerda.shadow.bias = -0.0005;
 scene.add(luzRasanteEsquerda);
 
-// Pavimento reflectivo e translúcido com aparência de vidro
+// Pavimento reflectivo e translúcido com aparência de obsidiana líquida
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
@@ -725,6 +717,17 @@ obraPaths.forEach((src, i) => {
   obrasNormais.push(obra);
 });
 
+// Variáveis globais para controle do destaque
+let obraSelecionada = null;
+let isHighlighted = false;
+const modal = document.querySelector('.art-modal');
+const modalTitulo = document.getElementById('art-title');
+const modalDescricao = document.getElementById('art-description');
+const modalArtista = document.getElementById('art-artist');
+const modalAno = document.getElementById('art-year');
+const modalPreco = document.getElementById('art-price');
+const botaoComprar = document.getElementById('buy-art');
+const blurOverlay = document.getElementById('blur-overlay');
 
 // Função para destacar a obra selecionada
 function destacarObra(obra, dados) {
@@ -989,8 +992,8 @@ if (walletButton) {
 }
 
 // Verificar se já está conectado ao carregar a página
-document.addEventListener('DOMContentLoaded', async () => {
-  if (window.ethereum && walletButton) {
+window.addEventListener('load', async () => {
+  if (window.ethereum) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const accounts = await provider.listAccounts();
     
@@ -1004,14 +1007,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       walletButton.style.padding = '10px 18px 10px 16px';
     }
   }
-
-  if (walletButton) {
-    walletButton.addEventListener('click', toggleWalletConnection);
-  }
 });
-
-// Start animation
-animate();
 
 // Iniciar a animação contínua da cena
 animate();

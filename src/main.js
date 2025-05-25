@@ -80,20 +80,25 @@ scene.add(luzRasanteEsquerda);
 
 // Pavimento reflectivo e translúcido com aparência de obsidiana líquida
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
+// Pavimento reflectivo e translúcido com aparência de vidro
+const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x000000,
+  color: 0xffffff, // Cor mais clara para melhor reflexão
   recursion: 2
 });
 
-floor.material.opacity = 0.44; // 2x mais transparente
-floor.material.roughness = 0.015;
-floor.material.metalness = 0.98;
+// Propriedades do material ajustadas para vidro
+floor.material.opacity = 0.22; // 4x mais transparente que o original (0.88 -> 0.22)
+floor.material.roughness = 0.01; // Mais liso para reflexões mais nítidas
+floor.material.metalness = 0.99; // Aproximando do comportamento metálico para melhor reflexão
 floor.material.transparent = true;
-floor.material.envMapIntensity = 1.4;
-floor.material.reflectivity = 0.985;
+floor.material.envMapIntensity = 2.8; // Intensidade de reflexão dobrada
+floor.material.reflectivity = 0.99; // Reflexão quase perfeita
+floor.material.ior = 1.45; // Índice de refração do vidro
+floor.material.thickness = 0.5; // Espessura para efeitos de refração
 
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;

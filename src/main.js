@@ -78,8 +78,6 @@ luzRasanteEsquerda.shadow.mapSize.height = 1024;
 luzRasanteEsquerda.shadow.bias = -0.0005;
 scene.add(luzRasanteEsquerda);
 
-// Pavimento reflectivo e translúcido com aparência de obsidiana líquida
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
 // Pavimento reflectivo e translúcido com aparência de vidro
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {

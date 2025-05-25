@@ -7,7 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
-import { dadosObras } from './dadosObras.js';
+
 
 console.log('🎨 Initialising NANdART 3D Gallery...');
 
@@ -183,6 +183,18 @@ circuloLuz.position.y = 0.005;
 scene.add(circuloLuz);
 
 // ==================== CRIAÇÃO DE OBRAS CIRCULANTES ====================
+
+const dadosObras = [
+  { id: 'obra1', titulo: 'Obra 1', artista: 'Artista A', ano: '2024', descricao: 'Descrição da Obra 1.', preco: '0.5', imagem: 'assets/obras/obra1.jpg' },
+  { id: 'obra2', titulo: 'Obra 2', artista: 'Artista B', ano: '2024', descricao: 'Descrição da Obra 2.', preco: '0.85', imagem: 'assets/obras/obra2.jpg' },
+  { id: 'obra3', titulo: 'Obra 3', artista: 'Artista C', ano: '2024', descricao: 'Descrição da Obra 3.', preco: '0.6', imagem: 'assets/obras/obra3.jpg' },
+  { id: 'obra4', titulo: 'Obra 4', artista: 'Artista D', ano: '2024', descricao: 'Descrição da Obra 4.', preco: '0.35', imagem: 'assets/obras/obra4.jpg' },
+  { id: 'obra5', titulo: 'Obra 5', artista: 'Artista E', ano: '2024', descricao: 'Descrição da Obra 5.', preco: '0.45', imagem: 'assets/obras/obra5.jpg' },
+  { id: 'obra6', titulo: 'Obra 6', artista: 'Artista F', ano: '2024', descricao: 'Descrição da Obra 6.', preco: '0.75', imagem: 'assets/obras/obra6.jpg' },
+  { id: 'obra7', titulo: 'Obra 7', artista: 'Artista G', ano: '2024', descricao: 'Descrição da Obra 7.', preco: '0.6', imagem: 'assets/obras/obra7.jpg' },
+  { id: 'obra8', titulo: 'Obra 8', artista: 'Artista H', ano: '2020', descricao: 'Descrição da Obra 8.', preco: '0.58', imagem: 'assets/obras/obra8.jpg' }
+];
+
 function criarObrasCirculares() {
   dadosObras.forEach((dados, index) => {
     textureLoader.load(dados.imagem, (texture) => {

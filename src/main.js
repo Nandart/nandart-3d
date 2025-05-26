@@ -323,46 +323,46 @@ rotY: -Math.PI / 2
 ];
 
 wallArtworks.forEach(({ src, x, y, z, rotY }) => {
-textureLoader.load(
-  src,
-  undefined,
-  undefined,
-  err => console.error(`Error loading ${src}:`, err)
-);
+  textureLoader.load(
+    src,
+    texture => {
+      const width = 4.4;
+      const height = 6.4;
 
-const width = 4.4;
-const height = 6.4;
+      const artworkGroup = new THREE.Group();
 
-const artworkGroup = new THREE.Group();
+      const frame = new THREE.Mesh(
+        new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
+        new THREE.MeshStandardMaterial({
+          color: 0x1e1a16,
+          metalness: 0.6,
+          roughness: 0.3,
+          emissive: 0x0d0c0a,
+          emissiveIntensity: 0.15
+        })
+      );
+      frame.position.z = -0.1;
+      artworkGroup.add(frame);
 
-const frame = new THREE.Mesh(
-new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
-new THREE.MeshStandardMaterial({
-color: 0x1e1a16,
-metalness: 0.6,
-roughness: 0.3,
-emissive: 0x0d0c0a,
-emissiveIntensity: 0.15
-})
-);
-frame.position.z = -0.1;
-artworkGroup.add(frame);
+      const painting = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, height),
+        new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 0.2,
+          metalness: 0.05,
+          side: THREE.FrontSide
+        })
+      );
+      painting.position.z = 0.01;
+      artworkGroup.add(painting);
 
-const painting = new THREE.Mesh(
-new THREE.PlaneGeometry(width, height),
-new THREE.MeshStandardMaterial({
-map: texture,
-roughness: 0.2,
-metalness: 0.05,
-side: THREE.FrontSide
-})
-);
-painting.position.z = 0.01;
-artworkGroup.add(painting);
-
-artworkGroup.position.set(x, y, z + 0.01);
-artworkGroup.rotation.y = rotY;
-scene.add(artworkGroup);
+      artworkGroup.position.set(x, y, z + 0.01);
+      artworkGroup.rotation.y = rotY;
+      scene.add(artworkGroup);
+    },
+    undefined,
+    err => console.error(`Error loading ${src}:`, err)
+  );
 });
 
 const goldMaterial = new THREE.MeshPhysicalMaterial({

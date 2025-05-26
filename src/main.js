@@ -359,7 +359,7 @@ const textura = textureLoader.load(
 src,
 undefined,
 undefined,
-err => console.error(Erro ao carregar ${src}:, err)
+  err => console.error(`Erro ao carregar ${src}:`, err
 );
 
 const largura = 4.4;

@@ -432,7 +432,7 @@ const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
 });
 
 // Textura da gema facetada azul
-const texturaGema = textureLoader.load('/assets/gemas/gema-azul.jpg.png');
+const texturaGema = textureLoader.load('/assets/gemas/gema1.png');
 
 // Função para criar uma vitrine completa com pedestal e gema
 function criarVitrine(x, z, indice) {

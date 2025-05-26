@@ -1,3 +1,4 @@
+// main.js
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -22,10 +23,10 @@ function getViewportLevel() {
 }
 
 const configMap = {
-  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 12, cameraY: 5.4, textSize: 0.4 },
-  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 13, cameraY: 5.7, textSize: 0.45 },
-  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 14, cameraY: 6.1, textSize: 0.5 },
-  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 16, cameraY: 6.5, textSize: 0.4 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 18, cameraY: 7, textSize: 0.45 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 20, cameraY: 7.5, textSize: 0.5 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 22, cameraY: 8, textSize: 0.55 }
 };
 
 let config = configMap[getViewportLevel()];
@@ -40,8 +41,8 @@ function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.fov = 34;
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, config.cameraY + 6.5, config.cameraZ + 15.2);
-  camera.lookAt(0, 7.3, -config.wallDistance + 0.8);
+  camera.position.set(0, config.cameraY, config.cameraZ);
+  camera.lookAt(0, 5, -config.wallDistance);
   camera.updateProjectionMatrix();
 }
 updateCamera();
@@ -87,19 +88,19 @@ const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0xffffff, // Cor mais clara para melhor reflexão
+  color: 0x333333,
   recursion: 2
 });
 
-// Propriedades do material ajustadas para vidro
-floor.material.opacity = 0.22; // 4x mais transparente que o original (0.88 -> 0.22)
-floor.material.roughness = 0.01; // Mais liso para reflexões mais nítidas
-floor.material.metalness = 0.99; // Aproximando do comportamento metálico para melhor reflexão
+// Propriedades do material ajustadas para vidro escuro
+floor.material.opacity = 0.22;
+floor.material.roughness = 0.01;
+floor.material.metalness = 0.99;
 floor.material.transparent = true;
-floor.material.envMapIntensity = 2.8; // Intensidade de reflexão dobrada
-floor.material.reflectivity = 0.99; // Reflexão quase perfeita
-floor.material.ior = 1.45; // Índice de refração do vidro
-floor.material.thickness = 0.5; // Espessura para efeitos de refração
+floor.material.envMapIntensity = 2.8;
+floor.material.reflectivity = 0.99;
+floor.material.ior = 1.45;
+floor.material.thickness = 0.5;
 
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -123,20 +124,6 @@ circle.rotation.x = -Math.PI / 2;
 circle.position.y = 0.051;
 circle.receiveShadow = true;
 scene.add(circle);
-
-// Friso horizontal dourado abaixo do círculo de luz
-const frisoChao = new THREE.Mesh(
-  new THREE.BoxGeometry(36, 0.06, 0.03),
-  new THREE.MeshStandardMaterial({
-    color: 0xd8b26c,
-    metalness: 1,
-    roughness: 0.05,
-    emissive: 0x3a2a0a,
-    emissiveIntensity: 0.25
-  })
-);
-frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
-scene.add(frisoChao);
 
 // Material dourado vivo usado em todos os frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
@@ -350,14 +337,14 @@ const obrasParede = [
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -14.5,
     y: 9.1,
-    z: -config.wallDistance / 2,
+    z: -config.wallDistance / 2 - 0.1,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 14.5,
     y: 9.1,
-    z: -config.wallDistance / 2,
+    z: -config.wallDistance / 2 - 0.1,
     rotY: -Math.PI / 2
   }
 ];
@@ -711,6 +698,7 @@ obraPaths.forEach((src, i) => {
   obra.userData.reflexo = reflexo;
   obra.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
   obra.userData.originalRotation = new THREE.Euler(0, ry, 0);
+  obra.userData.originalScale = new THREE.Vector3(1, 1, 1);
   reflexo.userData.targetPos = new THREE.Vector3();
   reflexo.userData.targetRot = new THREE.Euler();
 
@@ -735,58 +723,77 @@ function destacarObra(obra, dados) {
   isHighlighted = true;
   obraSelecionada = obra;
 
-  // Posição final desejada (1.5x a altura original)
-  const targetY = 6.3; // 4.2 * 1.5 ≈ 6.3
-  const targetZ = -config.wallDistance / 2; // Posição frontal
-
-  // Animação para mover a obra para frente
-  gsap.to(obra.position, {
-    x: 0, // Centralizado
-    y: targetY, // 1.5x mais alto
-    z: targetZ, // Posição frontal
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      // Orientar a obra para frente (perpendicular ao usuário)
-      gsap.to(obra.rotation, {
-        y: 0, // Frente para o usuário
-        duration: 0.5,
-        ease: 'power2.out',
-        onComplete: mostrarModal
-      });
-    }
-  });
-
   // Ativar blur overlay
   blurOverlay.classList.add('active');
 
-  function mostrarModal() {
-    // Preencher informações do modal
-    modalTitulo.textContent = dados.titulo;
-    modalDescricao.textContent = dados.descricao;
-    modalArtista.textContent = dados.artista;
-    modalAno.textContent = dados.ano;
-    modalPreco.textContent = `${dados.preco} ETH`;
+  // Guardar estado original
+  obra.userData.originalPosition = obra.position.clone();
+  obra.userData.originalRotation = obra.rotation.clone();
+  obra.userData.originalScale = obra.scale.clone();
 
-    // Calcular posição do modal (1cm abaixo da obra)
-    const obraWidth = obra.geometry.parameters.width;
-    modal.style.width = `${obraWidth * 100}px`; // Ajustar largura conforme obra
+  // Calcular posição e escala para destaque
+  const targetY = 6.3; // 1.5x da altura original (4.2 * 1.5)
+  const targetZ = -config.wallDistance / 2;
+  const targetScale = 2; // Dobrar o tamanho
 
-    // Converter posição 3D para coordenadas de tela
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(obra.matrixWorld);
-    vector.project(camera);
+  // Animação para mover e escalar a obra
+  gsap.to(obra.position, {
+    x: 0,
+    y: targetY,
+    z: targetZ,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
 
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+  gsap.to(obra.rotation, {
+    y: 0,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
 
-    // Posicionar modal 1cm abaixo (aproximadamente 40px)
-    modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`;
+  gsap.to(obra.scale, {
+    x: targetScale,
+    y: targetScale,
+    z: targetScale,
+    duration: 0.8,
+    ease: 'power2.out',
+    onComplete: () => mostrarModal(dados)
+  });
 
-    // Mostrar modal
-    modal.style.display = 'flex';
+  // Esconder reflexo durante o destaque
+  if (obra.userData.reflexo) {
+    obra.userData.reflexo.visible = false;
   }
+}
+
+// Função para mostrar o modal
+function mostrarModal(dados) {
+  // Preencher informações do modal
+  modalTitulo.textContent = dados.titulo;
+  modalDescricao.textContent = dados.descricao;
+  modalArtista.textContent = dados.artista;
+  modalAno.textContent = dados.ano;
+  modalPreco.textContent = `${dados.preco} ETH`;
+
+  // Converter posição 3D para coordenadas de tela
+  const vector = new THREE.Vector3();
+  obraSelecionada.getWorldPosition(vector);
+  vector.project(camera);
+
+  // Calcular posição na tela
+  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+
+  // Ajustar largura do modal conforme a obra
+  const obraWidth = obraSelecionada.geometry.parameters.width * obraSelecionada.scale.x;
+  modal.style.width = `${obraWidth * 120}px`; // Ajuste proporcional
+
+  // Posicionar modal 1cm abaixo da obra (aproximadamente 40px)
+  modal.style.left = `${x - modal.offsetWidth / 2}px`;
+  modal.style.top = `${y + 40}px`;
+
+  // Mostrar modal
+  modal.style.display = 'flex';
 }
 
 // Função para restaurar obra ao círculo
@@ -797,7 +804,7 @@ function restaurarObra() {
   // Esconder modal
   modal.style.display = 'none';
 
-  // Restaurar posição e rotação originais
+  // Restaurar posição, rotação e escala originais
   gsap.to(obraSelecionada.position, {
     x: obraSelecionada.userData.originalPosition.x,
     y: obraSelecionada.userData.originalPosition.y,
@@ -812,8 +819,23 @@ function restaurarObra() {
     ease: 'power2.out'
   });
 
+  gsap.to(obraSelecionada.scale, {
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
+
+  // Mostrar reflexo novamente
+  if (obraSelecionada.userData.reflexo) {
+    obraSelecionada.userData.reflexo.visible = true;
+  }
+
   // Desativar blur overlay
   blurOverlay.classList.remove('active');
+
+  obraSelecionada = null;
 }
 
 // Detectar clique nas obras
@@ -843,11 +865,10 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   }
 });
 
-// Modificar a animação para reduzir velocidade quando obra está destacada
 function animate() {
   requestAnimationFrame(animate);
 
-  const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012); // Metade da velocidade quando destacado
+  const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
 
   obrasNormais.forEach((obra, i) => {
     if (obra === obraSelecionada) return;
@@ -862,7 +883,7 @@ function animate() {
     obra.rotation.y = rotacaoY;
 
     const reflexo = obra.userData.reflexo;
-    if (reflexo) {
+    if (reflexo && reflexo.visible) {
       reflexo.userData.targetPos.set(x, -0.01, z);
       reflexo.userData.targetRot.set(0, rotacaoY, 0);
       reflexo.position.lerp(reflexo.userData.targetPos, 0.1);
@@ -872,44 +893,6 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-
-// Abrir modal com informações da obra
-function abrirModal(dados, obra) {
-  modalTitulo.textContent = dados.titulo;
-  modalDescricao.textContent = dados.descricao;
-  modalArtista.textContent = dados.artista;
-  modalAno.textContent = dados.ano;
-  modalPreco.textContent = `${dados.preco} ETH`;
-  
-  destacarObra(obra);
-}
-
-// Fechar modal ao clicar fora da obra/modal
-window.addEventListener('pointerdown', e => {
-  if (obraSelecionada && !modal.contains(e.target)) {
-    restaurarObra();
-  }
-});
-
-// Detetar clique/tap numa obra suspensa
-renderer.domElement.addEventListener('pointerdown', e => {
-  if (obraSelecionada) return;
-  
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(obrasNormais);
-  if (intersects.length > 0) {
-    const obra = intersects[0].object;
-    const index = obrasNormais.indexOf(obra);
-    const dados = dadosObras[index];
-    abrirModal(dados, obra);
-  }
-});
 
 // Função para conectar/desconectar carteira
 async function toggleWalletConnection() {

@@ -838,6 +838,7 @@ const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
 
 obrasNormais.forEach((obra, i) => {
 if (obra === obraSelecionada) return;
+
 const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
 const x = Math.cos(angulo) * config.circleRadius;
 const z = Math.sin(angulo) * config.circleRadius;
@@ -871,7 +872,8 @@ const provider = new ethers.BrowserProvider(window.ethereum);
 const balance = await provider.getBalance(accounts[0]);
 const formattedBalance = ethers.formatEther(balance);
 const shortBalance = parseFloat(formattedBalance).toFixed(3);
- walletButton.classList.add('connected');
+
+  walletButton.classList.add('connected');
   walletButton.innerHTML = `Connected <span id="wallet-balance">${shortBalance} ETH</span>`;
   walletButton.style.padding = '10px 18px 10px 16px';
 }
@@ -891,6 +893,7 @@ return;
 try {
 // Solicitar autorização à carteira do utilizador
 await window.ethereum.request({ method: 'eth_requestAccounts' });
+
 const provider = new ethers.BrowserProvider(window.ethereum);
 const signer = await provider.getSigner();
 
@@ -934,6 +937,7 @@ window.addEventListener('load', async () => {
 if (window.ethereum) {
 const provider = new ethers.BrowserProvider(window.ethereum);
 const accounts = await provider.listAccounts();
+
 if (accounts.length > 0) {
   const balance = await provider.getBalance(accounts[0].address);
   const formattedBalance = ethers.formatEther(balance);

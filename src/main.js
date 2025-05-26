@@ -218,52 +218,91 @@ criarFrisoLinha(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2); /
 criarFrisoLinha(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2); // lateral dir. inf.
 
 // 🖼️ Textura da obra central
+// 🖼️ Textura da obra central
 const texturaCentral = textureLoader.load(
-'/assets/obras/obra-central.jpg',
-undefined,
-undefined,
-err => console.error('Erro a carregar obra-central.jpg:', err)
+  '/assets/obras/obra-central.jpg',
+  undefined,
+  undefined,
+  err => console.error(`Erro ao carregar obra-central.jpg:`, err)
 );
 
-const quadroCentralGrupo = new THREE.Group();
-
-// Dimensões reais da pintura
-const larguraQuadro = 4.6;
-const alturaQuadro = 5.8;
-
-// 🟫 Moldura escura saliente
-const molduraCentral = new THREE.Mesh(
-new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
-new THREE.MeshStandardMaterial({
-color: 0x1e1a16,
-metalness: 0.6,
-roughness: 0.3,
-emissive: 0x0d0c0a,
-emissiveIntensity: 0.15
-})
+// Tentar carregar textura antracite, usar fallback se falhar
+textureLoader.load(
+  '/assets/antracite-realista.jpg',
+  texturaLocal => {
+    console.log('✅ Textura antracite local carregada.');
+    aplicarTexturaParede(texturaLocal);
+  },
+  undefined,
+  () => {
+    console.warn('⚠️ Falha ao carregar textura local. A usar fallback...');
+    aplicarTexturaParede(antraciteTexture);
+  }
 );
-molduraCentral.position.z = -0.1;
-quadroCentralGrupo.add(molduraCentral);
 
-// 🖼️ Pintura central
-const pinturaCentral = new THREE.Mesh(
-new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
-new THREE.MeshStandardMaterial({
-map: texturaCentral,
-roughness: 0.15,
-metalness: 0.1
-})
-);
-pinturaCentral.position.z = 0.01;
-quadroCentralGrupo.add(pinturaCentral);
+// 🖼️ Quadros laterais com moldura saliente
+const obrasParede = [
+  {
+    src: '/assets/obras/obra-lateral-esquerda.jpg',
+    x: -14.5,
+    y: 9.1,
+    z: -config.wallDistance / 2,
+    rotY: Math.PI / 2
+  },
+  {
+    src: '/assets/obras/obra-lateral-direita.jpg',
+    x: 14.5,
+    y: 9.1,
+    z: -config.wallDistance / 2,
+    rotY: -Math.PI / 2
+  }
+];
 
-// Posicionamento final do grupo
-quadroCentralGrupo.position.set(
-0,
-10.3,
--config.wallDistance + 0.001
-);
-scene.add(quadroCentralGrupo);
+obrasParede.forEach(({ src, x, y, z, rotY }) => {
+  const textura = textureLoader.load(
+    src,
+    undefined,
+    undefined,
+    err => console.error(`Erro ao carregar ${src}:`, err)
+  );
+
+  const largura = 4.4;
+  const altura = 6.4;
+
+  const grupoQuadro = new THREE.Group();
+
+  // Moldura escura com relevo e volume
+  const moldura = new THREE.Mesh(
+    new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
+    new THREE.MeshStandardMaterial({
+      color: 0x1e1a16,
+      metalness: 0.6,
+      roughness: 0.3,
+      emissive: 0x0d0c0a,
+      emissiveIntensity: 0.15
+    })
+  );
+  moldura.position.z = -0.1;
+  grupoQuadro.add(moldura);
+
+  // Pintura com textura individual
+  const quadro = new THREE.Mesh(
+    new THREE.PlaneGeometry(largura, altura),
+    new THREE.MeshStandardMaterial({
+      map: textura,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.FrontSide
+    })
+  );
+  quadro.position.z = 0.01;
+  grupoQuadro.add(quadro);
+
+  // Posicionamento final na parede correspondente
+  grupoQuadro.position.set(x, y, z + 0.01);
+  grupoQuadro.rotation.y = rotY;
+  scene.add(grupoQuadro);
+});
 
 // Textura antracite ultra realista como fallback
 const antraciteTextureData = {

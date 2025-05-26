@@ -744,7 +744,7 @@ function restoreArtwork() {
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (isHighlighted) {
-    if (!modal.contains(e.target) {
+    if (!modal.contains(e.target)) {
       restoreArtwork();
     }
     return;

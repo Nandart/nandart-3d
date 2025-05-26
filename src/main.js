@@ -1,4 +1,3 @@
-// main.js
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -23,10 +22,10 @@ function getViewportLevel() {
 }
 
 const configMap = {
-  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 8, textSize: 0.4, cameraFOV: 40 },
-  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 20, cameraY: 8.5, textSize: 0.45, cameraFOV: 38 },
-  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 22, cameraY: 9, textSize: 0.5, cameraFOV: 36 },
-  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 24, cameraY: 9.5, textSize: 0.55, cameraFOV: 34 }
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 12, cameraY: 5.4, textSize: 0.4 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 13, cameraY: 5.7, textSize: 0.45 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 14, cameraY: 6.1, textSize: 0.5 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
 };
 
 let config = configMap[getViewportLevel()];
@@ -36,20 +35,18 @@ scene.background = new THREE.Color(0x111111);
 
 const textureLoader = new THREE.TextureLoader();
 
-// Configuração avançada da câmera
+// Configuração avançada da câmera para capturar toda a cena
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = config.cameraFOV;
+  camera.fov = 45; // Campo de visão mais amplo
   camera.aspect = window.innerWidth / window.innerHeight;
   
-  // Posição otimizada para capturar toda a cena
-  camera.position.set(0, config.cameraY, config.cameraZ);
+  // Posição da câmera ajustada para capturar toda a cena
+  camera.position.set(0, 9, 22); // Posição mais alta e mais distante
+  camera.lookAt(0, 7, -config.wallDistance);
   
-  // Ponto de foco centralizado considerando toda a cena
-  camera.lookAt(0, 5, -config.wallDistance);
-  
-  // Ajuste de near/far para evitar clipping
+  // Ajustar near e far para garantir que tudo seja renderizado
   camera.near = 0.1;
   camera.far = 100;
   
@@ -60,7 +57,7 @@ updateCamera();
 const renderer = new THREE.WebGLRenderer({ 
   canvas: document.getElementById('scene'), 
   antialias: true,
-  powerPreference: "high-performance"
+  alpha: true
 });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -68,7 +65,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
-renderer.physicallyCorrectLights = true;
 
 window.addEventListener('resize', () => {
   updateCamera();
@@ -103,11 +99,10 @@ const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x333333,
-  recursion: 1
+  color: 0xffffff,
+  recursion: 2
 });
 
-// Propriedades do material ajustadas para vidro escuro
 floor.material.opacity = 0.22;
 floor.material.roughness = 0.01;
 floor.material.metalness = 0.99;
@@ -139,6 +134,20 @@ circle.rotation.x = -Math.PI / 2;
 circle.position.y = 0.051;
 circle.receiveShadow = true;
 scene.add(circle);
+
+// Friso horizontal dourado abaixo do círculo de luz
+const frisoChao = new THREE.Mesh(
+  new THREE.BoxGeometry(36, 0.06, 0.03),
+  new THREE.MeshStandardMaterial({
+    color: 0xd8b26c,
+    metalness: 1,
+    roughness: 0.05,
+    emissive: 0x3a2a0a,
+    emissiveIntensity: 0.25
+  })
+);
+frisoChao.position.set(0, 0.032, -config.wallDistance / 2 + 0.8);
+scene.add(frisoChao);
 
 // Material dourado vivo usado em todos os frisos
 const frisoMaterial = new THREE.MeshStandardMaterial({
@@ -295,7 +304,7 @@ const antraciteTexture = new THREE.DataTexture(
 );
 antraciteTexture.needsUpdate = true;
 
-// 🧱 Geometrias base das paredes com reflexão
+// 🧱 Geometrias base das paredes
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
@@ -330,25 +339,6 @@ const aplicarTexturaParede = textura => {
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
-
-  // Adicionar reflexos sutis nas paredes
-  [paredeFundo, paredeEsquerda, paredeDireita].forEach(parede => {
-    const reflector = new Reflector(parede.geometry, {
-      clipBias: 0.003,
-      textureWidth: window.innerWidth * window.devicePixelRatio,
-      textureHeight: window.innerHeight * window.devicePixelRatio,
-      color: 0x333333
-    });
-    
-    reflector.position.copy(parede.position);
-    reflector.rotation.copy(parede.rotation);
-    reflector.material.opacity = 0.15;
-    reflector.material.transparent = true;
-    reflector.material.roughness = 0.8;
-    reflector.material.metalness = 0.2;
-    reflector.material.envMapIntensity = 0.5;
-    scene.add(reflector);
-  });
 };
 
 // Tentar carregar textura antracite, usar fallback se falhar
@@ -371,14 +361,14 @@ const obrasParede = [
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -14.5,
     y: 9.1,
-    z: -config.wallDistance / 2 - 0.1,
+    z: -config.wallDistance / 2,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 14.5,
     y: 9.1,
-    z: -config.wallDistance / 2 - 0.1,
+    z: -config.wallDistance / 2,
     rotY: -Math.PI / 2
   }
 ];
@@ -695,9 +685,6 @@ const obrasNormais = [];
 let animationSpeed = -0.00012;
 let originalAnimationSpeed = -0.00012;
 
-// Variável para armazenar o tempo da última animação
-let lastAnimationTime = performance.now();
-
 obraPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
   const ang = (i / obraPaths.length) * Math.PI * 2;
@@ -735,7 +722,6 @@ obraPaths.forEach((src, i) => {
   obra.userData.reflexo = reflexo;
   obra.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
   obra.userData.originalRotation = new THREE.Euler(0, ry, 0);
-  obra.userData.originalScale = new THREE.Vector3(1, 1, 1);
   reflexo.userData.targetPos = new THREE.Vector3();
   reflexo.userData.targetRot = new THREE.Euler();
 
@@ -760,78 +746,66 @@ function destacarObra(obra, dados) {
   isHighlighted = true;
   obraSelecionada = obra;
 
-  // Ativar blur overlay (exceto na obra selecionada)
-  blurOverlay.classList.add('active');
-  obra.renderOrder = 999; // Garante que a obra fique sobre o blur
+  // Aplicar classe para garantir que a obra fique acima do blur
+  obra.renderOrder = 999;
+  obra.material.depthTest = false;
+  obra.material.depthWrite = false;
 
-  // Guardar estado original
-  obra.userData.originalPosition = obra.position.clone();
-  obra.userData.originalRotation = obra.rotation.clone();
-  obra.userData.originalScale = obra.scale.clone();
-
-  // Calcular posição e escala para destaque (dobrando o tamanho)
+  // Posição final desejada (2x o tamanho original)
   const targetY = 6.3;
   const targetZ = -config.wallDistance / 2;
-  const targetScale = 2; // Dobrar o tamanho
 
-  // Animação para mover e escalar a obra
+  // Duplicar o tamanho da obra
+  obra.scale.set(2, 2, 2);
+
+  // Animação para mover a obra para frente
   gsap.to(obra.position, {
     x: 0,
     y: targetY,
     z: targetZ,
     duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(obra.rotation, {
-    y: 0,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(obra.scale, {
-    x: targetScale,
-    y: targetScale,
-    z: targetScale,
-    duration: 0.8,
     ease: 'power2.out',
-    onComplete: () => mostrarModal(dados)
+    onComplete: () => {
+      gsap.to(obra.rotation, {
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        onComplete: mostrarModal
+      });
+    }
   });
 
-  // Esconder reflexo durante o destaque
+  // Esconder reflexo da obra destacada
   if (obra.userData.reflexo) {
     obra.userData.reflexo.visible = false;
   }
-}
 
-// Função para mostrar o modal
-function mostrarModal(dados) {
-  // Preencher informações do modal
-  modalTitulo.textContent = dados.titulo;
-  modalDescricao.textContent = dados.descricao;
-  modalArtista.textContent = dados.artista;
-  modalAno.textContent = dados.ano;
-  modalPreco.textContent = `${dados.preco} ETH`;
+  // Ativar blur overlay
+  blurOverlay.classList.add('active');
 
-  // Converter posição 3D para coordenadas de tela
-  const vector = new THREE.Vector3();
-  obraSelecionada.getWorldPosition(vector);
-  vector.project(camera);
+  function mostrarModal() {
+    // Preencher informações do modal
+    modalTitulo.textContent = dados.titulo;
+    modalDescricao.textContent = dados.descricao;
+    modalArtista.textContent = dados.artista;
+    modalAno.textContent = dados.ano;
+    modalPreco.textContent = `${dados.preco} ETH`;
 
-  // Calcular posição na tela
-  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+    // Converter posição 3D para coordenadas de tela
+    const vector = new THREE.Vector3();
+    vector.setFromMatrixPosition(obra.matrixWorld);
+    vector.project(camera);
 
-  // Ajustar largura do modal conforme a obra
-  const obraWidth = obraSelecionada.geometry.parameters.width * obraSelecionada.scale.x;
-  modal.style.width = `${obraWidth * 120}px`; // Ajuste proporcional
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
-  // Posicionar modal 1cm abaixo da obra (aproximadamente 40px)
-  modal.style.left = `${x - modal.offsetWidth / 2}px`;
-  modal.style.top = `${y + 40}px`;
+    // Posicionar modal 1cm abaixo (aproximadamente 40px)
+    modal.style.left = `${x - modal.offsetWidth / 2}px`;
+    modal.style.top = `${y + 40}px`;
 
-  // Mostrar modal
-  modal.style.display = 'flex';
+    // Mostrar modal
+    modal.style.display = 'flex';
+  }
 }
 
 // Função para restaurar obra ao círculo
@@ -842,7 +816,15 @@ function restaurarObra() {
   // Esconder modal
   modal.style.display = 'none';
 
-  // Restaurar posição, rotação e escala originais
+  // Restaurar propriedades de renderização
+  obraSelecionada.renderOrder = 0;
+  obraSelecionada.material.depthTest = true;
+  obraSelecionada.material.depthWrite = true;
+
+  // Restaurar tamanho original
+  obraSelecionada.scale.set(1, 1, 1);
+
+  // Restaurar posição e rotação originais
   gsap.to(obraSelecionada.position, {
     x: obraSelecionada.userData.originalPosition.x,
     y: obraSelecionada.userData.originalPosition.y,
@@ -857,17 +839,6 @@ function restaurarObra() {
     ease: 'power2.out'
   });
 
-  gsap.to(obraSelecionada.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      obraSelecionada.renderOrder = 0; // Reset render order
-    }
-  });
-
   // Mostrar reflexo novamente
   if (obraSelecionada.userData.reflexo) {
     obraSelecionada.userData.reflexo.visible = true;
@@ -875,8 +846,6 @@ function restaurarObra() {
 
   // Desativar blur overlay
   blurOverlay.classList.remove('active');
-
-  obraSelecionada = null;
 }
 
 // Detectar clique nas obras
@@ -906,16 +875,11 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   }
 });
 
+// Modificar a animação para reduzir velocidade quando obra está destacada
 function animate() {
   requestAnimationFrame(animate);
 
-  // Calcular delta time para animação suave independente do framerate
-  const now = performance.now();
-  const deltaTime = now - lastAnimationTime;
-  lastAnimationTime = now;
-
-  // Usar deltaTime para manter a velocidade consistente
-  const tempo = now * (isHighlighted ? -0.00006 : -0.00012);
+  const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
 
   obrasNormais.forEach((obra, i) => {
     if (obra === obraSelecionada) return;
@@ -930,7 +894,7 @@ function animate() {
     obra.rotation.y = rotacaoY;
 
     const reflexo = obra.userData.reflexo;
-    if (reflexo && reflexo.visible) {
+    if (reflexo) {
       reflexo.userData.targetPos.set(x, -0.01, z);
       reflexo.userData.targetRot.set(0, rotacaoY, 0);
       reflexo.position.lerp(reflexo.userData.targetPos, 0.1);

@@ -23,10 +23,10 @@ function getViewportLevel() {
 }
 
 const configMap = {
-  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 16, cameraY: 6.5, textSize: 0.4 },
-  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 18, cameraY: 7, textSize: 0.45 },
-  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 20, cameraY: 7.5, textSize: 0.5 },
-  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 22, cameraY: 8, textSize: 0.55 }
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 18, cameraY: 8, textSize: 0.4, cameraFOV: 40 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 20, cameraY: 8.5, textSize: 0.45, cameraFOV: 38 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 22, cameraY: 9, textSize: 0.5, cameraFOV: 36 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 24, cameraY: 9.5, textSize: 0.55, cameraFOV: 34 }
 };
 
 let config = configMap[getViewportLevel()];
@@ -36,24 +36,39 @@ scene.background = new THREE.Color(0x111111);
 
 const textureLoader = new THREE.TextureLoader();
 
+// Configuração avançada da câmera
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 34;
+  camera.fov = config.cameraFOV;
   camera.aspect = window.innerWidth / window.innerHeight;
+  
+  // Posição otimizada para capturar toda a cena
   camera.position.set(0, config.cameraY, config.cameraZ);
+  
+  // Ponto de foco centralizado considerando toda a cena
   camera.lookAt(0, 5, -config.wallDistance);
+  
+  // Ajuste de near/far para evitar clipping
+  camera.near = 0.1;
+  camera.far = 100;
+  
   camera.updateProjectionMatrix();
 }
 updateCamera();
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene'), antialias: true });
+const renderer = new THREE.WebGLRenderer({ 
+  canvas: document.getElementById('scene'), 
+  antialias: true,
+  powerPreference: "high-performance"
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 2.25;
+renderer.physicallyCorrectLights = true;
 
 window.addEventListener('resize', () => {
   updateCamera();
@@ -89,7 +104,7 @@ const floor = new Reflector(floorGeometry, {
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x333333,
-  recursion: 2
+  recursion: 1
 });
 
 // Propriedades do material ajustadas para vidro escuro
@@ -280,7 +295,7 @@ const antraciteTexture = new THREE.DataTexture(
 );
 antraciteTexture.needsUpdate = true;
 
-// 🧱 Geometrias base das paredes
+// 🧱 Geometrias base das paredes com reflexão
 const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
 const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
 
@@ -315,6 +330,25 @@ const aplicarTexturaParede = textura => {
   paredeDireita.rotation.y = -Math.PI / 2;
   paredeDireita.receiveShadow = true;
   scene.add(paredeDireita);
+
+  // Adicionar reflexos sutis nas paredes
+  [paredeFundo, paredeEsquerda, paredeDireita].forEach(parede => {
+    const reflector = new Reflector(parede.geometry, {
+      clipBias: 0.003,
+      textureWidth: window.innerWidth * window.devicePixelRatio,
+      textureHeight: window.innerHeight * window.devicePixelRatio,
+      color: 0x333333
+    });
+    
+    reflector.position.copy(parede.position);
+    reflector.rotation.copy(parede.rotation);
+    reflector.material.opacity = 0.15;
+    reflector.material.transparent = true;
+    reflector.material.roughness = 0.8;
+    reflector.material.metalness = 0.2;
+    reflector.material.envMapIntensity = 0.5;
+    scene.add(reflector);
+  });
 };
 
 // Tentar carregar textura antracite, usar fallback se falhar
@@ -661,6 +695,9 @@ const obrasNormais = [];
 let animationSpeed = -0.00012;
 let originalAnimationSpeed = -0.00012;
 
+// Variável para armazenar o tempo da última animação
+let lastAnimationTime = performance.now();
+
 obraPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
   const ang = (i / obraPaths.length) * Math.PI * 2;
@@ -723,16 +760,17 @@ function destacarObra(obra, dados) {
   isHighlighted = true;
   obraSelecionada = obra;
 
-  // Ativar blur overlay
+  // Ativar blur overlay (exceto na obra selecionada)
   blurOverlay.classList.add('active');
+  obra.renderOrder = 999; // Garante que a obra fique sobre o blur
 
   // Guardar estado original
   obra.userData.originalPosition = obra.position.clone();
   obra.userData.originalRotation = obra.rotation.clone();
   obra.userData.originalScale = obra.scale.clone();
 
-  // Calcular posição e escala para destaque
-  const targetY = 6.3; // 1.5x da altura original (4.2 * 1.5)
+  // Calcular posição e escala para destaque (dobrando o tamanho)
+  const targetY = 6.3;
   const targetZ = -config.wallDistance / 2;
   const targetScale = 2; // Dobrar o tamanho
 
@@ -824,7 +862,10 @@ function restaurarObra() {
     y: 1,
     z: 1,
     duration: 0.8,
-    ease: 'power2.out'
+    ease: 'power2.out',
+    onComplete: () => {
+      obraSelecionada.renderOrder = 0; // Reset render order
+    }
   });
 
   // Mostrar reflexo novamente
@@ -868,7 +909,13 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
 function animate() {
   requestAnimationFrame(animate);
 
-  const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
+  // Calcular delta time para animação suave independente do framerate
+  const now = performance.now();
+  const deltaTime = now - lastAnimationTime;
+  lastAnimationTime = now;
+
+  // Usar deltaTime para manter a velocidade consistente
+  const tempo = now * (isHighlighted ? -0.00006 : -0.00012);
 
   obrasNormais.forEach((obra, i) => {
     if (obra === obraSelecionada) return;

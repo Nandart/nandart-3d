@@ -11,10 +11,10 @@ const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 function getViewportLevel() {
-const largura = window.innerWidth;
-if (largura < 480) return 'XS';
-if (largura < 768) return 'SM';
-if (largura < 1024) return 'MD';
+const width = window.innerWidth;
+if (width < 480) return 'XS';
+if (width < 768) return 'SM';
+if (width < 1024) return 'MD';
 return 'LG';
 }
 
@@ -62,24 +62,24 @@ updateCamera();
 renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const luzAmbiente1 = new THREE.AmbientLight(0xfff2dd, 0.6);
-const luzAmbiente2 = new THREE.AmbientLight(0xfff2dd, 0.6);
-scene.add(luzAmbiente1, luzAmbiente2);
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+scene.add(ambientLight1, ambientLight2);
 
-const luzHemisferica = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
-scene.add(luzHemisferica);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
+scene.add(hemisphereLight);
 
-const luzRasanteEsquerda = new THREE.SpotLight(0xfff2dd, 0.6);
-luzRasanteEsquerda.position.set(-10, 8, 0);
-luzRasanteEsquerda.angle = Math.PI / 6;
-luzRasanteEsquerda.penumbra = 0.3;
-luzRasanteEsquerda.decay = 2;
-luzRasanteEsquerda.distance = 25;
-luzRasanteEsquerda.castShadow = true;
-luzRasanteEsquerda.shadow.mapSize.width = 1024;
-luzRasanteEsquerda.shadow.mapSize.height = 1024;
-luzRasanteEsquerda.shadow.bias = -0.0005;
-scene.add(luzRasanteEsquerda);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
+spotLightLeft.position.set(-10, 8, 0);
+spotLightLeft.angle = Math.PI / 6;
+spotLightLeft.penumbra = 0.3;
+spotLightLeft.decay = 2;
+spotLightLeft.distance = 25;
+spotLightLeft.castShadow = true;
+spotLightLeft.shadow.mapSize.width = 1024;
+spotLightLeft.shadow.mapSize.height = 1024;
+spotLightLeft.shadow.bias = -0.0005;
+scene.add(spotLightLeft);
 
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
@@ -121,7 +121,7 @@ circle.position.y = 0.051;
 circle.receiveShadow = true;
 scene.add(circle);
 
-const frisoMaterial = new THREE.MeshStandardMaterial({
+const trimMaterial = new THREE.MeshStandardMaterial({
 color: 0xf3cc80,
 metalness: 1,
 roughness: 0.08,
@@ -129,37 +129,37 @@ emissive: 0xf3cc80,
 emissiveIntensity: 0.45
 });
 
-function criarFrisoLinha(x, y, z, largura, altura = 0.06, rotY = 0) {
-const friso = new THREE.Mesh(
-new THREE.BoxGeometry(largura, altura, 0.02),
-frisoMaterial
+function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
+const trim = new THREE.Mesh(
+new THREE.BoxGeometry(width, height, 0.02),
+trimMaterial
 );
-friso.position.set(x, y, z);
-friso.rotation.y = rotY;
-friso.castShadow = false;
-scene.add(friso);
-return friso;
+trim.position.set(x, y, z);
+trim.rotation.y = rotY;
+trim.castShadow = false;
+scene.add(trim);
+return trim;
 }
 
-function criarFrisoRect(x, y, z, largura, altura, rotY = 0) {
+function createTrimRect(x, y, z, width, height, rotY = 0) {
 const group = new THREE.Group();
-const espessura = 0.06;
+const thickness = 0.06;
 
-const topo = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
-topo.position.set(0, altura / 2, 0);
-group.add(topo);
+const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+top.position.set(0, height / 2, 0);
+group.add(top);
 
-const base = new THREE.Mesh(new THREE.BoxGeometry(largura, espessura, 0.02), frisoMaterial);
-base.position.set(0, -altura / 2, 0);
-group.add(base);
+const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+bottom.position.set(0, -height / 2, 0);
+group.add(bottom);
 
-const esquerda = new THREE.Mesh(new THREE.BoxGeometry(espessura, altura - espessura * 2, 0.02), frisoMaterial);
-esquerda.position.set(-largura / 2 + espessura / 2, 0, 0);
-group.add(esquerda);
+const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+left.position.set(-width / 2 + thickness / 2, 0, 0);
+group.add(left);
 
-const direita = new THREE.Mesh(new THREE.BoxGeometry(espessura, altura - espessura * 2, 0.02), frisoMaterial);
-direita.position.set(largura / 2 - espessura / 2, 0, 0);
-group.add(direita);
+const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+right.position.set(width / 2 - thickness / 2, 0, 0);
+group.add(right);
 
 group.position.set(x, y, z);
 group.rotation.y = rotY;
@@ -167,7 +167,7 @@ scene.add(group);
 return group;
 }
 
-const frisoCentral = criarFrisoRect(
+const centerTrim = createTrimRect(
 0,
 10.3,
 -config.wallDistance + 0.01,
@@ -175,44 +175,43 @@ const frisoCentral = criarFrisoRect(
 7.0
 );
 
-criarFrisoLinha(
+createTrimLine(
 0,
 13.1,
 -config.wallDistance + 0.012,
 4.5
 );
 
-const posXFrisoLateral = 6.7;
-const alturaFrisoExt = 8.8;
-const alturaFrisoInt = 7.1;
+const sideTrimPosX = 6.7;
+const outerTrimHeight = 8.8;
+const innerTrimHeight = 7.1;
 
-criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
-criarFrisoRect(-posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
-criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.01, 3.2, alturaFrisoExt);
-criarFrisoRect(posXFrisoLateral, 10.3, -config.wallDistance + 0.012, 1.6, alturaFrisoInt);
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
 
-// Frisos horizontais inferiores com continuidade perfeita
-const frisoFundoSup = criarFrisoLinha(0, 2.0, -config.wallDistance + 0.01, 36);
-const frisoFundoInf = criarFrisoLinha(0, 1.7, -config.wallDistance + 0.012, 36);
-const frisoLateralEsqSup = criarFrisoLinha(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const frisoLateralEsqInf = criarFrisoLinha(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const frisoLateralDirSup = criarFrisoLinha(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
-const frisoLateralDirInf = criarFrisoLinha(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+const backWallTopTrim = createTrimLine(0, 2.0, -config.wallDistance + 0.01, 36);
+const backWallBottomTrim = createTrimLine(0, 1.7, -config.wallDistance + 0.012, 36);
+const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
 
-const texturaCentral = textureLoader.load(
+const centerTexture = textureLoader.load(
 '/assets/obras/obra-central.jpg',
 undefined,
 undefined,
-err => console.error('Erro ao carregar obra-central.jpg:', err)
+err => console.error('Error loading center artwork:', err)
 );
 
-const quadroCentralGrupo = new THREE.Group();
+const centerArtGroup = new THREE.Group();
 
-const larguraQuadro = 4.6;
-const alturaQuadro = 5.8;
+const frameWidth = 4.6;
+const frameHeight = 5.8;
 
-const molduraCentral = new THREE.Mesh(
-new THREE.BoxGeometry(larguraQuadro + 0.3, alturaQuadro + 0.3, 0.18),
+const centerFrame = new THREE.Mesh(
+new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
 new THREE.MeshStandardMaterial({
 color: 0x1e1a16,
 metalness: 0.6,
@@ -221,28 +220,28 @@ emissive: 0x0d0c0a,
 emissiveIntensity: 0.15
 })
 );
-molduraCentral.position.z = -0.1;
-quadroCentralGrupo.add(molduraCentral);
+centerFrame.position.z = -0.1;
+centerArtGroup.add(centerFrame);
 
-const pinturaCentral = new THREE.Mesh(
-new THREE.PlaneGeometry(larguraQuadro, alturaQuadro),
+const centerPainting = new THREE.Mesh(
+new THREE.PlaneGeometry(frameWidth, frameHeight),
 new THREE.MeshStandardMaterial({
-map: texturaCentral,
+map: centerTexture,
 roughness: 0.15,
 metalness: 0.1
 })
 );
-pinturaCentral.position.z = 0.01;
-quadroCentralGrupo.add(pinturaCentral);
+centerPainting.position.z = 0.01;
+centerArtGroup.add(centerPainting);
 
-quadroCentralGrupo.position.set(
+centerArtGroup.position.set(
 0,
 10.3,
 -config.wallDistance + 0.001
 );
-scene.add(quadroCentralGrupo);
+scene.add(centerArtGroup);
 
-const antraciteTextureData = {
+const wallTextureData = {
 data: new Uint8Array([
 60, 60, 60, 255, 65, 65, 65, 255, 55, 55, 55, 255, 70, 70, 70, 255,
 65, 65, 65, 255, 60, 60, 60, 255, 55, 55, 55, 255, 50, 50, 50, 255,
@@ -253,20 +252,20 @@ width: 4,
 height: 4
 };
 
-const antraciteTexture = new THREE.DataTexture(
-antraciteTextureData.data,
-antraciteTextureData.width,
-antraciteTextureData.height,
+const wallTexture = new THREE.DataTexture(
+wallTextureData.data,
+wallTextureData.width,
+wallTextureData.height,
 THREE.RGBAFormat
 );
-antraciteTexture.needsUpdate = true;
+wallTexture.needsUpdate = true;
 
-const paredeGeoFundo = new THREE.PlaneGeometry(40, 30);
-const paredeGeoLateral = new THREE.PlaneGeometry(30, 28);
+const backWallGeo = new THREE.PlaneGeometry(40, 30);
+const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
-const aplicarTexturaParede = textura => {
-const paredeMaterial = new THREE.MeshStandardMaterial({
-map: textura,
+const applyWallTexture = texture => {
+const wallMaterial = new THREE.MeshStandardMaterial({
+map: texture,
 color: 0x0a0a0a,
 emissive: new THREE.Color(0x080808),
 emissiveIntensity: 0.15,
@@ -275,38 +274,38 @@ metalness: 0.15,
 side: THREE.FrontSide
 });
 
-const paredeFundo = new THREE.Mesh(paredeGeoFundo, paredeMaterial);
-paredeFundo.position.set(0, 13.6, -config.wallDistance - 4.1);
-paredeFundo.receiveShadow = true;
-scene.add(paredeFundo);
+const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
+backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
+backWall.receiveShadow = true;
+scene.add(backWall);
 
-const paredeEsquerda = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-paredeEsquerda.position.set(-14.6, 13.4, -config.wallDistance / 2);
-paredeEsquerda.rotation.y = Math.PI / 2;
-paredeEsquerda.receiveShadow = true;
-scene.add(paredeEsquerda);
+const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
+leftWall.rotation.y = Math.PI / 2;
+leftWall.receiveShadow = true;
+scene.add(leftWall);
 
-const paredeDireita = new THREE.Mesh(paredeGeoLateral, paredeMaterial);
-paredeDireita.position.set(14.6, 13.4, -config.wallDistance / 2);
-paredeDireita.rotation.y = -Math.PI / 2;
-paredeDireita.receiveShadow = true;
-scene.add(paredeDireita);
+const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.receiveShadow = true;
+scene.add(rightWall);
 };
 
 textureLoader.load(
 '/assets/antracite-realista.jpg',
-texturaLocal => {
-console.log('✅ Textura antracite local carregada.');
-aplicarTexturaParede(texturaLocal);
+texture => {
+console.log('✅ Wall texture loaded');
+applyWallTexture(texture);
 },
 undefined,
 () => {
-console.warn('⚠️ Falha ao carregar textura local. A usar fallback...');
-aplicarTexturaParede(antraciteTexture);
+console.warn('⚠️ Using fallback wall texture');
+applyWallTexture(wallTexture);
 }
 );
 
-const obrasParede = [
+const wallArtworks = [
 {
 src: '/assets/obras/obra-lateral-esquerda.jpg',
 x: -12.0,
@@ -323,21 +322,21 @@ rotY: -Math.PI / 2
 }
 ];
 
-obrasParede.forEach(({ src, x, y, z, rotY }) => {
-const textura = textureLoader.load(
+wallArtworks.forEach(({ src, x, y, z, rotY }) => {
+const texture = textureLoader.load(
 src,
 undefined,
 undefined,
-err => console.error(Erro ao carregar ${src}:, err)
+err => console.error(Error loading ${src}:, err)
 );
 
-const largura = 4.4;
-const altura = 6.4;
+const width = 4.4;
+const height = 6.4;
 
-const grupoQuadro = new THREE.Group();
+const artworkGroup = new THREE.Group();
 
-const moldura = new THREE.Mesh(
-new THREE.BoxGeometry(largura + 0.3, altura + 0.3, 0.18),
+const frame = new THREE.Mesh(
+new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
 new THREE.MeshStandardMaterial({
 color: 0x1e1a16,
 metalness: 0.6,
@@ -346,27 +345,27 @@ emissive: 0x0d0c0a,
 emissiveIntensity: 0.15
 })
 );
-moldura.position.z = -0.1;
-grupoQuadro.add(moldura);
+frame.position.z = -0.1;
+artworkGroup.add(frame);
 
-const quadro = new THREE.Mesh(
-new THREE.PlaneGeometry(largura, altura),
+const painting = new THREE.Mesh(
+new THREE.PlaneGeometry(width, height),
 new THREE.MeshStandardMaterial({
-map: textura,
+map: texture,
 roughness: 0.2,
 metalness: 0.05,
 side: THREE.FrontSide
 })
 );
-quadro.position.z = 0.01;
-grupoQuadro.add(quadro);
+painting.position.z = 0.01;
+artworkGroup.add(painting);
 
-grupoQuadro.position.set(x, y, z + 0.01);
-grupoQuadro.rotation.y = rotY;
-scene.add(grupoQuadro);
+artworkGroup.position.set(x, y, z + 0.01);
+artworkGroup.rotation.y = rotY;
+scene.add(artworkGroup);
 });
 
-const materialDouradoPedestal = new THREE.MeshPhysicalMaterial({
+const goldMaterial = new THREE.MeshPhysicalMaterial({
 color: 0xd9b96c,
 metalness: 1,
 roughness: 0.08,
@@ -377,39 +376,39 @@ emissiveIntensity: 0.25,
 reflectivity: 0.6
 });
 
-const texturaGema = textureLoader.load('/assets/gemas/gema-azul.png');
+const gemTexture = textureLoader.load('/assets/gemas/gema-azul.png');
 
-function criarVitrine(x, z, indice) {
-const alturaPedestal = 4.6;
-const alturaVitrine = 1.6;
-const alturaGema = alturaPedestal + alturaVitrine / 2 + 0.25;
-const emissivaBase = 0x3377cc;
-const intensidade = 2.4;
+function createShowcase(x, z, index) {
+const pedestalHeight = 4.6;
+const showcaseHeight = 1.6;
+const gemHeight = pedestalHeight + showcaseHeight / 2 + 0.25;
+const emissiveColor = 0x3377cc;
+const emissiveIntensity = 2.4;
 
-const texturaVitrine = textureLoader.load('/assets/vitrine-escura.jpg');
+const showcaseTexture = textureLoader.load('/assets/vitrine-escura.jpg');
 
 const pedestal = new THREE.Mesh(
-new THREE.BoxGeometry(1.05, alturaPedestal, 1.05),
+new THREE.BoxGeometry(1.05, pedestalHeight, 1.05),
 new THREE.MeshStandardMaterial({
-map: texturaVitrine,
+map: showcaseTexture,
 roughness: 0.5,
 metalness: 0.25
 })
 );
-pedestal.position.set(x, alturaPedestal / 2, z);
+pedestal.position.set(x, pedestalHeight / 2, z);
 pedestal.castShadow = true;
 scene.add(pedestal);
 
-const topoDourado = new THREE.Mesh(
+const goldTop = new THREE.Mesh(
 new THREE.CylinderGeometry(0.4, 0.4, 0.06, 32),
-materialDouradoPedestal
+goldMaterial
 );
-topoDourado.position.set(x, alturaPedestal + 0.03, z);
-topoDourado.castShadow = true;
-scene.add(topoDourado);
+goldTop.position.set(x, pedestalHeight + 0.03, z);
+goldTop.castShadow = true;
+scene.add(goldTop);
 
-const vitrine = new THREE.Mesh(
-new THREE.BoxGeometry(1.0, alturaVitrine, 1.0),
+const showcase = new THREE.Mesh(
+new THREE.BoxGeometry(1.0, showcaseHeight, 1.0),
 new THREE.MeshPhysicalMaterial({
 color: 0xf8f8f8,
 metalness: 0.1,
@@ -424,30 +423,30 @@ clearcoat: 0.9,
 clearcoatRoughness: 0.02
 })
 );
-vitrine.position.set(x, alturaPedestal + alturaVitrine / 2 + 0.06, z);
-vitrine.castShadow = true;
-scene.add(vitrine);
+showcase.position.set(x, pedestalHeight + showcaseHeight / 2 + 0.06, z);
+showcase.castShadow = true;
+scene.add(showcase);
 
-const gema = new THREE.Mesh(
+const gem = new THREE.Mesh(
 new THREE.IcosahedronGeometry(0.4, 1),
 new THREE.MeshStandardMaterial({
-map: texturaGema,
-emissive: emissivaBase,
-emissiveIntensity: intensidade,
+map: gemTexture,
+emissive: emissiveColor,
+emissiveIntensity: emissiveIntensity,
 transparent: true,
 opacity: 0.95
 })
 );
-gema.position.set(x, alturaGema, z);
-gema.rotation.y = indice * 0.3;
-gema.castShadow = true;
-scene.add(gema);
+gem.position.set(x, gemHeight, z);
+gem.rotation.y = index * 0.3;
+gem.castShadow = true;
+scene.add(gem);
 }
 
-criarVitrine(-12.0, -1.8, 0);
-criarVitrine(-12.0, 1.8, 1);
-criarVitrine(12.0, -1.8, 2);
-criarVitrine(12.0, 1.8, 3);
+createShowcase(-12.0, -1.8, 0);
+createShowcase(-12.0, 1.8, 1);
+createShowcase(12.0, -1.8, 2);
+createShowcase(12.0, 1.8, 3);
 
 const fontLoader = new FontLoader();
 fontLoader.load(
@@ -465,9 +464,9 @@ bevelSegments: 5
 });
 
 textGeo.computeBoundingBox();
-const largura = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
+const width = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
 
-const texto = new THREE.Mesh(
+const text = new THREE.Mesh(
   textGeo,
   new THREE.MeshStandardMaterial({
     color: 0xc49b42,
@@ -478,15 +477,15 @@ const texto = new THREE.Mesh(
   })
 );
 
-texto.position.set(-largura / 2, 15.5, -config.wallDistance - 3.98);
-texto.castShadow = true;
-scene.add(texto);
+text.position.set(-width / 2, 15.5, -config.wallDistance - 3.98);
+text.castShadow = true;
+scene.add(text);
 
-const luzTexto = new THREE.SpotLight(0xfff1cc, 1.3, 12, Math.PI / 9, 0.4);
-luzTexto.position.set(0, 18, -config.wallDistance - 2);
-luzTexto.target = texto;
-scene.add(luzTexto);
-scene.add(luzTexto.target);
+const textLight = new THREE.SpotLight(0xfff1cc, 1.3, 12, Math.PI / 9, 0.4);
+textLight.position.set(0, 18, -config.wallDistance - 2);
+textLight.target = text;
+scene.add(textLight);
+scene.add(textLight.target);
 }
 );
 
@@ -536,7 +535,7 @@ ease: 'sine.inOut'
 }
 });
 
-const obraPaths = [
+const artworkPaths = [
 "/assets/obras/obra1.jpg",
 "/assets/obras/obra2.jpg",
 "/assets/obras/obra3.jpg",
@@ -547,85 +546,85 @@ const obraPaths = [
 "/assets/obras/obra8.jpg"
 ];
 
-const dadosObras = [
+const artworkData = [
 {
-titulo: "Fragmento da Eternidade",
-artista: "Inês Duarte",
-ano: "2023",
-preco: "0.8",
-descricao: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
-imagem: "/assets/obras/obra1.jpg"
+title: "Fragmento da Eternidade",
+artist: "Inês Duarte",
+year: "2023",
+price: "0.8",
+description: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
+image: "/assets/obras/obra1.jpg"
 },
 {
-titulo: "Sombras de Luz",
-artista: "Miguel Costa",
-ano: "2024",
-preco: "0.5",
-descricao: "Contraste entre luz e sombra em movimento constante.",
-imagem: "/assets/obras/obra2.jpg"
+title: "Sombras de Luz",
+artist: "Miguel Costa",
+year: "2024",
+price: "0.5",
+description: "Contraste entre luz e sombra em movimento constante.",
+image: "/assets/obras/obra2.jpg"
 },
 {
-titulo: "Horizonte Partilhado",
-artista: "Clara Mendonça",
-ano: "2022",
-preco: "1.2",
-descricao: "Perspectivas múltiplas de um mesmo horizonte urbano.",
-imagem: "/assets/obras/obra3.jpg"
+title: "Horizonte Partilhado",
+artist: "Clara Mendonça",
+year: "2022",
+price: "1.2",
+description: "Perspectivas múltiplas de um mesmo horizonte urbano.",
+image: "/assets/obras/obra3.jpg"
 },
 {
-titulo: "Memórias de Silêncio",
-artista: "Rui Valente",
-ano: "2023",
-preco: "0.6",
-descricao: "Abstração das memórias que permanecem no silêncio.",
-imagem: "/assets/obras/obra4.jpg"
+title: "Memórias de Silêncio",
+artist: "Rui Valente",
+year: "2023",
+price: "0.6",
+description: "Abstração das memórias que permanecem no silêncio.",
+image: "/assets/obras/obra4.jpg"
 },
 {
-titulo: "Ritmo Contido",
-artista: "Joana Serra",
-ano: "2025",
-preco: "0.75",
-descricao: "Movimento congelado em padrões geométricos precisos.",
-imagem: "/assets/obras/obra5.jpg"
+title: "Ritmo Contido",
+artist: "Joana Serra",
+year: "2025",
+price: "0.75",
+description: "Movimento congelado em padrões geométricos precisos.",
+image: "/assets/obras/obra5.jpg"
 },
 {
-titulo: "Flutuação Interior",
-artista: "André Luz",
-ano: "2023",
-preco: "1.0",
-descricao: "Estados emocionais representados através de cores fluidas.",
-imagem: "/assets/obras/obra6.jpg"
+title: "Flutuação Interior",
+artist: "André Luz",
+year: "2023",
+price: "1.0",
+description: "Estados emocionais representados através de cores fluidas.",
+image: "/assets/obras/obra6.jpg"
 },
 {
-titulo: "Verso Encoberto",
-artista: "Sofia Rocha",
-ano: "2024",
-preco: "0.4",
-descricao: "Texturas que revelam camadas ocultas da percepção.",
-imagem: "/assets/obras/obra7.jpg"
+title: "Verso Encoberto",
+artist: "Sofia Rocha",
+year: "2024",
+price: "0.4",
+description: "Texturas que revelam camadas ocultas da percepção.",
+image: "/assets/obras/obra7.jpg"
 },
 {
-titulo: "Silhueta do Amanhã",
-artista: "Tiago Faria",
-ano: "2025",
-preco: "0.9",
-descricao: "Visão futurista de formas orgânicas em evolução.",
-imagem: "/assets/obras/obra8.jpg"
+title: "Silhueta do Amanhã",
+artist: "Tiago Faria",
+year: "2025",
+price: "0.9",
+description: "Visão futurista de formas orgânicas em evolução.",
+image: "/assets/obras/obra8.jpg"
 }
 ];
 
-const obrasNormais = [];
+const artworks = [];
 let animationSpeed = -0.00012;
 let originalAnimationSpeed = -0.00012;
 
-obraPaths.forEach((src, i) => {
+artworkPaths.forEach((src, i) => {
 const texture = textureLoader.load(src);
-const ang = (i / obraPaths.length) * Math.PI * 2;
-const x = Math.cos(ang) * config.circleRadius;
-const z = Math.sin(ang) * config.circleRadius;
-const ry = -ang + Math.PI;
+const angle = (i / artworkPaths.length) * Math.PI * 2;
+const x = Math.cos(angle) * config.circleRadius;
+const z = Math.sin(angle) * config.circleRadius;
+const rotationY = -angle + Math.PI;
 
-const obra = new THREE.Mesh(
+const artwork = new THREE.Mesh(
 new THREE.PlaneGeometry(config.obraSize, config.obraSize),
 new THREE.MeshStandardMaterial({
 map: texture,
@@ -634,69 +633,69 @@ metalness: 0.05,
 side: THREE.DoubleSide
 })
 );
-obra.position.set(x, 4.2, z);
-obra.rotation.y = ry;
-obra.castShadow = true;
-scene.add(obra);
+artwork.position.set(x, 4.2, z);
+artwork.rotation.y = rotationY;
+artwork.castShadow = true;
+scene.add(artwork);
 
-obra.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
-obra.userData.originalRotation = new THREE.Euler(0, ry, 0);
+artwork.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
+artwork.userData.originalRotation = new THREE.Euler(0, rotationY, 0);
 
-obrasNormais.push(obra);
+artworks.push(artwork);
 });
 
-let obraSelecionada = null;
+let selectedArtwork = null;
 let isHighlighted = false;
 const modal = document.querySelector('.art-modal');
-const modalTitulo = document.getElementById('art-title');
-const modalDescricao = document.getElementById('art-description');
-const modalArtista = document.getElementById('art-artist');
-const modalAno = document.getElementById('art-year');
-const modalPreco = document.getElementById('art-price');
-const botaoComprar = document.getElementById('buy-art');
+const modalTitle = document.getElementById('art-title');
+const modalDescription = document.getElementById('art-description');
+const modalArtist = document.getElementById('art-artist');
+const modalYear = document.getElementById('art-year');
+const modalPrice = document.getElementById('art-price');
+const buyButton = document.getElementById('buy-art');
 const blurOverlay = document.getElementById('blur-overlay');
 
-function destacarObra(obra, dados) {
+function highlightArtwork(artwork, data) {
 if (isHighlighted) return;
 isHighlighted = true;
-obraSelecionada = obra;
+selectedArtwork = artwork;
 
-obra.renderOrder = 999;
-obra.material.depthTest = false;
-obra.material.depthWrite = false;
+artwork.renderOrder = 999;
+artwork.material.depthTest = false;
+artwork.material.depthWrite = false;
 
 const targetY = 6.3;
 const targetZ = -config.wallDistance / 2;
 
-obra.scale.set(2, 2, 2);
+artwork.scale.set(2, 2, 2);
 
-gsap.to(obra.position, {
+gsap.to(artwork.position, {
 x: 0,
 y: targetY,
 z: targetZ,
 duration: 0.8,
 ease: 'power2.out',
 onComplete: () => {
-gsap.to(obra.rotation, {
+gsap.to(artwork.rotation, {
 y: 0,
 duration: 0.5,
 ease: 'power2.out',
-onComplete: mostrarModal
+onComplete: showModal
 });
 }
 });
 
 blurOverlay.classList.add('active');
 
-function mostrarModal() {
-modalTitulo.textContent = dados.titulo;
-modalDescricao.textContent = dados.descricao;
-modalArtista.textContent = dados.artista;
-modalAno.textContent = dados.ano;
-modalPreco.textContent = ${dados.preco} ETH;
+function showModal() {
+modalTitle.textContent = data.title;
+modalDescription.textContent = data.description;
+modalArtist.textContent = data.artist;
+modalYear.textContent = data.year;
+modalPrice.textContent = ${data.price} ETH;
 
 const vector = new THREE.Vector3();
-vector.setFromMatrixPosition(obra.matrixWorld);
+vector.setFromMatrixPosition(artwork.matrixWorld);
 vector.project(camera);
 
 const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
@@ -709,28 +708,28 @@ modal.style.display = 'flex';
 }
 }
 
-function restaurarObra() {
+function restoreArtwork() {
 if (!isHighlighted) return;
 isHighlighted = false;
 
 modal.style.display = 'none';
 
-obraSelecionada.renderOrder = 0;
-obraSelecionada.material.depthTest = true;
-obraSelecionada.material.depthWrite = true;
+selectedArtwork.renderOrder = 0;
+selectedArtwork.material.depthTest = true;
+selectedArtwork.material.depthWrite = true;
 
-obraSelecionada.scale.set(1, 1, 1);
+selectedArtwork.scale.set(1, 1, 1);
 
-gsap.to(obraSelecionada.position, {
-x: obraSelecionada.userData.originalPosition.x,
-y: obraSelecionada.userData.originalPosition.y,
-z: obraSelecionada.userData.originalPosition.z,
+gsap.to(selectedArtwork.position, {
+x: selectedArtwork.userData.originalPosition.x,
+y: selectedArtwork.userData.originalPosition.y,
+z: selectedArtwork.userData.originalPosition.z,
 duration: 0.8,
 ease: 'power2.out'
 });
 
-gsap.to(obraSelecionada.rotation, {
-y: obraSelecionada.userData.originalRotation.y,
+gsap.to(selectedArtwork.rotation, {
+y: selectedArtwork.userData.originalRotation.y,
 duration: 0.8,
 ease: 'power2.out'
 });
@@ -740,8 +739,8 @@ blurOverlay.classList.remove('active');
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
 if (isHighlighted) {
-if (!modal.contains(e.target) {
-restaurarObra();
+if (!modal.contains(e.target)) {
+restoreArtwork();
 }
 return;
 }
@@ -754,31 +753,31 @@ const mouse = new THREE.Vector2(
 const raycaster = new THREE.Raycaster();
 raycaster.setFromCamera(mouse, camera);
 
-const intersects = raycaster.intersectObjects(obrasNormais);
+const intersects = raycaster.intersectObjects(artworks);
 if (intersects.length > 0) {
-const obra = intersects[0].object;
-const index = obrasNormais.indexOf(obra);
-const dados = dadosObras[index];
-destacarObra(obra, dados);
+const artwork = intersects[0].object;
+const index = artworks.indexOf(artwork);
+const data = artworkData[index];
+highlightArtwork(artwork, data);
 }
 });
 
 function animate() {
 requestAnimationFrame(animate);
 
-const tempo = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
+const time = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
 
-obrasNormais.forEach((obra, i) => {
-if (obra === obraSelecionada) return;
+artworks.forEach((artwork, i) => {
+if (artwork === selectedArtwork) return;
 
-const angulo = tempo + (i / obrasNormais.length) * Math.PI * 2;
-const x = Math.cos(angulo) * config.circleRadius;
-const z = Math.sin(angulo) * config.circleRadius;
-const rotacaoY = -angulo + Math.PI;
+const angle = time + (i / artworks.length) * Math.PI * 2;
+const x = Math.cos(angle) * config.circleRadius;
+const z = Math.sin(angle) * config.circleRadius;
+const rotationY = -angle + Math.PI;
 
-obra.position.x = x;
-obra.position.z = z;
-obra.rotation.y = rotacaoY;
+artwork.position.x = x;
+artwork.position.z = z;
+artwork.rotation.y = rotationY;
 });
 
 renderer.render(scene, camera);
@@ -786,7 +785,7 @@ renderer.render(scene, camera);
 
 async function toggleWalletConnection() {
 if (!window.ethereum) {
-alert('Por favor instale a MetaMask para conectar sua carteira.');
+alert('Please install MetaMask to connect your wallet.');
 return;
 }
 
@@ -807,14 +806,14 @@ const shortBalance = parseFloat(formattedBalance).toFixed(3);
   walletButton.style.padding = '10px 18px 10px 16px';
 }
 } catch (err) {
-console.error('Erro ao conectar carteira:', err);
-alert('Ocorreu um erro ao conectar sua carteira. Por favor tente novamente.');
+console.error('Wallet connection error:', err);
+alert('Error connecting wallet. Please try again.');
 }
 }
 
-async function buyHandler(dados) {
+async function buyHandler(data) {
 if (!window.ethereum) {
-alert('Instala a MetaMask para poder adquirir esta obra.');
+alert('Install MetaMask to purchase this artwork.');
 return;
 }
 
@@ -824,29 +823,29 @@ await window.ethereum.request({ method: 'eth_requestAccounts' });
 const provider = new ethers.BrowserProvider(window.ethereum);
 const signer = await provider.getSigner();
 
-const valorETH = ethers.parseEther(dados.preco);
+const ethValue = ethers.parseEther(data.price);
 
 const tx = await signer.sendTransaction({
   to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
-  value: valorETH
+  value: ethValue
 });
 
-alert(`Transação enviada!\nHash: ${tx.hash}`);
+alert(`Transaction sent!\nHash: ${tx.hash}`);
 
 await tx.wait();
-alert('Compra confirmada! Muito obrigado por adquirir esta obra.');
+alert('Purchase confirmed! Thank you for acquiring this artwork.');
 } catch (err) {
-console.error('Erro ao comprar a obra:', err);
-alert('Ocorreu um erro durante a compra. Por favor tenta novamente.');
+console.error('Purchase error:', err);
+alert('Error during purchase. Please try again.');
 }
 }
 
-if (botaoComprar) {
-botaoComprar.addEventListener('click', () => {
-if (obraSelecionada) {
-const index = obrasNormais.indexOf(obraSelecionada);
-const dados = dadosObras[index];
-buyHandler(dados);
+if (buyButton) {
+buyButton.addEventListener('click', () => {
+if (selectedArtwork) {
+const index = artworks.indexOf(selectedArtwork);
+const data = artworkData[index];
+buyHandler(data);
 }
 });
 }

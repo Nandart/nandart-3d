@@ -323,11 +323,11 @@ rotY: -Math.PI / 2
 ];
 
 wallArtworks.forEach(({ src, x, y, z, rotY }) => {
-const texture = textureLoader.load(
-src,
-undefined,
-undefined,
-err => console.error(Error loading ${src}:, err)
+textureLoader.load(
+  src,
+  undefined,
+  undefined,
+  err => console.error(`Error loading ${src}:`, err)
 );
 
 const width = 4.4;

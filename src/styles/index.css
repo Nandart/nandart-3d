@@ -1,3 +1,4 @@
+/* index.css */
 /* ==================== RESET BÁSICO ==================== */
 *, *::before, *::after {
   margin: 0;
@@ -121,7 +122,6 @@ html, body {
 }
 
 /* ==================== MODAL DE OBRA ==================== */
-/* Estilos do Modal */
 .art-modal {
   position: fixed;
   background: rgba(20, 20, 20, 0.95);
@@ -156,7 +156,7 @@ html, body {
 }
 
 .art-modal #buy-art {
-  background-color: #d8b26c; /* Mesmo dourado do ícone info */
+  background-color: #d8b26c;
   color: #111;
   border: none;
   padding: 8px 16px;

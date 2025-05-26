@@ -692,7 +692,7 @@ modalTitle.textContent = data.title;
 modalDescription.textContent = data.description;
 modalArtist.textContent = data.artist;
 modalYear.textContent = data.year;
-modalPrice.textContent = ${data.price} ETH;
+modalPrice.textContent = `${data.price} ETH`;
 
 const vector = new THREE.Vector3();
 vector.setFromMatrixPosition(artwork.matrixWorld);

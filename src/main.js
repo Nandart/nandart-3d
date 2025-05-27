@@ -7,19 +7,291 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
-// ... [previous imports and initial setup remains the same until wall materials]
+const walletButton = document.getElementById('wallet-button');
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+function getViewportLevel() {
+  const width = window.innerWidth;
+  if (width < 480) return 'XS';
+  if (width < 768) return 'SM';
+  if (width < 1024) return 'MD';
+  return 'LG';
+}
+
+const configMap = {
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 12, cameraY: 5.4, textSize: 0.4 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 13, cameraY: 5.7, textSize: 0.45 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 14, cameraY: 6.1, textSize: 0.5 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
+};
+
+let config = configMap[getViewportLevel()];
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+const textureLoader = new THREE.TextureLoader();
+
+const camera = new THREE.PerspectiveCamera();
+function updateCamera() {
+  config = configMap[getViewportLevel()];
+  camera.fov = 45;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.position.set(0, 9, 22);
+  camera.lookAt(0, 7, -config.wallDistance);
+  camera.near = 0.1;
+  camera.far = 100;
+  camera.updateProjectionMatrix();
+}
+updateCamera();
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('scene'),
+  antialias: true,
+  alpha: true
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 2.25;
+
+window.addEventListener('resize', () => {
+  updateCamera();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+scene.add(ambientLight1, ambientLight2);
+
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
+scene.add(hemisphereLight);
+
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
+spotLightLeft.position.set(-10, 8, 0);
+spotLightLeft.angle = Math.PI / 6;
+spotLightLeft.penumbra = 0.3;
+spotLightLeft.decay = 2;
+spotLightLeft.distance = 25;
+spotLightLeft.castShadow = true;
+spotLightLeft.shadow.mapSize.width = 1024;
+spotLightLeft.shadow.mapSize.height = 1024;
+spotLightLeft.shadow.bias = -0.0005;
+scene.add(spotLightLeft);
+
+const floorGeometry = new THREE.PlaneGeometry(40, 40);
+
+const floor = new Reflector(floorGeometry, {
+  clipBias: 0.001,
+  textureWidth: window.innerWidth * window.devicePixelRatio,
+  textureHeight: window.innerHeight * window.devicePixelRatio,
+  color: 0x000000,
+  recursion: 0
+});
+
+floor.material.opacity = 0.15;
+floor.material.roughness = 0.01;
+floor.material.metalness = 0.99;
+floor.material.transparent = true;
+floor.material.envMapIntensity = 3.0;
+floor.material.reflectivity = 0.99;
+floor.material.ior = 1.45;
+floor.material.thickness = 0.5;
+floor.material.side = THREE.DoubleSide;
+
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight1.position.set(0, 15, -config.wallDistance - 3);
+scene.add(wallLight1);
+
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight2.position.set(-14, 15, -config.wallDistance / 2);
+scene.add(wallLight2);
+
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight3.position.set(14, 15, -config.wallDistance / 2);
+scene.add(wallLight3);
+
+const circle = new THREE.Mesh(
+  new THREE.RingGeometry(4.3, 4.55, 100),
+  new THREE.MeshStandardMaterial({
+    color: 0xfdf6dc,
+    emissive: 0xffefc6,
+    emissiveIntensity: 3.8,
+    metalness: 0.75,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide
+  })
+);
+circle.rotation.x = -Math.PI / 2;
+circle.position.y = 0.051;
+circle.receiveShadow = true;
+scene.add(circle);
+
+const trimMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf3cc80,
+  metalness: 1,
+  roughness: 0.08,
+  emissive: 0xf3cc80,
+  emissiveIntensity: 0.45
+});
+
+function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
+  const trim = new THREE.Mesh(
+    new THREE.BoxGeometry(width, height, 0.02),
+    trimMaterial
+  );
+  trim.position.set(x, y, z);
+  trim.rotation.y = rotY;
+  trim.castShadow = false;
+  trim.receiveShadow = false;
+  scene.add(trim);
+  return trim;
+}
+
+function createTrimRect(x, y, z, width, height, rotY = 0) {
+  const group = new THREE.Group();
+  const thickness = 0.06;
+
+  const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+  top.position.set(0, height / 2, 0);
+  top.receiveShadow = false;
+  group.add(top);
+
+  const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+  bottom.position.set(0, -height / 2, 0);
+  bottom.receiveShadow = false;
+  group.add(bottom);
+
+  const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+  left.position.set(-width / 2 + thickness / 2, 0, 0);
+  left.receiveShadow = false;
+  group.add(left);
+
+  const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+  right.position.set(width / 2 - thickness / 2, 0, 0);
+  right.receiveShadow = false;
+  group.add(right);
+
+  group.position.set(x, y, z);
+  group.rotation.y = rotY;
+  scene.add(group);
+  return group;
+}
+
+const centerTrim = createTrimRect(
+  0,
+  10.3,
+  -config.wallDistance + 0.01,
+  6.8,
+  7.0
+);
+
+createTrimLine(
+  0,
+  13.1,
+  -config.wallDistance + 0.012,
+  4.5
+);
+
+const sideTrimPosX = 6.7;
+const outerTrimHeight = 8.8;
+const innerTrimHeight = 7.1;
+
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
+
+const backWallTopTrim = createTrimLine(0, 2.0, -config.wallDistance + 0.01, 36);
+const backWallBottomTrim = createTrimLine(0, 1.7, -config.wallDistance + 0.012, 36);
+const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+
+const centerTexture = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  undefined,
+  undefined,
+  err => console.error('Error loading center artwork:', err)
+);
+
+const centerArtGroup = new THREE.Group();
+
+const frameWidth = 4.6;
+const frameHeight = 5.8;
+
+const centerFrame = new THREE.Mesh(
+  new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
+  new THREE.MeshStandardMaterial({
+    color: 0x1e1a16,
+    metalness: 0.6,
+    roughness: 0.3,
+    emissive: 0x0d0c0a,
+    emissiveIntensity: 0.15
+  })
+);
+centerFrame.position.z = -0.1;
+centerArtGroup.add(centerFrame);
+
+const centerPainting = new THREE.Mesh(
+  new THREE.PlaneGeometry(frameWidth, frameHeight),
+  new THREE.MeshStandardMaterial({
+    map: centerTexture,
+    roughness: 0.15,
+    metalness: 0.1
+  })
+);
+centerPainting.position.z = 0.01;
+centerArtGroup.add(centerPainting);
+
+centerArtGroup.position.set(
+  0,
+  10.3,
+  -config.wallDistance + 0.001
+);
+scene.add(centerArtGroup);
+
+const wallTextureData = {
+  data: new Uint8Array([
+    30, 30, 30, 255, 35, 35, 35, 255, 25, 25, 25, 255, 40, 40, 40, 255,
+    35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255, 20, 20, 20, 255,
+    40, 40, 40, 255, 35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255,
+    20, 20, 20, 255, 15, 15, 15, 255, 10, 10, 10, 255, 5, 5, 5, 255
+  ]),
+  width: 4,
+  height: 4
+};
+
+const wallTexture = new THREE.DataTexture(
+  wallTextureData.data,
+  wallTextureData.width,
+  wallTextureData.height,
+  THREE.RGBAFormat
+);
+wallTexture.needsUpdate = true;
+
+const backWallGeo = new THREE.PlaneGeometry(40, 30);
+const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
 const applyWallTexture = texture => {
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
-    color: 0x2a2a2a, // Dark gray for visibility
-    emissive: 0x111111,
+    color: 0x2a2a2a,
+    emissive: 0x0a0a0a,
     emissiveIntensity: 0.5,
     roughness: 0.7,
     metalness: 0.1,
     side: THREE.FrontSide
   });
-  wallMaterial.className = 'wall-material';
 
   const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
   backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
@@ -39,157 +311,40 @@ const applyWallTexture = texture => {
   scene.add(rightWall);
 };
 
-// Update floor reflector to eliminate trim reflections
-const floor = new Reflector(floorGeometry, {
-  clipBias: 0.001,
-  textureWidth: window.innerWidth * window.devicePixelRatio,
-  textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x000000,
-  recursion: 0
-});
+textureLoader.load(
+  '/assets/antracite-realista.jpg',
+  texture => {
+    console.log('✅ Wall texture loaded');
+    texture.colorSpace = THREE.SRGBColorSpace;
+    applyWallTexture(texture);
+  },
+  undefined,
+  () => {
+    console.warn('⚠️ Using fallback wall texture');
+    applyWallTexture(wallTexture);
+  }
+);
 
-floor.material.opacity = 0.15;
-floor.material.roughness = 0.3; // Increased roughness to reduce reflections
-floor.material.metalness = 0.7; // Reduced metalness
-floor.material.transparent = true;
-floor.material.envMapIntensity = 1.5; // Reduced intensity
-floor.material.reflectivity = 0.5; // Reduced reflectivity
-
-// Update wall artworks positioning with pedestals
 const wallArtworks = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
     y: 9.1,
-    z: 0, // Centered between pedestals (-1.8 and 1.8)
+    z: 0,
     rotY: Math.PI / 2,
-    leftPedestal: -1.8,
-    rightPedestal: 1.8
+    pedestalX: -1.8
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
     y: 9.1,
-    z: 0, // Centered between pedestals
+    z: 0,
     rotY: -Math.PI / 2,
-    leftPedestal: -1.8,
-    rightPedestal: 1.8
+    pedestalX: 1.8
   }
 ];
 
-// Update highlight function
-function highlightArtwork(artwork, data) {
-  if (isHighlighted) return;
-  isHighlighted = true;
-  selectedArtwork = artwork;
-
-  // Set half speed for other artworks
-  animationSpeed = originalAnimationSpeed * 0.5;
-
-  artwork.renderOrder = 999;
-  artwork.material.depthTest = false;
-  artwork.material.depthWrite = false;
-
-  // Calculate target position at 1.5x height of circulating artworks
-  const targetY = 4.2 * 1.5; // 1.5x height of circulating artworks
-  const targetZ = -config.wallDistance / 2;
-
-  gsap.to(artwork.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(artwork.position, {
-    x: 0,
-    y: targetY,
-    z: targetZ,
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      gsap.to(artwork.rotation, {
-        y: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        onComplete: showModal
-      });
-    }
-  });
-
-  // Apply blur to everything except highlighted artwork
-  blurOverlay.classList.add('active');
-
-  function showModal() {
-    modalTitle.textContent = data.title;
-    modalDescription.textContent = data.description;
-    modalArtist.textContent = data.artist;
-    modalYear.textContent = data.year;
-    modalPrice.textContent = `${data.price} ETH`;
-
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(artwork.matrixWorld);
-    vector.project(camera);
-
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
-
-    // Position modal 2cm below artwork (converted from 3D space to pixels)
-    const cmToPixels = 37.8; // Approximate conversion
-    modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + (2 * cmToPixels)}px`;
-
-    modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.classList.add('active');
-    }, 10);
-  }
-}
-
-function restoreArtwork() {
-  if (!isHighlighted) return;
-  isHighlighted = false;
-
-  modal.classList.remove('active');
-  setTimeout(() => {
-    modal.style.display = 'none';
-  }, 300);
-
-  // Restore original animation speed
-  animationSpeed = originalAnimationSpeed;
-
-  selectedArtwork.renderOrder = 0;
-  selectedArtwork.material.depthTest = true;
-  selectedArtwork.material.depthWrite = true;
-
-  gsap.to(selectedArtwork.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(selectedArtwork.position, {
-    x: selectedArtwork.userData.originalPosition.x,
-    y: selectedArtwork.userData.originalPosition.y,
-    z: selectedArtwork.userData.originalPosition.z,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(selectedArtwork.rotation, {
-    y: selectedArtwork.userData.originalRotation.y,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  blurOverlay.classList.remove('active');
-}
-
-// Update wall artwork creation with pedestals
-wallArtworks.forEach(({ src, x, y, z, rotY, leftPedestal, rightPedestal }) => {
+wallArtworks.forEach(({ src, x, y, z, rotY, pedestalX }) => {
   const texture = textureLoader.load(
     src,
     texture => {
@@ -198,11 +353,6 @@ wallArtworks.forEach(({ src, x, y, z, rotY, leftPedestal, rightPedestal }) => {
 
       const artworkGroup = new THREE.Group();
 
-      // Create pedestals first
-      createShowcase(x, leftPedestal, 0);
-      createShowcase(x, rightPedestal, 1);
-
-      // Then create artwork frame
       const frame = new THREE.Mesh(
         new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
         new THREE.MeshStandardMaterial({
@@ -231,6 +381,9 @@ wallArtworks.forEach(({ src, x, y, z, rotY, leftPedestal, rightPedestal }) => {
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
       scene.add(artworkGroup);
+
+      // Create pedestals for side artworks
+      createShowcase(x, pedestalX, Math.random() * 10);
     },
     undefined,
     err => console.error(`Error loading ${src}:`, err)
@@ -536,7 +689,8 @@ function highlightArtwork(artwork, data) {
   artwork.material.depthTest = false;
   artwork.material.depthWrite = false;
 
-  const targetY = 6.3;
+  // Calculate target position (1.5x height from floor compared to circulating artworks)
+  const targetY = 6.3; // 4.2 * 1.5 = 6.3
   const targetZ = -config.wallDistance / 2;
 
   gsap.to(artwork.scale, {
@@ -579,10 +733,15 @@ function highlightArtwork(artwork, data) {
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
+    // Position modal 2cm below artwork (converted from meters to pixels)
+    const cmToPixels = 37.8; // Approximate conversion factor
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`;
+    modal.style.top = `${y + (2 * cmToPixels)}px`;
 
     modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('active');
+    }, 10);
   }
 }
 
@@ -590,7 +749,10 @@ function restoreArtwork() {
   if (!isHighlighted) return;
   isHighlighted = false;
 
-  modal.style.display = 'none';
+  modal.classList.remove('active');
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 300);
 
   selectedArtwork.renderOrder = 0;
   selectedArtwork.material.depthTest = true;
@@ -668,7 +830,7 @@ window.addEventListener('click', handleClickOutside);
 function animate() {
   requestAnimationFrame(animate);
 
-  const time = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
+  const time = Date.now() * (isHighlighted ? animationSpeed / 2 : animationSpeed);
 
   artworks.forEach((artwork, i) => {
     if (artwork === selectedArtwork) return;

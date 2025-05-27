@@ -104,6 +104,7 @@ html, body {
 
 #wallet-button.connected {
   background-color: #c4a860;
+  padding: 10px 18px 10px 16px !important;
 }
 
 #wallet-button:hover {
@@ -123,57 +124,86 @@ html, body {
 /* ==================== MODAL DE OBRA ==================== */
 .art-modal {
   position: fixed;
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(10, 10, 10, 0.95);
   color: white;
-  padding: 14px;
+  padding: 20px;
   z-index: 300;
   display: none;
   flex-direction: column;
-  align-items: center;
-  backdrop-filter: none;
-  max-width: 300px;
-  transform: translateX(-50%);
-  border-radius: 6px;
+  border: 1px solid rgba(216, 178, 108, 0.3);
+  border-radius: 8px;
+  max-width: 320px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, 0);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.art-modal h3 {
+.art-modal.active {
+  opacity: 1;
+  transform: translate(-50%, -20px);
+}
+
+.art-modal h2 {
   color: #d8b26c;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-  text-align: center;
+  margin-bottom: 12px;
+  font-size: 1.3rem;
   font-weight: 700;
   font-family: 'Playfair Display', serif;
+  text-align: center;
 }
 
 .art-modal p {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   margin-bottom: 8px;
-  text-align: center;
+  line-height: 1.5;
   opacity: 0.9;
+}
+
+.art-modal #art-artist {
+  font-weight: 600;
+  color: #f3cc80;
+}
+
+.art-modal #art-year {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.art-modal #art-price {
+  font-weight: 700;
+  color: #d8b26c;
+  margin-top: 10px;
+  font-size: 1.1rem;
 }
 
 .art-modal #buy-art {
   background-color: #d8b26c;
   color: #111;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-family: 'Playfair Display', serif;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .art-modal #buy-art:hover {
   background-color: #e2c278;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.art-modal #buy-art:active {
+  transform: translateY(0);
 }
 
 /* ==================== BLUR OVERLAY ==================== */
@@ -183,11 +213,13 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(8px);
-  z-index: 50;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 200;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
+  background: rgba(0, 0, 0, 0.6);
 }
 
 #blur-overlay.active {
@@ -195,7 +227,18 @@ html, body {
   pointer-events: auto;
 }
 
-/* RESPONSIVIDADE */
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 20px); }
+  to { transform: translate(-50%, 0); }
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
 @media (max-width: 768px) {
   .navigation-icons img {
     height: 24px;
@@ -209,24 +252,43 @@ html, body {
   }
 
   #wallet-button.connected {
-    padding: 8px 16px;
+    padding: 8px 16px 8px 16px !important;
   }
 
   .art-modal {
-    max-width: 250px;
-    padding: 12px;
+    max-width: 280px;
+    padding: 16px;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, 0) !important;
   }
 
-  .art-modal h3 {
-    font-size: 1rem;
+  .art-modal.active {
+    transform: translate(-50%, -10px) !important;
+  }
+
+  .art-modal h2 {
+    font-size: 1.1rem;
   }
 
   .art-modal p {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .art-modal #buy-art {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .art-modal {
+    max-width: 90%;
+    padding: 14px;
+  }
+  
+  #blur-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }

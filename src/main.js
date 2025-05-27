@@ -104,12 +104,14 @@ const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
 
+const floorGeometry = new THREE.PlaneGeometry(40, 40);
+
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0, // Isso elimina reflexos secundários
+  recursion: 0 // Elimina reflexos secundários
 });
 
 floor.material.opacity = 0.15;

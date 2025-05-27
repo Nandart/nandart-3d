@@ -311,7 +311,7 @@ textureLoader.load(
   }
 );
 
-/ Ajustar posição das obras nas paredes laterais entre os pedestais
+// Ajustar posição das obras nas paredes laterais entre os pedestais
 const wallArtworks = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',

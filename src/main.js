@@ -66,8 +66,18 @@ const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
 const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
 scene.add(ambientLight1, ambientLight2);
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
-scene.add(hemisphereLight);
+// Iluminação adicional para paredes
+const wallLight = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
+wallLight.position.set(0, 10, -config.wallDistance/2);
+scene.add(wallLight);
+
+const wallLightLeft = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
+wallLightLeft.position.set(-14, 10, -config.wallDistance/2);
+scene.add(wallLightLeft);
+
+const wallLightRight = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
+wallLightRight.position.set(14, 10, -config.wallDistance/2);
+scene.add(wallLightRight);
 
 const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
 spotLightLeft.position.set(-10, 8, 0);
@@ -94,13 +104,12 @@ const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
 
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 1 // Reduced recursion to remove trim reflections
+  recursion: 0, // Isso elimina reflexos secundários
 });
 
 floor.material.opacity = 0.15;
@@ -285,13 +294,15 @@ const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 const applyWallTexture = texture => {
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
-    color: 0x0a0a0a,
-    emissive: new THREE.Color(0x080808),
-    emissiveIntensity: 0.25,
-    roughness: 0.75,
-    metalness: 0.15,
+    color: 0x1a1a1a, // Cinza muito escuro
+    emissive: 0x050505,
+    emissiveIntensity: 0.3,
+    roughness: 0.8,
+    metalness: 0.05,
     side: THREE.FrontSide
   });
+  
+
 
   const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
   backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
@@ -329,14 +340,14 @@ const wallArtworks = [
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
     y: 9.1,
-    z: -config.wallDistance / 2 - 0.01, // Adjusted to be exactly between pedestals
+    z: 0, // Centralizado entre pedestais (-1.8 e 1.8)
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
     y: 9.1,
-    z: -config.wallDistance / 2 - 0.01, // Adjusted to be exactly between pedestals
+    z: 0, // Centralizado entre pedestais
     rotY: -Math.PI / 2
   }
 ];

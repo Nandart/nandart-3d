@@ -104,7 +104,6 @@ floor.material.side = THREE.DoubleSide;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
-
 const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
 scene.add(wallLight1);
@@ -116,149 +115,6 @@ scene.add(wallLight2);
 const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
-
-const circle = new THREE.Mesh(
-  new THREE.RingGeometry(4.3, 4.55, 100),
-  new THREE.MeshStandardMaterial({
-    color: 0xfdf6dc,
-    emissive: 0xffefc6,
-    emissiveIntensity: 3.8,
-    metalness: 0.75,
-    roughness: 0.1,
-    transparent: true,
-    opacity: 0.92,
-    side: THREE.DoubleSide
-  })
-);
-circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.051;
-circle.receiveShadow = true;
-scene.add(circle);
-
-const trimMaterial = new THREE.MeshStandardMaterial({
-  color: 0xf3cc80,
-  metalness: 1,
-  roughness: 0.08,
-  emissive: 0xf3cc80,
-  emissiveIntensity: 0.45
-});
-
-function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
-  const trim = new THREE.Mesh(
-    new THREE.BoxGeometry(width, height, 0.02),
-    trimMaterial
-  );
-  trim.position.set(x, y, z);
-  trim.rotation.y = rotY;
-  trim.castShadow = false;
-  trim.receiveShadow = false;
-  scene.add(trim);
-  return trim;
-}
-
-function createTrimRect(x, y, z, width, height, rotY = 0) {
-  const group = new THREE.Group();
-  const thickness = 0.06;
-
-  const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  top.position.set(0, height / 2, 0);
-  top.receiveShadow = false;
-  group.add(top);
-
-  const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  bottom.position.set(0, -height / 2, 0);
-  bottom.receiveShadow = false;
-  group.add(bottom);
-
-  const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  left.position.set(-width / 2 + thickness / 2, 0, 0);
-  left.receiveShadow = false;
-  group.add(left);
-
-  const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  right.position.set(width / 2 - thickness / 2, 0, 0);
-  right.receiveShadow = false;
-  group.add(right);
-
-  group.position.set(x, y, z);
-  group.rotation.y = rotY;
-  scene.add(group);
-  return group;
-}
-
-const centerTrim = createTrimRect(
-  0,
-  10.3,
-  -config.wallDistance + 0.01,
-  6.8,
-  7.0
-);
-
-createTrimLine(
-  0,
-  13.1,
-  -config.wallDistance + 0.012,
-  4.5
-);
-
-const sideTrimPosX = 6.7;
-const outerTrimHeight = 8.8;
-const innerTrimHeight = 7.1;
-
-createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
-createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
-createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
-createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
-
-const backWallTopTrim = createTrimLine(0, 2.0, -config.wallDistance + 0.01, 36);
-const backWallBottomTrim = createTrimLine(0, 1.7, -config.wallDistance + 0.012, 36);
-const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
-const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
-
-const centerTexture = textureLoader.load(
-  '/assets/obras/obra-central.jpg',
-  undefined,
-  undefined,
-  err => console.error('Error loading center artwork:', err)
-);
-
-const centerArtGroup = new THREE.Group();
-
-const frameWidth = 4.6;
-const frameHeight = 5.8;
-
-const centerFrame = new THREE.Mesh(
-  new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
-  new THREE.MeshStandardMaterial({
-    color: 0x1e1a16,
-    metalness: 0.6,
-    roughness: 0.3,
-    emissive: 0x0d0c0a,
-    emissiveIntensity: 0.15
-  })
-);
-centerFrame.position.z = -0.1;
-centerArtGroup.add(centerFrame);
-
-const centerPainting = new THREE.Mesh(
-  new THREE.PlaneGeometry(frameWidth, frameHeight),
-  new THREE.MeshStandardMaterial({
-    map: centerTexture,
-    roughness: 0.15,
-    metalness: 0.1
-  })
-);
-centerPainting.position.z = 0.01;
-centerArtGroup.add(centerPainting);
-
-centerArtGroup.position.set(
-  0,
-  10.3,
-  -config.wallDistance + 0.001
-);
-scene.add(centerArtGroup);
 
 const wallTextureData = {
   data: new Uint8Array([
@@ -324,6 +180,138 @@ textureLoader.load(
     applyWallTexture(wallTexture);
   }
 );
+const trimMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf3cc80,
+  metalness: 1,
+  roughness: 0.08,
+  emissive: 0xf3cc80,
+  emissiveIntensity: 0.45
+});
+
+function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
+  const trim = new THREE.Mesh(
+    new THREE.BoxGeometry(width, height, 0.02),
+    trimMaterial
+  );
+  trim.position.set(x, y, z);
+  trim.rotation.y = rotY;
+  trim.castShadow = false;
+  trim.receiveShadow = false;
+  scene.add(trim);
+  return trim;
+}
+
+function createTrimRect(x, y, z, width, height, rotY = 0) {
+  const group = new THREE.Group();
+  const thickness = 0.06;
+
+  const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+  top.position.set(0, height / 2, 0);
+  top.receiveShadow = false;
+  group.add(top);
+
+  const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
+  bottom.position.set(0, -height / 2, 0);
+  bottom.receiveShadow = false;
+  group.add(bottom);
+
+  const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+  left.position.set(-width / 2 + thickness / 2, 0, 0);
+  left.receiveShadow = false;
+  group.add(left);
+
+  const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
+  right.position.set(width / 2 - thickness / 2, 0, 0);
+  right.receiveShadow = false;
+  group.add(right);
+
+  group.position.set(x, y, z);
+  group.rotation.y = rotY;
+  scene.add(group);
+  return group;
+}
+
+const centerTrim = createTrimRect(
+  0,
+  10.3,
+  -config.wallDistance + 0.01,
+  6.8,
+  7.0
+);
+createTrimLine(0, 13.1, -config.wallDistance + 0.012, 4.5);
+
+const sideTrimPosX = 6.7;
+const outerTrimHeight = 8.8;
+const innerTrimHeight = 7.1;
+
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
+createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
+
+const backWallTopTrim = createTrimLine(0, 2.0, -config.wallDistance + 0.01, 36);
+const backWallBottomTrim = createTrimLine(0, 1.7, -config.wallDistance + 0.012, 36);
+const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
+const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+
+// Pedestais posicionados à esquerda e à direita das obras laterais
+const pedestalGeometry = new THREE.BoxGeometry(0.8, 1.5, 0.8);
+const pedestalMaterial = new THREE.MeshStandardMaterial({
+  color: 0x888888,
+  metalness: 0.5,
+  roughness: 0.3
+});
+
+function createPedestal(x, z) {
+  const pedestal = new THREE.Mesh(pedestalGeometry, pedestalMaterial);
+  pedestal.position.set(x, 0.75, z);
+  scene.add(pedestal);
+}
+
+createPedestal(-12.0 - 1.2, 0); // Lateral esquerda
+createPedestal(-12.0 + 1.2, 0); // Lateral esquerda
+createPedestal(12.0 - 1.2, 0);  // Lateral direita
+createPedestal(12.0 + 1.2, 0);  // Lateral direita
+const centerTexture = textureLoader.load(
+  '/assets/obras/obra-central.jpg',
+  undefined,
+  undefined,
+  err => console.error('Error loading center artwork:', err)
+);
+
+const centerArtGroup = new THREE.Group();
+
+const frameWidth = 4.6;
+const frameHeight = 5.8;
+
+const centerFrame = new THREE.Mesh(
+  new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
+  new THREE.MeshStandardMaterial({
+    color: 0x1e1a16,
+    metalness: 0.6,
+    roughness: 0.3,
+    emissive: 0x0d0c0a,
+    emissiveIntensity: 0.15
+  })
+);
+centerFrame.position.z = -0.1;
+centerArtGroup.add(centerFrame);
+
+const centerPainting = new THREE.Mesh(
+  new THREE.PlaneGeometry(frameWidth, frameHeight),
+  new THREE.MeshStandardMaterial({
+    map: centerTexture,
+    roughness: 0.15,
+    metalness: 0.1
+  })
+);
+centerPainting.position.z = 0.01;
+centerArtGroup.add(centerPainting);
+
+centerArtGroup.position.set(0, 10.3, -config.wallDistance + 0.001);
+scene.add(centerArtGroup);
 
 const wallArtworks = [
   {
@@ -331,20 +319,18 @@ const wallArtworks = [
     x: -12.0,
     y: 9.1,
     z: 0,
-    rotY: Math.PI / 2,
-    pedestalX: -1.8
+    rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
     y: 9.1,
     z: 0,
-    rotY: -Math.PI / 2,
-    pedestalX: 1.8
+    rotY: -Math.PI / 2
   }
 ];
 
-wallArtworks.forEach(({ src, x, y, z, rotY, pedestalX }) => {
+wallArtworks.forEach(({ src, x, y, z, rotY }) => {
   const texture = textureLoader.load(
     src,
     texture => {
@@ -381,15 +367,11 @@ wallArtworks.forEach(({ src, x, y, z, rotY, pedestalX }) => {
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
       scene.add(artworkGroup);
-
-      // Create pedestals for side artworks
-      createShowcase(x, pedestalX, Math.random() * 10);
     },
     undefined,
     err => console.error(`Error loading ${src}:`, err)
   );
 });
-
 const goldMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
@@ -467,98 +449,11 @@ function createShowcase(x, z, index) {
   scene.add(gem);
 }
 
+// Vitrines/gemas adicionais
 createShowcase(-12.0, -1.8, 0);
 createShowcase(-12.0, 1.8, 1);
 createShowcase(12.0, -1.8, 2);
 createShowcase(12.0, 1.8, 3);
-
-const fontLoader = new FontLoader();
-fontLoader.load(
-  'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
-  font => {
-    const textGeo = new TextGeometry('NANdART', {
-      font,
-      size: config.textSize + 0.1,
-      height: 0.12,
-      curveSegments: 10,
-      bevelEnabled: true,
-      bevelThickness: 0.02,
-      bevelSize: 0.015,
-      bevelSegments: 5
-    });
-
-    textGeo.computeBoundingBox();
-    const width = textGeo.boundingBox.max.x - textGeo.boundingBox.min.x;
-
-    const text = new THREE.Mesh(
-      textGeo,
-      new THREE.MeshStandardMaterial({
-        color: 0xc49b42,
-        metalness: 1,
-        roughness: 0.25,
-        emissive: 0x2c1d07,
-        emissiveIntensity: 0.45
-      })
-    );
-
-    text.position.set(-width / 2, 15.5, -config.wallDistance - 3.98);
-    text.castShadow = true;
-    scene.add(text);
-
-    const textLight = new THREE.SpotLight(0xfff1cc, 1.3, 12, Math.PI / 9, 0.4);
-    textLight.position.set(0, 18, -config.wallDistance - 2);
-    textLight.target = text;
-    scene.add(textLight);
-    scene.add(textLight.target);
-  }
-);
-
-scene.traverse(obj => {
-  if (
-    obj.isMesh &&
-    obj.material &&
-    obj.material.emissive &&
-    obj.material.emissiveIntensity &&
-    obj.material.color?.getHex() === 0xf3cc80
-  ) {
-    gsap.to(obj.material, {
-      emissiveIntensity: 0.65,
-      duration: 6,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-  }
-
-  if (
-    obj.isMesh &&
-    obj.material?.emissive &&
-    obj.material?.color?.getHex() === 0x1e1a16
-  ) {
-    gsap.to(obj.material, {
-      emissiveIntensity: 0.25,
-      duration: 4,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-  }
-
-  if (
-    obj.isMesh &&
-    obj.material?.emissive &&
-    obj.geometry?.type === 'IcosahedronGeometry'
-  ) {
-    gsap.to(obj.material, {
-      emissiveIntensity: 2.8,
-      duration: 5,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-  }
-});
-
 const artworkPaths = [
   "/assets/obras/obra1.jpg",
   "/assets/obras/obra2.jpg",
@@ -668,7 +563,6 @@ artworkPaths.forEach((src, i) => {
 
   artworks.push(artwork);
 });
-
 let selectedArtwork = null;
 let isHighlighted = false;
 const modal = document.querySelector('.art-modal');
@@ -689,8 +583,8 @@ function highlightArtwork(artwork, data) {
   artwork.material.depthTest = false;
   artwork.material.depthWrite = false;
 
-  // Calculate target position (1.5x height from floor compared to circulating artworks)
-  const targetY = 6.3; // 4.2 * 1.5 = 6.3
+  // Calcular a altura final 1.5x da altura original (4.2)
+  const targetY = 4.2 * 1.5;
   const targetZ = -config.wallDistance / 2;
 
   gsap.to(artwork.scale, {
@@ -717,32 +611,32 @@ function highlightArtwork(artwork, data) {
     }
   });
 
-  blurOverlay.classList.add('active');
+  blurOverlay.classList.add('active'); // Aplica desfoque subtil ao ambiente
+}
 
-  function showModal() {
-    modalTitle.textContent = data.title;
-    modalDescription.textContent = data.description;
-    modalArtist.textContent = data.artist;
-    modalYear.textContent = data.year;
-    modalPrice.textContent = `${data.price} ETH`;
+function showModal() {
+  const data = artworkData[artworks.indexOf(selectedArtwork)];
+  modalTitle.textContent = data.title;
+  modalDescription.textContent = data.description;
+  modalArtist.textContent = data.artist;
+  modalYear.textContent = data.year;
+  modalPrice.textContent = `${data.price} ETH`;
 
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(artwork.matrixWorld);
-    vector.project(camera);
+  const vector = new THREE.Vector3();
+  vector.setFromMatrixPosition(selectedArtwork.matrixWorld);
+  vector.project(camera);
 
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
-    // Position modal 2cm below artwork (converted from meters to pixels)
-    const cmToPixels = 37.8; // Approximate conversion factor
-    modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + (2 * cmToPixels)}px`;
+  const cmToPixels = 37.8; // 1 cm ≈ 37.8 px
+  modal.style.left = `${x - modal.offsetWidth / 2}px`;
+  modal.style.top = `${y + (2 * cmToPixels)}px`;
 
-    modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.classList.add('active');
-    }, 10);
-  }
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    modal.classList.add('active');
+  }, 10);
 }
 
 function restoreArtwork() {
@@ -780,7 +674,7 @@ function restoreArtwork() {
     ease: 'power2.out'
   });
 
-  blurOverlay.classList.remove('active');
+  blurOverlay.classList.remove('active'); // Remove o desfoque do ambiente
 }
 
 function handleClickOutside(event) {
@@ -799,55 +693,6 @@ function handleClickOutside(event) {
     }
   }
 }
-
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (isHighlighted) {
-    if (!modal.contains(e.target)) {
-      restoreArtwork();
-    }
-    return;
-  }
-
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(artworks);
-  if (intersects.length > 0) {
-    const artwork = intersects[0].object;
-    const index = artworks.indexOf(artwork);
-    const data = artworkData[index];
-    highlightArtwork(artwork, data);
-  }
-});
-
-window.addEventListener('click', handleClickOutside);
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  const time = Date.now() * (isHighlighted ? animationSpeed / 2 : animationSpeed);
-
-  artworks.forEach((artwork, i) => {
-    if (artwork === selectedArtwork) return;
-
-    const angle = time + (i / artworks.length) * Math.PI * 2;
-    const x = Math.cos(angle) * config.circleRadius;
-    const z = Math.sin(angle) * config.circleRadius;
-    const rotationY = -angle + Math.PI;
-
-    artwork.position.x = x;
-    artwork.position.z = z;
-    artwork.rotation.y = rotationY;
-  });
-
-  renderer.render(scene, camera);
-}
-
 async function toggleWalletConnection() {
   if (!window.ethereum) {
     alert('Please install MetaMask to connect your wallet.');
@@ -891,7 +736,7 @@ async function buyHandler(data) {
     const ethValue = ethers.parseEther(data.price);
 
     const tx = await signer.sendTransaction({
-      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41',
+      to: '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // Endereço fictício de exemplo
       value: ethValue
     });
 
@@ -935,5 +780,26 @@ window.addEventListener('load', async () => {
     }
   }
 });
+function animate() {
+  requestAnimationFrame(animate);
+
+  const time = Date.now() * (isHighlighted ? animationSpeed / 2 : animationSpeed);
+
+  artworks.forEach((artwork, i) => {
+    if (artwork === selectedArtwork) return;
+
+    const angle = time + (i / artworks.length) * Math.PI * 2;
+    const x = Math.cos(angle) * config.circleRadius;
+    const z = Math.sin(angle) * config.circleRadius;
+    const rotationY = -angle + Math.PI;
+
+    artwork.position.x = x;
+    artwork.position.z = z;
+    artwork.rotation.y = rotationY;
+  });
+
+  renderer.render(scene, camera);
+}
 
 animate();
+

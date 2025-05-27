@@ -581,7 +581,7 @@ const artworkData = [
     title: "Memórias de Silêncio",
     artist: "Rui Valente",
     year: "2023",
-    price: "0.6",
+    price: "0.0001",
     description: "Abstração das memórias que permanecem no silêncio.",
     image: "/assets/obras/obra4.jpg"
   },

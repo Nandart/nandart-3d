@@ -13,7 +13,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   touch-action: none;
-  background-color: #111111;
+  background-color: #1a1a1a; /* Cinza escuro ajustado */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   color: #e0e0e0;
 }
@@ -27,7 +27,7 @@ html, body {
   height: 100%;
   z-index: 1;
   outline: none;
-  filter: brightness(1.05) contrast(1.1);
+  filter: brightness(1.05) contrast(1.1); /* Iluminação e contraste levemente ajustados */
 }
 
 /* ==================== ÍCONES FIXOS ==================== */
@@ -156,15 +156,12 @@ html, body {
   font-weight: 700;
   font-family: 'Playfair Display', serif;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .art-modal p {
   font-size: 0.9rem;
   margin-bottom: 8px;
   line-height: 1.5;
-  opacity: 0.9;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .art-modal #art-artist {
@@ -195,38 +192,16 @@ html, body {
   width: 100%;
   font-size: 0.95rem;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: 'Playfair Display', serif;
   margin-top: 15px;
-  position: relative;
-  overflow: hidden;
 }
 
 .art-modal #buy-art:hover {
   background-color: #e2c278;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .art-modal #buy-art:active {
   transform: translateY(0);
-}
-
-.art-modal #buy-art::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: all 0.5s ease;
-}
-
-.art-modal #buy-art:hover::after {
-  left: 100%;
 }
 
 /* ==================== BLUR OVERLAY ==================== */
@@ -242,7 +217,7 @@ html, body {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5); /* Ambiente mais visível e menos escuro */
 }
 
 #blur-overlay.active {
@@ -257,17 +232,6 @@ html, body {
   emissiveIntensity: 0.5 !important;
   roughness: 0.7 !important;
   metalness: 0.1 !important;
-}
-
-/* ==================== ANIMAÇÕES ==================== */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translate(-50%, 20px); }
-  to { transform: translate(-50%, 0); }
 }
 
 /* ==================== RESPONSIVIDADE ==================== */

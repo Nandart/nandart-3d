@@ -62,9 +62,9 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Luz ambiente cinzenta discreta
-scene.add(ambientLight);
-
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+scene.add(ambientLight1, ambientLight2);
 
 const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
 scene.add(hemisphereLight);
@@ -81,13 +81,26 @@ spotLightLeft.shadow.mapSize.height = 1024;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
+// Wall lighting
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight1.position.set(0, 15, -config.wallDistance - 3);
+scene.add(wallLight1);
+
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight2.position.set(-14, 15, -config.wallDistance / 2);
+scene.add(wallLight2);
+
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight3.position.set(14, 15, -config.wallDistance / 2);
+scene.add(wallLight3);
+
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 2
+  recursion: 1 // Reduced recursion to remove trim reflections
 });
 
 floor.material.opacity = 0.15;
@@ -249,10 +262,10 @@ scene.add(centerArtGroup);
 
 const wallTextureData = {
   data: new Uint8Array([
-    40, 40, 40, 255, 45, 45, 45, 255, 35, 35, 35, 255, 50, 50, 50, 255,
-    45, 45, 45, 255, 40, 40, 40, 255, 35, 35, 35, 255, 30, 30, 30, 255,
-    50, 50, 50, 255, 45, 45, 45, 255, 40, 40, 40, 255, 35, 35, 35, 255,
-    30, 30, 30, 255, 25, 25, 25, 255, 20, 20, 20, 255, 15, 15, 15, 255
+    30, 30, 30, 255, 35, 35, 35, 255, 25, 25, 25, 255, 40, 40, 40, 255,
+    35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255, 20, 20, 20, 255,
+    40, 40, 40, 255, 35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255,
+    20, 20, 20, 255, 15, 15, 15, 255, 10, 10, 10, 255, 5, 5, 5, 255
   ]),
   width: 4,
   height: 4
@@ -274,8 +287,8 @@ const applyWallTexture = texture => {
     map: texture,
     color: 0x0a0a0a,
     emissive: new THREE.Color(0x080808),
-    emissiveIntensity: 0.15,
-    roughness: 0.65,
+    emissiveIntensity: 0.25,
+    roughness: 0.75,
     metalness: 0.15,
     side: THREE.FrontSide
   });
@@ -311,20 +324,19 @@ textureLoader.load(
   }
 );
 
-// Ajustar posição das obras nas paredes laterais entre os pedestais
 const wallArtworks = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
-    y: 6.0, // Ajustado para alinhar com o meio dos pedestais
-    z: -config.wallDistance / 2,
+    y: 9.1,
+    z: -config.wallDistance / 2 - 0.01, // Adjusted to be exactly between pedestals
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
-    y: 6.0, // Ajustado para alinhar com o meio dos pedestais
-    z: -config.wallDistance / 2,
+    y: 9.1,
+    z: -config.wallDistance / 2 - 0.01, // Adjusted to be exactly between pedestals
     rotY: -Math.PI / 2
   }
 ];
@@ -363,7 +375,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
       painting.position.z = 0.01;
       artworkGroup.add(painting);
 
-      artworkGroup.position.set(x, y, z + 0.01);
+      artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
       scene.add(artworkGroup);
     },
@@ -581,7 +593,7 @@ const artworkData = [
     title: "Memórias de Silêncio",
     artist: "Rui Valente",
     year: "2023",
-    price: "0.0001",
+    price: "0.6",
     description: "Abstração das memórias que permanecem no silêncio.",
     image: "/assets/obras/obra4.jpg"
   },
@@ -646,6 +658,7 @@ artworkPaths.forEach((src, i) => {
 
   artwork.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
   artwork.userData.originalRotation = new THREE.Euler(0, rotationY, 0);
+  artwork.userData.originalScale = new THREE.Vector3(1, 1, 1);
 
   artworks.push(artwork);
 });
@@ -673,8 +686,13 @@ function highlightArtwork(artwork, data) {
   const targetY = 6.3;
   const targetZ = -config.wallDistance / 2;
 
-  // Garantir que a obra destacada tenha o dobro do tamanho original
-  artwork.scale.set(2, 2, 2);
+  gsap.to(artwork.scale, {
+    x: 2,
+    y: 2,
+    z: 2,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
 
   gsap.to(artwork.position, {
     x: 0,
@@ -692,7 +710,7 @@ function highlightArtwork(artwork, data) {
     }
   });
 
-blurOverlay.classList.add('active');
+  blurOverlay.classList.add('active');
 
   function showModal() {
     modalTitle.textContent = data.title;
@@ -725,7 +743,13 @@ function restoreArtwork() {
   selectedArtwork.material.depthTest = true;
   selectedArtwork.material.depthWrite = true;
 
-  selectedArtwork.scale.set(1, 1, 1);
+  gsap.to(selectedArtwork.scale, {
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: 0.8,
+    ease: 'power2.out'
+  });
 
   gsap.to(selectedArtwork.position, {
     x: selectedArtwork.userData.originalPosition.x,
@@ -744,11 +768,26 @@ function restoreArtwork() {
   blurOverlay.classList.remove('active');
 }
 
+function handleClickOutside(event) {
+  if (isHighlighted && !modal.contains(event.target)) {
+    const mouse = new THREE.Vector2(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+    );
 
-// Restaurar obra destacada ao clicar fora da obra ou do modal
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObject(selectedArtwork);
+    if (intersects.length === 0) {
+      restoreArtwork();
+    }
+  }
+}
+
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (isHighlighted) {
-    if (!modal.contains(e.target) && e.target !== selectedArtwork) {
+    if (!modal.contains(e.target)) {
       restoreArtwork();
     }
     return;
@@ -759,7 +798,7 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     -(e.clientY / window.innerHeight) * 2 + 1
   );
 
-const raycaster = new THREE.Raycaster();
+  const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
   const intersects = raycaster.intersectObjects(artworks);
@@ -770,6 +809,8 @@ const raycaster = new THREE.Raycaster();
     highlightArtwork(artwork, data);
   }
 });
+
+window.addEventListener('click', handleClickOutside);
 
 function animate() {
   requestAnimationFrame(animate);

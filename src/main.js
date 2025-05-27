@@ -62,9 +62,9 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
-scene.add(ambientLight1, ambientLight2);
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Luz ambiente cinzenta discreta
+scene.add(ambientLight);
+
 
 const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
 scene.add(hemisphereLight);
@@ -311,18 +311,19 @@ textureLoader.load(
   }
 );
 
+/ Ajustar posição das obras nas paredes laterais entre os pedestais
 const wallArtworks = [
   {
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
-    y: 9.1,
+    y: 6.0, // Ajustado para alinhar com o meio dos pedestais
     z: -config.wallDistance / 2,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
-    y: 9.1,
+    y: 6.0, // Ajustado para alinhar com o meio dos pedestais
     z: -config.wallDistance / 2,
     rotY: -Math.PI / 2
   }
@@ -672,6 +673,7 @@ function highlightArtwork(artwork, data) {
   const targetY = 6.3;
   const targetZ = -config.wallDistance / 2;
 
+  // Garantir que a obra destacada tenha o dobro do tamanho original
   artwork.scale.set(2, 2, 2);
 
   gsap.to(artwork.position, {
@@ -690,7 +692,7 @@ function highlightArtwork(artwork, data) {
     }
   });
 
-  blurOverlay.classList.add('active');
+blurOverlay.classList.add('active');
 
   function showModal() {
     modalTitle.textContent = data.title;
@@ -742,9 +744,11 @@ function restoreArtwork() {
   blurOverlay.classList.remove('active');
 }
 
+
+// Restaurar obra destacada ao clicar fora da obra ou do modal
 renderer.domElement.addEventListener('pointerdown', (e) => {
   if (isHighlighted) {
-    if (!modal.contains(e.target)) {
+    if (!modal.contains(e.target) && e.target !== selectedArtwork) {
       restoreArtwork();
     }
     return;
@@ -755,7 +759,7 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     -(e.clientY / window.innerHeight) * 2 + 1
   );
 
-  const raycaster = new THREE.Raycaster();
+const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
   const intersects = raycaster.intersectObjects(artworks);

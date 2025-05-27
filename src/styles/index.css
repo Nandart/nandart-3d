@@ -136,22 +136,17 @@ html, body {
   backdrop-filter: blur(5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translateY(20px);
+  transform: translate(-50%, -50%) translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  
- .art-modal h2, .art-modal p {
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-  line-height: 1.5;
-  opacity: 0.9;
-  
-  /* Nova propriedade adicionada */
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  left: 50%;
+  top: 50%;
 }
 
 .art-modal.active {
   opacity: 1;
-  transform: translate(-50%, -20px);
+  transform: translate(-50%, -50%);
 }
 
 .art-modal h2 {
@@ -161,6 +156,7 @@ html, body {
   font-weight: 700;
   font-family: 'Playfair Display', serif;
   text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .art-modal p {
@@ -168,6 +164,7 @@ html, body {
   margin-bottom: 8px;
   line-height: 1.5;
   opacity: 0.9;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .art-modal #art-artist {
@@ -203,6 +200,8 @@ html, body {
   letter-spacing: 0.5px;
   font-family: 'Playfair Display', serif;
   margin-top: 15px;
+  position: relative;
+  overflow: hidden;
 }
 
 .art-modal #buy-art:hover {
@@ -215,6 +214,21 @@ html, body {
   transform: translateY(0);
 }
 
+.art-modal #buy-art::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
+}
+
+.art-modal #buy-art:hover::after {
+  left: 100%;
+}
+
 /* ==================== BLUR OVERLAY ==================== */
 #blur-overlay {
   position: fixed;
@@ -224,7 +238,7 @@ html, body {
   height: 100%;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  z-index: 200;
+  z-index: 150;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -267,13 +281,6 @@ html, body {
   .art-modal {
     max-width: 280px;
     padding: 16px;
-    left: 50% !important;
-    right: auto !important;
-    transform: translate(-50%, 0) !important;
-  }
-
-  .art-modal.active {
-    transform: translate(-50%, -10px) !important;
   }
 
   .art-modal h2 {
@@ -301,4 +308,3 @@ html, body {
     -webkit-backdrop-filter: blur(8px);
   }
 }
-

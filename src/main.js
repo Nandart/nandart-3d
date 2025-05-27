@@ -66,18 +66,8 @@ const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
 const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
 scene.add(ambientLight1, ambientLight2);
 
-// Iluminação adicional para paredes
-const wallLight = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
-wallLight.position.set(0, 10, -config.wallDistance/2);
-scene.add(wallLight);
-
-const wallLightLeft = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
-wallLightLeft.position.set(-14, 10, -config.wallDistance/2);
-scene.add(wallLightLeft);
-
-const wallLightRight = new THREE.SpotLight(0xffffff, 0.15, 20, Math.PI/4);
-wallLightRight.position.set(14, 10, -config.wallDistance/2);
-scene.add(wallLightRight);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
+scene.add(hemisphereLight);
 
 const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
 spotLightLeft.position.set(-10, 8, 0);
@@ -91,19 +81,7 @@ spotLightLeft.shadow.mapSize.height = 1024;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-// Wall lighting
-const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
-wallLight1.position.set(0, 15, -config.wallDistance - 3);
-scene.add(wallLight1);
-
-const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
-wallLight2.position.set(-14, 15, -config.wallDistance / 2);
-scene.add(wallLight2);
-
-const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
-wallLight3.position.set(14, 15, -config.wallDistance / 2);
-scene.add(wallLight3);
-
+// Create floor geometry before using it
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
 const floor = new Reflector(floorGeometry, {
@@ -111,7 +89,7 @@ const floor = new Reflector(floorGeometry, {
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0 // Elimina reflexos secundários
+  recursion: 0 // Eliminates secondary reflections
 });
 
 floor.material.opacity = 0.15;
@@ -127,6 +105,19 @@ floor.material.side = THREE.DoubleSide;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+
+// Wall lighting
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight1.position.set(0, 15, -config.wallDistance - 3);
+scene.add(wallLight1);
+
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight2.position.set(-14, 15, -config.wallDistance / 2);
+scene.add(wallLight2);
+
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+wallLight3.position.set(14, 15, -config.wallDistance / 2);
+scene.add(wallLight3);
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -153,6 +144,7 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissive: 0xf3cc80,
   emissiveIntensity: 0.45
 });
+
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   const trim = new THREE.Mesh(

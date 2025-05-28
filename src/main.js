@@ -755,9 +755,8 @@ function highlightArtwork(artwork, data) {
     modal.style.width = `${config.obraSize * 2 * 100}px`;
 
     // Position modal precisely 10cm below artwork
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(artwork.matrixWorld);
-    vector.project(camera);
+     const artworkPosition = artwork.position.clone();
+    artworkPosition.project(camera);
 
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
@@ -765,7 +764,9 @@ function highlightArtwork(artwork, data) {
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
     modal.style.top = `${y + 100}px`; // 10cm below (100px ≈ 10cm at normal zoom)
 
+ // Mostrar modal
     modal.style.display = 'flex';
+    gsap.to(modal, { opacity: 1, duration: 0.3 });
   }
 }
 
@@ -773,8 +774,15 @@ function restoreArtwork() {
   if (!isHighlighted) return;
   isHighlighted = false;
 
-  modal.style.display = 'none';
-
+ // Esconder modal
+  gsap.to(modal, {
+    opacity: 0,
+    duration: 0.3,
+    onComplete: () => {
+      modal.style.display = 'none';
+    }
+  });
+  
   selectedArtwork.renderOrder = 0;
   selectedArtwork.material.depthTest = true;
   selectedArtwork.material.depthWrite = true;
@@ -856,8 +864,10 @@ window.addEventListener('click', handleClickOutside);
 
 function animate() {
   requestAnimationFrame(animate);
-
-  const time = Date.now() * (isHighlighted ? originalAnimationSpeed / 2 : originalAnimationSpeed);
+// Reduzir velocidade pela metade quando uma obra está destacada
+  const speedFactor = isHighlighted ? 0.5 : 1;
+  const time = Date.now() * originalAnimationSpeed * speedFactor;
+  
 
   artworks.forEach((artwork, i) => {
     if (artwork === selectedArtwork) return;

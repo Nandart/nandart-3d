@@ -574,7 +574,7 @@ const artworkData = [
     title: "Fragmento da Eternidade",
     artist: "Inês Duarte",
     year: "2023",
-    price: "0.8",
+    price: "0.0001",
     description: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
     image: "/assets/obras/obra1.jpg"
   },
@@ -582,7 +582,7 @@ const artworkData = [
     title: "Sombras de Luz",
     artist: "Miguel Costa",
     year: "2024",
-    price: "0.5",
+    price: "0.0001",
     description: "Contraste entre luz e sombra em movimento constante.",
     image: "/assets/obras/obra2.jpg"
   },
@@ -590,7 +590,7 @@ const artworkData = [
     title: "Horizonte Partilhado",
     artist: "Clara Mendonça",
     year: "2022",
-    price: "1.2",
+    price: "1",
     description: "Perspectivas múltiplas de um mesmo horizonte urbano.",
     image: "/assets/obras/obra3.jpg"
   },
@@ -598,7 +598,7 @@ const artworkData = [
     title: "Memórias de Silêncio",
     artist: "Rui Valente",
     year: "2023",
-    price: "0.6",
+    price: "0.0001",
     description: "Abstração das memórias que permanecem no silêncio.",
     image: "/assets/obras/obra4.jpg"
   },
@@ -606,7 +606,7 @@ const artworkData = [
     title: "Ritmo Contido",
     artist: "Joana Serra",
     year: "2025",
-    price: "0.75",
+    price: "0.0001",
     description: "Movimento congelado em padrões geométricos precisos.",
     image: "/assets/obras/obra5.jpg"
   },
@@ -622,7 +622,7 @@ const artworkData = [
     title: "Verso Encoberto",
     artist: "Sofia Rocha",
     year: "2024",
-    price: "0.4",
+    price: "0.0001",
     description: "Texturas que revelam camadas ocultas da percepção.",
     image: "/assets/obras/obra7.jpg"
   },
@@ -630,7 +630,7 @@ const artworkData = [
     title: "Silhueta do Amanhã",
     artist: "Tiago Faria",
     year: "2025",
-    price: "0.9",
+    price: "0.0001",
     description: "Visão futurista de formas orgânicas em evolução.",
     image: "/assets/obras/obra8.jpg"
   }

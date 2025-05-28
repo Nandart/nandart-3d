@@ -1,115 +1,153 @@
-/* ==================== RESET BÁSICO ==================== */
+/* ==================== BASE RESET ==================== */
+:root {
+  --gold-primary: #d8b26c;
+  --gold-secondary: #c4a860;
+  --gold-light: #e2c278;
+  --gold-accent: #f3cc80;
+  --bg-dark: #111111;
+  --bg-darker: #0a0a0a;
+  --text-light: #e0e0e0;
+  --text-muted: rgba(224, 224, 224, 0.8);
+  --transition-base: 0.3s ease;
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
 *, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
   touch-action: none;
-  background-color: #111111;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  color: #e0e0e0;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-family: 'Playfair Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
 }
 
-/* ==================== CANVAS 3D ==================== */
+/* ==================== 3D CANVAS ==================== */
 #scene {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 0;
   outline: none;
   filter: brightness(1.05) contrast(1.1);
+  will-change: transform;
 }
 
-/* ==================== ÍCONES FIXOS ==================== */
+/* ==================== NAVIGATION ==================== */
 .navigation-icons {
   position: fixed;
-  top: 16px;
-  left: 18px;
+  top: 1rem;
+  left: 1.125rem;
   z-index: 100;
   display: flex;
-  gap: 16px;
+  gap: 1rem;
   align-items: center;
 }
 
-.navigation-icons img {
-  height: 28px;
+.navigation-icons button {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.navigation-icons img:hover {
+.navigation-icons img {
+  height: 1.75rem;
+  width: auto;
+  transition: transform var(--transition-base);
+  pointer-events: none;
+}
+
+.navigation-icons button:hover img,
+.navigation-icons button:focus-visible img {
   transform: scale(1.1);
 }
 
-/* ==================== MENU DROPDOWN ==================== */
+/* ==================== DROPDOWN MENU ==================== */
 #menu-dropdown {
   position: fixed;
-  top: 60px;
-  left: 18px;
-  background: rgba(10, 10, 10, 0.7);
+  top: 3.75rem;
+  left: 1.125rem;
+  background: rgba(10, 10, 10, 0.9);
   backdrop-filter: blur(8px);
-  border-radius: 8px;
-  padding: 12px;
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
   flex-direction: column;
   z-index: 200;
   display: none;
   border: 1px solid rgba(216, 178, 108, 0.15);
+  min-width: 10rem;
+}
+
+#menu-dropdown[aria-hidden="false"] {
+  display: flex;
 }
 
 #menu-dropdown a {
-  color: #d8b26c;
+  color: var(--gold-primary);
   text-decoration: none;
-  font-family: 'Playfair Display', serif;
-  margin: 6px 0;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  margin: 0.375rem 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color var(--transition-base);
+  font-weight: 500;
 }
 
-#menu-dropdown a:hover {
+#menu-dropdown a:hover,
+#menu-dropdown a:focus-visible {
   background-color: rgba(216, 178, 108, 0.1);
+  outline: none;
 }
 
 /* ==================== WALLET BUTTON ==================== */
 #wallet-button {
   position: fixed;
-  top: 18px;
-  right: 20px;
+  top: 1.125rem;
+  right: 1.25rem;
   z-index: 250;
-  padding: 10px 18px 10px 42px;
-  font-size: 1em;
-  background-color: #d8b26c;
-  color: #111;
+  padding: 0.625rem 1.125rem 0.625rem 2.625rem;
+  font-size: 1rem;
+  background-color: var(--gold-primary);
+  color: var(--bg-dark);
   border: none;
-  border-radius: 6px;
-  font-family: 'Playfair Display', serif;
+  border-radius: 0.375rem;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
+  box-shadow: var(--shadow-sm);
   background-image: url('/assets/icons/metamask.svg');
   background-repeat: no-repeat;
-  background-position: 12px center;
-  background-size: 20px 20px;
-  transition: all 0.3s ease;
+  background-position: 0.75rem center;
+  background-size: 1.25rem 1.25rem;
+  transition: all var(--transition-base);
+  font-weight: 500;
 }
 
 #wallet-button.connected {
-  background-color: #c4a860;
-  padding: 10px 18px 10px 16px !important;
+  background-color: var(--gold-secondary);
+  padding: 0.625rem 1.125rem !important;
 }
 
-#wallet-button:hover {
-  background-color: #e2c278;
+#wallet-button:hover,
+#wallet-button:focus-visible {
+  background-color: var(--gold-light);
   transform: scale(1.04);
+  outline: none;
 }
 
 #wallet-button:active {
@@ -117,104 +155,102 @@ html, body {
 }
 
 #wallet-balance {
-  margin-left: 8px;
+  margin-left: 0.5rem;
   font-weight: 700;
 }
 
-/* ==================== MODAL DE OBRA ==================== */
-.art-modal {
+/* ==================== ART MODAL ==================== */
+#art-modal {
   position: fixed;
-  background: rgba(10, 10, 10, 0.95);
+  background: rgba(10, 10, 10, 0.98);
   color: white;
-  padding: 20px;
+  padding: 1.25rem;
   z-index: 300;
-  display: none;
-  flex-direction: column;
   border: 1px solid rgba(216, 178, 108, 0.3);
-  border-radius: 8px;
-  max-width: 320px;
+  border-radius: 0.5rem;
+  max-width: 20rem;
   backdrop-filter: blur(5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
-  transform: translate(-50%, -50%) translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  transform-style: preserve-3d;
-  backface-visibility: visible;
-  left: 50%;
-  top: 50%;
+  transform: translateY(1.25rem);
+  transition: all var(--transition-base);
+  margin: 0;
+  width: calc(100% - 2rem);
 }
 
-.art-modal.active {
+#art-modal[open] {
   opacity: 1;
-  transform: translate(-50%, -50%);
+  transform: translateY(0);
 }
 
-.art-modal h2 {
-  color: #d8b26c;
-  margin-bottom: 12px;
+#art-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+#art-modal h2 {
+  color: var(--gold-primary);
+  margin-bottom: 0.75rem;
   font-size: 1.3rem;
   font-weight: 700;
-  font-family: 'Playfair Display', serif;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
-.art-modal p {
+#art-modal p {
   font-size: 0.9rem;
-  margin-bottom: 8px;
-  line-height: 1.5;
-  opacity: 0.9;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: var(--text-muted);
 }
 
-.art-modal #art-artist {
+#art-modal #art-artist {
   font-weight: 600;
-  color: #f3cc80;
+  color: var(--gold-accent);
 }
 
-.art-modal #art-year {
+#art-modal #art-year {
   font-style: italic;
-  opacity: 0.8;
 }
 
-.art-modal #art-price {
+#art-modal #art-price {
   font-weight: 700;
-  color: #d8b26c;
-  margin-top: 10px;
+  color: var(--gold-primary);
+  margin-top: 0.625rem;
   font-size: 1.1rem;
 }
 
-.art-modal #buy-art {
-  background-color: #d8b26c;
-  color: #111;
+#art-modal #buy-art {
+  background-color: var(--gold-primary);
+  color: var(--bg-dark);
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: bold;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
   cursor: pointer;
   width: 100%;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: 'Playfair Display', serif;
-  margin-top: 15px;
+  letter-spacing: 0.03125rem;
+  margin-top: 0.9375rem;
   position: relative;
   overflow: hidden;
 }
 
-.art-modal #buy-art:hover {
-  background-color: #e2c278;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+#art-modal #buy-art:hover,
+#art-modal #buy-art:focus-visible {
+  background-color: var(--gold-light);
+  transform: translateY(-0.125rem);
+  box-shadow: var(--shadow-md);
+  outline: none;
 }
 
-.art-modal #buy-art:active {
+#art-modal #buy-art:active {
   transform: translateY(0);
 }
 
-.art-modal #buy-art::after {
+#art-modal #buy-art::after {
   content: '';
   position: absolute;
   top: 0;
@@ -225,86 +261,131 @@ html, body {
   transition: all 0.5s ease;
 }
 
-.art-modal #buy-art:hover::after {
+#art-modal #buy-art:hover::after {
   left: 100%;
 }
 
-/* ==================== BLUR OVERLAY ==================== */
-#blur-overlay {
+/* ==================== ERROR STATES ==================== */
+#webgl-error,
+#global-error,
+#noscript-error {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 150;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-dark);
+  color: #ff6b6b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  z-index: 10000;
+  padding: 1.25rem;
+  flex-direction: column;
 }
 
-#blur-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
+#webgl-error div,
+#global-error div,
+#noscript-error div {
+  max-width: 30rem;
 }
 
-/* ==================== ANIMAÇÕES ==================== */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+#webgl-error button,
+#global-error button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-@keyframes slideUp {
-  from { transform: translate(-50%, 20px); }
-  to { transform: translate(-50%, 0); }
-}
-
-/* ==================== RESPONSIVIDADE ==================== */
-@media (max-width: 768px) {
+/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+@media (max-width: 48rem) {
+  .navigation-icons {
+    top: 0.875rem;
+    left: 1rem;
+  }
+  
   .navigation-icons img {
-    height: 24px;
+    height: 1.5rem;
+  }
+
+  #menu-dropdown {
+    top: 3.25rem;
+    left: 1rem;
   }
 
   #wallet-button {
-    padding: 8px 16px 8px 40px;
+    top: 0.875rem;
+    right: 1rem;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
     font-size: 0.9rem;
-    background-size: 18px 18px;
-    background-position: 10px center;
+    background-size: 1.125rem 1.125rem;
+    background-position: 0.625rem center;
   }
 
   #wallet-button.connected {
-    padding: 8px 16px 8px 16px !important;
+    padding: 0.5rem 1rem !important;
   }
 
-  .art-modal {
-    max-width: 280px;
-    padding: 16px;
+  #art-modal {
+    max-width: 17.5rem;
+    padding: 1rem;
   }
 
-  .art-modal h2 {
+  #art-modal h2 {
     font-size: 1.1rem;
   }
 
-  .art-modal p {
+  #art-modal p {
     font-size: 0.85rem;
   }
 
-  .art-modal #buy-art {
-    padding: 8px 16px;
+  #art-modal #buy-art {
+    padding: 0.5rem 1rem;
     font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .art-modal {
-    max-width: 90%;
-    padding: 14px;
   }
   
   #blur-overlay {
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
   }
+}
+
+@media (max-width: 30rem) {
+  #art-modal {
+    max-width: calc(100% - 1rem);
+    padding: 0.875rem;
+  }
+  
+  #menu-dropdown {
+    min-width: 8rem;
+  }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+@media (prefers-reduced-motion) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

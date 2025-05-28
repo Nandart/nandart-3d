@@ -583,7 +583,7 @@ const artworkData = [
     title: "Sombras de Luz",
     artist: "Miguel Costa",
     year: "2024",
-    price: "0.5",
+    price: "0.0001",
     description: "Contraste entre luz e sombra em movimento constante.",
     image: "/assets/obras/obra2.jpg"
   },

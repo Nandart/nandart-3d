@@ -62,14 +62,15 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+// Increased lighting
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.8);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.8);
 scene.add(ambientLight1, ambientLight2);
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.45);
 scene.add(hemisphereLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.8);
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
@@ -81,7 +82,6 @@ spotLightLeft.shadow.mapSize.height = 1024;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-// Create floor geometry before using it
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
 const floor = new Reflector(floorGeometry, {
@@ -89,14 +89,15 @@ const floor = new Reflector(floorGeometry, {
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0 // Eliminates secondary reflections
+  recursion: 0
 });
 
-floor.material.opacity = 0.15;
-floor.material.roughness = 0.01;
+// More translucent and reflective floor
+floor.material.opacity = 0.06;
+floor.material.roughness = 0.005;
 floor.material.metalness = 0.99;
 floor.material.transparent = true;
-floor.material.envMapIntensity = 3.0;
+floor.material.envMapIntensity = 4.0;
 floor.material.reflectivity = 0.99;
 floor.material.ior = 1.45;
 floor.material.thickness = 0.5;
@@ -107,15 +108,15 @@ floor.receiveShadow = true;
 scene.add(floor);
 
 // Wall lighting
-const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.2, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
 scene.add(wallLight1);
 
-const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.2, 30, Math.PI / 6, 0.5);
 wallLight2.position.set(-14, 15, -config.wallDistance / 2);
 scene.add(wallLight2);
 
-const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.2, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
 
@@ -144,7 +145,6 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissive: 0xf3cc80,
   emissiveIntensity: 0.45
 });
-
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   const trim = new THREE.Mesh(
@@ -224,7 +224,7 @@ const centerTexture = textureLoader.load(
   '/assets/obras/obra-central.jpg',
   undefined,
   undefined,
-  err => console.error('Error loading center artwork:', err)
+  err => console.error('Error loading centre artwork:', err)
 );
 
 const centerArtGroup = new THREE.Group();
@@ -288,15 +288,13 @@ const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 const applyWallTexture = texture => {
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
-    color: 0x1a1a1a, // Cinza muito escuro
+    color: 0x1a1a1a,
     emissive: 0x050505,
     emissiveIntensity: 0.3,
     roughness: 0.8,
     metalness: 0.05,
     side: THREE.FrontSide
   });
-  
-
 
   const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
   backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
@@ -334,14 +332,14 @@ const wallArtworks = [
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
     y: 9.1,
-    z: 0, // Centralizado entre pedestais (-1.8 e 1.8)
+    z: 0,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
     y: 9.1,
-    z: 0, // Centralizado entre pedestais
+    z: 0,
     rotY: -Math.PI / 2
   }
 ];
@@ -571,67 +569,67 @@ const artworkPaths = [
 
 const artworkData = [
   {
-    title: "Fragmento da Eternidade",
+    title: "Fragment of Eternity",
     artist: "Inês Duarte",
     year: "2023",
     price: "0.8",
-    description: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
+    description: "An exploration of temporal dimensions through layered textures.",
     image: "/assets/obras/obra1.jpg"
   },
   {
-    title: "Sombras de Luz",
+    title: "Shadows of Light",
     artist: "Miguel Costa",
     year: "2024",
     price: "0.5",
-    description: "Contraste entre luz e sombra em movimento constante.",
+    description: "Contrast between light and shadow in constant motion.",
     image: "/assets/obras/obra2.jpg"
   },
   {
-    title: "Horizonte Partilhado",
+    title: "Shared Horizon",
     artist: "Clara Mendonça",
     year: "2022",
     price: "1.2",
-    description: "Perspectivas múltiplas de um mesmo horizonte urbano.",
+    description: "Multiple perspectives of the same urban horizon.",
     image: "/assets/obras/obra3.jpg"
   },
   {
-    title: "Memórias de Silêncio",
+    title: "Memories of Silence",
     artist: "Rui Valente",
     year: "2023",
     price: "0.6",
-    description: "Abstração das memórias que permanecem no silêncio.",
+    description: "Abstraction of memories that remain in silence.",
     image: "/assets/obras/obra4.jpg"
   },
   {
-    title: "Ritmo Contido",
+    title: "Contained Rhythm",
     artist: "Joana Serra",
     year: "2025",
     price: "0.75",
-    description: "Movimento congelado em padrões geométricos precisos.",
+    description: "Frozen movement in precise geometric patterns.",
     image: "/assets/obras/obra5.jpg"
   },
   {
-    title: "Flutuação Interior",
+    title: "Inner Fluctuation",
     artist: "André Luz",
     year: "2023",
     price: "1.0",
-    description: "Estados emocionais representados através de cores fluidas.",
+    description: "Emotional states represented through fluid colours.",
     image: "/assets/obras/obra6.jpg"
   },
   {
-    title: "Verso Encoberto",
+    title: "Hidden Verse",
     artist: "Sofia Rocha",
     year: "2024",
     price: "0.4",
-    description: "Texturas que revelam camadas ocultas da percepção.",
+    description: "Textures revealing hidden layers of perception.",
     image: "/assets/obras/obra7.jpg"
   },
   {
-    title: "Silhueta do Amanhã",
+    title: "Silhouette of Tomorrow",
     artist: "Tiago Faria",
     year: "2025",
     price: "0.9",
-    description: "Visão futurista de formas orgânicas em evolução.",
+    description: "Futuristic vision of evolving organic forms.",
     image: "/assets/obras/obra8.jpg"
   }
 ];
@@ -684,11 +682,13 @@ function highlightArtwork(artwork, data) {
   isHighlighted = true;
   selectedArtwork = artwork;
 
+  // Bring to foreground and double size
   artwork.renderOrder = 999;
   artwork.material.depthTest = false;
   artwork.material.depthWrite = false;
 
-  const targetY = 6.3;
+  // Position at double the height from the floor
+  const targetY = 8.4; // 2x the original height (4.2)
   const targetZ = -config.wallDistance / 2;
 
   gsap.to(artwork.scale, {
@@ -715,6 +715,7 @@ function highlightArtwork(artwork, data) {
     }
   });
 
+  // Apply blur to background
   blurOverlay.classList.add('active');
 
   function showModal() {
@@ -731,8 +732,9 @@ function highlightArtwork(artwork, data) {
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
+    // Position modal 5cm below the artwork
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`;
+    modal.style.top = `${y + 80}px`; // Increased distance for better visibility
 
     modal.style.display = 'flex';
   }
@@ -743,6 +745,7 @@ function restoreArtwork() {
   isHighlighted = false;
 
   modal.style.display = 'none';
+  blurOverlay.classList.remove('active');
 
   selectedArtwork.renderOrder = 0;
   selectedArtwork.material.depthTest = true;
@@ -769,8 +772,6 @@ function restoreArtwork() {
     duration: 0.8,
     ease: 'power2.out'
   });
-
-  blurOverlay.classList.remove('active');
 }
 
 function handleClickOutside(event) {
@@ -820,7 +821,8 @@ window.addEventListener('click', handleClickOutside);
 function animate() {
   requestAnimationFrame(animate);
 
-  const time = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
+  const speed = isHighlighted ? originalAnimationSpeed / 2 : originalAnimationSpeed;
+  const time = Date.now() * speed;
 
   artworks.forEach((artwork, i) => {
     if (artwork === selectedArtwork) return;

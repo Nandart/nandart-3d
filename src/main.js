@@ -62,14 +62,15 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.6);
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.6);
+// Increased lighting by 1.5x
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.9);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.9);
 scene.add(ambientLight1, ambientLight2);
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.35);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.525);
 scene.add(hemisphereLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.6);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.9);
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
@@ -81,22 +82,22 @@ spotLightLeft.shadow.mapSize.height = 1024;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-// Create floor geometry before using it
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
+// Increased floor transparency and reflection 4x
 const floor = new Reflector(floorGeometry, {
   clipBias: 0.001,
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0 // Eliminates secondary reflections
+  recursion: 0
 });
 
-floor.material.opacity = 0.15;
-floor.material.roughness = 0.01;
+floor.material.opacity = 0.6;
+floor.material.roughness = 0.0025;
 floor.material.metalness = 0.99;
 floor.material.transparent = true;
-floor.material.envMapIntensity = 3.0;
+floor.material.envMapIntensity = 12.0;
 floor.material.reflectivity = 0.99;
 floor.material.ior = 1.45;
 floor.material.thickness = 0.5;
@@ -107,15 +108,15 @@ floor.receiveShadow = true;
 scene.add(floor);
 
 // Wall lighting
-const wallLight1 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
 scene.add(wallLight1);
 
-const wallLight2 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight2.position.set(-14, 15, -config.wallDistance / 2);
 scene.add(wallLight2);
 
-const wallLight3 = new THREE.SpotLight(0xffffff, 0.15, 30, Math.PI / 6, 0.5);
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
 
@@ -144,7 +145,6 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissive: 0xf3cc80,
   emissiveIntensity: 0.45
 });
-
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   const trim = new THREE.Mesh(
@@ -288,15 +288,13 @@ const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 const applyWallTexture = texture => {
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
-    color: 0x1a1a1a, // Cinza muito escuro
+    color: 0x1a1a1a,
     emissive: 0x050505,
     emissiveIntensity: 0.3,
     roughness: 0.8,
     metalness: 0.05,
     side: THREE.FrontSide
   });
-  
-
 
   const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
   backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
@@ -334,14 +332,14 @@ const wallArtworks = [
     src: '/assets/obras/obra-lateral-esquerda.jpg',
     x: -12.0,
     y: 9.1,
-    z: 0, // Centralizado entre pedestais (-1.8 e 1.8)
+    z: 0,
     rotY: Math.PI / 2
   },
   {
     src: '/assets/obras/obra-lateral-direita.jpg',
     x: 12.0,
     y: 9.1,
-    z: 0, // Centralizado entre pedestais
+    z: 0,
     rotY: -Math.PI / 2
   }
 ];
@@ -640,6 +638,8 @@ const artworks = [];
 let animationSpeed = -0.00012;
 let originalAnimationSpeed = -0.00012;
 
+// Create reflections for artworks
+const artworkReflections = [];
 artworkPaths.forEach((src, i) => {
   const texture = textureLoader.load(src);
   const angle = (i / artworkPaths.length) * Math.PI * 2;
@@ -661,9 +661,28 @@ artworkPaths.forEach((src, i) => {
   artwork.castShadow = true;
   scene.add(artwork);
 
+  // Create reflection
+  const reflection = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.4
+    })
+  );
+  reflection.position.set(x, -4.2, z);
+  reflection.rotation.x = Math.PI;
+  reflection.rotation.y = rotationY;
+  scene.add(reflection);
+  artworkReflections.push(reflection);
+
   artwork.userData.originalPosition = new THREE.Vector3(x, 4.2, z);
   artwork.userData.originalRotation = new THREE.Euler(0, rotationY, 0);
   artwork.userData.originalScale = new THREE.Vector3(1, 1, 1);
+  artwork.userData.reflection = reflection;
 
   artworks.push(artwork);
 });
@@ -684,13 +703,20 @@ function highlightArtwork(artwork, data) {
   isHighlighted = true;
   selectedArtwork = artwork;
 
+  // Hide reflection during highlight
+  if (artwork.userData.reflection) {
+    artwork.userData.reflection.visible = false;
+  }
+
   artwork.renderOrder = 999;
   artwork.material.depthTest = false;
   artwork.material.depthWrite = false;
 
-  const targetY = 6.3;
+  // Position at double the height and center
+  const targetY = 8.4; // 2x original height (4.2 * 2)
   const targetZ = -config.wallDistance / 2;
 
+  // Double the size
   gsap.to(artwork.scale, {
     x: 2,
     y: 2,
@@ -715,6 +741,7 @@ function highlightArtwork(artwork, data) {
     }
   });
 
+  // Apply blur to background
   blurOverlay.classList.add('active');
 
   function showModal() {
@@ -724,6 +751,10 @@ function highlightArtwork(artwork, data) {
     modalYear.textContent = data.year;
     modalPrice.textContent = `${data.price} ETH`;
 
+    // Adjust modal width to match artwork size
+    modal.style.width = `${config.obraSize * 2 * 100}px`;
+
+    // Position modal precisely 10cm below artwork
     const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(artwork.matrixWorld);
     vector.project(camera);
@@ -732,7 +763,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`;
+    modal.style.top = `${y + 100}px`; // 10cm below (100px ≈ 10cm at normal zoom)
 
     modal.style.display = 'flex';
   }
@@ -767,7 +798,13 @@ function restoreArtwork() {
   gsap.to(selectedArtwork.rotation, {
     y: selectedArtwork.userData.originalRotation.y,
     duration: 0.8,
-    ease: 'power2.out'
+    ease: 'power2.out',
+    onComplete: () => {
+      // Show reflection again
+      if (selectedArtwork.userData.reflection) {
+        selectedArtwork.userData.reflection.visible = true;
+      }
+    }
   });
 
   blurOverlay.classList.remove('active');
@@ -820,7 +857,7 @@ window.addEventListener('click', handleClickOutside);
 function animate() {
   requestAnimationFrame(animate);
 
-  const time = Date.now() * (isHighlighted ? -0.00006 : -0.00012);
+  const time = Date.now() * (isHighlighted ? originalAnimationSpeed / 2 : originalAnimationSpeed);
 
   artworks.forEach((artwork, i) => {
     if (artwork === selectedArtwork) return;
@@ -833,6 +870,13 @@ function animate() {
     artwork.position.x = x;
     artwork.position.z = z;
     artwork.rotation.y = rotationY;
+
+    // Update reflection position
+    if (artwork.userData.reflection) {
+      artwork.userData.reflection.position.x = x;
+      artwork.userData.reflection.position.z = z;
+      artwork.userData.reflection.rotation.y = rotationY;
+    }
   });
 
   renderer.render(scene, camera);

@@ -152,6 +152,8 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
+  trim.renderOrder = -1;
+  trim.material.depthWrite = false;
   scene.add(trim);
   return trim;
 }
@@ -160,29 +162,19 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   const group = new THREE.Group();
   const thickness = 0.06;
 
-  const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  top.position.set(0, height / 2, 0);
-  top.receiveShadow = false;
-  group.add(top);
+  function createSide(geometry, position) {
+    const mesh = new THREE.Mesh(geometry, trimMaterial);
+    mesh.position.set(...position);
+    mesh.receiveShadow = false;
+    mesh.renderOrder = -1;
+    mesh.material.depthWrite = false;
+    group.add(mesh);
+  }
 
-  const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  bottom.position.set(0, -height / 2, 0);
-  bottom.receiveShadow = false;
-  group.add(bottom);
-  
-top.receiveShadow = false;
-top.renderOrder = -1;
-top.material.depthWrite = false;
-  
-  const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  left.position.set(-width / 2 + thickness / 2, 0, 0);
-  left.receiveShadow = false;
-  group.add(left);
-
-  const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  right.position.set(width / 2 - thickness / 2, 0, 0);
-  right.receiveShadow = false;
-  group.add(right);
+  createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, height / 2, 0]); // top
+  createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, -height / 2, 0]); // bottom
+  createSide(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), [-width / 2 + thickness / 2, 0, 0]); // left
+  createSide(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), [width / 2 - thickness / 2, 0, 0]); // right
 
   group.position.set(x, y, z);
   group.rotation.y = rotY;

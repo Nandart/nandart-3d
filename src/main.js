@@ -1,3 +1,4 @@
+[media pointer="file-service://file-H4BhAvsUbyqjyCHYRFe9xC"]
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -157,19 +158,6 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   scene.add(trim);
   return trim;
 }
-
-function createTrimRect(x, y, z, width, height, rotY = 0) {
-  const group = new THREE.Group();
-  const thickness = 0.06;
-
-  function createSide(geometry, position) {
-    const mesh = new THREE.Mesh(geometry, trimMaterial);
-    mesh.position.set(...position);
-    mesh.receiveShadow = false;
-    mesh.renderOrder = -1;
-    mesh.material.depthWrite = false;
-    group.add(mesh);
-  }
 
   createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, height / 2, 0]); // top
   createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, -height / 2, 0]); // bottom
@@ -503,7 +491,7 @@ fontLoader.load(
   }
 );
 
-//scene.traverse(obj => {
+scene.traverse(obj => {
   if (
     obj.isMesh &&
     obj.material &&
@@ -651,6 +639,23 @@ artworkPaths.forEach((src, i) => {
   artwork.rotation.y = rotationY;
   artwork.castShadow = true;
   scene.add(artwork);
+
+  const reflection = new THREE.Mesh(
+    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.2,
+      metalness: 0.05,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.4
+    })
+  );
+  reflection.position.set(x, -4.2, z);
+  reflection.rotation.x = Math.PI;
+  reflection.rotation.y = rotationY;
+  scene.add(reflection);
+  artworkReflections.push(reflection);
 
   artwork.userData = {
     originalPosition: new THREE.Vector3(x, 4.2, z),
@@ -940,4 +945,4 @@ window.addEventListener('load', async () => {
   }
 });
 
-animate();
+animate(); 

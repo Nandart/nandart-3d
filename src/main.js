@@ -143,16 +143,19 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.45
 });
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
+  const trimMaterialClone = trimMaterial.clone();
+  trimMaterialClone.depthWrite = false;
+  trimMaterialClone.depthTest = true;
+
   const trim = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, 0.02),
-    trimMaterial.clone()
+    trimMaterialClone
   );
   trim.position.set(x, y, z);
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  trim.renderOrder = -1;
-  trim.material.depthWrite = false;
+  trim.renderOrder = 2; // acima do reflexo
   scene.add(trim);
   return trim;
 }
@@ -161,52 +164,28 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   const group = new THREE.Group();
   const thickness = 0.06;
 
-  const top = new THREE.Mesh(
-    new THREE.BoxGeometry(width, thickness, 0.02),
-    trimMaterial.clone()
-  );
-  top.position.set(0, height / 2, 0);
-  top.receiveShadow = false;
-  top.renderOrder = -1;
-  top.material.depthWrite = false;
-  group.add(top);
+  function createSide(geometry, position) {
+    const mat = trimMaterial.clone();
+    mat.depthWrite = false;
+    mat.depthTest = true;
 
-  const bottom = new THREE.Mesh(
-    new THREE.BoxGeometry(width, thickness, 0.02),
-    trimMaterial.clone()
-  );
-  bottom.position.set(0, -height / 2, 0);
-  bottom.receiveShadow = false;
-  bottom.renderOrder = -1;
-  bottom.material.depthWrite = false;
-  group.add(bottom);
+    const mesh = new THREE.Mesh(geometry, mat);
+    mesh.position.set(...position);
+    mesh.receiveShadow = false;
+    mesh.renderOrder = 2;
+    group.add(mesh);
+  }
 
-  const left = new THREE.Mesh(
-    new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02),
-    trimMaterial.clone()
-  );
-  left.position.set(-width / 2 + thickness / 2, 0, 0);
-  left.receiveShadow = false;
-  left.renderOrder = -1;
-  left.material.depthWrite = false;
-  group.add(left);
-
-  const right = new THREE.Mesh(
-    new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02),
-    trimMaterial.clone()
-  );
-  right.position.set(width / 2 - thickness / 2, 0, 0);
-  right.receiveShadow = false;
-  right.renderOrder = -1;
-  right.material.depthWrite = false;
-  group.add(right);
+  createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, height / 2, 0]); // top
+  createSide(new THREE.BoxGeometry(width, thickness, 0.02), [0, -height / 2, 0]); // bottom
+  createSide(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), [-width / 2 + thickness / 2, 0, 0]); // left
+  createSide(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), [width / 2 - thickness / 2, 0, 0]); // right
 
   group.position.set(x, y, z);
   group.rotation.y = rotY;
   scene.add(group);
   return group;
 }
-
 
 const centerTrim = createTrimRect(
   0,

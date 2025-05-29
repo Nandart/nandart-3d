@@ -169,7 +169,11 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   bottom.position.set(0, -height / 2, 0);
   bottom.receiveShadow = false;
   group.add(bottom);
-
+  
+top.receiveShadow = false;
+top.renderOrder = -1;
+top.material.depthWrite = false;
+  
   const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
   left.position.set(-width / 2 + thickness / 2, 0, 0);
   left.receiveShadow = false;
@@ -507,7 +511,7 @@ fontLoader.load(
   }
 );
 
-scene.traverse(obj => {
+//scene.traverse(obj => {
   if (
     obj.isMesh &&
     obj.material &&
@@ -655,23 +659,6 @@ artworkPaths.forEach((src, i) => {
   artwork.rotation.y = rotationY;
   artwork.castShadow = true;
   scene.add(artwork);
-
-  const reflection = new THREE.Mesh(
-    new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-    new THREE.MeshStandardMaterial({
-      map: texture,
-      roughness: 0.2,
-      metalness: 0.05,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.4
-    })
-  );
-  reflection.position.set(x, -4.2, z);
-  reflection.rotation.x = Math.PI;
-  reflection.rotation.y = rotationY;
-  scene.add(reflection);
-  artworkReflections.push(reflection);
 
   artwork.userData = {
     originalPosition: new THREE.Vector3(x, 4.2, z),

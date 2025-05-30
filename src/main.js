@@ -7,7 +7,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
-const noReflectObjects = new THREE.Group();
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -30,7 +29,6 @@ let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
-scene.add(noReflectObjects);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -90,12 +88,7 @@ const floor = new Reflector(floorGeometry, {
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0,
-  customDepthMaterial: new THREE.MeshDepthMaterial({
-    depthPacking: THREE.RGBADepthPacking,
-    map: null,
-    alphaTest: 0.5
-  })
+  recursion: 0
 });
 
 floor.material.opacity = 0.6;
@@ -111,23 +104,6 @@ floor.material.side = THREE.DoubleSide;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
-
-function updateReflector() {
-  const tempTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-  const tempScene = new THREE.Scene();
-  
-  scene.children.forEach(obj => {
-    if (obj !== noReflectObjects && obj !== floor) {
-      tempScene.add(obj.clone());
-    }
-  });
-
-  renderer.setRenderTarget(tempTexture);
-  renderer.render(tempScene, camera);
-  renderer.setRenderTarget(null);
-  
-  floor.material.alphaMap = tempTexture.texture;
-}
 
 const wallLight1 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
@@ -176,7 +152,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  noReflectObjects.add(trim);
+  scene.add(trim);
   return trim;
 }
 
@@ -206,7 +182,7 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
 
   group.position.set(x, y, z);
   group.rotation.y = rotY;
-  noReflectObjects.add(group);
+  scene.add(group);
   return group;
 }
 
@@ -282,7 +258,7 @@ centerArtGroup.position.set(
   10.3,
   -config.wallDistance + 0.001
 );
-noReflectObjects.add(centerArtGroup);
+scene.add(centerArtGroup);
 
 const wallTextureData = {
   data: new Uint8Array([
@@ -419,7 +395,7 @@ const goldMaterial = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.6
 });
 
-const gemTexture = textureLoader.load('/assets/gemas/gema1.png');
+const gemTexture = textureLoader.load('/assets/gemas/gema-azul.png');
 const showcaseTexture = textureLoader.load('/assets/vitrine-escura.jpg');
 
 function createShowcase(x, z, index) {
@@ -871,7 +847,6 @@ window.addEventListener('click', handleClickOutside);
 
 function animate() {
   requestAnimationFrame(animate);
-  updateReflector();
 
   const speedFactor = isHighlighted ? 0.5 : 1;
   const time = Date.now() * originalAnimationSpeed * speedFactor;

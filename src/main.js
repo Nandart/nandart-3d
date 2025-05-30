@@ -104,6 +104,8 @@ floor.material.side = THREE.DoubleSide;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+floor.layers.enable(0); // apenas refletir a layer 0 (por padrão tudo está nesta camada)
+floor.layers.disable(1); // excluir layer 1 onde estão os frisos e obras da parede
 
 const wallLight1 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
@@ -152,7 +154,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  scene.add(trim);
+  trim.layers.set(1);\n  scene.add(trim);
   return trim;
 }
 
@@ -182,7 +184,9 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
 
   group.position.set(x, y, z);
   group.rotation.y = rotY;
-  scene.add(group);
+ group.layers.set(1);\n  scene.add(group);
+
+  
   return group;
 }
 
@@ -258,7 +262,7 @@ centerArtGroup.position.set(
   10.3,
   -config.wallDistance + 0.001
 );
-scene.add(centerArtGroup);
+centerArtGroup.layers.set(1);\nscene.add(centerArtGroup);
 
 const wallTextureData = {
   data: new Uint8Array([
@@ -302,13 +306,13 @@ const applyWallTexture = texture => {
   leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
   leftWall.rotation.y = Math.PI / 2;
   leftWall.receiveShadow = true;
-  scene.add(leftWall);
+leftWall.layers.set(1);\n  scene.add(leftWall);
 
   const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
   rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
   rightWall.rotation.y = -Math.PI / 2;
   rightWall.receiveShadow = true;
-  scene.add(rightWall);
+  rightWall.layers.set(1);\n  scene.add(rightWall);
 };
 
 textureLoader.load(
@@ -377,7 +381,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
-      scene.add(artworkGroup);
+     artworkGroup.layers.set(1);\n      scene.add(artworkGroup);
     },
     undefined,
     err => console.error(`Error loading ${src}:`, err)

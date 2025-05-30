@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
+const noReflectObjects = new THREE.Group();
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -29,6 +30,7 @@ let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
+scene.add(noReflectObjects);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -88,7 +90,12 @@ const floor = new Reflector(floorGeometry, {
   textureWidth: window.innerWidth * window.devicePixelRatio,
   textureHeight: window.innerHeight * window.devicePixelRatio,
   color: 0x000000,
-  recursion: 0
+  recursion: 0,
+  customDepthMaterial: new THREE.MeshDepthMaterial({
+    depthPacking: THREE.RGBADepthPacking,
+    map: null,
+    alphaTest: 0.5
+  })
 });
 
 floor.material.opacity = 0.6;
@@ -104,9 +111,23 @@ floor.material.side = THREE.DoubleSide;
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
-// Evitar reflexos da layer 1 (frisos e obras de parede)
-floor.layers.enable(0);
-floor.layers.disable(1);
+
+function updateReflector() {
+  const tempTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+  const tempScene = new THREE.Scene();
+  
+  scene.children.forEach(obj => {
+    if (obj !== noReflectObjects && obj !== floor) {
+      tempScene.add(obj.clone());
+    }
+  });
+
+  renderer.setRenderTarget(tempTexture);
+  renderer.render(tempScene, camera);
+  renderer.setRenderTarget(null);
+  
+  floor.material.alphaMap = tempTexture.texture;
+}
 
 const wallLight1 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
@@ -140,8 +161,8 @@ scene.add(circle);
 
 const trimMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
-  metalness: 0,
-  roughness: 1,
+  metalness: 1,
+  roughness: 0.08,
   emissive: 0xf3cc80,
   emissiveIntensity: 0.45
 });
@@ -155,8 +176,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  trim.layers.set(1);
-  scene.add(trim);
+  noReflectObjects.add(trim);
   return trim;
 }
 
@@ -186,8 +206,7 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
 
   group.position.set(x, y, z);
   group.rotation.y = rotY;
-  group.layers.set(1);
-  scene.add(group);
+  noReflectObjects.add(group);
   return group;
 }
 
@@ -251,8 +270,8 @@ const centerPainting = new THREE.Mesh(
   new THREE.PlaneGeometry(frameWidth, frameHeight),
   new THREE.MeshStandardMaterial({
     map: centerTexture,
-    roughness: 1,
-    metalness: 0
+    roughness: 0.15,
+    metalness: 0.1
   })
 );
 centerPainting.position.z = 0.01;
@@ -263,8 +282,7 @@ centerArtGroup.position.set(
   10.3,
   -config.wallDistance + 0.001
 );
-centerArtGroup.layers.set(1);
-scene.add(centerArtGroup);
+noReflectObjects.add(centerArtGroup);
 
 const wallTextureData = {
   data: new Uint8Array([
@@ -302,21 +320,18 @@ const applyWallTexture = texture => {
   const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
   backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
   backWall.receiveShadow = true;
-  backWall.layers.set(1);
   scene.add(backWall);
 
   const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
   leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
   leftWall.rotation.y = Math.PI / 2;
   leftWall.receiveShadow = true;
-  leftWall.layers.set(1);
   scene.add(leftWall);
 
   const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
   rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
   rightWall.rotation.y = -Math.PI / 2;
   rightWall.receiveShadow = true;
-  rightWall.layers.set(1);
   scene.add(rightWall);
 };
 
@@ -363,8 +378,8 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
         new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
         new THREE.MeshStandardMaterial({
           color: 0x1e1a16,
-          metalness: 0,
-          roughness: 1,
+          metalness: 0.6,
+          roughness: 0.3,
           emissive: 0x0d0c0a,
           emissiveIntensity: 0.15
         })
@@ -386,7 +401,6 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
-      artworkGroup.layers.set(1);
       scene.add(artworkGroup);
     },
     undefined,
@@ -857,6 +871,7 @@ window.addEventListener('click', handleClickOutside);
 
 function animate() {
   requestAnimationFrame(animate);
+  updateReflector();
 
   const speedFactor = isHighlighted ? 0.5 : 1;
   const time = Date.now() * originalAnimationSpeed * speedFactor;

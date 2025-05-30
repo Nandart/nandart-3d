@@ -137,8 +137,8 @@ scene.add(circle);
 
 const trimMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
-  metalness: 1,
-  roughness: 0.08,
+  metalness: 0,
+  roughness: 1,
   emissive: 0xf3cc80,
   emissiveIntensity: 0.45
 });
@@ -246,8 +246,8 @@ const centerPainting = new THREE.Mesh(
   new THREE.PlaneGeometry(frameWidth, frameHeight),
   new THREE.MeshStandardMaterial({
     map: centerTexture,
-    roughness: 0.15,
-    metalness: 0.1
+    roughness: 1,
+    metalness: 0
   })
 );
 centerPainting.position.z = 0.01;
@@ -354,8 +354,8 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
         new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
         new THREE.MeshStandardMaterial({
           color: 0x1e1a16,
-          metalness: 0.6,
-          roughness: 0.3,
+          metalness: 0,
+          roughness: 1,
           emissive: 0x0d0c0a,
           emissiveIntensity: 0.15
         })

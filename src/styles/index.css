@@ -123,7 +123,7 @@ html, body {
 
 /* ==================== MODAL DE OBRA ==================== */
 .art-modal {
-  position: absolute;
+  position: fixed;
   background: rgba(10, 10, 10, 0.95);
   color: white;
   padding: 20px;
@@ -132,16 +132,16 @@ html, body {
   flex-direction: column;
   border: 1px solid rgba(216, 178, 108, 0.3);
   border-radius: 8px;
-  width: auto;
   min-width: 280px;
   max-width: 400px;
   backdrop-filter: blur(5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform-style: preserve-3d;
   backface-visibility: visible;
+  pointer-events: auto;
 }
 
 .art-modal.active {
@@ -241,7 +241,7 @@ html, body {
   z-index: 150;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
   background: rgba(0, 0, 0, 0.6);
 }
 
@@ -301,6 +301,12 @@ html, body {
   .art-modal {
     max-width: 90%;
     padding: 14px;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(10px) !important;
+  }
+
+  .art-modal.active {
+    transform: translateX(-50%) translateY(0) !important;
   }
   
   #blur-overlay {

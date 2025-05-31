@@ -396,7 +396,7 @@ const goldMaterial = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.6
 });
 
-const gemTexture = textureLoader.load('/assets/gemas/gema-azul.png');
+const gemTexture = textureLoader.load('/assets/gemas/gema1.png');
 const showcaseTexture = textureLoader.load('/assets/vitrine-escura.jpg');
 
 function createShowcase(x, z, index) {

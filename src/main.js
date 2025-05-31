@@ -63,24 +63,49 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 0.9);
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 0.9);
+// Enhanced lighting setup
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 1.2);
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 1.2);
 scene.add(ambientLight1, ambientLight2);
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.525);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.8);
 scene.add(hemisphereLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 0.9);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 1.5);
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
 spotLightLeft.decay = 2;
 spotLightLeft.distance = 25;
 spotLightLeft.castShadow = true;
-spotLightLeft.shadow.mapSize.width = 1024;
-spotLightLeft.shadow.mapSize.height = 1024;
+spotLightLeft.shadow.mapSize.width = 2048;
+spotLightLeft.shadow.mapSize.height = 2048;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
+
+const spotLightRight = new THREE.SpotLight(0xfff2dd, 1.5);
+spotLightRight.position.set(10, 8, 0);
+spotLightRight.angle = Math.PI / 6;
+spotLightRight.penumbra = 0.3;
+spotLightRight.decay = 2;
+spotLightRight.distance = 25;
+spotLightRight.castShadow = true;
+spotLightRight.shadow.mapSize.width = 2048;
+spotLightRight.shadow.mapSize.height = 2048;
+spotLightRight.shadow.bias = -0.0005;
+scene.add(spotLightRight);
+
+const wallFillLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
+wallFillLight1.position.set(0, 10, -10);
+scene.add(wallFillLight1);
+
+const wallFillLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+wallFillLight2.position.set(-10, 10, -5);
+scene.add(wallFillLight2);
+
+const wallFillLight3 = new THREE.DirectionalLight(0xffffff, 0.5);
+wallFillLight3.position.set(10, 10, -5);
+scene.add(wallFillLight3);
 
 const floorGeometry = new THREE.PlaneGeometry(40, 40);
 
@@ -106,15 +131,15 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const wallLight1 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
+const wallLight1 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
 scene.add(wallLight1);
 
-const wallLight2 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
+const wallLight2 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
 wallLight2.position.set(-14, 15, -config.wallDistance / 2);
 scene.add(wallLight2);
 
-const wallLight3 = new THREE.SpotLight(0xffffff, 0.225, 30, Math.PI / 6, 0.5);
+const wallLight3 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
 wallLight3.position.set(14, 15, -config.wallDistance / 2);
 scene.add(wallLight3);
 
@@ -144,6 +169,7 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.45
 });
 
+// Create trim objects with reflection disabled
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   const trim = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, 0.02),
@@ -153,6 +179,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
+  trim.layers.enable(1); // Assign to layer 1 (reflections will ignore this layer)
   scene.add(trim);
   return trim;
 }
@@ -164,21 +191,25 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
   top.position.set(0, height / 2, 0);
   top.receiveShadow = false;
+  top.layers.enable(1);
   group.add(top);
 
   const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
   bottom.position.set(0, -height / 2, 0);
   bottom.receiveShadow = false;
+  bottom.layers.enable(1);
   group.add(bottom);
 
   const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
   left.position.set(-width / 2 + thickness / 2, 0, 0);
   left.receiveShadow = false;
+  left.layers.enable(1);
   group.add(left);
 
   const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
   right.position.set(width / 2 - thickness / 2, 0, 0);
   right.receiveShadow = false;
+  right.layers.enable(1);
   group.add(right);
 
   group.position.set(x, y, z);
@@ -217,6 +248,9 @@ const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2
 const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
 const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
 const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
+
+// Configure floor reflector to ignore layer 1
+floor.layers.set(0);
 
 const centerTexture = textureLoader.load(
   '/assets/obras/obra-central.jpg',
@@ -288,9 +322,9 @@ const applyWallTexture = texture => {
     map: texture,
     color: 0x1a1a1a,
     emissive: 0x050505,
-    emissiveIntensity: 0.3,
-    roughness: 0.8,
-    metalness: 0.05,
+    emissiveIntensity: 0.5,
+    roughness: 0.6,
+    metalness: 0.1,
     side: THREE.FrontSide
   });
 
@@ -567,67 +601,67 @@ const artworkPaths = [
 
 const artworkData = [
   {
-    title: "Fragmento da Eternidade",
+    title: "Fragment of Eternity",
     artist: "Inês Duarte",
     year: "2023",
     price: "0.0001",
-    description: "Uma exploração das dimensões temporais através de texturas sobrepostas.",
+    description: "An exploration of temporal dimensions through layered textures.",
     image: "/assets/obras/obra1.jpg"
   },
   {
-    title: "Sombras de Luz",
+    title: "Shadows of Light",
     artist: "Miguel Costa",
     year: "2024",
     price: "0.0001",
-    description: "Contraste entre luz e sombra em movimento constante.",
+    description: "Contrast between light and shadow in constant motion.",
     image: "/assets/obras/obra2.jpg"
   },
   {
-    title: "Horizonte Partilhado",
+    title: "Shared Horizon",
     artist: "Clara Mendonça",
     year: "2022",
     price: "1",
-    description: "Perspectivas múltiplas de um mesmo horizonte urbano.",
+    description: "Multiple perspectives of the same urban horizon.",
     image: "/assets/obras/obra3.jpg"
   },
   {
-    title: "Memórias de Silêncio",
+    title: "Memories of Silence",
     artist: "Rui Valente",
     year: "2023",
     price: "0.0001",
-    description: "Abstração das memórias que permanecem no silêncio.",
+    description: "Abstraction of memories that remain in silence.",
     image: "/assets/obras/obra4.jpg"
   },
   {
-    title: "Ritmo Contido",
+    title: "Contained Rhythm",
     artist: "Joana Serra",
     year: "2025",
     price: "0.0001",
-    description: "Movimento congelado em padrões geométricos precisos.",
+    description: "Frozen movement in precise geometric patterns.",
     image: "/assets/obras/obra5.jpg"
   },
   {
-    title: "Flutuação Interior",
+    title: "Inner Fluctuation",
     artist: "André Luz",
     year: "2023",
     price: "1.0",
-    description: "Estados emocionais representados através de cores fluidas.",
+    description: "Emotional states represented through fluid colours.",
     image: "/assets/obras/obra6.jpg"
   },
   {
-    title: "Verso Encoberto",
+    title: "Concealed Verse",
     artist: "Sofia Rocha",
     year: "2024",
     price: "0.0001",
-    description: "Texturas que revelam camadas ocultas da percepção.",
+    description: "Textures revealing hidden layers of perception.",
     image: "/assets/obras/obra7.jpg"
   },
   {
-    title: "Silhueta do Amanhã",
+    title: "Silhouette of Tomorrow",
     artist: "Tiago Faria",
     year: "2025",
     price: "0.0001",
-    description: "Visão futurista de formas orgânicas em evolução.",
+    description: "Futuristic vision of evolving organic forms.",
     image: "/assets/obras/obra8.jpg"
   }
 ];
@@ -705,7 +739,7 @@ function highlightArtwork(artwork, data) {
   artwork.material.depthTest = false;
   artwork.material.depthWrite = false;
 
-  const targetY = 8.4;
+  const targetY = artwork.userData.originalPosition.y * 2; // Double the height
   const targetZ = -config.wallDistance / 2;
 
   gsap.to(artwork.scale, {
@@ -751,7 +785,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 100}px`;
+    modal.style.top = `${y + 40}px`; // 40px (4cm) below the artwork
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });
@@ -849,7 +883,7 @@ window.addEventListener('click', handleClickOutside);
 function animate() {
   requestAnimationFrame(animate);
 
-  const speedFactor = isHighlighted ? 0.5 : 1;
+  const speedFactor = isHighlighted ? 0.5 : 1; // Half speed when highlighted
   const time = Date.now() * originalAnimationSpeed * speedFactor;
 
   artworks.forEach((artwork, i) => {

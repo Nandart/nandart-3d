@@ -1,4 +1,4 @@
-/* ==================== BASIC RESET ==================== */
+/* ==================== RESET BÁSICO ==================== */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -18,7 +18,7 @@ html, body {
   color: #e0e0e0;
 }
 
-/* ==================== 3D CANVAS ==================== */
+/* ==================== CANVAS 3D ==================== */
 #scene {
   position: absolute;
   top: 0;
@@ -30,7 +30,7 @@ html, body {
   filter: brightness(1.05) contrast(1.1);
 }
 
-/* ==================== FIXED ICONS ==================== */
+/* ==================== ÍCONES FIXOS ==================== */
 .navigation-icons {
   position: fixed;
   top: 16px;
@@ -51,7 +51,7 @@ html, body {
   transform: scale(1.1);
 }
 
-/* ==================== DROPDOWN MENU ==================== */
+/* ==================== MENU DROPDOWN ==================== */
 #menu-dropdown {
   position: fixed;
   top: 60px;
@@ -121,9 +121,9 @@ html, body {
   font-weight: 700;
 }
 
-/* ==================== ARTWORK MODAL ==================== */
+/* ==================== MODAL DE OBRA ==================== */
 .art-modal {
-  position: fixed;
+  position: absolute;
   background: rgba(10, 10, 10, 0.95);
   color: white;
   padding: 20px;
@@ -132,6 +132,7 @@ html, body {
   flex-direction: column;
   border: 1px solid rgba(216, 178, 108, 0.3);
   border-radius: 8px;
+  width: auto;
   min-width: 280px;
   max-width: 400px;
   backdrop-filter: blur(5px);
@@ -249,68 +250,7 @@ html, body {
   pointer-events: auto;
 }
 
-/* ==================== LOADING OVERLAY ==================== */
-#loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 500;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-#load-progress {
-  color: #d8b26c;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  margin-top: 20px;
-  text-align: center;
-}
-
-/* ==================== NOTIFICATION ==================== */
-.notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  z-index: 400;
-  display: none;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.notification.info {
-  background-color: rgba(216, 178, 108, 0.9);
-  color: #111;
-}
-
-.notification.success {
-  background-color: rgba(40, 167, 69, 0.9);
-  color: white;
-}
-
-.notification.error {
-  background-color: rgba(220, 53, 69, 0.9);
-  color: white;
-}
-
-.notification.warning {
-  background-color: rgba(255, 193, 7, 0.9);
-  color: #111;
-}
-
-/* ==================== ANIMATIONS ==================== */
+/* ==================== ANIMAÇÕES ==================== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -321,7 +261,7 @@ html, body {
   to { transform: translate(-50%, 0); }
 }
 
-/* ==================== RESPONSIVENESS ==================== */
+/* ==================== RESPONSIVIDADE ==================== */
 @media (max-width: 768px) {
   .navigation-icons img {
     height: 24px;
@@ -355,11 +295,6 @@ html, body {
     padding: 8px 16px;
     font-size: 0.85rem;
   }
-
-  .notification {
-    width: 90%;
-    text-align: center;
-  }
 }
 
 @media (max-width: 480px) {
@@ -371,13 +306,5 @@ html, body {
   #blur-overlay {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-  }
-
-  #loading-overlay {
-    flex-direction: column;
-  }
-
-  #load-progress {
-    font-size: 1.2rem;
   }
 }

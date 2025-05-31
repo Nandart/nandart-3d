@@ -1,0 +1,11 @@
+{
+  "name": "Fragment of Eternity",
+  "description": "\"Fragment of Eternity\" é uma obra de Inês Duarte, criada em 2023. Uma expressão lírica em Óleo sobre tela que evoca os contornos do abstrato contemporâneo.",
+  "image": "ipfs://QmImagem1/imagem.jpg",
+  "attributes": [
+    { "trait_type": "Artista", "value": "Inês Duarte" },
+    { "trait_type": "Ano", "value": "2023" },
+    { "trait_type": "Estilo", "value": "Abstrato" },
+    { "trait_type": "Técnica", "value": "Óleo sobre tela" }
+  ]
+}

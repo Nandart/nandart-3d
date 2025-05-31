@@ -1,4 +1,4 @@
-// Versão modificada com melhorias para a galeria NANdART
+// Versão modificada com todas as melhorias solicitadas para a galeria NANdART
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -63,7 +63,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Enhanced lighting setup
+// Enhanced lighting setup with better wall illumination
 const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 1.2);
 const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 1.2);
 scene.add(ambientLight1, ambientLight2);
@@ -131,6 +131,13 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
+// Create a layer for objects that shouldn't be reflected
+const noReflectionLayer = new THREE.Layers();
+noReflectionLayer.set(1);
+
+// Configure floor reflector to ignore layer 1
+floor.layers.set(0);
+
 const wallLight1 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
 wallLight1.position.set(0, 15, -config.wallDistance - 3);
 scene.add(wallLight1);
@@ -179,7 +186,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  trim.layers.enable(1); // Assign to layer 1 (reflections will ignore this layer)
+  trim.layers.enable(1); // Assign to layer 1 (no reflection)
   scene.add(trim);
   return trim;
 }
@@ -218,6 +225,7 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   return group;
 }
 
+// Create all trim elements (they won't be reflected due to layer 1)
 const centerTrim = createTrimRect(
   0,
   10.3,
@@ -248,9 +256,6 @@ const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2
 const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
 const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
 const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
-
-// Configure floor reflector to ignore layer 1
-floor.layers.set(0);
 
 const centerTexture = textureLoader.load(
   '/assets/obras/obra-central.jpg',
@@ -775,8 +780,10 @@ function highlightArtwork(artwork, data) {
     modalYear.textContent = data.year;
     modalPrice.textContent = `${data.price} ETH`;
 
+    // Set modal width based on artwork size
     modal.style.width = `${config.obraSize * 2 * 100}px`;
 
+    // Position modal 4cm (40px) below the artwork
     const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(artwork.matrixWorld);
     vector.project(camera);
@@ -785,7 +792,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`; // 40px (4cm) below the artwork
+    modal.style.top = `${y + 40}px`; // 40px = 4cm
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });

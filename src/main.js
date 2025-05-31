@@ -520,7 +520,7 @@ const goldMaterial = new THREE.MeshPhysicalMaterial({
 
 // Vitrines
 const gemTexturePromise = loadTextureWithFallback(
-  `${ASSETS_BASE_PATH}/gemas/gema-azul.png`,
+  `${ASSETS_BASE_PATH}/gemas/gema1.png`,
   wallTextureData
 );
 

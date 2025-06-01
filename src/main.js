@@ -1011,3 +1011,26 @@ window.addEventListener('load', async () => {
 });
 
 animate();
+
+async function mintArtwork(artwork, contrato, userAddress) {
+  try {
+    const valor = ethers.parseEther(artwork.price.toString());
+
+    const tx = await contrato.mintComCuradoria(
+      artwork.artista,
+      artwork.tokenURI,
+      { value: valor }
+    );
+
+    console.log(`NFT cunhado com sucesso: ${artwork.title}`);
+    return tx;
+  } catch (error) {
+    console.error(`Erro ao cunhar "${artwork.title}":`, error);
+  }
+}
+
+async function mintTodos(contrato, userAddress) {
+  for (const obra of artworkData) {
+    await mintArtwork(obra, contrato, userAddress);
+  }
+}

@@ -64,9 +64,7 @@ window.addEventListener('resize', () => {
 });
 
 // Enhanced lighting setup with better wall illumination
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 1.5); // Increased intensity
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 1.5); // Increased intensity
-scene.add(ambientLight1, ambientLight2);
+
 
 const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0); // Increased intensity
 scene.add(hemisphereLight);
@@ -113,18 +111,7 @@ wallLightRight.position.set(10, 15, -config.wallDistance - 1);
 wallLightRight.target.position.set(10, 0, -config.wallDistance);
 scene.add(wallLightRight);
 scene.add(wallLightRight.target);
-
-const wallFillLight1 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
-wallFillLight1.position.set(0, 10, -10);
-scene.add(wallFillLight1);
-
-const wallFillLight2 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
-wallFillLight2.position.set(-10, 10, -5);
-scene.add(wallFillLight2);
-
-const wallFillLight3 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
-wallFillLight3.position.set(10, 10, -5);
-scene.add(wallFillLight3);
+//eliminado
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -299,33 +286,51 @@ const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
 const applyWallTexture = texture => {
-  const wallMaterial = new THREE.MeshStandardMaterial({
+const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
     color: 0x1a1a1a,
-    emissive: 0x050505,
-    emissiveIntensity: 0.5,
     roughness: 0.6,
     metalness: 0.1,
     side: THREE.FrontSide
-  });
+});
 
-  const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
-  backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
-  backWall.receiveShadow = true;
-  scene.add(backWall);
-
-  const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-  leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
-  leftWall.rotation.y = Math.PI / 2;
-  leftWall.receiveShadow = true;
-  scene.add(leftWall);
-
-  const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-  rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
-  rightWall.rotation.y = -Math.PI / 2;
-  rightWall.receiveShadow = true;
-  scene.add(rightWall);
+// 2. Criação de luzes direcionais exclusivas para paredes
+const createWallLight = (x, z, intensity) => {
+    const light = new THREE.SpotLight(0xffffff, intensity, 25, Math.PI/4, 0.5);
+    light.position.set(x, 15, z);
+    light.target.position.set(x, 0, z > -10 ? -config.wallDistance/2 : -config.wallDistance);
+    light.castShadow = false;
+    return light;
 };
+
+// Parede de fundo (2 luzes)
+const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.8);
+const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.8);
+
+// Parede esquerda (2 luzes)
+const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.7);
+const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.7);
+
+// Parede direita (2 luzes)
+const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.7);
+const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.7);
+
+// 3. Adiciona e configura as luzes
+[backWallLight1, backWallLight2, leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
+    scene.add(light);
+    scene.add(light.target);
+    light.layers.set(2); // Restringe apenas às paredes
+});
+
+// 4. Configuração de camadas para isolamento
+[backWall, leftWall, rightWall].forEach(wall => {
+    wall.layers.set(2); // Aplica apenas às paredes
+});
+
+// 5. Desativa outras luzes nas paredes
+hemisphereLight.layers.disable(2);
+spotLightLeft.layers.disable(2);
+spotLightRight.layers.disable(2);
 
 textureLoader.load(
   '/assets/antracite-realista.jpg',

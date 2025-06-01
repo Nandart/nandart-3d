@@ -598,56 +598,56 @@ const artworkData = [
     artist: "Miguel Costa",
     year: "2024",
     price: "0.0001",
-    description: "Contrast between light and shadow in constant motion.",
-    image: "/assets/obras/obra2.jpg"
+    tokenURI: "ipfs://bafybeic2cmwwsvm6fjfbxojc2pcr3rzvtfveludgpd44jxgetyrlncxmyu/shadows_of_light.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Shared Horizon",
     artist: "Clara Mendonça",
     year: "2022",
     price: "1",
-    description: "Multiple perspectives of the same urban horizon.",
-    image: "/assets/obras/obra3.jpg"
+    tokenURI: "ipfs://bafybeiakxmorl2p2z7cjm7vl5laqc5iozulevcskrya7hrmm6biewzwzu4/shared_horizon.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Memories of Silence",
     artist: "Rui Valente",
     year: "2023",
     price: "0.0001",
-    description: "Abstraction of memories that remain in silence.",
-    image: "/assets/obras/obra4.jpg"
+    tokenURI: "ipfs://bafybeibdrkwcyu6qajyynrl2sjgwyiowpgwwu5limjq6rab4wdoggnflpy/memories_of_silence.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Contained Rhythm",
     artist: "Joana Serra",
     year: "2025",
     price: "0.0001",
-    description: "Frozen movement in precise geometric patterns.",
-    image: "/assets/obras/obra5.jpg"
+    tokenURI: "ipfs://bafybeidi67ljb4oa7ywti4dxcnlmvnjfme6gyongbl3ygsgmpg5ne5tqz4/contained_rhythm.json",
+     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Inner Fluctuation",
     artist: "André Luz",
     year: "2023",
     price: "1.0",
-    description: "Emotional states represented through fluid colours.",
-    image: "/assets/obras/obra6.jpg"
+    tokenURI: "ipfs://bafybeihnvhjtbkygyw7tcghpxbbzcte2a74mqkswaliu3gec4r6tm7phvm/inner_fluctuation.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Concealed Verse",
     artist: "Sofia Rocha",
     year: "2024",
     price: "0.0001",
-    description: "Textures revealing hidden layers of perception.",
-    image: "/assets/obras/obra7.jpg"
+   tokenURI: "ipfs://bafybeify2nqjijzo3ocy7um5pot75bzmhqgtkmnxa5izf5mgfxy6jvhmjm/concealed_verse.json",
+     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Silhouette of Tomorrow",
     artist: "Tiago Faria",
     year: "2025",
     price: "0.0001",
-    description: "Futuristic vision of evolving organic forms.",
-    image: "/assets/obras/obra8.jpg"
+    tokenURI: "ipfs://bafybeicslxf77trep4rwsszl57jhwmlmevuc4bnfouvqdrjpc4jgggfv44/silhouette_of_tomorrow.json",
+     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
 ];
 

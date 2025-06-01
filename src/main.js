@@ -63,8 +63,21 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0);
+// Iluminação ambiente principal (intensidade aumentada para 1.8 de forma gradual)
+const hemisphereLight = new THREE.HemisphereLight(
+  0xfff2e0, // Cor do céu (mais quente)
+  0x202020,  // Cor do solo (mais clara que o original 0x080808)
+  1.8        // Intensidade aumentada em 80% (não 100% para manter naturalidade)
+);
+hemisphereLight.groundColor.setHSL(0.1, 0.2, 0.15); // Ajuste sutil de tonalidade
 scene.add(hemisphereLight);
+
+// Luz de preenchimento adicional sutil
+const fillLight = new THREE.AmbientLight(
+  0xfff2dd, 
+  0.3 // Intensidade baixa para complemento
+);
+scene.add(fillLight);
 
 const spotLightLeft = new THREE.SpotLight(0xfff2dd, 2.0);
 spotLightLeft.position.set(-10, 8, 0);

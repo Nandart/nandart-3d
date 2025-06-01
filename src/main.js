@@ -661,6 +661,7 @@ artworkPaths.forEach((src, i) => {
   const z = Math.sin(angle) * config.circleRadius;
   const rotationY = -angle + Math.PI;
 
+  // Obra principal
   const artwork = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
     new THREE.MeshStandardMaterial({
@@ -673,8 +674,10 @@ artworkPaths.forEach((src, i) => {
   artwork.position.set(x, 4.2, z);
   artwork.rotation.y = rotationY;
   artwork.castShadow = true;
+  artwork.receiveShadow = false;
   scene.add(artwork);
 
+  // Reflexão no chão (ajustada para perfeito alinhamento)
   const reflection = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
     new THREE.MeshStandardMaterial({
@@ -686,9 +689,20 @@ artworkPaths.forEach((src, i) => {
       opacity: 0.4
     })
   );
-  reflection.position.set(x, -4.2, z);
-  reflection.rotation.x = Math.PI;
-  reflection.rotation.y = rotationY;
+  reflection.position.set(
+    x, 
+    -4.2, // Posição espelhada exata
+    z
+  );
+  reflection.rotation.x = Math.PI; // Rotação para espelhar
+  reflection.rotation.y = rotationY; // Manter mesma rotação Y
+  reflection.receiveShadow = false;
+  reflection.castShadow = false;
+  
+  // Ajuste fino de posicionamento para alinhamento perfeito
+  reflection.position.y += 0.05; // Compensação para o plano do chão
+  reflection.scale.set(1, -1, 1); // Inversão vertical para efeito de espelho
+  
   scene.add(reflection);
   artworkReflections.push(reflection);
 

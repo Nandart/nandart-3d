@@ -64,14 +64,14 @@ window.addEventListener('resize', () => {
 });
 
 // Enhanced lighting setup with better wall illumination
-const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 1.2);
-const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 1.2);
+const ambientLight1 = new THREE.AmbientLight(0xfff2dd, 1.5); // Increased intensity
+const ambientLight2 = new THREE.AmbientLight(0xfff2dd, 1.5); // Increased intensity
 scene.add(ambientLight1, ambientLight2);
 
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 0.8);
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0); // Increased intensity
 scene.add(hemisphereLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 1.5);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 2.0); // Increased intensity
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
@@ -83,7 +83,7 @@ spotLightLeft.shadow.mapSize.height = 2048;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-const spotLightRight = new THREE.SpotLight(0xfff2dd, 1.5);
+const spotLightRight = new THREE.SpotLight(0xfff2dd, 2.0); // Increased intensity
 spotLightRight.position.set(10, 8, 0);
 spotLightRight.angle = Math.PI / 6;
 spotLightRight.penumbra = 0.3;
@@ -95,73 +95,36 @@ spotLightRight.shadow.mapSize.height = 2048;
 spotLightRight.shadow.bias = -0.0005;
 scene.add(spotLightRight);
 
-// Additional lights for better wall visibility
-const wallLight4 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
-wallLight4.position.set(0, 15, -config.wallDistance - 2);
-scene.add(wallLight4);
+// Additional strong wall lights
+const wallLightMain = new THREE.SpotLight(0xffffff, 1.2, 30, Math.PI / 4, 0.5);
+wallLightMain.position.set(0, 15, -config.wallDistance - 1);
+wallLightMain.target.position.set(0, 0, -config.wallDistance);
+scene.add(wallLightMain);
+scene.add(wallLightMain.target);
 
-const wallLight5 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
-wallLight5.position.set(-10, 15, -config.wallDistance - 1);
-scene.add(wallLight5);
+const wallLightLeft = new THREE.SpotLight(0xffffff, 1.0, 30, Math.PI / 4, 0.5);
+wallLightLeft.position.set(-10, 15, -config.wallDistance - 1);
+wallLightLeft.target.position.set(-10, 0, -config.wallDistance);
+scene.add(wallLightLeft);
+scene.add(wallLightLeft.target);
 
-const wallLight6 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
-wallLight6.position.set(10, 15, -config.wallDistance - 1);
-scene.add(wallLight6);
+const wallLightRight = new THREE.SpotLight(0xffffff, 1.0, 30, Math.PI / 4, 0.5);
+wallLightRight.position.set(10, 15, -config.wallDistance - 1);
+wallLightRight.target.position.set(10, 0, -config.wallDistance);
+scene.add(wallLightRight);
+scene.add(wallLightRight.target);
 
-const wallFillLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
+const wallFillLight1 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
 wallFillLight1.position.set(0, 10, -10);
 scene.add(wallFillLight1);
 
-const wallFillLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+const wallFillLight2 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
 wallFillLight2.position.set(-10, 10, -5);
 scene.add(wallFillLight2);
 
-const wallFillLight3 = new THREE.DirectionalLight(0xffffff, 0.5);
+const wallFillLight3 = new THREE.DirectionalLight(0xffffff, 0.7); // Increased intensity
 wallFillLight3.position.set(10, 10, -5);
 scene.add(wallFillLight3);
-
-const floorGeometry = new THREE.PlaneGeometry(40, 40);
-
-const floor = new Reflector(floorGeometry, {
-  clipBias: 0.001,
-  textureWidth: window.innerWidth * window.devicePixelRatio,
-  textureHeight: window.innerHeight * window.devicePixelRatio,
-  color: 0x000000,
-  recursion: 0
-});
-
-floor.material.opacity = 0.6;
-floor.material.roughness = 0.0025;
-floor.material.metalness = 0.99;
-floor.material.transparent = true;
-floor.material.envMapIntensity = 12.0;
-floor.material.reflectivity = 0.99;
-floor.material.ior = 1.45;
-floor.material.thickness = 0.5;
-floor.material.side = THREE.DoubleSide;
-
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
-
-// Create a layer for objects that shouldn't be reflected
-const noReflectionLayer = new THREE.Layers();
-noReflectionLayer.set(1);
-
-// Configure floor reflector to ignore layer 1
-floor.layers.set(0);
-
-const wallLight1 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
-wallLight1.position.set(0, 15, -config.wallDistance - 3);
-scene.add(wallLight1);
-
-const wallLight2 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
-wallLight2.position.set(-14, 15, -config.wallDistance / 2);
-scene.add(wallLight2);
-
-const wallLight3 = new THREE.SpotLight(0xffffff, 0.4, 30, Math.PI / 6, 0.5);
-wallLight3.position.set(14, 15, -config.wallDistance / 2);
-scene.add(wallLight3);
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -752,14 +715,29 @@ function highlightArtwork(artwork, data) {
   isHighlighted = true;
   selectedArtwork = artwork;
 
-  // Move artwork to top layer
-  artwork.layers.set(1);
-  artwork.userData.reflection.visible = false;
+  // Store original state
+  artwork.userData.originalParent = artwork.parent;
+  artwork.userData.originalPosition = artwork.position.clone();
+  artwork.userData.originalRotation = artwork.rotation.clone();
+  artwork.userData.originalScale = artwork.scale.clone();
+
+  // Create a new group for the highlighted artwork
+  const highlightGroup = new THREE.Group();
+  scene.add(highlightGroup);
+  artwork.userData.highlightGroup = highlightGroup;
   
-  // Calculate target position (center of screen, double height, closer to camera)
+  // Remove from original parent and add to highlight group
+  artwork.parent.remove(artwork);
+  highlightGroup.add(artwork);
+
+  // Hide reflection
+  artwork.userData.reflection.visible = false;
+
+  // Calculate target position (center of screen, double height)
   const targetY = 8.4; // Exactly double the original height (4.2 * 2)
   const targetZ = -config.wallDistance / 2; // Move closer to camera
 
+  // Animate to highlight position
   gsap.to(artwork.scale, {
     x: 2,
     y: 2,
@@ -784,15 +762,10 @@ function highlightArtwork(artwork, data) {
     }
   });
 
+  // Apply blur overlay (excluding the artwork)
   blurOverlay.classList.add('active');
-  blurOverlay.style.backdropFilter = 'blur(5px)';
-  blurOverlay.style.webkitBackdropFilter = 'blur(5px)';
-
-  // Ensure the artwork is not affected by blur
-  artwork.material.defines = {
-    "STANDARD": ""
-  };
-  artwork.material.needsUpdate = true;
+  blurOverlay.style.backdropFilter = 'blur(8px)';
+  blurOverlay.style.webkitBackdropFilter = 'blur(8px)';
 
   function showModal() {
     modalTitle.textContent = data.title;
@@ -813,7 +786,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 100}px`; // Position below the artwork
+    modal.style.top = `${y + 120}px`; // Position below the artwork
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });
@@ -832,10 +805,11 @@ function restoreArtwork() {
     }
   });
 
-  // Return artwork to original layer
-  selectedArtwork.layers.set(0);
+  // Return artwork to original position and parent
+  const artwork = selectedArtwork;
+  const highlightGroup = artwork.userData.highlightGroup;
 
-  gsap.to(selectedArtwork.scale, {
+  gsap.to(artwork.scale, {
     x: 1,
     y: 1,
     z: 1,
@@ -843,23 +817,30 @@ function restoreArtwork() {
     ease: 'power2.out'
   });
 
-  gsap.to(selectedArtwork.position, {
-    x: selectedArtwork.userData.originalPosition.x,
-    y: selectedArtwork.userData.originalPosition.y,
-    z: selectedArtwork.userData.originalPosition.z,
+  gsap.to(artwork.position, {
+    x: artwork.userData.originalPosition.x,
+    y: artwork.userData.originalPosition.y,
+    z: artwork.userData.originalPosition.z,
     duration: 0.8,
     ease: 'power2.out'
   });
 
-  gsap.to(selectedArtwork.rotation, {
-    y: selectedArtwork.userData.originalRotation.y,
+  gsap.to(artwork.rotation, {
+    y: artwork.userData.originalRotation.y,
     duration: 0.8,
     ease: 'power2.out',
     onComplete: () => {
-      selectedArtwork.userData.reflection.visible = true;
+      // Return to original parent
+      highlightGroup.remove(artwork);
+      artwork.userData.originalParent.add(artwork);
+      scene.remove(highlightGroup);
+      
+      // Show reflection
+      artwork.userData.reflection.visible = true;
     }
   });
 
+  // Remove blur overlay
   blurOverlay.classList.remove('active');
   blurOverlay.style.backdropFilter = 'none';
   blurOverlay.style.webkitBackdropFilter = 'none';

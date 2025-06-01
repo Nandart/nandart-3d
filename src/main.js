@@ -95,6 +95,19 @@ spotLightRight.shadow.mapSize.height = 2048;
 spotLightRight.shadow.bias = -0.0005;
 scene.add(spotLightRight);
 
+// Additional lights for better wall visibility
+const wallLight4 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
+wallLight4.position.set(0, 15, -config.wallDistance - 2);
+scene.add(wallLight4);
+
+const wallLight5 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
+wallLight5.position.set(-10, 15, -config.wallDistance - 1);
+scene.add(wallLight5);
+
+const wallLight6 = new THREE.SpotLight(0xffffff, 0.6, 30, Math.PI / 6, 0.5);
+wallLight6.position.set(10, 15, -config.wallDistance - 1);
+scene.add(wallLight6);
+
 const wallFillLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
 wallFillLight1.position.set(0, 10, -10);
 scene.add(wallFillLight1);
@@ -739,13 +752,13 @@ function highlightArtwork(artwork, data) {
   isHighlighted = true;
   selectedArtwork = artwork;
 
+  // Move artwork to top layer
+  artwork.layers.set(1);
   artwork.userData.reflection.visible = false;
-  artwork.renderOrder = 999;
-  artwork.material.depthTest = false;
-  artwork.material.depthWrite = false;
-
-  const targetY = artwork.userData.originalPosition.y * 2; // Double the height
-  const targetZ = -config.wallDistance / 2;
+  
+  // Calculate target position (center of screen, double height, closer to camera)
+  const targetY = 8.4; // Exactly double the original height (4.2 * 2)
+  const targetZ = -config.wallDistance / 2; // Move closer to camera
 
   gsap.to(artwork.scale, {
     x: 2,
@@ -772,6 +785,14 @@ function highlightArtwork(artwork, data) {
   });
 
   blurOverlay.classList.add('active');
+  blurOverlay.style.backdropFilter = 'blur(5px)';
+  blurOverlay.style.webkitBackdropFilter = 'blur(5px)';
+
+  // Ensure the artwork is not affected by blur
+  artwork.material.defines = {
+    "STANDARD": ""
+  };
+  artwork.material.needsUpdate = true;
 
   function showModal() {
     modalTitle.textContent = data.title;
@@ -783,7 +804,7 @@ function highlightArtwork(artwork, data) {
     // Set modal width based on artwork size
     modal.style.width = `${config.obraSize * 2 * 100}px`;
 
-    // Position modal 4cm (40px) below the artwork
+    // Position modal below the artwork
     const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(artwork.matrixWorld);
     vector.project(camera);
@@ -792,7 +813,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 40}px`; // 40px = 4cm
+    modal.style.top = `${y + 100}px`; // Position below the artwork
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });
@@ -811,9 +832,8 @@ function restoreArtwork() {
     }
   });
 
-  selectedArtwork.renderOrder = 0;
-  selectedArtwork.material.depthTest = true;
-  selectedArtwork.material.depthWrite = true;
+  // Return artwork to original layer
+  selectedArtwork.layers.set(0);
 
   gsap.to(selectedArtwork.scale, {
     x: 1,
@@ -841,6 +861,8 @@ function restoreArtwork() {
   });
 
   blurOverlay.classList.remove('active');
+  blurOverlay.style.backdropFilter = 'none';
+  blurOverlay.style.webkitBackdropFilter = 'none';
 }
 
 function handleClickOutside(event) {

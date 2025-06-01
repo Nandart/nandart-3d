@@ -1,4 +1,4 @@
-// Versão modificada com todas as melhorias solicitadas para a galeria NANdART
+// Versão final com iluminação específica para paredes
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -63,13 +63,10 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Enhanced lighting setup with better wall illumination
-
-
-const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0); // Increased intensity
+const hemisphereLight = new THREE.HemisphereLight(0xfff2e0, 0x080808, 1.0);
 scene.add(hemisphereLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 2.0); // Increased intensity
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 2.0);
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
@@ -81,7 +78,7 @@ spotLightLeft.shadow.mapSize.height = 2048;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-const spotLightRight = new THREE.SpotLight(0xfff2dd, 2.0); // Increased intensity
+const spotLightRight = new THREE.SpotLight(0xfff2dd, 2.0);
 spotLightRight.position.set(10, 8, 0);
 spotLightRight.angle = Math.PI / 6;
 spotLightRight.penumbra = 0.3;
@@ -93,25 +90,30 @@ spotLightRight.shadow.mapSize.height = 2048;
 spotLightRight.shadow.bias = -0.0005;
 scene.add(spotLightRight);
 
-// Additional strong wall lights
-const wallLightMain = new THREE.SpotLight(0xffffff, 1.2, 30, Math.PI / 4, 0.5);
-wallLightMain.position.set(0, 15, -config.wallDistance - 1);
-wallLightMain.target.position.set(0, 0, -config.wallDistance);
-scene.add(wallLightMain);
-scene.add(wallLightMain.target);
+const createWallLight = (x, z, intensity) => {
+    const light = new THREE.SpotLight(0xffffff, intensity, 25, Math.PI/4, 0.5);
+    light.position.set(x, 15, z);
+    light.target.position.set(x, 0, z > -10 ? -config.wallDistance/2 : -config.wallDistance);
+    light.castShadow = false;
+    return light;
+};
 
-const wallLightLeft = new THREE.SpotLight(0xffffff, 1.0, 30, Math.PI / 4, 0.5);
-wallLightLeft.position.set(-10, 15, -config.wallDistance - 1);
-wallLightLeft.target.position.set(-10, 0, -config.wallDistance);
-scene.add(wallLightLeft);
-scene.add(wallLightLeft.target);
+const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.8);
+const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.8);
+const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.7);
+const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.7);
+const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.7);
+const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.7);
 
-const wallLightRight = new THREE.SpotLight(0xffffff, 1.0, 30, Math.PI / 4, 0.5);
-wallLightRight.position.set(10, 15, -config.wallDistance - 1);
-wallLightRight.target.position.set(10, 0, -config.wallDistance);
-scene.add(wallLightRight);
-scene.add(wallLightRight.target);
-//eliminado
+[backWallLight1, backWallLight2, leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
+    scene.add(light);
+    scene.add(light.target);
+    light.layers.set(2);
+});
+
+hemisphereLight.layers.disable(2);
+spotLightLeft.layers.disable(2);
+spotLightRight.layers.disable(2);
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -139,7 +141,6 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.45
 });
 
-// Create trim objects with reflection disabled
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   const trim = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, 0.02),
@@ -149,7 +150,7 @@ function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
   trim.rotation.y = rotY;
   trim.castShadow = false;
   trim.receiveShadow = false;
-  trim.layers.enable(1); // Assign to layer 1 (no reflection)
+  trim.layers.enable(1);
   scene.add(trim);
   return trim;
 }
@@ -188,7 +189,6 @@ function createTrimRect(x, y, z, width, height, rotY = 0) {
   return group;
 }
 
-// Create all trim elements (they won't be reflected due to layer 1)
 const centerTrim = createTrimRect(
   0,
   10.3,
@@ -286,51 +286,36 @@ const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
 const applyWallTexture = texture => {
-const wallMaterial = new THREE.MeshStandardMaterial({
+  const wallMaterial = new THREE.MeshStandardMaterial({
     map: texture,
     color: 0x1a1a1a,
+    emissive: 0x050505,
+    emissiveIntensity: 0.5,
     roughness: 0.6,
     metalness: 0.1,
     side: THREE.FrontSide
-});
+  });
 
-// 2. Criação de luzes direcionais exclusivas para paredes
-const createWallLight = (x, z, intensity) => {
-    const light = new THREE.SpotLight(0xffffff, intensity, 25, Math.PI/4, 0.5);
-    light.position.set(x, 15, z);
-    light.target.position.set(x, 0, z > -10 ? -config.wallDistance/2 : -config.wallDistance);
-    light.castShadow = false;
-    return light;
+  const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
+  backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
+  backWall.receiveShadow = true;
+  backWall.layers.set(2);
+  scene.add(backWall);
+
+  const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+  leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
+  leftWall.rotation.y = Math.PI / 2;
+  leftWall.receiveShadow = true;
+  leftWall.layers.set(2);
+  scene.add(leftWall);
+
+  const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+  rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
+  rightWall.rotation.y = -Math.PI / 2;
+  rightWall.receiveShadow = true;
+  rightWall.layers.set(2);
+  scene.add(rightWall);
 };
-
-// Parede de fundo (2 luzes)
-const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.8);
-const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.8);
-
-// Parede esquerda (2 luzes)
-const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.7);
-const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.7);
-
-// Parede direita (2 luzes)
-const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.7);
-const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.7);
-
-// 3. Adiciona e configura as luzes
-[backWallLight1, backWallLight2, leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
-    scene.add(light);
-    scene.add(light.target);
-    light.layers.set(2); // Restringe apenas às paredes
-});
-
-// 4. Configuração de camadas para isolamento
-[backWall, leftWall, rightWall].forEach(wall => {
-    wall.layers.set(2); // Aplica apenas às paredes
-});
-
-// 5. Desativa outras luzes nas paredes
-hemisphereLight.layers.disable(2);
-spotLightLeft.layers.disable(2);
-spotLightRight.layers.disable(2);
 
 textureLoader.load(
   '/assets/antracite-realista.jpg',
@@ -720,29 +705,23 @@ function highlightArtwork(artwork, data) {
   isHighlighted = true;
   selectedArtwork = artwork;
 
-  // Store original state
   artwork.userData.originalParent = artwork.parent;
   artwork.userData.originalPosition = artwork.position.clone();
   artwork.userData.originalRotation = artwork.rotation.clone();
   artwork.userData.originalScale = artwork.scale.clone();
 
-  // Create a new group for the highlighted artwork
   const highlightGroup = new THREE.Group();
   scene.add(highlightGroup);
   artwork.userData.highlightGroup = highlightGroup;
   
-  // Remove from original parent and add to highlight group
   artwork.parent.remove(artwork);
   highlightGroup.add(artwork);
 
-  // Hide reflection
   artwork.userData.reflection.visible = false;
 
-  // Calculate target position (center of screen, double height)
-  const targetY = 8.4; // Exactly double the original height (4.2 * 2)
-  const targetZ = -config.wallDistance / 2; // Move closer to camera
+  const targetY = 8.4;
+  const targetZ = -config.wallDistance / 2;
 
-  // Animate to highlight position
   gsap.to(artwork.scale, {
     x: 2,
     y: 2,
@@ -767,7 +746,6 @@ function highlightArtwork(artwork, data) {
     }
   });
 
-  // Apply blur overlay (excluding the artwork)
   blurOverlay.classList.add('active');
   blurOverlay.style.backdropFilter = 'blur(8px)';
   blurOverlay.style.webkitBackdropFilter = 'blur(8px)';
@@ -779,10 +757,8 @@ function highlightArtwork(artwork, data) {
     modalYear.textContent = data.year;
     modalPrice.textContent = `${data.price} ETH`;
 
-    // Set modal width based on artwork size
     modal.style.width = `${config.obraSize * 2 * 100}px`;
 
-    // Position modal below the artwork
     const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(artwork.matrixWorld);
     vector.project(camera);
@@ -791,7 +767,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 120}px`; // Position below the artwork
+    modal.style.top = `${y + 120}px`;
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });
@@ -810,7 +786,6 @@ function restoreArtwork() {
     }
   });
 
-  // Return artwork to original position and parent
   const artwork = selectedArtwork;
   const highlightGroup = artwork.userData.highlightGroup;
 
@@ -835,17 +810,13 @@ function restoreArtwork() {
     duration: 0.8,
     ease: 'power2.out',
     onComplete: () => {
-      // Return to original parent
       highlightGroup.remove(artwork);
       artwork.userData.originalParent.add(artwork);
       scene.remove(highlightGroup);
-      
-      // Show reflection
       artwork.userData.reflection.visible = true;
     }
   });
 
-  // Remove blur overlay
   blurOverlay.classList.remove('active');
   blurOverlay.style.backdropFilter = 'none';
   blurOverlay.style.webkitBackdropFilter = 'none';
@@ -898,7 +869,7 @@ window.addEventListener('click', handleClickOutside);
 function animate() {
   requestAnimationFrame(animate);
 
-  const speedFactor = isHighlighted ? 0.5 : 1; // Half speed when highlighted
+  const speedFactor = isHighlighted ? 0.5 : 1;
   const time = Date.now() * originalAnimationSpeed * speedFactor;
 
   artworks.forEach((artwork, i) => {

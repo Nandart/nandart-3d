@@ -584,14 +584,15 @@ const artworkPaths = [
 ];
 
 const artworkData = [
-  {
-    title: "Fragment of Eternity",
-    artist: "Inês Duarte",
-    year: "2023",
-    price: "0.0001",
-    description: "An exploration of temporal dimensions through layered textures.",
-    image: "/assets/obras/obra1.jpg"
-  },
+ {
+  title: "Fragment of Eternity",
+  artist: "Inês Duarte",
+  year: "2023",
+  price: "0.0001",
+  tokenURI: "ipfs://bafybeicnafmqkac6fxctcnuibyr5bv35srkk24iled3p72n4oqul333vaa/fragment_of_eternity.json",
+  artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+}
+,
   {
     title: "Shadows of Light",
     artist: "Miguel Costa",

@@ -236,7 +236,7 @@ const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2
 const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
 
 const centerTexture = textureLoader.load(
-'assets/obras/obra-central.jpg',
+'/assets/obras/obra-central.jpg',
   undefined,
   undefined,
   err => console.error('Error loading center artwork:', err)

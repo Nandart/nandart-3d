@@ -1102,4 +1102,3 @@ if (camera && camera.position) {
   camera.position.set(0, 2.5, 5.5); // ligeiramente mais longe e acima
   camera.lookAt(0, 1, 0); // olhar mais para o centro
 }
-

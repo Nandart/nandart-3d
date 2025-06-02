@@ -333,7 +333,7 @@ const applyWallTexture = texture => {
 };
 
 textureLoader.load(
-  '/assets/antracite-realista.jpg',
+  '/assets/antracite-realista.png',
   texture => {
     console.log('✅ Wall texture loaded');
     applyWallTexture(texture);

@@ -1096,9 +1096,3 @@ document.querySelectorAll('.artwork').forEach((obra) => {
   sombra.style.background = 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)';
   sombra.style.zIndex = '1';
 });
-
-// CORRECÇÃO DA CÂMARA PARA INCLUIR PAREDES, CHÃO E TECTO
-if (camera && camera.position) {
-  camera.position.set(0, 2.5, 5.5); // ligeiramente mais longe e acima
-  camera.lookAt(0, 1, 0); // olhar mais para o centro
-}

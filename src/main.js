@@ -9,6 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
+
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 

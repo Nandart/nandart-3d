@@ -9,7 +9,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
-
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -38,12 +37,12 @@ const textureLoader = new THREE.TextureLoader();
 const camera = new THREE.PerspectiveCamera();
 function updateCamera() {
   config = configMap[getViewportLevel()];
-  camera.fov = 45;
+  camera.fov = 50; // Aumentado para capturar mais cena
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, 9, 22);
-  camera.lookAt(0, 7, -config.wallDistance);
+  camera.position.set(0, 12, 25); // Posição mais alta e mais afastada
+  camera.lookAt(0, 5, -config.wallDistance); // Ponto de foco mais baixo
   camera.near = 0.1;
-  camera.far = 100;
+  camera.far = 150; // Aumentado para garantir renderização de todas as paredes
   camera.updateProjectionMatrix();
 }
 updateCamera();
@@ -58,30 +57,29 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 2.25;
+renderer.toneMappingExposure = 1.8; // Reduzido para diminuir iluminação geral
 
 window.addEventListener('resize', () => {
   updateCamera();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Iluminação ambiente principal (intensidade aumentada para 1.8 de forma gradual)
+// Iluminação reduzida para 0.75x
 const hemisphereLight = new THREE.HemisphereLight(
-  0xfff2e0, // Cor do céu (mais quente)
-  0x202020,  // Cor do solo (mais clara que o original 0x080808)
-  1.8        // Intensidade aumentada em 80% (não 100% para manter naturalidade)
+  0xfff2e0,
+  0x202020,
+  1.35 // Reduzido de 1.8 para 1.35 (0.75x)
 );
-hemisphereLight.groundColor.setHSL(0.1, 0.2, 0.15); // Ajuste sutil de tonalidade
+hemisphereLight.groundColor.setHSL(0.1, 0.2, 0.15);
 scene.add(hemisphereLight);
 
-// Luz de preenchimento adicional sutil
 const fillLight = new THREE.AmbientLight(
   0xfff2dd, 
-  0.3 // Intensidade baixa para complemento
+  0.225 // Reduzido de 0.3 para 0.225 (0.75x)
 );
 scene.add(fillLight);
 
-const spotLightLeft = new THREE.SpotLight(0xfff2dd, 2.0);
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 1.5); // Reduzido de 2.0
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;
 spotLightLeft.penumbra = 0.3;
@@ -93,7 +91,7 @@ spotLightLeft.shadow.mapSize.height = 2048;
 spotLightLeft.shadow.bias = -0.0005;
 scene.add(spotLightLeft);
 
-const spotLightRight = new THREE.SpotLight(0xfff2dd, 2.0);
+const spotLightRight = new THREE.SpotLight(0xfff2dd, 1.5); // Reduzido de 2.0
 spotLightRight.position.set(10, 8, 0);
 spotLightRight.angle = Math.PI / 6;
 spotLightRight.penumbra = 0.3;
@@ -113,12 +111,12 @@ const createWallLight = (x, z, intensity) => {
     return light;
 };
 
-const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.8);
-const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.8);
-const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.7);
-const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.7);
-const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.7);
-const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.7);
+const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.6); // Reduzido de 0.8
+const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.6); // Reduzido de 0.8
+const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.525); // Reduzido de 0.7
+const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.525); // Reduzido de 0.7
+const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.525); // Reduzido de 0.7
+const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.525); // Reduzido de 0.7
 
 [backWallLight1, backWallLight2, leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
     scene.add(light);
@@ -278,72 +276,38 @@ centerArtGroup.position.set(
 );
 scene.add(centerArtGroup);
 
-const wallTextureData = {
-  data: new Uint8Array([
-    30, 30, 30, 255, 35, 35, 35, 255, 25, 25, 25, 255, 40, 40, 40, 255,
-    35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255, 20, 20, 20, 255,
-    40, 40, 40, 255, 35, 35, 35, 255, 30, 30, 30, 255, 25, 25, 25, 255,
-    20, 20, 20, 255, 15, 15, 15, 255, 10, 10, 10, 255, 5, 5, 5, 255
-  ]),
-  width: 4,
-  height: 4
-};
-
-const wallTexture = new THREE.DataTexture(
-  wallTextureData.data,
-  wallTextureData.width,
-  wallTextureData.height,
-  THREE.RGBAFormat
-);
-wallTexture.needsUpdate = true;
+// Textura das paredes diretamente aplicada (antracite realista)
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color: 0x2a2a2a, // Cinza antracite mais claro
+  emissive: 0x050505,
+  emissiveIntensity: 0.5,
+  roughness: 0.6,
+  metalness: 0.1,
+  side: THREE.FrontSide
+});
 
 const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
-const applyWallTexture = texture => {
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    map: texture,
-    color: 0x1a1a1a,
-    emissive: 0x050505,
-    emissiveIntensity: 0.5,
-    roughness: 0.6,
-    metalness: 0.1,
-    side: THREE.FrontSide
-  });
+const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
+backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
+backWall.receiveShadow = true;
+backWall.layers.set(2);
+scene.add(backWall);
 
-  const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
-  backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
-  backWall.receiveShadow = true;
-  backWall.layers.set(2);
-  scene.add(backWall);
+const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
+leftWall.rotation.y = Math.PI / 2;
+leftWall.receiveShadow = true;
+leftWall.layers.set(2);
+scene.add(leftWall);
 
-  const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-  leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
-  leftWall.rotation.y = Math.PI / 2;
-  leftWall.receiveShadow = true;
-  leftWall.layers.set(2);
-  scene.add(leftWall);
-
-  const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-  rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
-  rightWall.rotation.y = -Math.PI / 2;
-  rightWall.receiveShadow = true;
-  rightWall.layers.set(2);
-  scene.add(rightWall);
-};
-
-textureLoader.load(
-  '/assets/antracite-realista.jpg',
-  texture => {
-    console.log('✅ Wall texture loaded');
-    applyWallTexture(texture);
-  },
-  undefined,
-  () => {
-    console.warn('⚠️ Using fallback wall texture');
-    applyWallTexture(wallTexture);
-  }
-);
+const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
+rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.receiveShadow = true;
+rightWall.layers.set(2);
+scene.add(rightWall);
 
 const wallArtworks = [
   {
@@ -593,8 +557,7 @@ const artworkData = [
   price: "0.0001",
   tokenURI: "ipfs://bafybeicnafmqkac6fxctcnuibyr5bv35srkk24iled3p72n4oqul333vaa/fragment_of_eternity.json",
   artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
-}
-,
+},
   {
     title: "Shadows of Light",
     artist: "Miguel Costa",
@@ -664,7 +627,6 @@ artworkPaths.forEach((src, i) => {
   const z = Math.sin(angle) * config.circleRadius;
   const rotationY = -angle + Math.PI;
 
-  // Obra principal
   const artwork = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
     new THREE.MeshStandardMaterial({
@@ -677,10 +639,9 @@ artworkPaths.forEach((src, i) => {
   artwork.position.set(x, 4.2, z);
   artwork.rotation.y = rotationY;
   artwork.castShadow = true;
-  artwork.receiveShadow = false;
+  artwork.receiveShadow = true; // Ativado para sombras visíveis
   scene.add(artwork);
 
-  // Reflexão no chão (ajustada para perfeito alinhamento)
   const reflection = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
     new THREE.MeshStandardMaterial({
@@ -692,20 +653,13 @@ artworkPaths.forEach((src, i) => {
       opacity: 0.4
     })
   );
-  reflection.position.set(
-    x, 
-    -4.2, // Posição espelhada exata
-    z
-  );
-  reflection.rotation.x = Math.PI; // Rotação para espelhar
-  reflection.rotation.y = rotationY; // Manter mesma rotação Y
+  reflection.position.set(x, -4.2, z);
+  reflection.rotation.x = Math.PI;
+  reflection.rotation.y = rotationY;
   reflection.receiveShadow = false;
   reflection.castShadow = false;
-  
-  // Ajuste fino de posicionamento para alinhamento perfeito
-  reflection.position.y += 0.05; // Compensação para o plano do chão
-  reflection.scale.set(1, -1, 1); // Inversão vertical para efeito de espelho
-  
+  reflection.position.y += 0.05;
+  reflection.scale.set(1, -1, 1);
   scene.add(reflection);
   artworkReflections.push(reflection);
 
@@ -749,13 +703,13 @@ function highlightArtwork(artwork, data) {
 
   artwork.userData.reflection.visible = false;
 
-  const targetY = 8.4;
+  const targetY = 8.4; // 2x a altura original (4.2)
   const targetZ = -config.wallDistance / 2;
 
   gsap.to(artwork.scale, {
-    x: 2,
-    y: 2,
-    z: 2,
+    x: 3, // 3x o tamanho original
+    y: 3,
+    z: 3,
     duration: 0.8,
     ease: 'power2.out'
   });
@@ -787,7 +741,7 @@ function highlightArtwork(artwork, data) {
     modalYear.textContent = data.year;
     modalPrice.textContent = `${data.price} ETH`;
 
-    modal.style.width = `${config.obraSize * 2 * 100}px`;
+    modal.style.width = `${config.obraSize * 3 * 100}px`; // 3x o tamanho original
 
     const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(artwork.matrixWorld);
@@ -797,7 +751,7 @@ function highlightArtwork(artwork, data) {
     const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
     modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 120}px`;
+    modal.style.top = `${y + 20}px`; // 2cm abaixo (20px)
 
     modal.style.display = 'flex';
     gsap.to(modal, { opacity: 1, duration: 0.3 });
@@ -1037,7 +991,6 @@ async function mintTodos(contrato, userAddress) {
   }
 }
 
-
 async function cunharObras() {
   const contrato = await getContrato();
   const contas = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -1045,7 +998,6 @@ async function cunharObras() {
   await mintTodos(contrato, user);
 }
 
-// ===== LÓGICA DE DESTAQUE DE OBRA =====
 document.querySelectorAll('.artwork').forEach((obra) => {
   const sombra = document.createElement('div');
   sombra.classList.add('shadow-below-art');
@@ -1079,7 +1031,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// CORRECÇÃO DE SOMBRAS ALINHADAS COM A OBRA
 document.querySelectorAll('.artwork').forEach((obra) => {
   let sombra = obra.querySelector('.shadow-below-art');
   if (!sombra) {
@@ -1088,7 +1039,7 @@ document.querySelectorAll('.artwork').forEach((obra) => {
     obra.appendChild(sombra);
   }
   sombra.style.position = 'absolute';
-  sombra.style.bottom = '-8px'; // ajustado conforme Z e rotação
+  sombra.style.bottom = '-8px';
   sombra.style.left = '50%';
   sombra.style.transform = 'translateX(-50%) scale(1)';
   sombra.style.width = '90px';

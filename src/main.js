@@ -842,13 +842,8 @@ function restoreArtwork() {
   blurOverlay.style.webkitBackdropFilter = 'none';
 }
 
-function handleClickOutside(event) {
-  if (isHighlighted && !modal.contains(event.target)) {
-    restoreArtwork();
-  }
-}
-
-renderer.domElement.addEventListener('pointerdown', (e) => {
+function handleArtworkInteraction(e) {
+  // Fecha obra destacada se clicar fora
   if (isHighlighted) {
     if (!modal.contains(e.target)) {
       restoreArtwork();
@@ -856,6 +851,7 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     return;
   }
 
+  // Detecta clique em obras 3D
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -871,10 +867,18 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
     const data = artworkData[index];
     highlightArtwork(artwork, data);
   }
+}
+
+// Eventos unificados para todos os dispositivos
+renderer.domElement.addEventListener('pointerdown', handleArtworkInteraction); // Mobile + Computadores
+renderer.domElement.addEventListener('click', handleArtworkInteraction); // Backup para computadores
+
+// Fechar modal clicando em qualquer área fora (backup adicional)
+window.addEventListener('click', (e) => {
+  if (isHighlighted && !modal.contains(e.target) {
+    restoreArtwork();
+  }
 });
-
-window.addEventListener('click', handleClickOutside);
-
 function animate() {
   requestAnimationFrame(animate);
 

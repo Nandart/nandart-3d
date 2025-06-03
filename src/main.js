@@ -697,8 +697,6 @@ artworkPaths.forEach((src, i) => {
   artworks.push(artwork);
 });
 
-let selectedArtwork = null;
-
 // ===== SISTEMA DE INTERAÇÃO CORRIGIDO =====
 let interactionLock = false;
 let selectedArtwork = null;
@@ -951,6 +949,16 @@ async function buyHandler(data) {
     console.error('Purchase error:', err);
     alert('Error during purchase. Please try again.');
   }
+}
+
+if (buyButton) {
+  buyButton.addEventListener('click', () => {
+    if (selectedArtwork) {
+      const index = artworks.indexOf(selectedArtwork);
+      const data = artworkData[index];
+      buyHandler(data);
+    }
+  });
 }
 
 if (walletButton) {

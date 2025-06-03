@@ -844,7 +844,6 @@ function restoreArtwork() {
 
 /* ===== SISTEMA COMPLETO DE INTERAÇÃO ===== */
 let interactionLock = false;
-let isHighlighted = false;
 let selectedArtwork = null;
 
 // Função principal de interação
@@ -853,7 +852,7 @@ async function handleArtInteraction(e) {
   interactionLock = true;
 
   // Fecha obra destacada se clicar fora
-  if (isHighlighted) {
+  if (window.isHighlighted) {
     const clickedOnModal = modal.contains(e.target);
     const clickedOnArtwork = e.target === renderer.domElement && checkArtworkIntersection(e);
     
@@ -901,7 +900,7 @@ function getArtworkIntersects(e) {
 
 // Destaca a obra selecionada
 async function highlightArtwork(artwork, data) {
-  isHighlighted = true;
+  window.isHighlighted = true;
   selectedArtwork = artwork;
 
   // Remove a obra da cena principal
@@ -950,7 +949,7 @@ async function highlightArtwork(artwork, data) {
 
 // Restaura obra à posição original
 async function restoreArtwork() {
-  if (!isHighlighted || !selectedArtwork) return;
+  if (!window.isHighlighted || !selectedArtwork) return;
 
   const artwork = selectedArtwork;
   const highlightGroup = artwork.parent;
@@ -991,7 +990,7 @@ async function restoreArtwork() {
 
   // Mostra reflexo e reseta estado
   artwork.userData.reflection.visible = true;
-  isHighlighted = false;
+  window.isHighlighted = false;
   selectedArtwork = null;
 
   // Esconde modal
@@ -1043,7 +1042,7 @@ function setupInteractionListeners() {
   
   // Fechar modal clicando em qualquer área fora
   document.addEventListener('click', (e) => {
-    if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
+    if (window.isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
       restoreArtwork();
     }
   }, { passive: true });

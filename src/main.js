@@ -763,9 +763,10 @@ function showArtModal(artworkPosition, data) {
   modalYear.textContent = data.year;
   modalPrice.textContent = `${data.price} ETH`;
 
-  // Calcula dimensões proporcional à obra
-  const maxWidth = Math.min(artworkPosition.width * 0.95, 280);
-  modal.style.maxWidth = `${maxWidth}px`;
+  // ✅ Garante que o modal não excede a obra
+modal.style.maxWidth = `${Math.min(artworkPosition.width, 280)}px`; // 280px é o máximo sugerido
+modal.style.maxHeight = `${artworkPosition.height}px`;
+modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
   
   // Posiciona colado à base da obra
   modal.style.display = 'flex';

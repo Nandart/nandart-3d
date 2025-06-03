@@ -166,7 +166,8 @@ html, body {
 
 #blur-overlay {
   background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: none !important;
+  backdrop-filter: none !important; /* Remove o desfoque */
+  pointer-events: none; /* Permite interação com a obra destacada */
 }
 /* ==================== ANIMAÇÕES ==================== */
 @keyframes fadeIn {
@@ -228,11 +229,9 @@ html, body {
   }
   
   #blur-overlay {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: none !important; /* Garante que não há desfoque em mobile */
   }
 }
-
 
 .shadow-below-art {
   width: 90px;

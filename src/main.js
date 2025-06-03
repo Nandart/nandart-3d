@@ -933,7 +933,7 @@ function handleArtInteraction(event) {
 // Configura listeners otimizados
 function setupInteractionListeners() {
   // Eventos principais
-  renderer.domElement.addEventListener('pointerdown', handleArtInteraction, { passive: true });
+renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
   renderer.domElement.addEventListener('click', handleArtInteraction);
   
   // Fechar modal clicando fora

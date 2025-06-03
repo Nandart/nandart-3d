@@ -12,7 +12,12 @@ import { ethers } from 'ethers';
 // --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
 let isHighlighted = false;
 let selectedArtwork = null;
-
+// Configuração de camadas para evitar desfoque
+const LAYERS = {
+  DEFAULT: 0,
+  HIGHLIGHTED: 1,  // Camada para obras destacadas
+  WALLS: 2         // Já existente para paredes
+};
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -782,7 +787,7 @@ function showArtModal(artworkPosition, data) {
   setTimeout(() => {
     modal.style.opacity = '1';
     modal.style.transform = 'translateY(0)';
-    blurOverlay.style.display = 'block';
+    //blurOverlay.style.display = 'block';
     setTimeout(() => blurOverlay.style.opacity = '1', 10);
   }, 10);
 }
@@ -792,7 +797,10 @@ async function highlightArtwork(artwork, data) {
   if (isHighlighted) return;
   isHighlighted = true;
   selectedArtwork = artwork;
-
+// ✅ Define a camada da obra destacada
+ artwork.layers.set(LAYERS.DEFAULT);
+  artwork.userData.reflection.visible = true;
+  
   scene.remove(artwork);
   
   const highlightGroup = new THREE.Group();

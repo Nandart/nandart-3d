@@ -866,8 +866,6 @@ function setupInteractionListeners() {
 // Inicializa o sistema
 setupInteractionListeners();
 
-function animate() {
-  requestAnimationFrame(animate);
 
   const speedFactor = isHighlighted ? 0.5 : 1;
   const time = Date.now() * originalAnimationSpeed * speedFactor;

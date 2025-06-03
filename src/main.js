@@ -750,55 +750,44 @@ async function handleArtInteraction(e) {
   interactionLock = false;
 }
 
-// Função para mostrar modal com posicionamento correto
-function showArtModal(artworkPosition, data) {
-  const modal = document.querySelector('.art-modal');
-  const blurOverlay = document.getElementById('blur-overlay');
-  
-  // Preenche os dados do modal
-  modalTitle.textContent = data.title;
-  modalDescription.textContent = data.description;
-  modalArtist.textContent = data.artist;
-  modalYear.textContent = data.year;
-  modalPrice.textContent = `${data.price} ETH`;
+// ===== SISTEMA DE MODAL MINIMALISTA =====
+const modal = document.querySelector('.art-modal');
+const modalTitle = document.getElementById('art-title');
+const modalDescription = document.getElementById('art-description');
+const modalArtist = document.getElementById('art-artist');
+const modalYear = document.getElementById('art-year');
+const modalPrice = document.getElementById('art-price');
+const buyButton = document.getElementById('buy-art');
+const blurOverlay = document.getElementById('blur-overlay');
 
-  // Posiciona o modal abaixo da obra
-  modal.style.display = 'flex';
-  modal.style.top = `${artworkPosition.bottom + 10}px`;
-  modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (modal.offsetWidth / 2)}px`;
-  
-  // Ajuste para não sair da tela à direita
-  if (modal.getBoundingClientRect().right > window.innerWidth) {
-    modal.style.left = `${window.innerWidth - modal.offsetWidth - 20}px`;
-  }
-  
-  // Ajuste para não sair da tela à esquerda
-  if (modal.getBoundingClientRect().left < 0) {
-    modal.style.left = '20px';
-  }
-  
-  // Ativa as animações
-  setTimeout(() => {
-    modal.classList.add('active');
-    blurOverlay.classList.add('active');
-  }, 10);
-}
+// Configuração estilística do modal
+modal.style.border = 'none';
+modal.style.background = 'rgba(10, 10, 10, 0.88)';
+modal.style.backdropFilter = 'blur(1.5px)';
+modal.style.boxShadow = 'none';
+modal.style.padding = '12px 16px';
+modal.style.borderRadius = '4px';
+modal.style.width = 'auto';
+modal.style.maxWidth = 'none';
 
-// Função para obter a posição da obra clicada (adaptada para 3D)
-function getClickedArtworkPosition(event, artwork) {
-  // Converte a posição 3D para coordenadas de tela
+// Estilo minimalista do botão
+buyButton.style.padding = '6px 12px';
+buyButton.style.fontSize = '0.82rem';
+buyButton.style.marginTop = '10px';
+buyButton.style.background = 'rgba(216, 178, 108, 0.9)';
+buyButton.style.border = 'none';
+
+// Função para calcular posição precisa
+function calculateModalPosition(artwork) {
   const vector = new THREE.Vector3();
   vector.setFromMatrixPosition(artwork.matrixWorld);
   vector.project(camera);
-  
-  // Converte para coordenadas CSS
+
   const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
   const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
-  
-  // Calcula o tamanho aproximado da obra na tela
-  const width = (artwork.geometry.parameters.width * 0.5 + 0.5) * window.innerWidth * 0.2;
-  const height = (artwork.geometry.parameters.height * 0.5 + 0.5) * window.innerHeight * 0.2;
-  
+  const width = artwork.geometry.parameters.width * 150 * (artwork.scale.x || 1);
+  const height = artwork.geometry.parameters.height * 150 * (artwork.scale.y || 1);
+
   return {
     top: y - height/2,
     bottom: y + height/2,
@@ -809,7 +798,45 @@ function getClickedArtworkPosition(event, artwork) {
   };
 }
 
-// Modificação na função highlightArtwork
+// Função para mostrar modal integrado
+function showArtModal(artworkPosition, data) {
+  // Preenche os dados
+  modalTitle.textContent = data.title;
+  modalDescription.textContent = data.description || '';
+  modalArtist.textContent = data.artist;
+  modalYear.textContent = data.year;
+  modalPrice.textContent = `${data.price} ETH`;
+
+  // Calcula dimensões proporcional à obra
+  const maxWidth = Math.min(artworkPosition.width * 0.95, 280);
+  modal.style.maxWidth = `${maxWidth}px`;
+  
+  // Posiciona colado à base da obra
+  modal.style.display = 'flex';
+  modal.style.top = `${artworkPosition.bottom - 5}px`;
+  modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (maxWidth / 2)}px`;
+  
+  // Garante que não sai da viewport
+  const modalRect = modal.getBoundingClientRect();
+  if (modalRect.right > window.innerWidth) {
+    modal.style.left = `${window.innerWidth - modalRect.width - 10}px`;
+  }
+  if (modalRect.left < 0) {
+    modal.style.left = '10px';
+  }
+  
+  // Animação suave
+  modal.style.opacity = '0';
+  modal.style.transform = 'translateY(8px)';
+  setTimeout(() => {
+    modal.style.opacity = '1';
+    modal.style.transform = 'translateY(0)';
+    blurOverlay.style.display = 'block';
+    setTimeout(() => blurOverlay.style.opacity = '1', 10);
+  }, 10);
+}
+
+// Função completa de highlight
 async function highlightArtwork(artwork, data) {
   if (isHighlighted) return;
   isHighlighted = true;
@@ -827,7 +854,7 @@ async function highlightArtwork(artwork, data) {
   artwork.userData.highlightGroup = highlightGroup;
   artwork.userData.reflection.visible = false;
 
-  // Resetar posição/rotação dentro do grupo
+  // Reset transformações internas
   artwork.position.set(0, 0, 0);
   artwork.rotation.set(0, 0, 0);
   artwork.scale.set(1, 1, 1);
@@ -838,7 +865,7 @@ async function highlightArtwork(artwork, data) {
       x: 0,
       y: 8.4,
       z: -config.wallDistance / 2,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power2.out',
       onComplete: resolve
     })),
@@ -846,31 +873,24 @@ async function highlightArtwork(artwork, data) {
       x: 3,
       y: 3,
       z: 3,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power2.out',
       onComplete: resolve
     })),
     new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: 0,
-      duration: 0.5,
+      duration: 0.4,
       ease: 'power2.out',
       onComplete: resolve
     }))
   ]);
 
-  // Mostra o modal com posicionamento correto
-  const artworkRect = {
-    top: window.innerHeight / 2 - 150, // Posição centralizada verticalmente
-    bottom: window.innerHeight / 2 + 150,
-    left: window.innerWidth / 2 - 150, // Posição centralizada horizontalmente
-    right: window.innerWidth / 2 + 150,
-    width: 300,
-    height: 300
-  };
+  // Mostra modal com posicionamento preciso
+  const artworkRect = calculateModalPosition(artwork);
   showArtModal(artworkRect, data);
 }
 
-// Função de restore melhorada
+// Função para restaurar obra
 async function restoreArtwork() {
   if (!isHighlighted || !selectedArtwork) return;
 
@@ -883,13 +903,13 @@ async function restoreArtwork() {
       x: artwork.userData.originalPosition.x,
       y: artwork.userData.originalPosition.y,
       z: artwork.userData.originalPosition.z,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power2.out',
       onComplete: resolve
     })),
     new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: artwork.userData.originalRotation.y,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power2.out',
       onComplete: resolve
     })),
@@ -897,13 +917,13 @@ async function restoreArtwork() {
       x: 1,
       y: 1,
       z: 1,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power2.out',
       onComplete: resolve
     }))
   ]);
 
-  // Retorna obra à cena principal
+  // Retorna à cena principal
   highlightGroup.remove(artwork);
   artwork.position.copy(artwork.userData.originalPosition);
   artwork.rotation.copy(artwork.userData.originalRotation);
@@ -915,9 +935,14 @@ async function restoreArtwork() {
   isHighlighted = false;
   selectedArtwork = null;
   
-  // Esconde modal
-  modal.style.display = 'none';
-  blurOverlay.style.display = 'none';
+  // Esconde modal suavemente
+  modal.style.opacity = '0';
+  modal.style.transform = 'translateY(8px)';
+  blurOverlay.style.opacity = '0';
+  setTimeout(() => {
+    modal.style.display = 'none';
+    blurOverlay.style.display = 'none';
+  }, 250);
 }
 
 // Configura listeners otimizados

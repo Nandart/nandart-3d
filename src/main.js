@@ -842,8 +842,9 @@ function restoreArtwork() {
   blurOverlay.style.webkitBackdropFilter = 'none';
 }
 
+// Função unificada para interações
 function handleArtworkInteraction(e) {
-  // Fecha obra destacada se clicar fora
+  // Fecha obra destacada se clicar fora do modal
   if (isHighlighted) {
     if (!modal.contains(e.target)) {
       restoreArtwork();
@@ -851,7 +852,7 @@ function handleArtworkInteraction(e) {
     return;
   }
 
-  // Detecta clique em obras 3D
+  // Detecta clique/touch em obras 3D
   const mouse = new THREE.Vector2(
     (e.clientX / window.innerWidth) * 2 - 1,
     -(e.clientY / window.innerHeight) * 2 + 1
@@ -869,16 +870,17 @@ function handleArtworkInteraction(e) {
   }
 }
 
-// Eventos unificados para todos os dispositivos
+// Eventos para todos os dispositivos
 renderer.domElement.addEventListener('pointerdown', handleArtworkInteraction); // Mobile + Computadores
-renderer.domElement.addEventListener('click', handleArtworkInteraction); // Backup para computadores
+renderer.domElement.addEventListener('click', handleArtworkInteraction);      // Backup para computadores
 
 // Fechar modal clicando em qualquer área fora (backup adicional)
 window.addEventListener('click', (e) => {
-  if (isHighlighted && !modal.contains(e.target) {
+  if (isHighlighted && !modal.contains(e.target) && e.target.id !== 'scene') {
     restoreArtwork();
   }
 });
+
 
 function animate() {
   requestAnimationFrame(animate);

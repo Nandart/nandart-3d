@@ -1,6 +1,8 @@
 // market.js — Funções de compra, revenda e ligação ao OpenSea na Polygon
 
 import { getContrato } from "./contrato.js";
+import { verificarRedePolygon, mudarParaPolygon } from "./rede.js";
+
 
 // Endereço real do contrato na Polygon (Mainnet)
 const contractAddress = "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41";

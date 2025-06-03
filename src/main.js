@@ -700,7 +700,15 @@ artworkPaths.forEach((src, i) => {
 // ===== SISTEMA DE INTERAÇÃO CORRIGIDO =====
 let interactionLock = false;
 let selectedArtwork = null;
-let isHighlighted = false; // Declarado uma única vez
+let isHighlighted = false;
+const modal = document.querySelector('.art-modal');
+const modalTitle = document.getElementById('art-title');
+const modalDescription = document.getElementById('art-description');
+const modalArtist = document.getElementById('art-artist');
+const modalYear = document.getElementById('art-year');
+const modalPrice = document.getElementById('art-price');
+const buyButton = document.getElementById('buy-art');
+const blurOverlay = document.getElementById('blur-overlay');
 
 // Função unificada para detectar interseções
 function getArtworkIntersects(e) {
@@ -774,7 +782,7 @@ async function highlightArtwork(artwork, data) {
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    }),
+    })),
     new Promise(resolve => gsap.to(highlightGroup.scale, {
       x: 3,
       y: 3,
@@ -782,16 +790,31 @@ async function highlightArtwork(artwork, data) {
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    }),
+    })),
     new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: 0,
       duration: 0.5,
       ease: 'power2.out',
       onComplete: resolve
-    })
+    }))
   ]);
 
   showModal(data);
+}
+
+// Função para mostrar modal
+function showModal(data) {
+  modalTitle.textContent = data.title;
+  modalDescription.textContent = data.description;
+  modalArtist.textContent = data.artist;
+  modalYear.textContent = data.year;
+  modalPrice.textContent = `${data.price} ETH`;
+
+  modal.style.display = 'flex';
+  gsap.to(modal, { opacity: 1, duration: 0.3 });
+  
+  blurOverlay.style.display = 'block';
+  gsap.to(blurOverlay, { opacity: 1, duration: 0.3 });
 }
 
 // Função de restore melhorada
@@ -810,13 +833,13 @@ async function restoreArtwork() {
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    }),
+    })),
     new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: artwork.userData.originalRotation.y,
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    }),
+    })),
     new Promise(resolve => gsap.to(highlightGroup.scale, {
       x: 1,
       y: 1,
@@ -824,7 +847,7 @@ async function restoreArtwork() {
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    })
+    }))
   ]);
 
   // Retorna obra à cena principal
@@ -838,7 +861,10 @@ async function restoreArtwork() {
   artwork.userData.reflection.visible = true;
   isHighlighted = false;
   selectedArtwork = null;
-  hideModal();
+  
+  // Esconde modal
+  modal.style.display = 'none';
+  blurOverlay.style.display = 'none';
 }
 
 // Configura listeners otimizados
@@ -855,17 +881,21 @@ function setupInteractionListeners() {
   }, { passive: true });
 
   // Evento de compra
-  buyButton.addEventListener('click', () => {
-    if (selectedArtwork) {
-      const index = artworks.indexOf(selectedArtwork);
-      buyHandler(artworkData[index]);
-    }
-  });
+  if (buyButton) {
+    buyButton.addEventListener('click', () => {
+      if (selectedArtwork) {
+        const index = artworks.indexOf(selectedArtwork);
+        buyHandler(artworkData[index]);
+      }
+    });
+  }
 }
 
 // Inicializa o sistema
 setupInteractionListeners();
 
+function animate() {
+  requestAnimationFrame(animate);
 
   const speedFactor = isHighlighted ? 0.5 : 1;
   const time = Date.now() * originalAnimationSpeed * speedFactor;
@@ -891,7 +921,7 @@ setupInteractionListeners();
 
   renderer.render(scene, camera);
 }
-
+// ===== FIM DO SISTEMA DE INTERAÇÃO CORRIGIDO =====
 async function toggleWalletConnection() {
   if (!window.ethereum) {
     alert('Please install MetaMask to connect your wallet.');

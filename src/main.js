@@ -884,43 +884,223 @@ async function handleArtInteraction(e) {
   }
 }
 
-// Configuração de eventos otimizada
-function setupEventListeners() {
-  // Eventos principais
-  renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
+/* ===== SISTEMA COMPLETO DE INTERAÇÃO ===== */
+let interactionLock = false;
+let isHighlighted = false;
+let selectedArtwork = null;
+
+// Função principal de interação
+async function handleArtInteraction(e) {
+  if (interactionLock) return;
+  interactionLock = true;
+
+  // Fecha obra destacada se clicar fora
+  if (isHighlighted) {
+    const clickedOnModal = modal.contains(e.target);
+    const clickedOnArtwork = e.target === renderer.domElement && checkArtworkIntersection(e);
+    
+    if (!clickedOnModal && !clickedOnArtwork) {
+      await restoreArtwork();
+    }
+    interactionLock = false;
+    return;
+  }
+
+  // Seleciona nova obra
+  const intersects = getArtworkIntersects(e);
+  if (intersects.length > 0) {
+    const artwork = intersects[0].object;
+    const index = artworks.indexOf(artwork);
+    await highlightArtwork(artwork, artworkData[index]);
+  }
+
+  interactionLock = false;
+}
+
+// Verifica se clique intersecta alguma obra
+function checkArtworkIntersection(e) {
+  const mouse = new THREE.Vector2(
+    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
+    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+  );
+  
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  return raycaster.intersectObjects(artworks).length > 0;
+}
+
+// Obtém interseções com obras
+function getArtworkIntersects(e) {
+  const mouse = new THREE.Vector2(
+    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
+    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+  );
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  return raycaster.intersectObjects(artworks);
+}
+
+// Destaca a obra selecionada
+async function highlightArtwork(artwork, data) {
+  isHighlighted = true;
+  selectedArtwork = artwork;
+
+  // Remove a obra da cena principal
+  scene.remove(artwork);
+  
+  // Cria grupo de destaque
+  const highlightGroup = new THREE.Group();
+  highlightGroup.position.copy(artwork.position);
+  highlightGroup.rotation.copy(artwork.rotation);
+  highlightGroup.scale.copy(artwork.scale);
+  highlightGroup.add(artwork);
+  scene.add(highlightGroup);
+  
+  // Esconde reflexo
+  artwork.userData.reflection.visible = false;
+
+  // Animação para posição central
+  await new Promise(resolve => {
+    gsap.to(highlightGroup.position, {
+      x: 0,
+      y: 8.4,
+      z: -config.wallDistance / 2,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: resolve
+    });
+
+    gsap.to(highlightGroup.scale, {
+      x: 3,
+      y: 3,
+      z: 3,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+
+    gsap.to(highlightGroup.rotation, {
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    });
+  });
+
+  // Mostra modal
+  showModal(data);
+}
+
+// Restaura obra à posição original
+async function restoreArtwork() {
+  if (!isHighlighted || !selectedArtwork) return;
+
+  const artwork = selectedArtwork;
+  const highlightGroup = artwork.parent;
+
+  // Animação de retorno
+  await new Promise(resolve => {
+    gsap.to(highlightGroup.position, {
+      x: artwork.userData.originalPosition.x,
+      y: artwork.userData.originalPosition.y,
+      z: artwork.userData.originalPosition.z,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: resolve
+    });
+
+    gsap.to(highlightGroup.rotation, {
+      y: artwork.userData.originalRotation.y,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+
+    gsap.to(highlightGroup.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+  });
+
+  // Retorna obra à cena principal
+  highlightGroup.remove(artwork);
+  artwork.position.copy(artwork.userData.originalPosition);
+  artwork.rotation.copy(artwork.userData.originalRotation);
+  artwork.scale.copy(artwork.userData.originalScale);
+  scene.add(artwork);
+  scene.remove(highlightGroup);
+
+  // Mostra reflexo e reseta estado
+  artwork.userData.reflection.visible = true;
+  isHighlighted = false;
+  selectedArtwork = null;
+
+  // Esconde modal
+  hideModal();
+}
+
+// Mostra modal com informações
+function showModal(data) {
+  modalTitle.textContent = data.title;
+  modalArtist.textContent = data.artist;
+  modalYear.textContent = data.year;
+  modalPrice.textContent = `${data.price} ETH`;
+
+  modal.style.display = 'flex';
+  gsap.to(modal, { opacity: 1, duration: 0.3 });
+  
+  // Ativa blur overlay
+  blurOverlay.style.display = 'block';
+  gsap.to(blurOverlay, { opacity: 1, duration: 0.3 });
+}
+
+// Esconde modal
+function hideModal() {
+  gsap.to(modal, {
+    opacity: 0,
+    duration: 0.3,
+    onComplete: () => {
+      modal.style.display = 'none';
+    }
+  });
+
+  // Desativa blur overlay
+  gsap.to(blurOverlay, {
+    opacity: 0,
+    duration: 0.3,
+    onComplete: () => {
+      blurOverlay.style.display = 'none';
+    }
+  });
+}
+
+// Configura listeners de interação
+function setupInteractionListeners() {
+  // Evento principal para todos os dispositivos
+  renderer.domElement.addEventListener('pointerdown', handleArtInteraction, { passive: true });
+  
+  // Fallback para navegadores antigos
   renderer.domElement.addEventListener('click', handleArtInteraction);
   
-  // Backup para cliques fora do canvas
+  // Fechar modal clicando em qualquer área fora
   document.addEventListener('click', (e) => {
     if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
       restoreArtwork();
     }
-  });
+  }, { passive: true });
 
-  // Melhor tratamento para mobile
-  renderer.domElement.addEventListener('touchend', handleArtInteraction, { passive: true });
-}
-
-// Modifique sua função highlightArtwork para async
-async function highlightArtwork(artwork, data) {
-  // ... (mantenha o conteúdo existente)
-  // Adicione no final:
-  return new Promise(resolve => {
-    gsap.to(highlightGroup.rotation, {
-      y: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-      onComplete: () => {
-        showModal();
-        resolve();
-      }
-    });
+  // Evento de compra
+  buyButton.addEventListener('click', () => {
+    if (selectedArtwork) {
+      const index = artworks.indexOf(selectedArtwork);
+      buyHandler(artworkData[index]);
+    }
   });
 }
 
-// Inicialize os listeners após o carregamento
-window.addEventListener('load', () => {
-  setupEventListeners();
+// Inicializa o sistema
+setupInteractionListeners();
 
 function animate() {
   requestAnimationFrame(animate);

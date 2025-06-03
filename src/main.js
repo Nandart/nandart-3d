@@ -1,4 +1,4 @@
-Fimport { getContrato } from "./contrato.js";
+import { getContrato } from "./contrato.js";
 // Versão final com iluminação específica para paredes
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
@@ -842,48 +842,6 @@ function restoreArtwork() {
   blurOverlay.style.webkitBackdropFilter = 'none';
 }
 
-// Variável para controlar cliques válidos
-let ignoreNextClick = false;
-
-// Função principal de tratamento de interações
-async function handleArtInteraction(e) {
-  // Evita conflito entre eventos touch/mouse
-  if (e.type === 'pointerdown' && e.pointerType === 'mouse') {
-    ignoreNextClick = true;
-    setTimeout(() => { ignoreNextClick = false; }, 100);
-  }
-
-  // Fecha obra destacada se clicar fora
-  if (isHighlighted) {
-    const isCanvasClick = e.target === renderer.domElement;
-    const isModalClick = modal.contains(e.target);
-    
-    if (!isModalClick && (isCanvasClick || !e.target.closest('.art-modal'))) {
-      restoreArtwork();
-    }
-    return;
-  }
-
-  // Seleção de obras (raycasting)
-  if (!ignoreNextClick) {
-    const mouse = new THREE.Vector2(
-      (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
-      -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-    );
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(artworks);
-    if (intersects.length > 0) {
-      const artwork = intersects[0].object;
-      const index = artworks.indexOf(artwork);
-      const data = artworkData[index];
-      await highlightArtwork(artwork, data);
-    }
-  }
-}
-
 /* ===== SISTEMA COMPLETO DE INTERAÇÃO ===== */
 let interactionLock = false;
 let isHighlighted = false;
@@ -1185,16 +1143,6 @@ async function buyHandler(data) {
     console.error('Purchase error:', err);
     alert('Error during purchase. Please try again.');
   }
-}
-
-if (buyButton) {
-  buyButton.addEventListener('click', () => {
-    if (selectedArtwork) {
-      const index = artworks.indexOf(selectedArtwork);
-      const data = artworkData[index];
-      buyHandler(data);
-    }
-  });
 }
 
 if (walletButton) {

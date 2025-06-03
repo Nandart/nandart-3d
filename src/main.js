@@ -754,8 +754,10 @@ function calculateModalPosition(artwork) {
   };
 }
 
-// Função para mostrar modal integrado
 function showArtModal(artworkPosition, data) {
+  // Define max width for the modal (280px as mentioned in your comment)
+  const maxWidth = 280;
+  
   // Preenche os dados
   modalTitle.textContent = data.title;
   modalDescription.textContent = data.description || '';
@@ -764,9 +766,9 @@ function showArtModal(artworkPosition, data) {
   modalPrice.textContent = `${data.price} ETH`;
 
   // ✅ Garante que o modal não excede a obra
-modal.style.maxWidth = `${Math.min(artworkPosition.width, 280)}px`; // 280px é o máximo sugerido
-modal.style.maxHeight = `${artworkPosition.height}px`;
-modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
+  modal.style.maxWidth = `${Math.min(artworkPosition.width, maxWidth)}px`;
+  modal.style.maxHeight = `${artworkPosition.height}px`;
+  modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
   
   // Posiciona colado à base da obra
   modal.style.display = 'flex';
@@ -788,7 +790,6 @@ modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
   setTimeout(() => {
     modal.style.opacity = '1';
     modal.style.transform = 'translateY(0)';
-    //blurOverlay.style.display = 'block';
     setTimeout(() => blurOverlay.style.opacity = '1', 10);
   }, 10);
 }

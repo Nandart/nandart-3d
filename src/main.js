@@ -1,4 +1,4 @@
-import { getContrato } from "./contrato.js";
+Fimport { getContrato } from "./contrato.js";
 // Versão final com iluminação específica para paredes
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
@@ -842,45 +842,85 @@ function restoreArtwork() {
   blurOverlay.style.webkitBackdropFilter = 'none';
 }
 
-// Função unificada para interações
-function handleArtworkInteraction(e) {
-  // Fecha obra destacada se clicar fora do modal
+// Variável para controlar cliques válidos
+let ignoreNextClick = false;
+
+// Função principal de tratamento de interações
+async function handleArtInteraction(e) {
+  // Evita conflito entre eventos touch/mouse
+  if (e.type === 'pointerdown' && e.pointerType === 'mouse') {
+    ignoreNextClick = true;
+    setTimeout(() => { ignoreNextClick = false; }, 100);
+  }
+
+  // Fecha obra destacada se clicar fora
   if (isHighlighted) {
-    if (!modal.contains(e.target)) {
+    const isCanvasClick = e.target === renderer.domElement;
+    const isModalClick = modal.contains(e.target);
+    
+    if (!isModalClick && (isCanvasClick || !e.target.closest('.art-modal'))) {
       restoreArtwork();
     }
     return;
   }
 
-  // Detecta clique/touch em obras 3D
-  const mouse = new THREE.Vector2(
-    (e.clientX / window.innerWidth) * 2 - 1,
-    -(e.clientY / window.innerHeight) * 2 + 1
-  );
+  // Seleção de obras (raycasting)
+  if (!ignoreNextClick) {
+    const mouse = new THREE.Vector2(
+      (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
+      -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+    );
 
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
 
-  const intersects = raycaster.intersectObjects(artworks);
-  if (intersects.length > 0) {
-    const artwork = intersects[0].object;
-    const index = artworks.indexOf(artwork);
-    const data = artworkData[index];
-    highlightArtwork(artwork, data);
+    const intersects = raycaster.intersectObjects(artworks);
+    if (intersects.length > 0) {
+      const artwork = intersects[0].object;
+      const index = artworks.indexOf(artwork);
+      const data = artworkData[index];
+      await highlightArtwork(artwork, data);
+    }
   }
 }
 
-// Eventos para todos os dispositivos
-renderer.domElement.addEventListener('pointerdown', handleArtworkInteraction); // Mobile + Computadores
-renderer.domElement.addEventListener('click', handleArtworkInteraction);      // Backup para computadores
+// Configuração de eventos otimizada
+function setupEventListeners() {
+  // Eventos principais
+  renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
+  renderer.domElement.addEventListener('click', handleArtInteraction);
+  
+  // Backup para cliques fora do canvas
+  document.addEventListener('click', (e) => {
+    if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
+      restoreArtwork();
+    }
+  });
 
-// Fechar modal clicando em qualquer área fora (backup adicional)
-window.addEventListener('click', (e) => {
-  if (isHighlighted && !modal.contains(e.target) && e.target.id !== 'scene') {
-    restoreArtwork();
-  }
-});
+  // Melhor tratamento para mobile
+  renderer.domElement.addEventListener('touchend', handleArtInteraction, { passive: true });
+}
 
+// Modifique sua função highlightArtwork para async
+async function highlightArtwork(artwork, data) {
+  // ... (mantenha o conteúdo existente)
+  // Adicione no final:
+  return new Promise(resolve => {
+    gsap.to(highlightGroup.rotation, {
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      onComplete: () => {
+        showModal();
+        resolve();
+      }
+    });
+  });
+}
+
+// Inicialize os listeners após o carregamento
+window.addEventListener('load', () => {
+  setupEventListeners();
 
 function animate() {
   requestAnimationFrame(animate);

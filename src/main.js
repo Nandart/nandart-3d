@@ -750,58 +750,6 @@ async function handleArtInteraction(e) {
   interactionLock = false;
 }
 
-// Função de highlight melhorada
-async function highlightArtwork(artwork, data) {
-  if (isHighlighted) return;
-  isHighlighted = true;
-  selectedArtwork = artwork;
-
-  scene.remove(artwork);
-  
-  const highlightGroup = new THREE.Group();
-  highlightGroup.position.copy(artwork.position);
-  highlightGroup.rotation.copy(artwork.rotation);
-  highlightGroup.scale.copy(artwork.scale);
-  highlightGroup.add(artwork);
-  scene.add(highlightGroup);
-  
-  artwork.userData.highlightGroup = highlightGroup;
-  artwork.userData.reflection.visible = false;
-
-  // Resetar posição/rotação dentro do grupo
-  artwork.position.set(0, 0, 0);
-  artwork.rotation.set(0, 0, 0);
-  artwork.scale.set(1, 1, 1);
-
-  // Animação para posição central
-  await Promise.all([
-    new Promise(resolve => gsap.to(highlightGroup.position, {
-      x: 0,
-      y: 8.4,
-      z: -config.wallDistance / 2,
-      duration: 0.8,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.scale, {
-      x: 3,
-      y: 3,
-      z: 3,
-      duration: 0.8,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.rotation, {
-      y: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-      onComplete: resolve
-    }))
-  ]);
-
-  showModal(data);
-}
-
 // Função para mostrar modal com posicionamento correto
 function showArtModal(artworkPosition, data) {
   const modal = document.querySelector('.art-modal');

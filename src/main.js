@@ -802,19 +802,124 @@ async function highlightArtwork(artwork, data) {
   showModal(data);
 }
 
-// Função para mostrar modal
-function showModal(data) {
+// Função para mostrar modal com posicionamento correto
+function showArtModal(artworkPosition, data) {
+  const modal = document.querySelector('.art-modal');
+  const blurOverlay = document.getElementById('blur-overlay');
+  
+  // Preenche os dados do modal
   modalTitle.textContent = data.title;
   modalDescription.textContent = data.description;
   modalArtist.textContent = data.artist;
   modalYear.textContent = data.year;
   modalPrice.textContent = `${data.price} ETH`;
 
+  // Posiciona o modal abaixo da obra
   modal.style.display = 'flex';
-  gsap.to(modal, { opacity: 1, duration: 0.3 });
+  modal.style.top = `${artworkPosition.bottom + 10}px`;
+  modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (modal.offsetWidth / 2)}px`;
   
-  blurOverlay.style.display = 'block';
-  gsap.to(blurOverlay, { opacity: 1, duration: 0.3 });
+  // Ajuste para não sair da tela à direita
+  if (modal.getBoundingClientRect().right > window.innerWidth) {
+    modal.style.left = `${window.innerWidth - modal.offsetWidth - 20}px`;
+  }
+  
+  // Ajuste para não sair da tela à esquerda
+  if (modal.getBoundingClientRect().left < 0) {
+    modal.style.left = '20px';
+  }
+  
+  // Ativa as animações
+  setTimeout(() => {
+    modal.classList.add('active');
+    blurOverlay.classList.add('active');
+  }, 10);
+}
+
+// Função para obter a posição da obra clicada (adaptada para 3D)
+function getClickedArtworkPosition(event, artwork) {
+  // Converte a posição 3D para coordenadas de tela
+  const vector = new THREE.Vector3();
+  vector.setFromMatrixPosition(artwork.matrixWorld);
+  vector.project(camera);
+  
+  // Converte para coordenadas CSS
+  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+  
+  // Calcula o tamanho aproximado da obra na tela
+  const width = (artwork.geometry.parameters.width * 0.5 + 0.5) * window.innerWidth * 0.2;
+  const height = (artwork.geometry.parameters.height * 0.5 + 0.5) * window.innerHeight * 0.2;
+  
+  return {
+    top: y - height/2,
+    bottom: y + height/2,
+    left: x - width/2,
+    right: x + width/2,
+    width: width,
+    height: height
+  };
+}
+
+// Modificação na função highlightArtwork
+async function highlightArtwork(artwork, data) {
+  if (isHighlighted) return;
+  isHighlighted = true;
+  selectedArtwork = artwork;
+
+  scene.remove(artwork);
+  
+  const highlightGroup = new THREE.Group();
+  highlightGroup.position.copy(artwork.position);
+  highlightGroup.rotation.copy(artwork.rotation);
+  highlightGroup.scale.copy(artwork.scale);
+  highlightGroup.add(artwork);
+  scene.add(highlightGroup);
+  
+  artwork.userData.highlightGroup = highlightGroup;
+  artwork.userData.reflection.visible = false;
+
+  // Resetar posição/rotação dentro do grupo
+  artwork.position.set(0, 0, 0);
+  artwork.rotation.set(0, 0, 0);
+  artwork.scale.set(1, 1, 1);
+
+  // Animação para posição central
+  await Promise.all([
+    new Promise(resolve => gsap.to(highlightGroup.position, {
+      x: 0,
+      y: 8.4,
+      z: -config.wallDistance / 2,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: resolve
+    })),
+    new Promise(resolve => gsap.to(highlightGroup.scale, {
+      x: 3,
+      y: 3,
+      z: 3,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: resolve
+    })),
+    new Promise(resolve => gsap.to(highlightGroup.rotation, {
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      onComplete: resolve
+    }))
+  ]);
+
+  // Mostra o modal com posicionamento correto
+  const artworkRect = {
+    top: window.innerHeight / 2 - 150, // Posição centralizada verticalmente
+    bottom: window.innerHeight / 2 + 150,
+    left: window.innerWidth / 2 - 150, // Posição centralizada horizontalmente
+    right: window.innerWidth / 2 + 150,
+    width: 300,
+    height: 300
+  };
+  showArtModal(artworkRect, data);
 }
 
 // Função de restore melhorada

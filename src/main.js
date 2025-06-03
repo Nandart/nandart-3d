@@ -9,6 +9,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
+// --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
+let isHighlighted = false;
+let selectedArtwork = null;
+
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -891,7 +895,41 @@ async function restoreArtwork() {
     blurOverlay.style.display = 'none';
   }, 250);
 }
+function handleArtInteraction(event) {
+  event.preventDefault();
+  
+  // Calculate mouse position in normalized device coordinates
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+  // Raycasting to detect clicked artwork
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  // Check intersections with artworks only (filter out reflections and other objects)
+  const intersects = raycaster.intersectObjects(artworks);
+  
+  if (intersects.length > 0) {
+    const clickedArtwork = intersects[0].object;
+    const index = artworks.indexOf(clickedArtwork);
+    
+    if (index !== -1) {
+      // If already highlighted, restore it
+      if (isHighlighted && selectedArtwork === clickedArtwork) {
+        restoreArtwork();
+      } 
+      // Otherwise highlight the new artwork
+      else if (!isHighlighted) {
+        highlightArtwork(clickedArtwork, artworkData[index]);
+      }
+    }
+  } 
+  // Clicked outside an artwork - restore if something is highlighted
+  else if (isHighlighted) {
+    restoreArtwork();
+  }
+}
 // Configura listeners otimizados
 function setupInteractionListeners() {
   // Eventos principais

@@ -698,153 +698,22 @@ artworkPaths.forEach((src, i) => {
 });
 
 let selectedArtwork = null;
-let isHighlighted = false;
-const modal = document.querySelector('.art-modal');
-const modalTitle = document.getElementById('art-title');
-const modalDescription = document.getElementById('art-description');
-const modalArtist = document.getElementById('art-artist');
-const modalYear = document.getElementById('art-year');
-const modalPrice = document.getElementById('art-price');
-const buyButton = document.getElementById('buy-art');
-const blurOverlay = document.getElementById('blur-overlay');
 
-function highlightArtwork(artwork, data) {
-  if (isHighlighted) return;
-  isHighlighted = true;
-  selectedArtwork = artwork;
-
-  // Remover a obra do grupo original
-  scene.remove(artwork);
-  
-  // Criar um novo grupo para a obra destacada
-  const highlightGroup = new THREE.Group();
-  highlightGroup.position.copy(artwork.position);
-  highlightGroup.rotation.copy(artwork.rotation);
-  highlightGroup.scale.copy(artwork.scale);
-  highlightGroup.add(artwork);
-  scene.add(highlightGroup);
-  
-  artwork.userData.highlightGroup = highlightGroup;
-  artwork.userData.reflection.visible = false;
-
-  const targetY = 8.4;
-  const targetZ = -config.wallDistance / 2;
-
-  // Resetar posição e escala dentro do grupo
-  artwork.position.set(0, 0, 0);
-  artwork.rotation.set(0, 0, 0);
-  artwork.scale.set(1, 1, 1);
-
-  // Animação do grupo para a posição central
-  gsap.to(highlightGroup.scale, {
-    x: 3,
-    y: 3,
-    z: 3,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(highlightGroup.position, {
-    x: 0,
-    y: targetY,
-    z: targetZ,
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      gsap.to(highlightGroup.rotation, {
-        y: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        onComplete: showModal
-      });
-    }
-  });
-
-  blurOverlay.classList.add('active');
-  blurOverlay.style.backdropFilter = 'blur(8px)';
-  blurOverlay.style.webkitBackdropFilter = 'blur(8px)';
-
-  function showModal() {
-    modalTitle.textContent = data.title;
-    modalDescription.textContent = data.description;
-    modalArtist.textContent = data.artist;
-    modalYear.textContent = data.year;
-    modalPrice.textContent = `${data.price} ETH`;
-
-    modal.style.width = `${config.obraSize * 3 * 100}px`;
-
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(highlightGroup.matrixWorld);
-    vector.project(camera);
-
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
-
-    modal.style.left = `${x - modal.offsetWidth / 2}px`;
-    modal.style.top = `${y + 20}px`;
-
-    modal.style.display = 'flex';
-    gsap.to(modal, { opacity: 1, duration: 0.3 });
-  }
-}
-
-function restoreArtwork() {
-  if (!isHighlighted || !selectedArtwork) return;
-  isHighlighted = false;
-
-  gsap.to(modal, {
-    opacity: 0,
-    duration: 0.3,
-    onComplete: () => {
-      modal.style.display = 'none';
-    }
-  });
-
-  const artwork = selectedArtwork;
-  const highlightGroup = artwork.userData.highlightGroup;
-
-  // Animação de volta para a posição original
-  gsap.to(highlightGroup.position, {
-    x: artwork.userData.originalPosition.x,
-    y: artwork.userData.originalPosition.y,
-    z: artwork.userData.originalPosition.z,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(highlightGroup.rotation, {
-    y: artwork.userData.originalRotation.y,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(highlightGroup.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      // Retornar a obra ao grupo original
-      highlightGroup.remove(artwork);
-      artwork.position.copy(artwork.userData.originalPosition);
-      artwork.rotation.copy(artwork.userData.originalRotation);
-      artwork.scale.copy(artwork.userData.originalScale);
-      scene.add(artwork);
-      scene.remove(highlightGroup);
-      artwork.userData.reflection.visible = true;
-      selectedArtwork = null;
-    }
-  });
-
-  blurOverlay.classList.remove('active');
-  blurOverlay.style.backdropFilter = 'none';
-  blurOverlay.style.webkitBackdropFilter = 'none';
-}
-
-/* ===== SISTEMA COMPLETO DE INTERAÇÃO ===== */
+// ===== SISTEMA DE INTERAÇÃO CORRIGIDO =====
 let interactionLock = false;
 let selectedArtwork = null;
+let isHighlighted = false; // Declarado uma única vez
+
+// Função unificada para detectar interseções
+function getArtworkIntersects(e) {
+  const mouse = new THREE.Vector2(
+    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
+    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  return raycaster.intersectObjects(artworks);
+}
 
 // Função principal de interação
 async function handleArtInteraction(e) {
@@ -852,9 +721,10 @@ async function handleArtInteraction(e) {
   interactionLock = true;
 
   // Fecha obra destacada se clicar fora
-  if (window.isHighlighted) {
+  if (isHighlighted) {
     const clickedOnModal = modal.contains(e.target);
-    const clickedOnArtwork = e.target === renderer.domElement && checkArtworkIntersection(e);
+    const clickedOnArtwork = e.target === renderer.domElement && 
+                           getArtworkIntersects(e).length > 0;
     
     if (!clickedOnModal && !clickedOnArtwork) {
       await restoreArtwork();
@@ -870,43 +740,18 @@ async function handleArtInteraction(e) {
     const index = artworks.indexOf(artwork);
     await highlightArtwork(artwork, artworkData[index]);
   }
-
+  
   interactionLock = false;
 }
 
-// Verifica se clique intersecta alguma obra
-function checkArtworkIntersection(e) {
-  const mouse = new THREE.Vector2(
-    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
-    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-  );
-  
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  return raycaster.intersectObjects(artworks).length > 0;
-}
-
-// Obtém interseções com obras
-function getArtworkIntersects(e) {
-  const mouse = new THREE.Vector2(
-    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
-    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-  );
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  return raycaster.intersectObjects(artworks);
-}
-
-// Destaca a obra selecionada
+// Função de highlight melhorada
 async function highlightArtwork(artwork, data) {
-  window.isHighlighted = true;
+  if (isHighlighted) return;
+  isHighlighted = true;
   selectedArtwork = artwork;
 
-  // Remove a obra da cena principal
   scene.remove(artwork);
   
-  // Cria grupo de destaque
   const highlightGroup = new THREE.Group();
   highlightGroup.position.copy(artwork.position);
   highlightGroup.rotation.copy(artwork.rotation);
@@ -914,71 +759,75 @@ async function highlightArtwork(artwork, data) {
   highlightGroup.add(artwork);
   scene.add(highlightGroup);
   
-  // Esconde reflexo
+  artwork.userData.highlightGroup = highlightGroup;
   artwork.userData.reflection.visible = false;
 
+  // Resetar posição/rotação dentro do grupo
+  artwork.position.set(0, 0, 0);
+  artwork.rotation.set(0, 0, 0);
+  artwork.scale.set(1, 1, 1);
+
   // Animação para posição central
-  await new Promise(resolve => {
-    gsap.to(highlightGroup.position, {
+  await Promise.all([
+    new Promise(resolve => gsap.to(highlightGroup.position, {
       x: 0,
       y: 8.4,
       z: -config.wallDistance / 2,
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    });
-
-    gsap.to(highlightGroup.scale, {
+    }),
+    new Promise(resolve => gsap.to(highlightGroup.scale, {
       x: 3,
       y: 3,
       z: 3,
       duration: 0.8,
-      ease: 'power2.out'
-    });
-
-    gsap.to(highlightGroup.rotation, {
+      ease: 'power2.out',
+      onComplete: resolve
+    }),
+    new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: 0,
       duration: 0.5,
-      ease: 'power2.out'
-    });
-  });
+      ease: 'power2.out',
+      onComplete: resolve
+    })
+  ]);
 
-  // Mostra modal
   showModal(data);
 }
 
-// Restaura obra à posição original
+// Função de restore melhorada
 async function restoreArtwork() {
-  if (!window.isHighlighted || !selectedArtwork) return;
+  if (!isHighlighted || !selectedArtwork) return;
 
   const artwork = selectedArtwork;
-  const highlightGroup = artwork.parent;
+  const highlightGroup = artwork.userData.highlightGroup;
 
   // Animação de retorno
-  await new Promise(resolve => {
-    gsap.to(highlightGroup.position, {
+  await Promise.all([
+    new Promise(resolve => gsap.to(highlightGroup.position, {
       x: artwork.userData.originalPosition.x,
       y: artwork.userData.originalPosition.y,
       z: artwork.userData.originalPosition.z,
       duration: 0.8,
       ease: 'power2.out',
       onComplete: resolve
-    });
-
-    gsap.to(highlightGroup.rotation, {
+    }),
+    new Promise(resolve => gsap.to(highlightGroup.rotation, {
       y: artwork.userData.originalRotation.y,
       duration: 0.8,
-      ease: 'power2.out'
-    });
-
-    gsap.to(highlightGroup.scale, {
+      ease: 'power2.out',
+      onComplete: resolve
+    }),
+    new Promise(resolve => gsap.to(highlightGroup.scale, {
       x: 1,
       y: 1,
       z: 1,
       duration: 0.8,
-      ease: 'power2.out'
-    });
-  });
+      ease: 'power2.out',
+      onComplete: resolve
+    })
+  ]);
 
   // Retorna obra à cena principal
   highlightGroup.remove(artwork);
@@ -987,62 +836,22 @@ async function restoreArtwork() {
   artwork.scale.copy(artwork.userData.originalScale);
   scene.add(artwork);
   scene.remove(highlightGroup);
-
-  // Mostra reflexo e reseta estado
+  
   artwork.userData.reflection.visible = true;
-  window.isHighlighted = false;
+  isHighlighted = false;
   selectedArtwork = null;
-
-  // Esconde modal
   hideModal();
 }
 
-// Mostra modal com informações
-function showModal(data) {
-  modalTitle.textContent = data.title;
-  modalArtist.textContent = data.artist;
-  modalYear.textContent = data.year;
-  modalPrice.textContent = `${data.price} ETH`;
-
-  modal.style.display = 'flex';
-  gsap.to(modal, { opacity: 1, duration: 0.3 });
-  
-  // Ativa blur overlay
-  blurOverlay.style.display = 'block';
-  gsap.to(blurOverlay, { opacity: 1, duration: 0.3 });
-}
-
-// Esconde modal
-function hideModal() {
-  gsap.to(modal, {
-    opacity: 0,
-    duration: 0.3,
-    onComplete: () => {
-      modal.style.display = 'none';
-    }
-  });
-
-  // Desativa blur overlay
-  gsap.to(blurOverlay, {
-    opacity: 0,
-    duration: 0.3,
-    onComplete: () => {
-      blurOverlay.style.display = 'none';
-    }
-  });
-}
-
-// Configura listeners de interação
+// Configura listeners otimizados
 function setupInteractionListeners() {
-  // Evento principal para todos os dispositivos
+  // Eventos principais
   renderer.domElement.addEventListener('pointerdown', handleArtInteraction, { passive: true });
-  
-  // Fallback para navegadores antigos
   renderer.domElement.addEventListener('click', handleArtInteraction);
   
-  // Fechar modal clicando em qualquer área fora
+  // Fechar modal clicando fora
   document.addEventListener('click', (e) => {
-    if (window.isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
+    if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
       restoreArtwork();
     }
   }, { passive: true });

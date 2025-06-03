@@ -3,7 +3,7 @@
 import { getContrato } from "./contrato.js";
 
 // Substitui pela tua chainId e endereço do contrato
-const contractAddress = "0x..."; // <- coloca aqui o teu endereço real
+const contractAddress = "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"; // <- coloca aqui o teu endereço real
 const chainName = "mumbai"; // ou "sepolia", "goerli", etc.
 
 export async function verificarDono(tokenId) {

@@ -121,9 +121,9 @@ html, body {
   font-weight: 700;
 }
 
-/* ==================== MODAL DE OBRA ==================== */
+/* ==================== MODAL DE OBRA - CORREÇÕES ==================== */
 .art-modal {
-  position: fixed;
+  position: absolute; /* Alterado de fixed para absolute */
   background: rgba(10, 10, 10, 0.95);
   color: white;
   padding: 20px;
@@ -132,103 +132,47 @@ html, body {
   flex-direction: column;
   border: 1px solid rgba(216, 178, 108, 0.3);
   border-radius: 8px;
-  min-width: 280px;
-  max-width: 400px;
+  width: auto; /* Removido min/max-width fixos */
+  max-width: 280px; /* Largura máxima reduzida */
   
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  transform-style: preserve-3d;
-  backface-visibility: visible;
   pointer-events: auto;
+  top: 100%; /* Posiciona abaixo do elemento pai */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
 }
 
 .art-modal.active {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
-.art-modal h2 {
-  color: #d8b26c;
-  margin-bottom: 12px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  font-family: 'Playfair Display', serif;
-  text-align: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+/* Garantir que a obra destacada não fique desfocada */
+#blur-overlay.active {
+  backdrop-filter: blur(0); /* Remove o blur */
+  -webkit-backdrop-filter: blur(0);
+  background: rgba(0, 0, 0, 0.6); /* Mantém apenas o escurecimento */
 }
 
-.art-modal p {
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-  line-height: 1.5;
-  opacity: 0.9;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-}
+/* Ajustes para mobile */
+@media (max-width: 480px) {
+  .art-modal {
+    position: fixed;
+    bottom: 20px;
+    top: auto;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(10px) !important;
+    width: 90%;
+    max-width: none;
+  }
 
-.art-modal #art-artist {
-  font-weight: 600;
-  color: #f3cc80;
+  .art-modal.active {
+    transform: translateX(-50%) translateY(0) !important;
+  }
 }
-
-.art-modal #art-year {
-  font-style: italic;
-  opacity: 0.8;
-}
-
-.art-modal #art-price {
-  font-weight: 700;
-  color: #d8b26c;
-  margin-top: 10px;
-  font-size: 1.1rem;
-}
-
-.art-modal #buy-art {
-  background-color: #d8b26c;
-  color: #111;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: 'Playfair Display', serif;
-  margin-top: 15px;
-  position: relative;
-  overflow: hidden;
-}
-
-.art-modal #buy-art:hover {
-  background-color: #e2c278;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.art-modal #buy-art:active {
-  transform: translateY(0);
-}
-
-.art-modal #buy-art::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: all 0.5s ease;
-}
-
-.art-modal #buy-art:hover::after {
-  left: 100%;
-}
-
 /* ==================== BLUR OVERLAY ==================== */
 #blur-overlay {
   position: fixed;

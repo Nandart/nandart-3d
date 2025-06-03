@@ -697,59 +697,6 @@ artworkPaths.forEach((src, i) => {
   artworks.push(artwork);
 });
 
-// ===== SISTEMA DE INTERAÇÃO CORRIGIDO =====
-let interactionLock = false;
-let selectedArtwork = null;
-let isHighlighted = false;
-const modal = document.querySelector('.art-modal');
-const modalTitle = document.getElementById('art-title');
-const modalDescription = document.getElementById('art-description');
-const modalArtist = document.getElementById('art-artist');
-const modalYear = document.getElementById('art-year');
-const modalPrice = document.getElementById('art-price');
-const buyButton = document.getElementById('buy-art');
-const blurOverlay = document.getElementById('blur-overlay');
-
-// Função unificada para detectar interseções
-function getArtworkIntersects(e) {
-  const mouse = new THREE.Vector2(
-    (e.clientX / renderer.domElement.clientWidth) * 2 - 1,
-    -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-  );
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  return raycaster.intersectObjects(artworks);
-}
-
-// Função principal de interação
-async function handleArtInteraction(e) {
-  if (interactionLock) return;
-  interactionLock = true;
-
-  // Fecha obra destacada se clicar fora
-  if (isHighlighted) {
-    const clickedOnModal = modal.contains(e.target);
-    const clickedOnArtwork = e.target === renderer.domElement && 
-                           getArtworkIntersects(e).length > 0;
-    
-    if (!clickedOnModal && !clickedOnArtwork) {
-      await restoreArtwork();
-    }
-    interactionLock = false;
-    return;
-  }
-
-  // Seleciona nova obra
-  const intersects = getArtworkIntersects(e);
-  if (intersects.length > 0) {
-    const artwork = intersects[0].object;
-    const index = artworks.indexOf(artwork);
-    await highlightArtwork(artwork, artworkData[index]);
-  }
-  
-  interactionLock = false;
-}
-
 // ===== SISTEMA DE MODAL MINIMALISTA =====
 const modal = document.querySelector('.art-modal');
 const modalTitle = document.getElementById('art-title');

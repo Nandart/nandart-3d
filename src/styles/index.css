@@ -121,7 +121,7 @@ html, body {
   font-weight: 700;
 }
 
-/* Estilos mínimos para o modal */
+/* ==================== MODAL ==================== */
 .art-modal {
   position: fixed;
   background: rgba(10, 10, 10, 0.88) !important;
@@ -137,20 +137,28 @@ html, body {
   transition: opacity 0.25s ease, transform 0.25s ease;
   border: none !important;
   box-shadow: none !important;
-  max-width: none;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  
+  /* Novas propriedades para controle de tamanho */
+  max-width: min(280px, 80vw) !important; /* Limite absoluto de largura */
+  max-height: 60vh !important; /* Limite baseado na viewport */
+  width: auto !important; /* Largura controlada via JS */
+  overflow-y: auto; /* Scroll se o conteúdo for longo */
+  box-sizing: border-box;
 }
 
 .art-modal h2 {
   color: #d8b26c;
   margin-bottom: 8px;
   font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Garante que títulos longos não quebrem o layout */
 }
 
 .art-modal p {
   margin: 4px 0;
   font-size: 0.85rem;
+  overflow-wrap: break-word; /* Quebra palavras longas */
 }
 
 #buy-art {
@@ -162,12 +170,36 @@ html, body {
   margin-top: 10px !important;
   border-radius: 3px;
   transition: all 0.2s ease;
+  align-self: flex-start; /* Alinha com o conteúdo do modal */
 }
 
+/* Overlay - ajustado para não interferir com a obra */
 #blur-overlay {
   background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: none !important; /* Remove o desfoque */
-  pointer-events: none; /* Permite interação com a obra destacada */
+  backdrop-filter: none !important; /* Remove desfoque do overlay */
+  pointer-events: auto; /* Permite interação com o modal */
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .art-modal {
+    max-width: min(260px, 90vw) !important;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .art-modal {
+    max-width: 90vw !important;
+    max-height: 50vh !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(10px) !important;
+    padding: 10px;
+  }
+  
+  .art-modal.active {
+    transform: translateX(-50%) translateY(0) !important;
+  }
 }
 /* ==================== ANIMAÇÕES ==================== */
 @keyframes fadeIn {
@@ -195,41 +227,6 @@ html, body {
 
   #wallet-button.connected {
     padding: 8px 16px 8px 16px !important;
-  }
-
-  .art-modal {
-    max-width: 280px;
-    padding: 16px;
-  }
-
-  .art-modal h2 {
-    font-size: 1.1rem;
-  }
-
-  .art-modal p {
-    font-size: 0.85rem;
-  }
-
-  .art-modal #buy-art {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .art-modal {
-    max-width: 90%;
-    padding: 14px;
-    left: 50% !important;
-    transform: translateX(-50%) translateY(10px) !important;
-  }
-
-  .art-modal.active {
-    transform: translateX(-50%) translateY(0) !important;
-  }
-  
-  #blur-overlay {
-    backdrop-filter: none !important; /* Garante que não há desfoque em mobile */
   }
 }
 

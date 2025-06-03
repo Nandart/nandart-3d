@@ -788,60 +788,6 @@ function highlightArtwork(artwork, data) {
   }
 }
 
-function restoreArtwork() {
-  if (!isHighlighted || !selectedArtwork) return;
-  isHighlighted = false;
-
-  gsap.to(modal, {
-    opacity: 0,
-    duration: 0.3,
-    onComplete: () => {
-      modal.style.display = 'none';
-    }
-  });
-
-  const artwork = selectedArtwork;
-  const highlightGroup = artwork.userData.highlightGroup;
-
-  // Animação de volta para a posição original
-  gsap.to(highlightGroup.position, {
-    x: artwork.userData.originalPosition.x,
-    y: artwork.userData.originalPosition.y,
-    z: artwork.userData.originalPosition.z,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(highlightGroup.rotation, {
-    y: artwork.userData.originalRotation.y,
-    duration: 0.8,
-    ease: 'power2.out'
-  });
-
-  gsap.to(highlightGroup.scale, {
-    x: 1,
-    y: 1,
-    z: 1,
-    duration: 0.8,
-    ease: 'power2.out',
-    onComplete: () => {
-      // Retornar a obra ao grupo original
-      highlightGroup.remove(artwork);
-      artwork.position.copy(artwork.userData.originalPosition);
-      artwork.rotation.copy(artwork.userData.originalRotation);
-      artwork.scale.copy(artwork.userData.originalScale);
-      scene.add(artwork);
-      scene.remove(highlightGroup);
-      artwork.userData.reflection.visible = true;
-      selectedArtwork = null;
-    }
-  });
-
-  blurOverlay.classList.remove('active');
-  blurOverlay.style.backdropFilter = 'none';
-  blurOverlay.style.webkitBackdropFilter = 'none';
-}
-
 function handleArtworkInteraction(e) {
   // Fecha obra destacada se clicar fora
   if (isHighlighted) {

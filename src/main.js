@@ -277,21 +277,34 @@ centerArtGroup.position.set(
 scene.add(centerArtGroup);
 
 // Textura das paredes diretamente aplicada (antracite realista)
+// Configuração melhorada das paredes (antracite realista)
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x2a2a2a, // Cinza antracite mais claro
-  emissive: 0x050505,
-  emissiveIntensity: 0.5,
-  roughness: 0.6,
-  metalness: 0.1,
+  color: 0x3a3a3a, // Cinza antracite mais claro (de 0x2a2a2a para 0x3a3a3a)
+  emissive: 0x1a1a1a, // Aumentado de 0x050505 para mais brilho
+  emissiveIntensity: 0.8, // Aumentado de 0.5
+  roughness: 0.5, // Reduzido de 0.6 para mais suavidade
+  metalness: 0.15, // Aumentado de 0.1
   side: THREE.FrontSide
 });
+
+// Adicionar textura de ruído para realismo
+const wallNoiseTexture = new THREE.DataTexture(
+  new Uint8Array(Array(64).fill().map(() => Math.random() * 55 + 200)),
+  8,
+  8,
+  THREE.LuminanceFormat
+);
+wallNoiseTexture.needsUpdate = true;
+wallMaterial.map = wallNoiseTexture;
 
 const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
+// Adicionar paredes com sombras melhoradas
 const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
 backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
 backWall.receiveShadow = true;
+backWall.castShadow = true; // Adicionado para melhorar interação com luz
 backWall.layers.set(2);
 scene.add(backWall);
 
@@ -299,6 +312,7 @@ const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
 leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
 leftWall.rotation.y = Math.PI / 2;
 leftWall.receiveShadow = true;
+leftWall.castShadow = true; // Adicionado para melhorar interação com luz
 leftWall.layers.set(2);
 scene.add(leftWall);
 
@@ -306,8 +320,20 @@ const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
 rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
 rightWall.rotation.y = -Math.PI / 2;
 rightWall.receiveShadow = true;
+rightWall.castShadow = true; // Adicionado para melhorar interação com luz
 rightWall.layers.set(2);
 scene.add(rightWall);
+
+// Ajustar iluminação específica para paredes
+[backWallLight1, backWallLight2].forEach(light => {
+  light.intensity = 1.0; // Aumentado de 0.8
+  light.color.setHex(0xfff2e0); // Cor mais quente
+});
+
+[leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
+  light.intensity = 0.8; // Aumentado de 0.7
+  light.color.setHex(0xfff2e0); // Cor mais quente
+});
 
 const wallArtworks = [
   {

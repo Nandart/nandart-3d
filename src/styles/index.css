@@ -121,10 +121,10 @@ html, body {
   font-weight: 700;
 }
 
-/* ==================== MODAL DE OBRA - CORREÇÕES ==================== */
+/* Substitua o .art-modal existente por este: */
 .art-modal {
-  position: absolute; /* Alterado de fixed para absolute */
-  background: rgba(10, 10, 10, 0.95);
+  position: absolute; /* Mudado de fixed para absolute */
+  background: rgba(10, 10, 10, 0.98); /* Aumentei a opacidade */
   color: white;
   padding: 20px;
   z-index: 300;
@@ -132,48 +132,16 @@ html, body {
   flex-direction: column;
   border: 1px solid rgba(216, 178, 108, 0.3);
   border-radius: 8px;
-  width: auto; /* Removido min/max-width fixos */
-  max-width: 280px; /* Largura máxima reduzida */
-  
+  max-width: 320px;
+  /* Removido backdrop-filter para evitar desfoque */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: auto;
-  top: 100%; /* Posiciona abaixo do elemento pai */
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
 }
 
-.art-modal.active {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Garantir que a obra destacada não fique desfocada */
-#blur-overlay.active {
-  backdrop-filter: blur(0); /* Remove o blur */
-  -webkit-backdrop-filter: blur(0);
-  background: rgba(0, 0, 0, 0.6); /* Mantém apenas o escurecimento */
-}
-
-/* Ajustes para mobile */
-@media (max-width: 480px) {
-  .art-modal {
-    position: fixed;
-    bottom: 20px;
-    top: auto;
-    left: 50% !important;
-    transform: translateX(-50%) translateY(10px) !important;
-    width: 90%;
-    max-width: none;
-  }
-
-  .art-modal.active {
-    transform: translateX(-50%) translateY(0) !important;
-  }
-}
-/* ==================== BLUR OVERLAY ==================== */
+/* Atualize o #blur-overlay para remover o blur */
 #blur-overlay {
   position: fixed;
   top: 0;
@@ -183,8 +151,9 @@ html, body {
   z-index: 150;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
   background: rgba(0, 0, 0, 0.6);
+  /* Removido backdrop-filter */
 }
 
 #blur-overlay.active {

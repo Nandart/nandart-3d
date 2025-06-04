@@ -586,7 +586,7 @@ const artworkPaths = [
 const artworkData = [
  {
   title: "Fragment of Eternity",
-  artist: "Inês Duarte",
+  artist: "Rénner Nunes",
   year: "2023",
   price: "0.08",
   tokenURI: "ipfs://bafybeicnafmqkac6fxctcnuibyr5bv35srkk24iled3p72n4oqul333vaa/fragment_of_eternity.json",
@@ -594,7 +594,7 @@ const artworkData = [
 },
   {
     title: "Shadows of Light",
-    artist: "Miguel Costa",
+    artist: "Rénner Nunes",
     year: "2024",
     price: "0.01",
     tokenURI: "ipfs://bafybeic2cmwwsvm6fjfbxojc2pcr3rzvtfveludgpd44jxgetyrlncxmyu/shadows_of_light.json",
@@ -602,7 +602,7 @@ const artworkData = [
   },
   {
     title: "Shared Horizon",
-    artist: "Clara Mendonça",
+    artist: "Rénner Nunes",
     year: "2022",
     price: "1",
     tokenURI: "ipfs://bafybeiakxmorl2p2z7cjm7vl5laqc5iozulevcskrya7hrmm6biewzwzu4/shared_horizon.json",
@@ -610,7 +610,7 @@ const artworkData = [
   },
   {
     title: "Memories of Silence",
-    artist: "Rui Valente",
+    artist: "Rénner Nunes",
     year: "2023",
     price: "0.15",
     tokenURI: "ipfs://bafybeibdrkwcyu6qajyynrl2sjgwyiowpgwwu5limjq6rab4wdoggnflpy/memories_of_silence.json",
@@ -634,7 +634,7 @@ const artworkData = [
   },
   {
     title: "Concealed Verse",
-    artist: "Sofia Rocha",
+    artist: "Rénner Nunes",
     year: "2024",
     price: "1.55",
    tokenURI: "ipfs://bafybeify2nqjijzo3ocy7um5pot75bzmhqgtkmnxa5izf5mgfxy6jvhmjm/concealed_verse.json",

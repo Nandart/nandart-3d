@@ -13,6 +13,14 @@ import { ethers } from 'ethers';
 // --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
 let isHighlighted = false;
 let selectedArtwork = null;
+
+const ZOOM_CONFIG = {
+  sensitivity: 0.5,
+  minScale: 1,
+  maxScale: 3.5,
+  animationDuration: 0.4
+};
+
 // Configuração de camadas para evitar desfoque
 const LAYERS = {
   DEFAULT: 0,
@@ -808,89 +816,165 @@ function showArtModal(artworkPosition, data) {
   }, 10);
 }
 
+// Adicionar estas variáveis no início do arquivo, com as outras variáveis de estado
+const ZOOM_CONFIG = {
+  sensitivity: 0.5,
+  minScale: 1,
+  maxScale: 3.5,
+  animationDuration: 0.4
+};
+
+// Substituir a função highlightArtwork por esta versão melhorada
 async function highlightArtwork(artwork, data) {
   if (isHighlighted) return;
   isHighlighted = true;
   selectedArtwork = artwork;
-  artwork.layers.set(LAYERS.DEFAULT);
-  artwork.userData.reflection.visible = true;
-  
-  scene.remove(artwork);
-  
+
+  // Criar grupo de highlight com melhor organização
   const highlightGroup = new THREE.Group();
   highlightGroup.position.copy(artwork.position);
   highlightGroup.rotation.copy(artwork.rotation);
   highlightGroup.scale.copy(artwork.scale);
+  
+  // Adicionar moldura durante o zoom
+  const frame = createHighlightFrame(artwork);
+  highlightGroup.add(frame);
   highlightGroup.add(artwork);
   scene.add(highlightGroup);
   
   artwork.userData.highlightGroup = highlightGroup;
   artwork.userData.reflection.visible = false;
 
+  // Reset transformações internas
   artwork.position.set(0, 0, 0);
   artwork.rotation.set(0, 0, 0);
   artwork.scale.set(1, 1, 1);
 
+  // Configuração da animação melhorada
+  const targetPosition = new THREE.Vector3(
+    0, 
+    8.4, 
+    -config.wallDistance / 2 - 1.5  // Ajuste para melhor posicionamento
+  );
+
+  // Animação suave usando GSAP
   await Promise.all([
-    new Promise(resolve => gsap.to(highlightGroup.position, {
-      x: 0,
-      y: 8.4,
-      z: -config.wallDistance / 2,
-      duration: 0.7,
+    gsap.to(highlightGroup.position, {
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
+      duration: ZOOM_CONFIG.animationDuration,
+      ease: 'back.out(1.2)',
+    }),
+    gsap.to(highlightGroup.scale, {
+      x: ZOOM_CONFIG.maxScale * 0.9,
+      y: ZOOM_CONFIG.maxScale * 0.9,
+      z: ZOOM_CONFIG.maxScale * 0.9,
+      duration: ZOOM_CONFIG.animationDuration,
       ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.scale, {
-      x: 3,
-      y: 3,
-      z: 3,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.rotation, {
+    }),
+    gsap.to(highlightGroup.rotation, {
       y: 0,
-      duration: 0.4,
+      duration: ZOOM_CONFIG.animationDuration * 0.8,
       ease: 'power2.out',
-      onComplete: resolve
-    }))
+    }),
+    gsap.to(artwork.material, {
+      roughness: 0.05,
+      metalness: 0.3,
+      duration: ZOOM_CONFIG.animationDuration,
+    })
   ]);
 
+  // Animação final de ajuste
+  await gsap.to(highlightGroup.scale, {
+    x: ZOOM_CONFIG.maxScale,
+    y: ZOOM_CONFIG.maxScale,
+    z: ZOOM_CONFIG.maxScale,
+    duration: 0.15,
+    ease: 'sine.out'
+  });
+
+  // Mostrar modal com posicionamento melhorado
   const artworkRect = calculateModalPosition(artwork);
   showArtModal(artworkRect, data);
 }
 
+// Adicionar esta nova função para criar moldura durante o zoom
+function createHighlightFrame(artwork) {
+  const geometry = artwork.geometry;
+  const frameWidth = geometry.parameters.width + 0.4;
+  const frameHeight = geometry.parameters.height + 0.4;
+  
+  const frame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameWidth, frameHeight, 0.2),
+    new THREE.MeshStandardMaterial({
+      color: 0x2a2a2a,
+      metalness: 0.8,
+      roughness: 0.15,
+      emissive: 0x111111,
+      emissiveIntensity: 0.3,
+      side: THREE.BackSide
+    })
+  );
+  frame.position.z = -0.15;
+  
+  // Animação de entrada
+  frame.scale.set(0.8, 0.8, 0.8);
+  gsap.to(frame.scale, {
+    x: 1,
+    y: 1,
+    z: 1,
+    duration: ZOOM_CONFIG.animationDuration * 0.8,
+    ease: 'elastic.out(1, 0.5)'
+  });
+  
+  return frame;
+}
+
+// Atualizar a função restoreArtwork para ter animação mais suave
 async function restoreArtwork() {
   if (!isHighlighted || !selectedArtwork) return;
 
   const artwork = selectedArtwork;
   const highlightGroup = artwork.userData.highlightGroup;
 
+  // Animação de saída melhorada
   await Promise.all([
-    new Promise(resolve => gsap.to(highlightGroup.position, {
+    gsap.to(highlightGroup.position, {
       x: artwork.userData.originalPosition.x,
       y: artwork.userData.originalPosition.y,
       z: artwork.userData.originalPosition.z,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.rotation, {
+      duration: ZOOM_CONFIG.animationDuration,
+      ease: 'back.in(0.9)',
+    }),
+    gsap.to(highlightGroup.rotation, {
       y: artwork.userData.originalRotation.y,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.scale, {
-      x: 1,
-      y: 1,
-      z: 1,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    }))
+      duration: ZOOM_CONFIG.animationDuration * 0.8,
+      ease: 'power2.in',
+    }),
+    gsap.to(highlightGroup.scale, {
+      x: ZOOM_CONFIG.minScale * 0.8,
+      y: ZOOM_CONFIG.minScale * 0.8,
+      z: ZOOM_CONFIG.minScale * 0.8,
+      duration: ZOOM_CONFIG.animationDuration * 0.7,
+      ease: 'power2.in',
+    }),
+    gsap.to(artwork.material, {
+      roughness: 0.2,
+      metalness: 0.05,
+      duration: ZOOM_CONFIG.animationDuration * 0.5,
+    })
   ]);
 
+  // Finalizar a animação
+  await gsap.to(highlightGroup.scale, {
+    x: ZOOM_CONFIG.minScale,
+    y: ZOOM_CONFIG.minScale,
+    z: ZOOM_CONFIG.minScale,
+    duration: 0.1,
+  });
+
+  // Restaurar estado original
   highlightGroup.remove(artwork);
   artwork.position.copy(artwork.userData.originalPosition);
   artwork.rotation.copy(artwork.userData.originalRotation);
@@ -902,6 +986,7 @@ async function restoreArtwork() {
   isHighlighted = false;
   selectedArtwork = null;
   
+  // Esconder modal com animação
   modal.style.opacity = '0';
   modal.style.transform = 'translateY(8px)';
   blurOverlay.style.opacity = '0';
@@ -911,34 +996,43 @@ async function restoreArtwork() {
   }, 250);
 }
 
-function handleArtInteraction(event) {
-  event.preventDefault();
+// Atualizar o event listener para suporte a toque
+function setupInteractionListeners() {
+  // Suporte melhorado para dispositivos touch
+  renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
+  renderer.domElement.addEventListener('click', handleArtInteraction);
   
-  const mouse = new THREE.Vector2();
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  const intersects = raycaster.intersectObjects(artworks);
-  
-  if (intersects.length > 0) {
-    const clickedArtwork = intersects[0].object;
-    const index = artworks.indexOf(clickedArtwork);
-    
-    if (index !== -1) {
-      if (isHighlighted && selectedArtwork === clickedArtwork) {
-        restoreArtwork();
-      } 
-      else if (!isHighlighted) {
-        highlightArtwork(clickedArtwork, artworkData[index]);
-      }
+  // Zoom com scroll (opcional)
+  renderer.domElement.addEventListener('wheel', (e) => {
+    if (isHighlighted && selectedArtwork) {
+      e.preventDefault();
+      const delta = -e.deltaY * 0.001 * ZOOM_CONFIG.sensitivity;
+      const highlightGroup = selectedArtwork.userData.highlightGroup;
+      
+      const newScale = Math.min(
+        Math.max(
+          highlightGroup.scale.x + delta, 
+          ZOOM_CONFIG.minScale
+        ), 
+        ZOOM_CONFIG.maxScale * 1.2
+      );
+      
+      gsap.to(highlightGroup.scale, {
+        x: newScale,
+        y: newScale,
+        z: newScale,
+        duration: 0.1,
+        ease: 'power1.out'
+      });
     }
-  } 
-  else if (isHighlighted) {
-    restoreArtwork();
-  }
+  }, { passive: false });
+
+  // Fechar modal clicando fora
+  document.addEventListener('click', (e) => {
+    if (isHighlighted && !modal.contains(e.target) {
+      restoreArtwork();
+    }
+  });
 }
 
 function setupInteractionListeners() {

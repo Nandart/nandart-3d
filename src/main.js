@@ -756,6 +756,10 @@ function calculateModalPosition(artwork) {
 }
 
 function showArtModal(artworkPosition, data) {
+   // Limpa elementos adicionais anteriores
+  const elementsToRemove = modal.querySelectorAll('.additional-elements');
+  elementsToRemove.forEach(el => el.remove());
+
   // Define max width for the modal (280px as mentioned in your comment)
   const maxWidth = 280;
   
@@ -787,8 +791,9 @@ function showArtModal(artworkPosition, data) {
     <button id="revender-button" style="padding: 4px 8px; margin-left: 6px;">Revender</button>
   `;
 
-  modal.appendChild(openSeaButton);
-  modal.appendChild(revendaDiv);
+  additionalElements.appendChild(openSeaButton);
+  additionalElements.appendChild(revendaDiv);
+  modal.appendChild(additionalElements);
 
   setTimeout(() => {
     const revenderBtn = document.getElementById('revender-button');
@@ -891,7 +896,10 @@ async function highlightArtwork(artwork, data) {
 // Função para restaurar obra
 async function restoreArtwork() {
   if (!isHighlighted || !selectedArtwork) return;
-
+// Limpa elementos adicionais
+  const elementsToRemove = modal.querySelectorAll('.additional-elements');
+  elementsToRemove.forEach(el => el.remove());
+  
   const artwork = selectedArtwork;
   const highlightGroup = artwork.userData.highlightGroup;
 

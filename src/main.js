@@ -979,8 +979,6 @@ async function restoreArtwork() {
     blurOverlay.style.display = 'none';
   }, 250);
 }
-// Inicializa o sistema
-setupInteractionListeners();
 
 function animate() {
   requestAnimationFrame(animate);

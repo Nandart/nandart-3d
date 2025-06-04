@@ -776,7 +776,7 @@ function showArtModal(artworkPosition, data) {
   // 3. Adiciona classe única aos novos elementos dinâmicos
   const openSeaButton = document.createElement('button');
   openSeaButton.className = 'dynamic-element'; // <-- Classe para identificação
-  openSeaButton.textContent = "Se on OpenSea";
+  openSeaButton.textContent = "See on OpenSea";
   openSeaButton.style.marginLeft = "8px";
   openSeaButton.onclick = () => {
     const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 

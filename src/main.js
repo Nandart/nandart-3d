@@ -732,6 +732,8 @@ buyButton.style.padding = '6px 12px';
 buyButton.style.fontSize = '0.82rem';
 buyButton.style.marginTop = '10px';
 buyButton.style.background = 'rgba(216, 178, 108, 0.9)';
+buyButton.style.width = '50px';  // Largura fixa
+buyButton.style.height = '30px'; // Altura fixa
 buyButton.style.border = 'none';
 
 // Função para calcular posição precisa

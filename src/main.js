@@ -88,7 +88,6 @@ const fillLight = new THREE.AmbientLight(
   0.225
 );
 scene.add(fillLight);
-
 const spotLightLeft = new THREE.SpotLight(0xfff2dd, 1.5);
 spotLightLeft.position.set(-10, 8, 0);
 spotLightLeft.angle = Math.PI / 6;

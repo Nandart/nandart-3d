@@ -314,60 +314,12 @@
       }
     });
 
-    if (!checkWebGL()) {
-      const errorMsg = document.createElement('div');
-      errorMsg.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #111;
-        color: #ff6b6b;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        z-index: 10000;
-        padding: 20px;
-      `;
-      errorMsg.innerHTML = `
-        <div>
-          <h2>Erro de Compatibilidade</h2>
-          <p>O teu navegador não suporta WebGL.</p>
-          <p>Usa uma versão recente do Chrome, Firefox ou Edge.</p>
-        </div>
-      `;
-      document.body.appendChild(errorMsg);
+      if (!checkWebGL()) {
+      console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
     }
   </script>
  <script type="module" src="/src/main.js"></script>
-    const errorMsg = document.createElement('div');
-    errorMsg.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #111;
-      color: #ff6b6b;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      z-index: 10000;
-      padding: 20px;
-    `;
-    errorMsg.innerHTML = `
-      <div>
-        <h2>Erro de Compatibilidade</h2>
-        <p>O teu navegador não suporta JavaScript moderno.</p>
-        <p>Usa o Google Chrome ou Firefox para aceder à galeria.</p>
-      </div>
-    `;
-    document.body.appendChild(errorMsg);
+ 
   </script>
 </body>
 </html>

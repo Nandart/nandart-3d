@@ -1,6 +1,6 @@
 // rede.js — verificação e mudança automática para Polygon Mainnet
 
-const CHAIN_ID_HEX = "0x13881"; // Mumbai Testnet
+const CHAIN_ID_HEX = "0x89"; // Polygon Mainnet
 export async function verificarRedePolygon() {
   if (!window.ethereum) {
     alert("MetaMask não está instalada!");

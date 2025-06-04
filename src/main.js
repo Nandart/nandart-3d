@@ -735,6 +735,10 @@ buyButton.style.background = 'rgba(216, 178, 108, 0.9)';
 buyButton.style.width = '50px';  // Largura fixa
 buyButton.style.height = '30px'; // Altura fixa
 buyButton.style.border = 'none';
+// Centralização do botão 
+buyButton.style.display = 'block'; // necessário para margin auto funcionar
+buyButton.style.marginLeft = 'auto';
+buyButton.style.marginRight = 'auto';
 
 // Função para calcular posição precisa
 function calculateModalPosition(artwork) {

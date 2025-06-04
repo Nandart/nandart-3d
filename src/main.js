@@ -288,7 +288,7 @@ scene.add(centerArtGroup);
 
 // Configuração melhorada das paredes
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x3a3a3a,
+  color: 494949,
   emissive: 0x1a1a1a,
   emissiveIntensity: 0.8,
   roughness: 0.5,

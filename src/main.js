@@ -756,23 +756,26 @@ function calculateModalPosition(artwork) {
 }
 
 function showArtModal(artworkPosition, data) {
-  // Define max width for the modal (280px as mentioned in your comment)
+  // 1. Limpa APENAS os elementos dinâmicos anteriores (não toca nos elementos base)
+  const dynamicElements = modal.querySelectorAll('.dynamic-element');
+  dynamicElements.forEach(el => el.remove());
+
+  // 2. Mantém o resto do código ORIGINAL para posicionamento e dados
   const maxWidth = 280;
   
-  // Preenche os dados
   modalTitle.textContent = data.title;
   modalDescription.textContent = data.description || '';
   modalArtist.textContent = data.artist;
   modalYear.textContent = data.year;
   modalPrice.textContent = `${data.price} ETH`;
 
-  // ✅ Garante que o modal não excede a obra
   modal.style.maxWidth = `${Math.min(artworkPosition.width, maxWidth)}px`;
   modal.style.maxHeight = `${artworkPosition.height}px`;
-  modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
-  
-  
+  modal.style.overflow = 'auto';
+
+  // 3. Adiciona classe única aos novos elementos dinâmicos
   const openSeaButton = document.createElement('button');
+  openSeaButton.className = 'dynamic-element'; // <-- Classe para identificação
   openSeaButton.textContent = "Ver no OpenSea";
   openSeaButton.style.marginLeft = "8px";
   openSeaButton.onclick = () => {
@@ -781,38 +784,22 @@ function showArtModal(artworkPosition, data) {
   };
 
   const revendaDiv = document.createElement('div');
+  revendaDiv.className = 'dynamic-element'; // <-- Classe para identificação
   revendaDiv.style.marginTop = '8px';
   revendaDiv.innerHTML = `
     <input type="text" placeholder="Endereço do comprador" id="revenda-address" style="width: 70%; padding: 4px;" />
     <button id="revender-button" style="padding: 4px 8px; margin-left: 6px;">Revender</button>
   `;
 
+  // 4. Adiciona os elementos ao modal (igual ao original)
   modal.appendChild(openSeaButton);
   modal.appendChild(revendaDiv);
 
-  setTimeout(() => {
-    const revenderBtn = document.getElementById('revender-button');
-    const addressInput = document.getElementById('revenda-address');
-    if (revenderBtn && addressInput) {
-      revenderBtn.onclick = async () => {
-        const index = artworks.indexOf(selectedArtwork);
-        const tokenId = index + 1;
-        const user = (await window.ethereum.request({ method: 'eth_requestAccounts' }))[0];
-        const novoDono = addressInput.value.trim();
-        if (novoDono) {
-          await revenderObra(tokenId, novoDono, user);
-          alert('NFT transferido com sucesso!');
-        }
-      };
-    }
-  }, 200);
-
-  // Posiciona colado à base da obra
+  // 5. Mantém o código ORIGINAL de posicionamento
   modal.style.display = 'flex';
   modal.style.top = `${artworkPosition.bottom - 5}px`;
   modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (maxWidth / 2)}px`;
   
-  // Garante que não sai da viewport
   const modalRect = modal.getBoundingClientRect();
   if (modalRect.right > window.innerWidth) {
     modal.style.left = `${window.innerWidth - modalRect.width - 10}px`;
@@ -821,7 +808,6 @@ function showArtModal(artworkPosition, data) {
     modal.style.left = '10px';
   }
   
-  // Animação suave
   modal.style.opacity = '0';
   modal.style.transform = 'translateY(8px)';
   setTimeout(() => {

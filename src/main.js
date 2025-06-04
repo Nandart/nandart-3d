@@ -776,7 +776,7 @@ function showArtModal(artworkPosition, data) {
   // 3. Adiciona classe única aos novos elementos dinâmicos
   const openSeaButton = document.createElement('button');
   openSeaButton.className = 'dynamic-element'; // <-- Classe para identificação
-  openSeaButton.textContent = "Ver no OpenSea";
+  openSeaButton.textContent = "Se on OpenSea";
   openSeaButton.style.marginLeft = "8px";
   openSeaButton.onclick = () => {
     const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 
@@ -788,7 +788,7 @@ function showArtModal(artworkPosition, data) {
   revendaDiv.style.marginTop = '8px';
   revendaDiv.innerHTML = `
     <input type="text" placeholder="Endereço do comprador" id="revenda-address" style="width: 70%; padding: 4px;" />
-    <button id="revender-button" style="padding: 4px 8px; margin-left: 6px;">Revender</button>
+    <button id="resell-button" style="padding: 4px 8px; margin-left: 6px;">resell</button>
   `;
 
   // 4. Adiciona os elementos ao modal (igual ao original)

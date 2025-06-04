@@ -787,7 +787,7 @@ function showArtModal(artworkPosition, data) {
   revendaDiv.className = 'dynamic-element'; // <-- Classe para identificação
   revendaDiv.style.marginTop = '8px';
   revendaDiv.innerHTML = `
-    <input type="text" placeholder="Endereço do comprador" id="revenda-address" style="width: 70%; padding: 4px;" />
+    <input type="text" placeholder="Buyer's address" id="revenda-address" style="width: 70%; padding: 4px;" />
     <button id="resell-button" style="padding: 4px 8px; margin-left: 6px;">resell</button>
   `;
 

@@ -40,7 +40,7 @@ const configMap = {
 let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0x444444);
 
 const textureLoader = new THREE.TextureLoader();
 

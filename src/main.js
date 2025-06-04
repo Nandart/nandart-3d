@@ -1,6 +1,5 @@
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
-// Versão final com iluminação específica para paredes
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -10,14 +9,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ethers } from 'ethers';
 
-// --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
 let isHighlighted = false;
 let selectedArtwork = null;
-// Configuração de camadas para evitar desfoque
 const LAYERS = {
   DEFAULT: 0,
-  HIGHLIGHTED: 1,  // Camada para obras destacadas
-  WALLS: 2         // Já existente para paredes
+  HIGHLIGHTED: 1,
+  WALLS: 2
 };
 const walletButton = document.getElementById('wallet-button');
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
@@ -40,7 +37,7 @@ const configMap = {
 let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x444444);
+scene.background = new THREE.Color(0x111111);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -138,16 +135,19 @@ hemisphereLight.layers.disable(2);
 spotLightLeft.layers.disable(2);
 spotLightRight.layers.disable(2);
 
+// Novo chão de vidro preto reflexivo
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
-  new THREE.MeshStandardMaterial({
-    color: 0xfdf6dc,
-    emissive: 0xffefc6,
-    emissiveIntensity: 3.8,
-    metalness: 0.75,
-    roughness: 0.1,
-    transparent: true,
-    opacity: 0.92,
+  new THREE.MeshPhysicalMaterial({
+    color: 0x050505,
+    metalness: 0.95,
+    roughness: 0.05,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.02,
+    transmission: 0.25,
+    thickness: 0.5,
+    ior: 1.5,
+    envMapIntensity: 1.0,
     side: THREE.DoubleSide
   })
 );
@@ -286,24 +286,28 @@ centerArtGroup.position.set(
 );
 scene.add(centerArtGroup);
 
-// Configuração melhorada das paredes
+// Paredes com textura antracite realista
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x3a3a3a,
-  emissive: 0x1a1a1a,
-  emissiveIntensity: 0.8,
-  roughness: 0.5,
-  metalness: 0.15,
+  color: 0x1a1a1a,
+  roughness: 0.7,
+  metalness: 0.2,
   side: THREE.FrontSide
 });
 
-const wallNoiseTexture = new THREE.DataTexture(
-  new Uint8Array(Array(64).fill().map(() => Math.random() * 55 + 200)),
-  8,
-  8,
-  THREE.LuminanceFormat
+// Adicionando textura de concreto ou pedra às paredes
+const wallTexture = textureLoader.load(
+  'https://threejs.org/examples/textures/terrain/grasslight-big.jpg',
+  texture => {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(4, 4);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    wallMaterial.map = texture;
+    wallMaterial.needsUpdate = true;
+  },
+  undefined,
+  err => console.error('Error loading wall texture:', err)
 );
-wallNoiseTexture.needsUpdate = true;
-wallMaterial.map = wallNoiseTexture;
 
 const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);

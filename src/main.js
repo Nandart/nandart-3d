@@ -1203,3 +1203,4 @@ document.querySelectorAll('.artwork').forEach((obra) => {
   sombra.style.background = 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)';
   sombra.style.zIndex = '1';
 });
+

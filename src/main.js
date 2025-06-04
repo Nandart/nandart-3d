@@ -588,7 +588,7 @@ const artworkData = [
   title: "Fragment of Eternity",
   artist: "Inês Duarte",
   year: "2023",
-  price: "0.0001",
+  price: "0.4",
   tokenURI: "ipfs://bafybeicnafmqkac6fxctcnuibyr5bv35srkk24iled3p72n4oqul333vaa/fragment_of_eternity.json",
   artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
 },
@@ -596,7 +596,7 @@ const artworkData = [
     title: "Shadows of Light",
     artist: "Miguel Costa",
     year: "2024",
-    price: "0.0001",
+    price: "0.2",
     tokenURI: "ipfs://bafybeic2cmwwsvm6fjfbxojc2pcr3rzvtfveludgpd44jxgetyrlncxmyu/shadows_of_light.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
@@ -620,7 +620,7 @@ const artworkData = [
     title: "Contained Rhythm",
     artist: "Joana Serra",
     year: "2025",
-    price: "0.0001",
+    price: "0.5",
     tokenURI: "ipfs://bafybeidi67ljb4oa7ywti4dxcnlmvnjfme6gyongbl3ygsgmpg5ne5tqz4/contained_rhythm.json",
      artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
@@ -636,7 +636,7 @@ const artworkData = [
     title: "Concealed Verse",
     artist: "Sofia Rocha",
     year: "2024",
-    price: "0.0001",
+    price: "0.6",
    tokenURI: "ipfs://bafybeify2nqjijzo3ocy7um5pot75bzmhqgtkmnxa5izf5mgfxy6jvhmjm/concealed_verse.json",
      artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
@@ -644,7 +644,7 @@ const artworkData = [
     title: "Silhouette of Tomorrow",
     artist: "Tiago Faria",
     year: "2025",
-    price: "0.0001",
+    price: "0.3",
     tokenURI: "ipfs://bafybeicslxf77trep4rwsszl57jhwmlmevuc4bnfouvqdrjpc4jgggfv44/silhouette_of_tomorrow.json",
      artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
@@ -754,70 +754,105 @@ function calculateModalPosition(artwork) {
     height: height
   };
 }
-
 function showArtModal(artworkPosition, data) {
-   // Limpa elementos adicionais anteriores
-  const elementsToRemove = modal.querySelectorAll('.additional-elements');
-  elementsToRemove.forEach(el => el.remove());
+  // Limpa elementos adicionais anteriores
+  document.querySelectorAll('.additional-elements').forEach(el => el.remove());
 
-  // Define max width for the modal (280px as mentioned in your comment)
+  // Define max width for the modal
   const maxWidth = 280;
   
-  // Preenche os dados
+  // Preenche os dados básicos
   modalTitle.textContent = data.title;
   modalDescription.textContent = data.description || '';
   modalArtist.textContent = data.artist;
   modalYear.textContent = data.year;
   modalPrice.textContent = `${data.price} ETH`;
 
-  // ✅ Garante que o modal não excede a obra
+  // Configurações de estilo do modal
   modal.style.maxWidth = `${Math.min(artworkPosition.width, maxWidth)}px`;
   modal.style.maxHeight = `${artworkPosition.height}px`;
-  modal.style.overflow = 'auto'; // Permite scroll se o conteúdo for muito longo
-  
-  
+  modal.style.overflow = 'auto';
+
+  // Cria container para elementos dinâmicos
+  const additionalElements = document.createElement('div');
+  additionalElements.className = 'additional-elements';
+  additionalElements.style.display = 'flex';
+  additionalElements.style.flexDirection = 'column';
+  additionalElements.style.gap = '8px';
+  additionalElements.style.marginTop = '10px';
+
+  // Botão OpenSea
   const openSeaButton = document.createElement('button');
   openSeaButton.textContent = "Ver no OpenSea";
-  openSeaButton.style.marginLeft = "8px";
+  openSeaButton.style.cssText = `
+    padding: 6px 12px;
+    background: rgba(70, 130, 180, 0.9);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+  `;
   openSeaButton.onclick = () => {
     const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 
     window.open(linkOpenSea(tokenId), '_blank');
   };
 
+  // Seção de revenda
   const revendaDiv = document.createElement('div');
-  revendaDiv.style.marginTop = '8px';
-  revendaDiv.innerHTML = `
-    <input type="text" placeholder="Endereço do comprador" id="revenda-address" style="width: 70%; padding: 4px;" />
-    <button id="revender-button" style="padding: 4px 8px; margin-left: 6px;">Revender</button>
+  revendaDiv.style.display = 'flex';
+  revendaDiv.style.gap = '6px';
+  revendaDiv.style.alignItems = 'center';
+  
+  const addressInput = document.createElement('input');
+  addressInput.type = 'text';
+  addressInput.placeholder = 'Endereço do comprador';
+  addressInput.id = 'revenda-address';
+  addressInput.style.cssText = `
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
   `;
 
+  const revenderBtn = document.createElement('button');
+  revenderBtn.id = 'revender-button';
+  revenderBtn.textContent = 'Revender';
+  revenderBtn.style.cssText = `
+    padding: 6px 12px;
+    background: rgba(216, 178, 108, 0.9);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  `;
+
+  revendaDiv.appendChild(addressInput);
+  revendaDiv.appendChild(revenderBtn);
+  
+  // Adiciona elementos ao container
   additionalElements.appendChild(openSeaButton);
   additionalElements.appendChild(revendaDiv);
+  
+  // Adiciona container ao modal
   modal.appendChild(additionalElements);
 
-  setTimeout(() => {
-    const revenderBtn = document.getElementById('revender-button');
-    const addressInput = document.getElementById('revenda-address');
-    if (revenderBtn && addressInput) {
-      revenderBtn.onclick = async () => {
-        const index = artworks.indexOf(selectedArtwork);
-        const tokenId = index + 1;
-        const user = (await window.ethereum.request({ method: 'eth_requestAccounts' }))[0];
-        const novoDono = addressInput.value.trim();
-        if (novoDono) {
-          await revenderObra(tokenId, novoDono, user);
-          alert('NFT transferido com sucesso!');
-        }
-      };
+  // Configura evento de revenda
+  revenderBtn.onclick = async () => {
+    const index = artworks.indexOf(selectedArtwork);
+    const tokenId = index + 1;
+    const user = (await window.ethereum.request({ method: 'eth_requestAccounts' }))[0];
+    const novoDono = addressInput.value.trim();
+    if (novoDono) {
+      await revenderObra(tokenId, novoDono, user);
+      alert('NFT transferido com sucesso!');
     }
-  }, 200);
+  };
 
-  // Posiciona colado à base da obra
+  // Posicionamento do modal
   modal.style.display = 'flex';
   modal.style.top = `${artworkPosition.bottom - 5}px`;
   modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (maxWidth / 2)}px`;
   
-  // Garante que não sai da viewport
+  // Ajuste para não sair da viewport
   const modalRect = modal.getBoundingClientRect();
   if (modalRect.right > window.innerWidth) {
     modal.style.left = `${window.innerWidth - modalRect.width - 10}px`;
@@ -826,7 +861,7 @@ function showArtModal(artworkPosition, data) {
     modal.style.left = '10px';
   }
   
-  // Animação suave
+  // Animação de entrada
   modal.style.opacity = '0';
   modal.style.transform = 'translateY(8px)';
   setTimeout(() => {
@@ -836,100 +871,40 @@ function showArtModal(artworkPosition, data) {
   }, 10);
 }
 
-// Função completa de highlight
-async function highlightArtwork(artwork, data) {
-  if (isHighlighted) return;
-  isHighlighted = true;
-  selectedArtwork = artwork;
-// ✅ Define a camada da obra destacada
- artwork.layers.set(LAYERS.DEFAULT);
-  artwork.userData.reflection.visible = true;
-  
-  scene.remove(artwork);
-  
-  const highlightGroup = new THREE.Group();
-  highlightGroup.position.copy(artwork.position);
-  highlightGroup.rotation.copy(artwork.rotation);
-  highlightGroup.scale.copy(artwork.scale);
-  highlightGroup.add(artwork);
-  scene.add(highlightGroup);
-  
-  artwork.userData.highlightGroup = highlightGroup;
-  artwork.userData.reflection.visible = false;
-
-  // Reset transformações internas
-  artwork.position.set(0, 0, 0);
-  artwork.rotation.set(0, 0, 0);
-  artwork.scale.set(1, 1, 1);
-
-  // Animação para posição central
-  await Promise.all([
-    new Promise(resolve => gsap.to(highlightGroup.position, {
-      x: 0,
-      y: 8.4,
-      z: -config.wallDistance / 2,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.scale, {
-      x: 3,
-      y: 3,
-      z: 3,
-      duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.rotation, {
-      y: 0,
-      duration: 0.4,
-      ease: 'power2.out',
-      onComplete: resolve
-    }))
-  ]);
-
-  // Mostra modal com posicionamento preciso
-  const artworkRect = calculateModalPosition(artwork);
-  showArtModal(artworkRect, data);
-}
-
-// Função para restaurar obra
+// Função para restaurar obra (com limpeza adicional)
 async function restoreArtwork() {
   if (!isHighlighted || !selectedArtwork) return;
-// Limpa elementos adicionais
-  const elementsToRemove = modal.querySelectorAll('.additional-elements');
-  elementsToRemove.forEach(el => el.remove());
+
+  // Limpa elementos dinâmicos
+  document.querySelectorAll('.additional-elements').forEach(el => el.remove());
   
   const artwork = selectedArtwork;
   const highlightGroup = artwork.userData.highlightGroup;
 
   // Animação de retorno
   await Promise.all([
-    new Promise(resolve => gsap.to(highlightGroup.position, {
+    gsap.to(highlightGroup.position, {
       x: artwork.userData.originalPosition.x,
       y: artwork.userData.originalPosition.y,
       z: artwork.userData.originalPosition.z,
       duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.rotation, {
+      ease: 'power2.out'
+    }),
+    gsap.to(highlightGroup.rotation, {
       y: artwork.userData.originalRotation.y,
       duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    })),
-    new Promise(resolve => gsap.to(highlightGroup.scale, {
+      ease: 'power2.out'
+    }),
+    gsap.to(highlightGroup.scale, {
       x: 1,
       y: 1,
       z: 1,
       duration: 0.7,
-      ease: 'power2.out',
-      onComplete: resolve
-    }))
+      ease: 'power2.out'
+    })
   ]);
 
-  // Retorna à cena principal
+  // Limpeza final
   highlightGroup.remove(artwork);
   artwork.position.copy(artwork.userData.originalPosition);
   artwork.rotation.copy(artwork.userData.originalRotation);
@@ -941,7 +916,7 @@ async function restoreArtwork() {
   isHighlighted = false;
   selectedArtwork = null;
   
-  // Esconde modal suavemente
+  // Animação de saída
   modal.style.opacity = '0';
   modal.style.transform = 'translateY(8px)';
   blurOverlay.style.opacity = '0';
@@ -950,67 +925,7 @@ async function restoreArtwork() {
     blurOverlay.style.display = 'none';
   }, 250);
 }
-function handleArtInteraction(event) {
-  event.preventDefault();
-  
-  // Calculate mouse position in normalized device coordinates
-  const mouse = new THREE.Vector2();
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // Raycasting to detect clicked artwork
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-
-  // Check intersections with artworks only (filter out reflections and other objects)
-  const intersects = raycaster.intersectObjects(artworks);
-  
-  if (intersects.length > 0) {
-    const clickedArtwork = intersects[0].object;
-    const index = artworks.indexOf(clickedArtwork);
-    
-    if (index !== -1) {
-      // If already highlighted, restore it
-      if (isHighlighted && selectedArtwork === clickedArtwork) {
-        restoreArtwork();
-      } 
-      // Otherwise highlight the new artwork
-      else if (!isHighlighted) {
-        highlightArtwork(clickedArtwork, artworkData[index]);
-      }
-    }
-  } 
-  // Clicked outside an artwork - restore if something is highlighted
-  else if (isHighlighted) {
-    restoreArtwork();
-  }
-}
-// Configura listeners otimizados
-function setupInteractionListeners() {
-  // Eventos principais
-renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
-  renderer.domElement.addEventListener('click', handleArtInteraction);
-  
-  // Fechar modal clicando fora
-  document.addEventListener('click', (e) => {
-    if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
-      restoreArtwork();
-    }
-  }, { passive: true });
-
-  // Evento de compra
-  if (buyButton) {
-    buyButton.addEventListener('click', () => {
-      if (selectedArtwork) {
-        const index = artworks.indexOf(selectedArtwork);
-        buyHandler(artworkData[index]);
-      }
-    });
-  }
-}
-
-// Inicializa o sistema
-setupInteractionListeners();
 
 function animate() {
   requestAnimationFrame(animate);

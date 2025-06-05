@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Submit your artwork to NANdART and join our curated NFT gallery" />
+  <meta name="theme-color" content="#111111" />
+  <title>Join NANdART | Submit Your Artwork</title>
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+</head>
+<body class="pagina-scrollavel">
+  <div class="navigation-bar">
+    <a href="index.html">Return to Gallery</a>
+    <a href="menu.html">Back to Menu</a>
+  </div>
+
+  <div class="anchor-nav">
+    <a href="#about">About</a>
+    <a href="#form">Submit</a>
+    <a href="#premium">Premium Info</a>
+    <a href="#terms">Terms</a>
+  </div>
+
+  <main>
+    <section id="about" class="section">
+      <h2>Welcome, Visionary Artist</h2>
+      <p>You are invited to join <strong>NANdART</strong>, a curated sanctuary of digital expression where each artwork transcends boundaries. Submit your creation to be reviewed by our curatorial board. Accepted artworks will be minted and featured either on our <em>Web3 & NFT</em> page or in the central spotlight of our virtual gallery, depending on the display option you choose.</p>
+      <p>The Premium Service allows your approved piece to take centre stage in the main exhibition circle — a paid option for artists seeking elevated visibility.</p>
+    </section>
+
+    <section id="form" class="section">
+      <h2>Submit Your Artwork</h2>
+      <form id="artwork-form" enctype="multipart/form-data" class="artist-form">
+        <label for="artist-name">Artist Name</label>
+        <input type="text" id="artist-name" name="artistName" required />
+
+        <label for="art-title">Artwork Title</label>
+        <input type="text" id="art-title" name="artTitle" required />
+
+        <label for="art-year">Year</label>
+        <input type="number" id="art-year" name="artYear" min="1900" max="2100" required />
+
+        <label for="art-price">Suggested Price (in ETH)</label>
+        <input type="text" id="art-price" name="artPrice" placeholder="e.g. 0.75" required />
+
+        <label for="art-image">Artwork Image (JPG or PNG)</label>
+        <input type="file" id="art-image" name="artImage" accept="image/png, image/jpeg" required />
+
+        <label for="highlight">Display Preference</label>
+        <select id="highlight" name="highlight">
+          <option value="standard">Standard – Web3 Page Only (Free)</option>
+          <option value="premium">Premium – Central Highlight in Gallery (Paid)</option>
+        </select>
+
+        <p style="font-size: 0.85rem; text-align: center;">
+          By submitting, you agree to our <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a> regarding royalties, rights, and responsibilities.
+        </p>
+
+        <p id="submission-error" style="color: red; display: none; text-align: center;">
+          An unexpected error occurred. Please try again later.
+        </p>
+
+        <button type="submit">Submit Artwork</button>
+      </form>
+    </section>
+
+    <section id="premium" class="section">
+      <h2>Premium Option</h2>
+      <p>The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.</p>
+      <p>This service supports the gallery’s infrastructure and ensures your work is prominently visible to collectors and guests alike.</p>
+      <p>The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.</p>
+    </section>
+
+    <section id="terms" class="section">
+      <h2>Artist Agreement Summary</h2>
+      <p>Every submission is subject to curatorial review. Accepted works are either:</p>
+      <ul>
+        <li><strong>Premium</strong> — prominently displayed in the main gallery (paid)</li>
+        <li><strong>Standard</strong> — listed on the <em>Web3 & NFT</em> page (free)</li>
+      </ul>
+      <p>The artist retains all rights to the artwork. NANdART manages minting, display, and royalties as outlined in the <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a>.</p>
+    </section>
+  </main>
+
+  <script type="module" src="/src/api/submit.js"></script>
+</body>
+</html>

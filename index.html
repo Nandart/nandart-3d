@@ -236,6 +236,68 @@
       display: grid;
       gap: 1rem;
     }
+    .submission-card {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(216, 178, 108, 0.2);
+    }
+    .submission-image img {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .submission-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .btn-approve {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      transition: all 0.2s ease;
+    }
+    .btn-reject {
+      background-color: #f44336;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      transition: all 0.2s ease;
+    }
+    .btn-approve:hover, .btn-reject:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 4px;
+      z-index: 1000;
+      font-family: 'Playfair Display', serif;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .notification.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .notification.error {
+      background-color: #f44336;
+      color: white;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     @media (max-width: 768px) {
       .navigation-icons img {
         height: 24px;
@@ -274,6 +336,13 @@
       #curation-panel {
         width: 90%;
         padding: 1rem;
+      }
+      .submission-card {
+        padding: 0.8rem;
+      }
+      .submission-actions {
+        flex-direction: column;
+        gap: 0.5rem;
       }
     }
   </style>
@@ -342,7 +411,6 @@
         menu.style.display = 'none';
       }
       
-      // Fechar modal ao clicar fora
       const modal = document.querySelector('.art-modal');
       if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
         modal.classList.remove('active');
@@ -358,7 +426,6 @@
   </script>
   
   <script type="module" src="/src/main.js"></script>
- 
+  <script type="module" src="/src/api/curadoria.js"></script>
 </body>
 </html>
-

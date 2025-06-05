@@ -454,22 +454,29 @@
     }
 
     async function loadCuradoriaPanel() {
-      try {
-        const lista = document.getElementById("curadoria-lista");
-        lista.innerHTML = "<p>Carregando submissões...</p>";
+  try {
+    const lista = document.getElementById("curadoria-lista");
+    lista.innerHTML = "<p>Carregando submissões...</p>";
 
-        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
-        await carregarSubmissoes();
-      } catch (e) {
-        console.error("Erro ao carregar painel:", e);
-        showNotification("Erro ao carregar painel de curadoria", "error");
-        document.getElementById("curadoria-lista").innerHTML = `
-          <div class="error-message">
-            <p>Erro ao carregar submissões. Por favor, recarregue a página.</p>
-          </div>
-        `;
-      }
+    // Importa o módulo corretamente
+    const curadoriaModule = await import('/src/api/curadoria.js');
+    
+    // Verifica se a função existe no módulo
+    if (typeof curadoriaModule.carregarSubmissoes !== 'function') {
+      throw new Error('Função carregarSubmissoes não encontrada no módulo');
     }
+    
+    await curadoriaModule.carregarSubmissoes();
+  } catch (e) {
+    console.error("Erro ao carregar painel:", e);
+    showNotification("Erro ao carregar painel de curadoria", "error");
+    document.getElementById("curadoria-lista").innerHTML = `
+      <div class="error-message">
+        <p>Erro ao carregar submissões: ${e.message}</p>
+      </div>
+    `;
+  }
+}
 
     async function initCuradoria() {
       const isCurador = await checkCurador();

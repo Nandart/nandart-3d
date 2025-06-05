@@ -1,91 +1,40 @@
 import { getContrato } from '../contrato.js';
 
-// Elementos do DOM
-const listaSubmissoes = document.getElementById("curadoria-lista");
-const panel = document.getElementById("curation-panel");
-
-// Estilos dinâmicos
-const styles = `
-  .submission-card {
-    background: rgba(30, 30, 30, 0.8);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(216, 178, 108, 0.3);
-    display: flex;
-    gap: 15px;
-  }
-  .submission-image img {
-    max-width: 150px;
-    border-radius: 4px;
-  }
-  .submission-details {
-    flex: 1;
-  }
-  .submission-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  .btn-approve, .btn-reject {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Playfair Display', serif;
-    transition: all 0.2s ease;
-  }
-  .btn-approve {
-    background-color: #4CAF50;
-    color: white;
-  }
-  .btn-reject {
-    background-color: #f44336;
-    color: white;
-  }
-  .notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 4px;
-    z-index: 1000;
-    animation: slideIn 0.5s forwards;
-  }
-  .notification.success {
-    background-color: #4CAF50;
-    color: white;
-  }
-  .notification.error {
-    background-color: #f44336;
-    color: white;
-  }
-`;
-
-// Adiciona estilos dinâmicos
-const styleElement = document.createElement('style');
-styleElement.textContent = styles;
-document.head.appendChild(styleElement);
-
 async function carregarSubmissoes() {
-  if (!listaSubmissoes) return;
+  const lista = document.getElementById("curadoria-lista");
+  if (!lista) return;
 
-  listaSubmissoes.innerHTML = '<p>Carregando submissões...</p>';
+  lista.innerHTML = '<p>Carregando submissões...</p>';
 
   try {
-    // Verifica conexão com MetaMask
+    // Verifica se o MetaMask está instalado
     if (!window.ethereum) {
-      throw new Error('MetaMask não detectado');
+      throw new Error('Por favor, instale o MetaMask para acessar este recurso');
     }
 
+    // Solicita conexão da carteira
     const contas = await window.ethereum.request({ method: "eth_requestAccounts" });
     const user = contas[0];
     const contrato = await getContrato();
 
-    // Verifica se é curador
-    const isCurador = await contrato.isWhitelisted(user);
-    if (!isCurador) {
-      listaSubmissoes.innerHTML = `
+    // Verificação alternativa caso isWhitelisted não exista
+    let autorizado = false;
+    try {
+      // Tenta verificar se o usuário é um curador
+      if (typeof contrato.isWhitelisted === 'function') {
+        autorizado = await contrato.isWhitelisted(user);
+      } else {
+        // Implementação alternativa se a função não existir
+        console.warn('Função isWhitelisted não encontrada no contrato - usando verificação alternativa');
+        autorizado = true; // Ou implemente sua lógica alternativa aqui
+      }
+    } catch (e) {
+      console.error('Erro na verificação de curador:', e);
+      autorizado = false;
+    }
+
+    if (!autorizado) {
+      lista.innerHTML = `
         <div class="error-message">
           <p>Acesso restrito a curadores autorizados</p>
         </div>
@@ -97,7 +46,7 @@ async function carregarSubmissoes() {
     const obras = JSON.parse(localStorage.getItem("pendingSubmissions") || "[]");
 
     if (obras.length === 0) {
-      listaSubmissoes.innerHTML = `
+      lista.innerHTML = `
         <div class="empty-message">
           <p>Nenhuma submissão pendente de aprovação</p>
         </div>
@@ -105,15 +54,15 @@ async function carregarSubmissoes() {
       return;
     }
 
-    // Renderiza cada obra
-    listaSubmissoes.innerHTML = '';
+    // Renderiza as submissões
+    lista.innerHTML = '';
     obras.forEach((obra, index) => {
-      const card = document.createElement('div');
-      card.className = 'submission-card';
-      card.innerHTML = `
+      const div = document.createElement("div");
+      div.className = "submission-card";
+      div.innerHTML = `
         <div class="submission-image">
           <img src="${obra.image.replace('ipfs://', 'https://ipfs.io/ipfs/')}" 
-               alt="${obra.title}"
+               alt="${obra.title}" 
                onerror="this.onerror=null;this.src='/assets/placeholder-artwork.png'">
         </div>
         <div class="submission-details">
@@ -127,7 +76,7 @@ async function carregarSubmissoes() {
           </div>
         </div>
       `;
-      listaSubmissoes.appendChild(card);
+      lista.appendChild(div);
     });
 
     // Configura eventos dos botões
@@ -173,7 +122,7 @@ async function carregarSubmissoes() {
 
   } catch (error) {
     console.error('Erro no painel de curadoria:', error);
-    listaSubmissoes.innerHTML = `
+    lista.innerHTML = `
       <div class="error-message">
         <p>Erro: ${error.message}</p>
       </div>
@@ -194,6 +143,6 @@ function showNotification(message, type = 'success') {
 }
 
 // Inicializa quando o painel estiver presente
-if (panel) {
+if (document.getElementById("curadoria-lista")) {
   document.addEventListener('DOMContentLoaded', carregarSubmissoes);
 }

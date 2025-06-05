@@ -67,3 +67,4 @@ async function carregarSubmissoes() {
 }
 
 document.addEventListener("DOMContentLoaded", carregarSubmissoes);
+

@@ -1,130 +1,62 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const form = document.getElementById("submit-form");
-  const statusEl = document.getElementById("status");
-  const adminButton = document.getElementById("admin-button");
+import { NFTStorage, File } from 'nft.storage';
 
-  // URLs configuráveis via variáveis de ambiente ou valores padrão
-  const cloudinaryUrl = process.env.CLOUDINARY_URL || "https://api.cloudinary.com/v1_1/dld2sejas/image/upload";
-  const uploadPreset = process.env.CLOUDINARY_PRESET || "nandart_public";
-  const apiUrl = process.env.API_URL || "http://localhost:3000";
+const API_KEY = '180701d8.ce23c12a267a4343be72fdd645f7e0be';
+const client = new NFTStorage({ token: API_KEY });
 
-  // Função para verificar se o usuário é administrador
-  async function verifyAdmin(token) {
-    try {
-      const res = await fetch(`${apiUrl}/api/verify-admin`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`, // Token armazenado localmente
-        },
-      });
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("artwork-form");
+  const errorEl = document.getElementById("submission-error");
 
-      if (res.ok) {
-        const data = await res.json();
-        return data.isAdmin;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.error("Erro ao verificar administrador:", error);
-      return false;
-    }
-  }
-
-  // Exibir botão de administrador se o usuário for autenticado como admin
-  const tokenParam = localStorage.getItem("adminToken");
-  if (tokenParam) {
-    const isAdmin = await verifyAdmin(tokenParam);
-    if (isAdmin) {
-      adminButton.style.display = "inline-block";
-    }
-  }
-
-  // Adicionar evento de submissão ao formulário
-  form.addEventListener("submit", async (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    errorEl.style.display = "none";
 
-    // Mostrar o status de envio com um indicador visual
-    statusEl.innerHTML = "<div class='loader'></div> Submetendo...";
-    statusEl.style.color = "white";
+    const artist = document.getElementById("artist-name").value.trim();
+    const title = document.getElementById("art-title").value.trim();
+    const year = document.getElementById("art-year").value.trim();
+    const price = document.getElementById("art-price").value.trim();
+    const imageFile = document.getElementById("art-image").files[0];
+    const preference = document.getElementById("highlight").value;
 
-    const formData = new FormData(form);
-    const imageFile = formData.get("image");
-
-    // Campos obrigatórios para validação
-    const requiredFields = [
-      "title", "artist", "year", "description", "location", "style",
-      "technique", "dimensions", "materials",
-    ];
-
-    // Validação de campos obrigatórios
-    for (const field of requiredFields) {
-      if (!formData.get(field) || formData.get(field).trim() === "") {
-        statusEl.textContent = `Por favor, preencha o campo "${field}".`;
-        statusEl.style.color = "orange";
-        document.querySelector(`[name="${field}"]`).style.border = "1px solid orange";
-        return;
-      }
-    }
-
-    // Verificar se o arquivo de imagem foi enviado
-    if (!imageFile || imageFile.size === 0) {
-      statusEl.textContent = "Por favor, faça o upload de uma imagem.";
-      statusEl.style.color = "orange";
+    if (!artist || !title || !year || !price || !imageFile) {
+      errorEl.textContent = "Please fill out all fields.";
+      errorEl.style.display = "block";
       return;
     }
 
     try {
-      // Upload da imagem para o Cloudinary
-      const cloudinaryData = new FormData();
-      cloudinaryData.append("file", imageFile);
-      cloudinaryData.append("upload_preset", uploadPreset);
+      // Upload image to IPFS
+      const imageCid = await client.storeBlob(imageFile);
+      const imageUrl = `ipfs://${imageCid}/${imageFile.name}`;
 
-      const cloudinaryRes = await fetch(cloudinaryUrl, {
-        method: "POST",
-        body: cloudinaryData,
-      });
-
-      const cloudinaryJson = await cloudinaryRes.json();
-
-      if (!cloudinaryJson.secure_url) {
-        throw new Error("Falha no upload da imagem. Verifique sua conexão.");
-      }
-
-      // Preparar os dados para envio ao backend
-      const submissionPayload = {
-        title: formData.get("title"),
-        artist: formData.get("artist"),
-        year: formData.get("year"),
-        description: formData.get("description"),
-        location: formData.get("location"),
-        style: formData.get("style"),
-        technique: formData.get("technique"),
-        dimensions: formData.get("dimensions"),
-        materials: formData.get("materials"),
-        imageUrl: cloudinaryJson.secure_url,
+      // Create metadata JSON
+      const metadata = {
+        name: title,
+        description: `${title} by ${artist}, ${year}.`,
+        image: imageUrl,
+        attributes: [
+          { trait_type: "Artist", value: artist },
+          { trait_type: "Year", value: year },
+          { trait_type: "Technique", value: "Mixed" },
+          { trait_type: "Display", value: preference }
+        ]
       };
 
-      // Enviar os dados ao backend
-      const apiRes = await fetch(`${apiUrl}/api/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submissionPayload),
-      });
+      const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+      const jsonCid = await client.storeBlob(metadataBlob);
+      const tokenURI = `ipfs://${jsonCid}/metadata.json`;
 
-      if (!apiRes.ok) {
-        const error = await apiRes.json();
-        throw new Error(`Falha na submissão: ${error.message || "Erro desconhecido"}`);
-      }
+      // Store submission locally for curators
+      const stored = JSON.parse(localStorage.getItem("pendingSubmissions") || "[]");
+      stored.push({ artist, title, year, price, preference, tokenURI, image: imageUrl });
+      localStorage.setItem("pendingSubmissions", JSON.stringify(stored));
 
-      // Submissão bem-sucedida
-      statusEl.textContent = "Obra submetida com sucesso!";
-      statusEl.style.color = "lightgreen";
+      alert("Artwork submitted successfully and awaits curatorial approval.");
       form.reset();
-
     } catch (err) {
       console.error(err);
-      statusEl.textContent = "Ocorreu um erro durante a submissão.";
-      statusEl.style.color = "red";
+      errorEl.textContent = "Submission failed. Please try again.";
+      errorEl.style.display = "block";
     }
   });
 });

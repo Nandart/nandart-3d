@@ -1,4 +1,4 @@
-import { getContrato } from './contrato.js';
+import { getContrato } from '../contrato.js';
 
 async function carregarSubmissoes() {
   const lista = document.getElementById("curadoria-lista");

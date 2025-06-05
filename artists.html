@@ -8,6 +8,13 @@
   <title>Join NANdART | Submit Your Artwork</title>
   <link rel="stylesheet" href="/src/styles/index.css" />
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <script type="importmap">
+    {
+      "imports": {
+        "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+      }
+    }
+  </script>
   <style>
     html, body {
       margin: 0;
@@ -127,7 +134,6 @@
       background: #d1c08f;
     }
 
-    /* Estilos para o painel de curadoria */
     #curadoria-btn {
       display: none;
       background-color: #d8b26c;
@@ -364,25 +370,42 @@
   </script>
 
   <script type="module">
+    import { ethers } from 'ethers';
     import { getContrato } from '/src/contrato.js';
     
     async function checkCurador() {
       try {
-        if (!window.ethereum) return false;
+        if (!window.ethereum) {
+          console.log("MetaMask não instalado");
+          return false;
+        }
         
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length === 0) return false;
+        if (accounts.length === 0) {
+          console.log("Nenhuma conta conectada");
+          return false;
+        }
         
         const user = accounts[0];
         const contrato = await getContrato();
         
-        // Verifica se é curador (owner ou whitelisted)
-        const isOwner = await contrato.owner() === user;
-        const isWhitelisted = await contrato.isWhitelisted(user);
+        const owner = await contrato.owner();
+        if (owner.toLowerCase() === user.toLowerCase()) {
+          console.log("Acesso concedido: Owner do contrato");
+          return true;
+        }
         
-        return isOwner || isWhitelisted;
+        const isWhitelisted = await contrato.isWhitelisted(user);
+        if (isWhitelisted) {
+          console.log("Acesso concedido: Endereço whitelisted");
+          return true;
+        }
+        
+        console.log("Acesso negado: Nem owner nem whitelisted");
+        return false;
+        
       } catch (error) {
-        console.error("Erro ao verificar curador:", error);
+        console.error("Erro na verificação de curador:", error);
         return false;
       }
     }
@@ -398,16 +421,13 @@
           panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         });
         
-        // Carrega dinamicamente o módulo de curadoria
         const { carregarSubmissoes } = await import('/src/api/curadoria.js');
         carregarSubmissoes();
       }
     }
     
-    // Inicializa quando a página carrega
     document.addEventListener('DOMContentLoaded', initCuradoria);
     
-    // Atualiza quando a conta muda
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', initCuradoria);
     }

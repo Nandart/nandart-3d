@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Submit your artwork to NANdART and join our curated NFT gallery" />
+  <meta name="theme-color" content="#111111" />
+  <title>Join NANdART | Submit Your Artwork</title>
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #111111;
+      color: #e0e0e0;
+      font-family: 'Playfair Display', serif;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .navigation-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 12px;
+    }
+
+    .navigation-bar a {
+      background-color: rgba(196, 181, 130, 0.1);
+      border: 1px solid #c4b582;
+      color: #c4b582;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .navigation-bar a:hover {
+      background-color: rgba(196, 181, 130, 0.3);
+      color: #ffffff;
+    }
+
+    .anchor-nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 100px 0 40px;
+      flex-wrap: wrap;
+    }
+
+    .anchor-nav a {
+      color: #c4b582;
+      text-decoration: none;
+      font-size: 1rem;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .anchor-nav a:hover {
+      border-bottom: 1px solid #c4b582;
+    }
+
+    .section {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background-color: rgba(20, 20, 20, 0.9);
+      border: 1px solid #c4b582;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      color: #c4b582;
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+    }
+
+    .section p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    form.artist-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    form.artist-form label {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    form.artist-form input,
+    form.artist-form select {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+
+    form.artist-form button {
+      background: #c4b582;
+      color: #111;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+
+    form.artist-form button:hover {
+      background: #d1c08f;
+    }
+
+    @media (max-width: 768px) {
+      .anchor-nav {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .section {
+        margin: 0 16px 40px;
+        padding: 24px;
+      }
+
+      .navigation-bar {
+        flex-direction: column;
+        top: 12px;
+        right: 12px;
+        gap: 10px;
+      }
+
+      .navigation-bar a {
+        font-size: 0.82rem;
+        padding: 6px 10px;
+      }
+    }
+  </style>
+</head>
+<body class="pagina-scrollavel">
+  <div class="navigation-bar">
+    <a href="index.html">Return to Gallery</a>
+    <a href="menu.html">Back to Menu</a>
+  </div>
+
+  <div class="anchor-nav">
+    <a href="#about">About</a>
+    <a href="#form">Submit</a>
+    <a href="#premium">Premium Info</a>
+    <a href="#terms">Terms</a>
+  </div>
+
+  <main>
+    <section id="about" class="section">
+      <h2>Welcome, Visionary Artist</h2>
+      <p>
+        You are invited to join <strong>NANdART</strong>, a curated sanctuary of digital expression where each artwork transcends boundaries.
+        Submit your creation to be reviewed by our curatorial board. Accepted artworks will be minted and featured either on our <em>Web3 & NFT</em> page or in the central spotlight of our virtual gallery, depending on the display option you choose.
+      </p>
+      <p>
+        The Premium Service allows your approved piece to take centre stage in the main exhibition circle — a paid option for artists seeking elevated visibility.
+      </p>
+    </section>
+
+    <section id="form" class="section">
+      <h2>Submit Your Artwork</h2>
+      <form id="artwork-form" enctype="multipart/form-data" class="artist-form">
+        <label for="artist-name">Artist Name</label>
+        <input type="text" id="artist-name" name="artistName" required />
+
+        <label for="art-title">Artwork Title</label>
+        <input type="text" id="art-title" name="artTitle" required />
+
+        <label for="art-year">Year</label>
+        <input type="number" id="art-year" name="artYear" min="1900" max="2100" required />
+
+        <label for="art-price">Suggested Price (in ETH)</label>
+        <input type="text" id="art-price" name="artPrice" placeholder="e.g. 0.75" required />
+
+        <label for="art-image">Artwork Image (JPG or PNG)</label>
+        <input type="file" id="art-image" name="artImage" accept="image/png, image/jpeg" required />
+
+        <label for="highlight">Display Preference</label>
+        <select id="highlight" name="highlight">
+          <option value="standard">Standard – Web3 Page Only (Free)</option>
+          <option value="premium">Premium – Central Highlight in Gallery (Paid)</option>
+        </select>
+
+        <p style="font-size: 0.85rem; text-align: center;">
+          By submitting, you agree to our <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a> regarding royalties, rights, and responsibilities.
+        </p>
+
+        <p id="submission-error" style="color: red; display: none; text-align: center;">
+          An unexpected error occurred. Please try again later.
+        </p>
+
+        <button type="submit">Submit Artwork</button>
+      </form>
+    </section>
+
+    <section id="premium" class="section">
+      <h2>Premium Option</h2>
+      <p>
+        The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.
+      </p>
+      <p>
+        This service supports the gallery’s infrastructure and ensures your work is prominently visible to collectors and guests alike.
+      </p>
+      <p>
+        The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.
+      </p>
+    </section>
+
+    <section id="terms" class="section">
+      <h2>Artist Agreement Summary</h2>
+      <p>
+        Every submission is subject to curatorial review. Accepted works are either:
+      </p>
+      <ul>
+        <li><strong>Premium</strong> — prominently displayed in the main gallery (paid)</li>
+        <li><strong>Standard</strong> — listed on the <em>Web3 & NFT</em> page (free)</li>
+      </ul>
+      <p>
+        The artist retains all rights to the artwork. NANdART manages minting, display, and royalties as outlined in the <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a>.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const errorEl = document.getElementById("submission-error");
+      errorEl.style.display = "none";
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://nandart-api.onrender.com/api/submit-artwork", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error();
+
+        alert("Your artwork has been submitted successfully!");
+        form.reset();
+      } catch (err) {
+        errorEl.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>

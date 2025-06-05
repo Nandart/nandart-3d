@@ -373,10 +373,17 @@
     import { ethers } from 'ethers';
     import { getContrato } from '/src/contrato.js';
     
+    // Configure seu endereço admin aqui
+    const ADMIN_ADDRESSES = [
+      "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41", // Endereço do contrato ou admin
+      "0xYourPersonalAddressHere" // Adicione outros endereços se necessário
+    ];
+    
     async function checkCurador() {
       try {
+        // Verificação básica do MetaMask
         if (!window.ethereum) {
-          console.log("MetaMask não instalado");
+          console.log("MetaMask não detectado");
           return false;
         }
         
@@ -389,23 +396,32 @@
         const user = accounts[0];
         const contrato = await getContrato();
         
-        const owner = await contrato.owner();
-        if (owner.toLowerCase() === user.toLowerCase()) {
-          console.log("Acesso concedido: Owner do contrato");
+        // 1. Verificação de admin
+        const isAdmin = ADMIN_ADDRESSES.some(addr => 
+          addr.toLowerCase() === user.toLowerCase()
+        );
+        
+        if (isAdmin) {
+          console.log("Acesso concedido: Endereço admin");
           return true;
         }
         
-        const isWhitelisted = await contrato.isWhitelisted(user);
-        if (isWhitelisted) {
-          console.log("Acesso concedido: Endereço whitelisted");
-          return true;
+        // 2. Verificação de whitelist (com fallback)
+        try {
+          const isWhitelisted = await contrato.isWhitelisted(user);
+          if (isWhitelisted) {
+            console.log("Acesso concedido: Endereço whitelisted");
+            return true;
+          }
+        } catch (e) {
+          console.log("Função isWhitelisted não disponível:", e);
         }
         
-        console.log("Acesso negado: Nem owner nem whitelisted");
+        console.log("Acesso negado: Sem permissões");
         return false;
         
       } catch (error) {
-        console.error("Erro na verificação de curador:", error);
+        console.error("Erro na verificação:", error);
         return false;
       }
     }
@@ -419,15 +435,28 @@
         btnCuradoria.style.display = 'block';
         btnCuradoria.addEventListener('click', () => {
           panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+          if (panel.style.display === 'block') {
+            loadCuradoriaPanel();
+          }
         });
-        
-        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
-        carregarSubmissoes();
       }
     }
     
+    async function loadCuradoriaPanel() {
+      try {
+        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
+        await carregarSubmissoes();
+      } catch (e) {
+        console.error("Erro ao carregar painel:", e);
+        document.getElementById("curadoria-lista").innerHTML = 
+          `<p style="color: red;">Error loading curatorial panel</p>`;
+      }
+    }
+    
+    // Inicialização
     document.addEventListener('DOMContentLoaded', initCuradoria);
     
+    // Atualização quando a conta muda
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', initCuradoria);
     }

@@ -208,6 +208,34 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+    #curation-panel {
+      display: none;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #f5f5f5;
+      font-family: 'Playfair Display', serif;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 400;
+      width: 80%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(216, 178, 108, 0.3);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    #curation-panel h2 {
+      text-align: center;
+      color: #c4b582;
+      margin-bottom: 1.5rem;
+    }
+    #curadoria-lista {
+      display: grid;
+      gap: 1rem;
+    }
     @media (max-width: 768px) {
       .navigation-icons img {
         height: 24px;
@@ -243,6 +271,10 @@
       #blur-overlay {
         backdrop-filter: blur(8px);
       }
+      #curation-panel {
+        width: 90%;
+        padding: 1rem;
+      }
     }
   </style>
 </head>
@@ -263,7 +295,7 @@
     <a href="web3.html">Web3 & NFT</a>
   </div>
   
-<div class="art-modal">
+  <div class="art-modal">
     <h2 id="art-title"></h2>
     <p id="art-description"></p>
     <p>Artist: <span id="art-artist"></span></p>
@@ -272,6 +304,12 @@
     <button id="buy-art">Buy</button>
   </div>
 
+  <section id="curation-panel">
+    <h2>Curatorial Panel</h2>
+    <div id="curadoria-lista">
+      <p>Loading submissions...</p>
+    </div>
+  </section>
 
   <script>
     function checkWebGL() {
@@ -314,13 +352,12 @@
       }
     });
 
-      if (!checkWebGL()) {
+    if (!checkWebGL()) {
       console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
     }
-
   </script>
- <script type="module" src="/src/main.js"></script>
-
-  </script>
+  
+  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/api/curadoria.js"></script>
 </body>
 </html>

@@ -210,6 +210,32 @@
       font-family: 'Playfair Display', serif;
     }
 
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      z-index: 1000;
+      font-family: 'Playfair Display', serif;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .notification.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .notification.error {
+      background-color: #f44336;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 768px) {
       .anchor-nav {
         flex-direction: column;
@@ -367,65 +393,84 @@
         errorEl.style.display = "block";
       }
     });
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    }
   </script>
 
   <script type="module">
-    import { ethers } from 'ethers';
     import { getContrato } from '/src/contrato.js';
     
-    // Configure seu endereço admin aqui
     const ADMIN_ADDRESSES = [
-      "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41", // Endereço do contrato ou admin
-      "0xYourPersonalAddressHere" // Adicione outros endereços se necessário
+      "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41" // Endereço do contrato ou admin
     ];
-    
+
     async function checkCurador() {
       try {
-        // Verificação básica do MetaMask
         if (!window.ethereum) {
-          console.log("MetaMask não detectado");
+          console.error("MetaMask não está instalado");
           return false;
         }
-        
+
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts.length === 0) {
-          console.log("Nenhuma conta conectada");
+          console.error("Nenhuma conta conectada");
           return false;
         }
+
+        const user = accounts[0].toLowerCase();
         
-        const user = accounts[0];
-        const contrato = await getContrato();
-        
-        // 1. Verificação de admin
-        const isAdmin = ADMIN_ADDRESSES.some(addr => 
-          addr.toLowerCase() === user.toLowerCase()
-        );
-        
-        if (isAdmin) {
+        if (ADMIN_ADDRESSES.some(addr => addr.toLowerCase() === user)) {
           console.log("Acesso concedido: Endereço admin");
           return true;
         }
-        
-        // 2. Verificação de whitelist (com fallback)
+
         try {
-          const isWhitelisted = await contrato.isWhitelisted(user);
+          const contrato = await getContrato();
+          const isWhitelisted = await contrato.isWhitelisted(accounts[0]);
           if (isWhitelisted) {
             console.log("Acesso concedido: Endereço whitelisted");
             return true;
           }
         } catch (e) {
-          console.log("Função isWhitelisted não disponível:", e);
+          console.error("Erro ao verificar whitelist:", e);
         }
-        
-        console.log("Acesso negado: Sem permissões");
+
+        console.error("Acesso negado: Sem permissões");
         return false;
-        
       } catch (error) {
         console.error("Erro na verificação:", error);
         return false;
       }
     }
-    
+
+    async function loadCuradoriaPanel() {
+      try {
+        const lista = document.getElementById("curadoria-lista");
+        lista.innerHTML = "<p>Carregando submissões...</p>";
+
+        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
+        await carregarSubmissoes();
+      } catch (e) {
+        console.error("Erro ao carregar painel:", e);
+        showNotification("Erro ao carregar painel de curadoria", "error");
+        document.getElementById("curadoria-lista").innerHTML = `
+          <div class="error-message">
+            <p>Erro ao carregar submissões. Por favor, recarregue a página.</p>
+          </div>
+        `;
+      }
+    }
+
     async function initCuradoria() {
       const isCurador = await checkCurador();
       const btnCuradoria = document.getElementById('curadoria-btn');
@@ -434,29 +479,15 @@
       if (isCurador) {
         btnCuradoria.style.display = 'block';
         btnCuradoria.addEventListener('click', () => {
-          panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-          if (panel.style.display === 'block') {
-            loadCuradoriaPanel();
-          }
+          const willShow = panel.style.display !== 'block';
+          panel.style.display = willShow ? 'block' : 'none';
+          if (willShow) loadCuradoriaPanel();
         });
       }
     }
-    
-    async function loadCuradoriaPanel() {
-      try {
-        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
-        await carregarSubmissoes();
-      } catch (e) {
-        console.error("Erro ao carregar painel:", e);
-        document.getElementById("curadoria-lista").innerHTML = 
-          `<p style="color: red;">Error loading curatorial panel</p>`;
-      }
-    }
-    
-    // Inicialização
+
     document.addEventListener('DOMContentLoaded', initCuradoria);
     
-    // Atualização quando a conta muda
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', initCuradoria);
     }

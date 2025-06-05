@@ -146,3 +146,4 @@ function showNotification(message, type = 'success') {
 if (document.getElementById("curadoria-lista")) {
   document.addEventListener('DOMContentLoaded', carregarSubmissoes);
 }
+export { carregarSubmissoes, showNotification };

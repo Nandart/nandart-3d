@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NANdART Artists Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 2rem;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      width: 100%;
+      background-color: #000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #result {
+      margin-top: 2rem;
+      background: #eee;
+      padding: 1rem;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Submit New Artwork</h1>
+    <form id="artworkForm">
+      <label for="artist">Artist Name:</label>
+      <input type="text" id="artist" name="artist" required>
+
+      <label for="title">Artwork Title:</label>
+      <input type="text" id="title" name="title" required>
+
+      <label for="year">Year:</label>
+      <input type="text" id="year" name="year" required>
+
+      <label for="technique">Technique:</label>
+      <input type="text" id="technique" name="technique" required>
+
+      <label for="price">Price (in ETH or MATIC):</label>
+      <input type="text" id="price" name="price" required>
+
+      <label for="image">Artwork Image (JPG or PNG):</label>
+      <input type="file" id="image" name="image" accept="image/*" required>
+
+      <button type="submit">Submit Artwork</button>
+    </form>
+
+    <div id="result">
+      <strong>Artwork submitted successfully!</strong><br>
+      <span id="tokenURI"></span>
+    </div>
+  </div>
+
+  <script type="module" src="./ipfs.js"></script>
+</body>
+</html>

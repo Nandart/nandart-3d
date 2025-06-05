@@ -127,6 +127,83 @@
       background: #d1c08f;
     }
 
+    /* Estilos para o painel de curadoria */
+    #curadoria-btn {
+      display: none;
+      background-color: #d8b26c;
+      color: #111;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      margin: 20px auto;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    #curation-panel {
+      display: none;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #f5f5f5;
+      border: 1px solid rgba(216, 178, 108, 0.3);
+      border-radius: 8px;
+      margin-bottom: 40px;
+    }
+
+    #curation-panel h2 {
+      text-align: center;
+      color: #c4b582;
+      margin-bottom: 1.5rem;
+    }
+
+    #curadoria-lista {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .submission-card {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(216, 178, 108, 0.2);
+    }
+
+    .submission-image img {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .submission-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-approve {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .btn-reject {
+      background-color: #f44336;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+    }
+
     @media (max-width: 768px) {
       .anchor-nav {
         flex-direction: column;
@@ -149,6 +226,16 @@
         font-size: 0.82rem;
         padding: 6px 10px;
       }
+
+      #curation-panel {
+        margin: 0 16px 40px;
+        padding: 1rem;
+      }
+
+      .submission-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -164,8 +251,18 @@
     <a href="#premium">Premium Info</a>
     <a href="#terms">Terms</a>
   </div>
+
+  <button id="curadoria-btn">Acessar Painel de Curadoria</button>
+
+  <section id="curation-panel">
+    <h2>Curatorial Panel</h2>
+    <div id="curadoria-lista">
+      <p>Loading submissions...</p>
+    </div>
+  </section>
+
   <main>
-   <section id="about" class="section">
+    <section id="about" class="section">
       <h2>Welcome, Visionary Artist</h2>
       <p>
         You are invited to join <strong>NANdART</strong>, a curated sanctuary of digital expression where each artwork transcends boundaries.
@@ -212,20 +309,20 @@
       </form>
     </section>
 
-   <section id="premium" class="section">
+    <section id="premium" class="section">
       <h2>Premium Option</h2>
       <p>
         The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.
       </p>
       <p>
-        This service supports the gallery’s infrastructure and ensures your work is prominently visible to collectors and guests alike.
+        This service supports the gallery's infrastructure and ensures your work is prominently visible to collectors and guests alike.
       </p>
       <p>
         The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.
       </p>
     </section>
 
-     <section id="terms" class="section">
+    <section id="terms" class="section">
       <h2>Artist Agreement Summary</h2>
       <p>
         Every submission is subject to curatorial review. Accepted works are either:
@@ -239,7 +336,8 @@
       </p>
     </section>
   </main>
-<script>
+
+  <script>
     document.getElementById("artwork-form").addEventListener("submit", async function (e) {
       e.preventDefault();
 
@@ -264,8 +362,55 @@
       }
     });
   </script>
-</body>
-</html>
-  <script type="module" src="/src/api/submit.js"></script>
+
+  <script type="module">
+    import { getContrato } from '/src/contrato.js';
+    
+    async function checkCurador() {
+      try {
+        if (!window.ethereum) return false;
+        
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length === 0) return false;
+        
+        const user = accounts[0];
+        const contrato = await getContrato();
+        
+        // Verifica se é curador (owner ou whitelisted)
+        const isOwner = await contrato.owner() === user;
+        const isWhitelisted = await contrato.isWhitelisted(user);
+        
+        return isOwner || isWhitelisted;
+      } catch (error) {
+        console.error("Erro ao verificar curador:", error);
+        return false;
+      }
+    }
+    
+    async function initCuradoria() {
+      const isCurador = await checkCurador();
+      const btnCuradoria = document.getElementById('curadoria-btn');
+      const panel = document.getElementById('curation-panel');
+      
+      if (isCurador) {
+        btnCuradoria.style.display = 'block';
+        btnCuradoria.addEventListener('click', () => {
+          panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Carrega dinamicamente o módulo de curadoria
+        const { carregarSubmissoes } = await import('/src/api/curadoria.js');
+        carregarSubmissoes();
+      }
+    }
+    
+    // Inicializa quando a página carrega
+    document.addEventListener('DOMContentLoaded', initCuradoria);
+    
+    // Atualiza quando a conta muda
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', initCuradoria);
+    }
+  </script>
 </body>
 </html>

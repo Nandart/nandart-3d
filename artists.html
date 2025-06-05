@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Submissão NANdART</title>
+  <style>
+    body { font-family: 'Helvetica Neue', sans-serif; padding: 2rem; background: #f3f3f3; }
+    .secao { margin-bottom: 3rem; padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .obra-card { margin: 1rem 0; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; }
+    .curador-only { display: none; }
+    .botao { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Galeria NANdART — Painel de Artistas e Curadores</h1>
+
+  <div class="secao" id="painel-artista">
+    <h2>Submeter nova obra</h2>
+    <form id="form-submissao">
+      <label>Título: <input type="text" id="titulo" required /></label><br/>
+      <label>Ano: <input type="number" id="ano" required /></label><br/>
+      <label>Técnica: <input type="text" id="tecnica" required /></label><br/>
+      <label>Imagem IPFS (hash completo): <input type="text" id="imagem" required /></label><br/>
+      <label>TokenURI IPFS: <input type="text" id="tokenURI" required /></label><br/>
+      <button type="submit">Submeter Obra</button>
+    </form>
+  </div>
+
+  <div class="secao curador-only" id="painel-curador">
+    <h2>Obras pendentes</h2>
+    <div id="lista-obras"></div>
+  </div>
+
+  <div class="secao" id="acesso-negado" style="display:none">
+    <p><strong>Acesso restrito à curadoria.</strong> Liga uma carteira autorizada para gerir as submissões.</p>
+  </div>
+
+  <script type="module">
+    import { getContrato } from './contrato.js';
+    import { ethers } from './ethers.min.js'; // se aplicável
+    import { mintComCuradoria } from './market.js'; // usa função existente
+
+    let obrasPendentes = [];
+
+    const contrato = await getContrato();
+    const contas = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const userAddress = contas[0];
+    const isCurador = await contrato.isWhitelisted(userAddress);
+
+    // Mostrar apenas o que é permitido
+    document.getElementById("painel-curador").style.display = isCurador ? "block" : "none";
+    document.getElementById("acesso-negado").style.display = isCurador ? "none" : "block";
+
+    // Submissão de obras
+    const form = document.getElementById("form-submissao");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const obra = {
+        titulo: document.getElementById("titulo").value,
+        ano: document.getElementById("ano").value,
+        tecnica: document.getElementById("tecnica").value,
+        imagem: document.getElementById("imagem").value,
+        tokenURI: document.getElementById("tokenURI").value,
+        artista: userAddress
+      };
+      obrasPendentes.push(obra);
+      alert("Obra submetida com sucesso.");
+      form.reset();
+      renderizarObras();
+    });
+
+    function renderizarObras() {
+      const lista = document.getElementById("lista-obras");
+      lista.innerHTML = "";
+      obrasPendentes.forEach((obra, index) => {
+        const div = document.createElement("div");
+        div.className = "obra-card";
+        div.innerHTML = `
+          <h4>${obra.titulo} (${obra.ano})</h4>
+          <p><strong>Técnica:</strong> ${obra.tecnica}</p>
+          <p><strong>Artista:</strong> ${obra.artista}</p>
+          <p><strong>Imagem:</strong> <a href="https://ipfs.io/ipfs/${obra.imagem}" target="_blank">Ver imagem</a></p>
+          <p><strong>TokenURI:</strong> <a href="https://ipfs.io/ipfs/${obra.tokenURI.replace('ipfs://', '')}" target="_blank">Ver metadata</a></p>
+          <button class="botao" onclick="aprovarObra(${index})">✅ Aprovar e Cunhar</button>
+          <button onclick="recusarObra(${index})">❌ Recusar</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    window.aprovarObra = async function(index) {
+      const obra = obrasPendentes[index];
+      try {
+        const tx = await contrato.mintComCuradoria(obra.artista, obra.tokenURI, {
+          from: userAddress,
+          value: 0
+        });
+        alert("Obra cunhada com sucesso!");
+        obrasPendentes.splice(index, 1);
+        renderizarObras();
+      } catch (e) {
+        alert("Erro ao cunhar: " + e.message);
+      }
+    }
+
+    window.recusarObra = function(index) {
+      obrasPendentes.splice(index, 1);
+      renderizarObras();
+    }
+  </script>
+</body>
+</html>

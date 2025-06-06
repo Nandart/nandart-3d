@@ -28,11 +28,12 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
     const termsAccepted = true;
     const termsAcceptedAt = new Date().toISOString();
 
-    if (!artistName || !artTitle || !artYear || !artPrice || !file || !highlight) {
+    // ❗ Validação mais explícita
+    if (!artistName?.trim() || !artTitle?.trim() || !artYear || !artPrice || !file || !highlight) {
       return res.status(400).send('Missing required fields.');
     }
 
-    // Preparar Issue GitHub
+    // Criar Issue GitHub
     const issueTitle = `New Submission: ${artTitle} by ${artistName}`;
     const issueBody = `
 **Artist Name:** ${artistName}
@@ -70,18 +71,18 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
     const jsonFolder = path.join(__dirname, '../../submissoes-json');
 
     if (!fs.existsSync(jsonFolder)) {
-      fs.mkdirSync(jsonFolder);
+      fs.mkdirSync(jsonFolder, { recursive: true });
     }
 
     const filePath = path.join(jsonFolder, fileName);
     fs.writeFileSync(filePath, JSON.stringify(submissionData, null, 2), 'utf-8');
 
-    // Limpar imagem temporária
+    // Apagar imagem temporária
     fs.unlinkSync(file.path);
 
     return res.status(200).send('Submission received successfully.');
   } catch (error) {
-    console.error('Error during submission:', error);
+    console.error('❌ Erro na submissão:', error.message);
     return res.status(500).send('An error occurred while processing the submission.');
   }
 });

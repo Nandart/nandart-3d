@@ -370,37 +370,48 @@
   </main>
 
   <script>
-document.getElementById("artwork-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const form = e.target;
-  const errorEl = document.getElementById("submission-error");
-  errorEl.style.display = "none";
+    document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const errorEl = document.getElementById("submission-error");
+      errorEl.style.display = "none";
 
-  const formData = new FormData(form);
+      const formData = new FormData(form);
 
-  try {
-    const response = await fetch("/api/submit-artwork", {
-      method: "POST",
-      body: formData,
-      // Remove explicit headers for FormData - let browser set them automatically
-      credentials: 'include'
+      try {
+        // Alteração principal: Adicionado timeout e headers explícitos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+
+        const response = await fetch("https://nandart-api.onrender.com/api/submit-artwork", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json'
+          },
+          credentials: 'include'
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        showNotification("Your artwork has been submitted successfully!", "success");
+        form.reset();
+      } catch (err) {
+        console.error("Submission error:", err);
+        errorEl.textContent = err.name === 'AbortError' 
+          ? "Request timed out. Please try again." 
+          : err.message || "An error occurred during submission";
+        errorEl.style.display = "block";
+        showNotification("Submission failed: " + errorEl.textContent, "error");
+      }
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Server responded with ${response.status}: ${errorText}`);
-    }
-
-    const result = await response.json();
-    showNotification("Your artwork has been submitted successfully!", "success");
-    form.reset();
-  } catch (err) {
-    console.error("Submission error:", err);
-    errorEl.textContent = err.message || "An error occurred during submission";
-    errorEl.style.display = "block";
-    showNotification("Submission failed: " + err.message, "error");
-  }
-});
 
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
@@ -462,29 +473,27 @@ document.getElementById("artwork-form").addEventListener("submit", async functio
     }
 
     async function loadCuradoriaPanel() {
-  try {
-    const lista = document.getElementById("curadoria-lista");
-    lista.innerHTML = "<p>Carregando submissões...</p>";
+      try {
+        const lista = document.getElementById("curadoria-lista");
+        lista.innerHTML = "<p>Carregando submissões...</p>";
 
-    // Importa o módulo corretamente
-    const curadoriaModule = await import('/src/api/curadoria.js');
-    
-    // Verifica se a função existe no módulo
-    if (typeof curadoriaModule.carregarSubmissoes !== 'function') {
-      throw new Error('Função carregarSubmissoes não encontrada no módulo');
+        const curadoriaModule = await import('/src/api/curadoria.js');
+        
+        if (typeof curadoriaModule.carregarSubmissoes !== 'function') {
+          throw new Error('Função carregarSubmissoes não encontrada no módulo');
+        }
+        
+        await curadoriaModule.carregarSubmissoes();
+      } catch (e) {
+        console.error("Erro ao carregar painel:", e);
+        showNotification("Erro ao carregar painel de curadoria", "error");
+        document.getElementById("curadoria-lista").innerHTML = `
+          <div class="error-message">
+            <p>Erro ao carregar submissões: ${e.message}</p>
+          </div>
+        `;
+      }
     }
-    
-    await curadoriaModule.carregarSubmissoes();
-  } catch (e) {
-    console.error("Erro ao carregar painel:", e);
-    showNotification("Erro ao carregar painel de curadoria", "error");
-    document.getElementById("curadoria-lista").innerHTML = `
-      <div class="error-message">
-        <p>Erro ao carregar submissões: ${e.message}</p>
-      </div>
-    `;
-  }
-}
 
     async function initCuradoria() {
       const isCurador = await checkCurador();

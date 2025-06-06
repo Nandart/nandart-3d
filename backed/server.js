@@ -33,6 +33,17 @@ app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+// Add this after your CORS middleware but before your routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://nandartart.art');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+
 // Montar as rotas da API
 app.use('/api', submitRouter);
 app.use('/api/entradas', entradasRouter);

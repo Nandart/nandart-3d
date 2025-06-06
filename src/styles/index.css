@@ -30,6 +30,46 @@ html, body {
   filter: brightness(1.575) contrast(1.1);
 }
 
+/* ==================== estilo admin.js ==================== */
+.admin-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+
+.btn-main {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #4e5cf4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.success-message {
+  color: green;
+}
+.error-message {
+  color: red;
+}
+.log-output {
+  margin-top: 24px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+
+
 /* ==================== ÍCONES FIXOS ==================== */
 .navigation-icons {
   position: fixed;

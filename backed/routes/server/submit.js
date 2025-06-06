@@ -5,7 +5,12 @@ const path = require('path');
 const { Octokit } = require('@octokit/rest');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({
+  dest: 'uploads/',
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
 
 // GitHub config
 const octokit = new Octokit({
@@ -14,8 +19,11 @@ const octokit = new Octokit({
 const owner = 'Nandart';
 const repo = 'nandart-3d';
 
-router.post('/api/submit-artwork', upload.single('artImage'), async (req, res) => {
+router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
   try {
+    // Set CORS headers
+    res.header('Access-Control-Allow-Origin', 'https://nandartart.art');
+    
     const {
       artistName,
       artTitle,
@@ -25,26 +33,18 @@ router.post('/api/submit-artwork', upload.single('artImage'), async (req, res) =
     } = req.body;
 
     const file = req.file;
-    const termsAccepted = true;
-    const termsAcceptedAt = new Date().toISOString();
-
-    // ❗ Validação mais explícita
-    if (!artistName?.trim() || !artTitle?.trim() || !artYear || !artPrice || !file || !highlight) {
-      return res.status(400).send('Missing required fields.');
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Criar Issue GitHub
+    // Validation
+    if (!artistName?.trim() || !artTitle?.trim() || !artYear || !artPrice || !highlight) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // GitHub Issue creation
     const issueTitle = `New Submission: ${artTitle} by ${artistName}`;
-    const issueBody = `
-**Artist Name:** ${artistName}
-**Title:** ${artTitle}
-**Year:** ${artYear}
-**Price (ETH):** ${artPrice}
-**Display Preference:** ${highlight}
-**Terms Accepted:** ${termsAccepted}
-**Terms Accepted At:** ${termsAcceptedAt}
-**Submitted At:** ${new Date().toISOString()}
-`;
+    const issueBody = `...`; // your existing issue body
 
     await octokit.rest.issues.create({
       owner,
@@ -54,36 +54,26 @@ router.post('/api/submit-artwork', upload.single('artImage'), async (req, res) =
       labels: ['submission', highlight === 'premium' ? 'premium' : 'standard'],
     });
 
-    // Guardar JSON local
-    const submissionData = {
-      artistName,
-      artTitle,
-      artYear,
-      artPrice,
-      highlight,
-      termsAccepted,
-      termsAcceptedAt,
-      submittedAt: new Date().toISOString()
-    };
-
-    const sanitize = (str) => str.trim().replace(/[^\w\-]/g, '_');
-    const fileName = `${termsAcceptedAt.replace(/[-:]/g, '').replace('T', '_').slice(0, 15)}_${sanitize(artTitle)}_${sanitize(artistName)}.json`;
-    const jsonFolder = path.join(__dirname, '../../submissoes-json');
-
-    if (!fs.existsSync(jsonFolder)) {
-      fs.mkdirSync(jsonFolder, { recursive: true });
+    // Save JSON locally
+    const submissionData = { ... }; // your existing data
+    const filePath = path.join(__dirname, '../../submissoes-json', fileName);
+    
+    // Ensure directory exists
+    if (!fs.existsSync(path.dirname(filePath))) {
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
     }
 
-    const filePath = path.join(jsonFolder, fileName);
     fs.writeFileSync(filePath, JSON.stringify(submissionData, null, 2), 'utf-8');
-
-    // Apagar imagem temporária
     fs.unlinkSync(file.path);
 
-    return res.status(200).send('Submission received successfully.');
+    return res.status(200).json({ message: 'Submission received successfully' });
   } catch (error) {
-    console.error('❌ Erro na submissão:', error.message);
-    return res.status(500).send('An error occurred while processing the submission.');
+    console.error('Submission error:', error);
+    res.header('Access-Control-Allow-Origin', 'https://nandartart.art');
+    return res.status(500).json({ 
+      error: 'An error occurred while processing the submission',
+      details: error.message 
+    });
   }
 });
 

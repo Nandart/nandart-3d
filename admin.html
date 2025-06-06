@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NANdART | Admin Panel</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Painel de Administração – Cunhar Obras Suspensas</h1>
+    <p>Este painel permite cunhar directamente as obras da galeria que já têm metadados no IPFS mas ainda não são NFTs.</p>
+    
+    <div id="admin-status" class="admin-status"></div>
+
+    <button id="cunhar-btn" class="btn-main">Cunhar todas as obras suspensas</button>
+    
+    <div id="log-cunhagem" class="log-output"></div>
+  </div>
+
+  <script type="module" src="/scripts/admin.js"></script>
+</body>
+</html>

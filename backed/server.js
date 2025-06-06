@@ -10,21 +10,25 @@ const app = express();
 
 const allowedOrigins = ['https://nandartart.art'];
 
+  // Update your CORS configuration in server.js
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // Postman, curl etc.
-
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'O domínio não está autorizado pela política CORS';
-      return callback(new Error(msg), false);
+    if (!origin) return callback(null, true); // Allow requests with no origin (like mobile apps or curl requests)
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('nandartart.art')) {
+      return callback(null, true);
     }
-
-    return callback(null, true);
+    
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Handle preflight requests
+app.options('*', cors());
 // Middleware para interpretar JSON e urlencoded — cuidado para não conflitar com multer
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

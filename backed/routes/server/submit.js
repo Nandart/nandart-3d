@@ -21,9 +21,7 @@ const repo = 'nandart-3d';
 
 router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
   try {
-    // Set CORS headers
-    res.header('Access-Control-Allow-Origin', 'https://nandartart.art');
-    
+   
     const {
       artistName,
       artTitle,

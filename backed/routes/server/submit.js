@@ -78,3 +78,4 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
 });
 
 module.exports = router;
+

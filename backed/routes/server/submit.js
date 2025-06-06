@@ -14,7 +14,7 @@ const octokit = new Octokit({
 const owner = 'Nandart';
 const repo = 'nandart-3d';
 
-router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
+router.post('/api/submit-artwork', upload.single('artImage'), async (req, res) => {
   try {
     const {
       artistName,

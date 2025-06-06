@@ -370,33 +370,37 @@
   </main>
 
   <script>
-    document.getElementById("artwork-form").addEventListener("submit", async function (e) {
-      e.preventDefault();
+document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const errorEl = document.getElementById("submission-error");
+  errorEl.style.display = "none";
 
-      const form = e.target;
-      const errorEl = document.getElementById("submission-error");
-      errorEl.style.display = "none";
+  const formData = new FormData(form);
 
-      const formData = new FormData(form);
-
-      try {
-              // Update your fetch call to:
-const response = await fetch("/api/submit-artwork", {
-  method: "POST",
-  body: formData,
-  headers: {
-    'Accept': 'application/json'
-  },
-  credentials: 'include'
-});
-        if (!response.ok) throw new Error();
-
-        alert("Your artwork has been submitted successfully!");
-        form.reset();
-      } catch (err) {
-        errorEl.style.display = "block";
-      }
+  try {
+    const response = await fetch("/api/submit-artwork", {
+      method: "POST",
+      body: formData,
+      // Remove explicit headers for FormData - let browser set them automatically
+      credentials: 'include'
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Server responded with ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
+    showNotification("Your artwork has been submitted successfully!", "success");
+    form.reset();
+  } catch (err) {
+    console.error("Submission error:", err);
+    errorEl.textContent = err.message || "An error occurred during submission";
+    errorEl.style.display = "block";
+    showNotification("Submission failed: " + err.message, "error");
+  }
+});
 
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');

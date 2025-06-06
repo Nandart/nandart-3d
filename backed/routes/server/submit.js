@@ -21,7 +21,9 @@ const repo = 'nandart-3d';
 
 router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
   try {
-   
+   // Set proper headers
+    res.header('Content-Type', 'application/json');
+    res.header('Accept', 'application/json');
     const {
       artistName,
       artTitle,

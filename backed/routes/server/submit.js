@@ -42,9 +42,21 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    const termsAccepted = true;
+    const termsAcceptedAt = new Date().toISOString();
+
     // GitHub Issue creation
     const issueTitle = `New Submission: ${artTitle} by ${artistName}`;
-    const issueBody = `...`; // your existing issue body
+    const issueBody = `
+**Artist Name:** ${artistName}
+**Title:** ${artTitle}
+**Year:** ${artYear}
+**Price (ETH):** ${artPrice}
+**Display Preference:** ${highlight}
+**Terms Accepted:** ${termsAccepted}
+**Terms Accepted At:** ${termsAcceptedAt}
+**Submitted At:** ${new Date().toISOString()}
+`;
 
     await octokit.rest.issues.create({
       owner,
@@ -55,14 +67,26 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
     });
 
     // Save JSON locally
-    const submissionData = { ... }; // your existing data
-    const filePath = path.join(__dirname, '../../submissoes-json', fileName);
-    
-    // Ensure directory exists
-    if (!fs.existsSync(path.dirname(filePath))) {
-      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const submissionData = {
+      artistName,
+      artTitle,
+      artYear,
+      artPrice,
+      highlight,
+      termsAccepted,
+      termsAcceptedAt,
+      submittedAt: new Date().toISOString()
+    };
+
+    const sanitize = (str) => str.trim().replace(/[^\w\-]/g, '_');
+    const fileName = `${termsAcceptedAt.replace(/[-:]/g, '').replace('T', '_').slice(0, 15)}_${sanitize(artTitle)}_${sanitize(artistName)}.json`;
+    const jsonFolder = path.join(__dirname, '../../submissoes-json');
+
+    if (!fs.existsSync(jsonFolder)) {
+      fs.mkdirSync(jsonFolder, { recursive: true });
     }
 
+    const filePath = path.join(jsonFolder, fileName);
     fs.writeFileSync(filePath, JSON.stringify(submissionData, null, 2), 'utf-8');
     fs.unlinkSync(file.path);
 
@@ -78,4 +102,3 @@ router.post('/submit-artwork', upload.single('artImage'), async (req, res) => {
 });
 
 module.exports = router;
-

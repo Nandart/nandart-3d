@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import contratoABI from "./api/NandartNFT_ABI.json" assert { type: "json" };
+import contratoABI from "./abi/NandartNFT_ABI.json" assert { type: "json" };
 
 // Mapeamento de endereços do contrato por rede
 const addressesPorRede = {

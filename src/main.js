@@ -649,7 +649,7 @@ const artworkData = [
      artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
 ];
-export const obrasSuspensas = [...];
+export const obrasSuspensas = []; // ou adicione os elementos necessários
 
 const artworks = [];
 const artworkReflections = [];

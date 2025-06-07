@@ -3,8 +3,8 @@ import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
 import * as THREE from 'three';
 import { Reflector } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Reflector.js";
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/geometries/TextGeometry.js";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';

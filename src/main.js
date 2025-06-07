@@ -1,14 +1,14 @@
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
-import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
 import { Reflector } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Reflector.js";
 import { FontLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/geometries/TextGeometry.js";
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { ethers } from 'ethers';
+import { gsap } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js";
+import { ScrollTrigger } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js";
+import { MotionPathPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js";
+import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm";
 
 // --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
 let isHighlighted = false;

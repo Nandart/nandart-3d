@@ -1,14 +1,15 @@
+window.addEventListener("DOMContentLoaded", () => {
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
-import { Reflector } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Reflector.js";
-import { FontLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/FontLoader.js";
-import { TextGeometry } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/geometries/TextGeometry.js";
-import { gsap } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js";
-import { ScrollTrigger } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js";
-import { MotionPathPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js";
-import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm";
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { ethers } from 'ethers';
 
 // --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
 let isHighlighted = false;
@@ -40,17 +41,27 @@ const configMap = {
 let config = configMap[getViewportLevel()];
 
 const scene = new THREE.Scene();
+
+const luzFrontal = new THREE.DirectionalLight(0xffffff, 0.8);
+luzFrontal.position.set(0, 5, 5);
+scene.add(luzFrontal);
+
+const luzAmbiente = new THREE.AmbientLight(0xffffff, 0.2);
+scene.add(luzAmbiente);
+
 scene.background = new THREE.Color(0x111111);
 
 const textureLoader = new THREE.TextureLoader();
 
-const camera = new THREE.PerspectiveCamera();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 2.5, 8);
+camera.lookAt(0, 1.5, 0);
 function updateCamera() {
   config = configMap[getViewportLevel()];
   camera.fov = 50;
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.position.set(0, 12, 25);
-  camera.lookAt(0, 5, -config.wallDistance);
+  camera.position.set(0, 2.5, 8);
+  camera.lookAt(0, 1.5, 0);
   camera.near = 0.1;
   camera.far = 150;
   camera.updateProjectionMatrix();
@@ -1195,4 +1206,6 @@ document.querySelectorAll('.artwork').forEach((obra) => {
   sombra.style.height = '12px';
   sombra.style.background = 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)';
   sombra.style.zIndex = '1';
+});
+
 });

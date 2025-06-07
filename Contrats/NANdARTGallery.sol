@@ -1,133 +1,108 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/common/ERC2981.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// ==== IMPORTS DO OPENZEPPELIN VIA GITHUB ====
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/access/Ownable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/token/common/ERC2981.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/security/ReentrancyGuard.sol";
 
-contract NANdARTGallery is ERC721URIStorage, ERC2981, Ownable, ReentrancyGuard {
-    uint256 public tokenCounter;
-    address payable public galerieWallet;
+// ==== CONTRATO DE SPLIT DE ROYALTIES ====
+contract RoyaltySplitter is Ownable, ReentrancyGuard {
+    address public immutable galeria;
+    address public immutable artista;
 
-    // Royalties
-    uint96 public constant ROYALTY_GALERIE_PRIMARY = 1000;    // 10%
-    uint96 public constant ROYALTY_ARTIST_SECONDARY = 600;    // 6%
-    uint96 public constant ROYALTY_GALERIE_SECONDARY = 400;   // 4%
+    uint96 public immutable percentGaleria;
+    uint96 public immutable percentArtista;
 
-    struct ArtWork {
-        address payable artist;
-        uint256 price;
-        bool premiumActive;
+    constructor(
+        address _galeria,
+        address _artista,
+        uint96 _percentGaleria,
+        uint96 _percentArtista
+    ) {
+        require(_galeria != address(0) && _artista != address(0), "Enderecos invalidos");
+        require(_percentGaleria + _percentArtista == 10000, "Soma dos percentuais deve ser 10000");
+
+        galeria = _galeria;
+        artista = _artista;
+        percentGaleria = _percentGaleria;
+        percentArtista = _percentArtista;
     }
 
-    mapping(uint256 => ArtWork) public artworks;
+    receive() external payable {}
 
-    // Whitelist de curadores
+    function distribuir() external nonReentrant {
+        uint256 total = address(this).balance;
+        require(total > 0, "Sem fundos a distribuir");
+
+        uint256 valorGaleria = (total * percentGaleria) / 10000;
+        uint256 valorArtista = total - valorGaleria;
+
+        payable(galeria).transfer(valorGaleria);
+        payable(artista).transfer(valorArtista);
+    }
+}
+
+// ==== CONTRATO PRINCIPAL DA GALERIA ====
+contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
+    uint256 public tokenCounter;
+    address public curador;
+
     mapping(address => bool) public isWhitelisted;
+    mapping(uint256 => address) public contratosDeRoyalties;
 
-    // Modificador para curadores
-    modifier onlyCurator() {
-        require(isWhitelisted[msg.sender], "Nao esta autorizado como curador");
+    modifier apenasCurador() {
+        require(msg.sender == curador, "Somente o curador pode executar esta acao");
         _;
     }
 
-    // Eventos
-    event ArtMinted(uint256 indexed tokenId, address indexed artist, uint256 price);
-    event PremiumActivated(uint256 indexed tokenId);
-
-    constructor(address payable _galerieWallet) ERC721("NANdART Gallery", "NANDART") {
-        tokenCounter = 1;
-        galerieWallet = _galerieWallet;
+    constructor() ERC721("NANdARTGallery", "NANdART") {
+        tokenCounter = 0;
+        curador = msg.sender;
     }
 
-    // Cunhagem pela galeria (admin)
-    function mintForArtist(address payable artist, uint256 price) external onlyOwner returns (uint256) {
-        uint256 tokenId = tokenCounter;
-        _safeMint(galerieWallet, tokenId);
-
-        artworks[tokenId] = ArtWork({
-            artist: artist,
-            price: price,
-            premiumActive: false
-        });
-
-        _setTokenRoyalty(tokenId, galerieWallet, ROYALTY_GALERIE_PRIMARY + ROYALTY_ARTIST_SECONDARY + ROYALTY_GALERIE_SECONDARY);
-
-        emit ArtMinted(tokenId, artist, price);
-        tokenCounter++;
-        return tokenId;
+    function definirCurador(address novoCurador) public onlyOwner {
+        require(novoCurador != address(0), "Endereco do curador invalido");
+        curador = novoCurador;
     }
 
-    // Cunhagem com curadoria
-    function mintComCuradoria(address payable artist, string memory tokenURI_) external payable onlyCurator returns (uint256) {
+    function adicionarAWhitelist(address utilizador) public apenasCurador {
+        isWhitelisted[utilizador] = true;
+    }
+
+    function removerDaWhitelist(address utilizador) public apenasCurador {
+        isWhitelisted[utilizador] = false;
+    }
+
+    function mintComCuradoria(address artista, string memory tokenURI_) public apenasCurador {
+        require(bytes(tokenURI_).length > 0, "Token URI obrigatoria");
+        require(artista != address(0), "Endereco do artista invalido");
+
         uint256 tokenId = tokenCounter;
-        _safeMint(galerieWallet, tokenId);
+
+        _safeMint(artista, tokenId);
         _setTokenURI(tokenId, tokenURI_);
 
-        artworks[tokenId] = ArtWork({
-            artist: artist,
-            price: msg.value,
-            premiumActive: false
-        });
+        RoyaltySplitter splitter = new RoyaltySplitter(
+            address(this),
+            artista,
+            400,
+            600
+        );
 
-        _setTokenRoyalty(tokenId, galerieWallet, ROYALTY_GALERIE_PRIMARY + ROYALTY_ARTIST_SECONDARY + ROYALTY_GALERIE_SECONDARY);
+        contratosDeRoyalties[tokenId] = address(splitter);
+        _setTokenRoyalty(tokenId, address(splitter), 1000); // 10%
 
-        emit ArtMinted(tokenId, artist, msg.value);
         tokenCounter++;
-        return tokenId;
     }
 
-    // Compra primária
-    function buy(uint256 tokenId) external payable nonReentrant {
-        require(_exists(tokenId), "Token nao existe");
-        ArtWork storage art = artworks[tokenId];
-        require(ownerOf(tokenId) == galerieWallet, "Token nao esta a venda");
-        require(msg.value >= art.price, "Valor insuficiente");
-
-        _transfer(galerieWallet, msg.sender, tokenId);
-
-        uint256 valor = msg.value;
-        uint256 galeriaAmount = (valor * ROYALTY_GALERIE_PRIMARY) / 10000;
-        uint256 artistaAmount = (valor * ROYALTY_ARTIST_SECONDARY) / 10000;
-        uint256 restante = valor - galeriaAmount - artistaAmount;
-
-        galerieWallet.transfer(galeriaAmount + restante);
-        art.artist.transfer(artistaAmount);
-    }
-
-    // Ativar destaque premium
-    function activatePremium(uint256 tokenId) external payable nonReentrant {
-        require(_exists(tokenId), "Token nao existe");
-        uint256 premiumPrice = 0.1 ether;
-        require(msg.value >= premiumPrice, "Pagamento insuficiente");
-
-        artworks[tokenId].premiumActive = true;
-        galerieWallet.transfer(msg.value);
-
-        emit PremiumActivated(tokenId);
-    }
-
-    function isPremiumActive(uint256 tokenId) external view returns (bool) {
-        require(_exists(tokenId), "Token nao existe");
-        return artworks[tokenId].premiumActive;
-    }
-
-    function setGalerieWallet(address payable newWallet) external onlyOwner {
-        galerieWallet = newWallet;
-    }
-
-    // Whitelist: adicionar e remover curadores
-    function adicionarCurador(address curador) external onlyOwner {
-        isWhitelisted[curador] = true;
-    }
-
-    function removerCurador(address curador) external onlyOwner {
-        isWhitelisted[curador] = false;
-    }
-
-    // Suporte ERC721 + ERC2981
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721URIStorage, ERC2981) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721URIStorage, ERC2981)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 }

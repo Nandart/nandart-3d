@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NANdART Artists Panel</title>
+
+    <!-- Import map para módulos ES -->
+    <script type="importmap">
+      {
+        "imports": {
+          "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm",
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"
+        }
+      }
+    </script>
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <h1>Painel de Artistas</h1>
+    <div id="painel"></div>
+    <button onclick="cunharObrasSuspensas()">Cunhar obras suspensas</button>
+
+    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/curadoria.js"></script>
+    <script type="module" src="./src/api/cunharSuspensas.js"></script>
+  </body>
+</html>

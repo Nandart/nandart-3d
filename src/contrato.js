@@ -1,28 +1,29 @@
 import { ethers } from "ethers";
+import contratoABI from "./api/NandartNFT_ABI.json" assert { type: "json" };
 
-// Endereço do contrato na rede (Mumbai ou Polygon)
-const contratoAddress = "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41";
+// Mapeamento de endereços do contrato por rede
+const addressesPorRede = {
+  80001: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41", // Mumbai Testnet
+  137:   "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"           // <- Substitui aqui pelo endereço real
+};
 
-// ABI expandida
-const contratoABI = [
-  "function mintComCuradoria(address artista, string tokenURI_) payable returns (uint256)",
-  "function mintForArtist(address artista, uint256 price) returns (uint256)",
-  "function buy(uint256 tokenId) payable",
-  "function activatePremium(uint256 tokenId) payable",
-  "function ownerOf(uint256 tokenId) view returns (address)",
-  "function tokenURI(uint256 tokenId) view returns (string)",
-  "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-  "function isPremiumActive(uint256 tokenId) view returns (bool)",
-  "function isWhitelisted(address) view returns (bool)",
-  "function adicionarCurador(address curador)",
-  "function removerCurador(address curador)",
-  "function setGalerieWallet(address newWallet)",
-  "function artworks(uint256 tokenId) view returns (address artist, uint256 price, bool premiumActive)"
-];
-
-// Função para instanciar o contrato com signer
 export async function getContrato() {
+  if (!window.ethereum) {
+    throw new Error("MetaMask não encontrado. Por favor, instala para continuar.");
+  }
+
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
+  const network = await provider.getNetwork();
+
+  const contratoAddress = addressesPorRede[network.chainId];
+
+  if (!contratoAddress) {
+    throw new Error(`Contrato não definido para a rede ${network.name} (chainId: ${network.chainId})`);
+  }
+
+  console.log(`Rede ativa: ${network.name} (chainId: ${network.chainId})`);
+  console.log(`Contrato a usar: ${contratoAddress}`);
+
   return new ethers.Contract(contratoAddress, contratoABI, signer);
 }

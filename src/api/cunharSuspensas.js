@@ -1,4 +1,4 @@
-import { getContrato } from './contrato.js';
+import { getContrato } from '../contrato.js';
 import { obrasSuspensas } from '../main.js';
 
 const artworkData = obrasSuspensas;

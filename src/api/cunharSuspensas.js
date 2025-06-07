@@ -33,4 +33,4 @@ async function cunharObrasSuspensas() {
     }
   }
 }
-
+window.cunharObrasSuspensas = cunharObrasSuspensas;

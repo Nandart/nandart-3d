@@ -6,9 +6,9 @@ const addressesPorRede = {
   137:   "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"  // Polygon Mainnet
 };
 
-// Carrega ABI do diretório público
+// Carrega ABI do caminho relativo com fetch
 async function loadABI() {
-  const response = await fetch("/abi/NandartNFT_ABI.json");
+  const response = await fetch("/abi/NandartNFT_ABI.json");  // <- Corrigido
   if (!response.ok) {
     throw new Error("Erro ao carregar ABI JSON");
   }

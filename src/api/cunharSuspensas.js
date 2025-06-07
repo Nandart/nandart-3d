@@ -1,6 +1,7 @@
 import { getContrato } from './contrato.js';
+import { obrasSuspensas } from '../main.js';
 
-const artworkData = [ /* array com obras suspensas */ ];
+const artworkData = obrasSuspensas;
 
 async function cunharObrasSuspensas() {
   const contrato = await getContrato();

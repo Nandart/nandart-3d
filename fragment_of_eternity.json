@@ -1,11 +1,74 @@
-{
-  "name": "Fragment of Eternity",
-  "description": "\"Fragment of Eternity\" é uma obra de Inês Duarte, criada em 2023. Uma expressão lírica em Óleo sobre tela que evoca os contornos do abstrato contemporâneo.",
-  "image": "https://ipfs.io/ipfs/bafybeibanjktz5gsjfh5xdhrhenuzdbpclj5cqx25kr3eg3pv36kgfwxam",
-  "attributes": [
-    { "trait_type": "Artista", "value": "Rénner Nunes" },
-    { "trait_type": "Ano", "value": "2023" },
-    { "trait_type": "Estilo", "value": "Abstrato" },
-    { "trait_type": "Técnica", "value": "Óleo sobre tela" }
-  ]
-}
+import json
+import os
+from pathlib import Path
+
+# Dados das obras
+artworks = [
+    {
+        "title": "Shadows of Light",
+        "artist": "Rénner Nunes",
+        "year": "2024",
+        "image_cid": "bafkreignnijshij54cfdpayxzndpgzr4vxyyisduh5nyantylvclz7bo74",
+        "filename": "shadows_of_light.json"
+    },
+    {
+        "title": "Shared Horizon",
+        "artist": "Rénner Nunes",
+        "year": "2022",
+        "image_cid": "bafkreiaqpszoqq4pk4crv5odnurxtez3hekkbjvg7dqg33idmgj2wo44rq",
+        "filename": "shared_horizon.json"
+    },
+    {
+        "title": "Memories of Silence",
+        "artist": "Rénner Nunes",
+        "year": "2023",
+        "image_cid": "bafkreihukwcdra3dfogysdw2ctedbzwqqyjjqaedrxxabmuqgeh6z7lsuq",
+        "filename": "memories_of_silence.json"
+    },
+    {
+        "title": "Contained Rhythm",
+        "artist": "Joana Serra",
+        "year": "2025",
+        "image_cid": "bafkreidxw374qvuhp2waimuqr7qblxqo7kurr5kst363hjvhiirjt4spva",
+        "filename": "contained_rhythm.json"
+    },
+    {
+        "title": "Inner Fluctuation",
+        "artist": "André Luz",
+        "year": "2023",
+        "image_cid": "bafkreiaqbgecubk625pe3zryzq2ymub5snmqk3diimstyqbh6kcy6igsgi",
+        "filename": "inner_fluctuation.json"
+    },
+    {
+        "title": "Concealed Verse",
+        "artist": "Rénner Nunes",
+        "year": "2024",
+        "image_cid": "bafkreidxw374qvuhp2waimuqr7qblxqo7kurr5kst363hjvhiirjt4spva",
+        "filename": "concealed_verse.json"
+    },
+    {
+        "title": "Silhouette of Tomorrow",https://github.com/Nandart/nandart-3d/edit/main/dist/silhouette_of_tomorrow.json
+        "artist": "Tiago Faria",
+        "year": "2025",
+        "image_cid": "bafkreibplpjulxbnpu2s2faielmuihvgovcwcc5zzi5ozi7qq7yzlegyye",
+        "filename": "silhouette_of_tomorrow.json"
+    }
+]
+
+# Criar diretório temporário para guardar os ficheiros JSON
+output_dir = Path("/mnt/data/metadata_jsons")
+output_dir.mkdir(exist_ok=True)
+
+# Criar os ficheiros JSON
+for artwork in artworks:
+    metadata = {
+        "name": artwork["title"],
+        "description": f"Obra intitulada '{artwork['title']}' criada por {artwork['artist']} no ano de {artwork['year']}.",
+        "image": f"ipfs://{artwork['image_cid']}",
+        "artist": artwork["artist"],
+        "year": artwork["year"]
+    }
+    with open(output_dir / artwork["filename"], "w") as f:
+        json.dump(metadata, f, indent=2)
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Ficheiros JSON Corrigidos", dataframe=pd.DataFrame(artworks))

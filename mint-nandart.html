@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mint NFT - NANdART</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h2>Mint NFT via Curadoria (NANdART)</h2>
+  <button onclick="mintNFT()">Mint Obra: "Shadows of Light"</button>
+  <p id="status"></p>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x3994c906f3242e0e216c53af50381f66c020287c";
+    const ABI = [
+      "function mintComCuradoria(address artista, string memory tokenURI_) external payable"
+    ];
+
+    const ARTISTA_ADDRESS = "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41";
+    const TOKEN_URI = "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shadows_of_light.json";
+    const VALUE_IN_WEI = "10000000000000000"; // 0.01 MATIC
+
+    async function mintNFT() {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+        const tx = await contract.mintComCuradoria(ARTISTA_ADDRESS, TOKEN_URI, {
+          value: VALUE_IN_WEI
+        });
+
+        document.getElementById("status").innerText = "Transação enviada... Aguarda confirmação";
+        await tx.wait();
+        document.getElementById("status").innerText = "NFT cunhado com sucesso! 🎉";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("status").innerText = "Erro: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

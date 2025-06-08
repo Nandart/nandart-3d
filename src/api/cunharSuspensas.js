@@ -34,7 +34,5 @@ async function cunharObrasSuspensas() {
   }
 }
 
-
-
 // Tornar a função acessível no escopo global
 window.cunharObrasSuspensas = cunharObrasSuspensas;

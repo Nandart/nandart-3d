@@ -589,7 +589,7 @@ const artworkData = [
   artist: "Rénner Nunes",
   year: "2023",
   price: "0.08",
-  tokenURI: "https://ipfs.io/ipfs/bafybeicnafmqkac6fxctncuibyr5bv35srkk24iled3p72n4oqul333vaa/fragment_of_eternity.json",
+  tokenURI: "https://ipfs.io/ipfs/bafkreibhrxsmbi6t36qupa5zw6mrc5n5voirsclvkkolobj7wudm5emot4/fragment_of_eternity.json",
   artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
 },
   {
@@ -597,7 +597,7 @@ const artworkData = [
     artist: "Rénner Nunes",
     year: "2024",
     price: "0.01",
-    tokenURI: "https://ipfs.io/ipfs/bafybeic2cmwwsvm6fjfbxojc2pcr3rzvtfveludgpd44jxgetyrlncxmyu/shadows_of_light.json",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shadows_of_light.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
@@ -605,7 +605,7 @@ const artworkData = [
     artist: "Rénner Nunes",
     year: "2022",
     price: "1",
-    tokenURI: "https://ipfs.io/ipfs/bafybeiakxmorl2p2z7cjm7vl5laqc5iozulevcskrya7hrmm6biewzwzu4/shared_horizon.json",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shared_horizon.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
@@ -613,7 +613,7 @@ const artworkData = [
     artist: "Rénner Nunes",
     year: "2023",
     price: "0.15",
-    tokenURI: "https://ipfs.io/ipfs/bafybeibdrkwcyu6qajyynrl2sjgwyiowpgwwu5limjq6rab4wdoggnflpy/memories_of_silence.json",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/memories_of_silence.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
@@ -621,15 +621,15 @@ const artworkData = [
     artist: "Joana Serra",
     year: "2025",
     price: "0.0001",
-    tokenURI: "https://ipfs.io/ipfs/bafybeidi67ljb4oa7ywti4dxcnlmvnjfme6gyongbl3ygsgmpg5ne5tqz4/contained_rhythm.json",
-     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/contained_rhythm.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Inner Fluctuation",
     artist: "André Luz",
     year: "2023",
     price: "0.2",
-    tokenURI: "https://ipfs.io/ipfs/bafybeihnvhjtbkygyw7tcghpxbbzcte2a74mqkswaliu3gec4r6tm7phvm/inner_fluctuation.json",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/inner_fluctuation.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
@@ -637,16 +637,16 @@ const artworkData = [
     artist: "Rénner Nunes",
     year: "2024",
     price: "1.55",
-   tokenURI: "https://ipfs.io/ipfs/bafybeify2nqjijzo3ocy7um5pot75bzmhqgtkmnxa5izf5mgfxy6jvhmjm/concealed_verse.json",
-     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/concealed_verse.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Silhouette of Tomorrow",
     artist: "Tiago Faria",
     year: "2025",
     price: "0.5",
-    tokenURI: "https://ipfs.io/ipfs/bafybeicslxf77trep4rwsszl57jhwmlmevuc4bnfouvqdrjpc4jgggfv44/silhouette_of_tomorrow.json",
-     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/silhouette_of_tomorrow.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
 ];
 export const obrasSuspensas = []; // ou adicione os elementos necessários

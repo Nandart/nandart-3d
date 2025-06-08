@@ -1,4 +1,5 @@
 import { getContrato } from "./contrato.js";
+import './js/cunharSuspensas.js';
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
 import * as THREE from 'three';

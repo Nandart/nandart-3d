@@ -1,7 +1,7 @@
 import { getContrato } from "./contrato.js";
 import { verificarRedePolygon, mudarParaPolygon } from "./rede.js";
 
-const contractAddress = "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41";
+const contractAddress = "0x3994c906f3242e0e216c53af50381f66c020287c";
 const chainName = "matic";
 
 // Verifica quem é o proprietário atual do NFT

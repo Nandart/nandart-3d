@@ -1,36 +1,40 @@
 import { ethers } from "ethers";
 
-// Endereços por rede
-const addressesPorRede = {
-  80001: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41", // Mumbai
-  137:   "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"  // Polygon Mainnet
+// Endereços do contrato por rede (usa sempre strings como keys)
+const enderecosPorRede = {
+  '137': '0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41', // Polygon Mainnet
+  // Adiciona aqui outras redes se necessário (ex: '80001': '0x...') para Mumbai
 };
 
-// Carrega ABI do caminho relativo com fetch
+// Função para carregar o ABI via fetch
 async function loadABI() {
-  const response = await fetch("/abi/NandartNFT_ABI.json");  // <- Corrigido
+  const response = await fetch("/abi/NandartNFT_ABI.json");
   if (!response.ok) {
-    throw new Error("Erro ao carregar ABI JSON");
+    throw new Error("Erro ao carregar o ficheiro ABI JSON.");
   }
   return await response.json();
 }
 
+// Exporta o contrato instanciado, pronto a ser usado
 export async function getContrato() {
   if (!window.ethereum) {
-    throw new Error("MetaMask não encontrado.");
+    throw new Error("MetaMask não foi detetado. Por favor instala a extensão.");
   }
 
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
   const network = await provider.getNetwork();
 
-  const contratoAddress = addressesPorRede[network.chainId];
+  const chainId = network.chainId.toString();
+  const contratoAddress = enderecosPorRede[chainId];
+
   if (!contratoAddress) {
-    throw new Error(`Endereço não definido para chainId: ${network.chainId}`);
+    throw new Error(`⚠️ Rede não suportada (chainId ${chainId}). Liga-te à Polygon.`);
   }
 
   const abi = await loadABI();
 
-  console.log(`🔗 Rede: ${network.name} | Contrato: ${contratoAddress}`);
+  console.log(`🔗 Rede: ${network.name} (chainId ${chainId}) | Contrato: ${contratoAddress}`);
+
   return new ethers.Contract(contratoAddress, abi, signer);
 }

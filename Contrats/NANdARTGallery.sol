@@ -1,17 +1,123 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-// ==== IMPORTS DO OPENZEPPELIN VIA GITHUB ====
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/access/Ownable.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/token/common/ERC2981.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/security/ReentrancyGuard.sol";
+/* ===== OpenZeppelin Contracts v4.9.0 ===== */
 
-// ==== CONTRATO DE SPLIT DE ROYALTIES ====
+// Context
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+}
+
+// Ownable
+abstract contract Ownable is Context {
+    address private _owner;
+
+    constructor() {
+        _owner = _msgSender();
+    }
+
+    modifier onlyOwner() {
+        require(_msgSender() == _owner, "Ownable: not the owner");
+        _;
+    }
+
+    function owner() public view returns (address) {
+        return _owner;
+    }
+}
+
+// ReentrancyGuard
+abstract contract ReentrancyGuard {
+    uint256 private _status;
+
+    constructor() {
+        _status = 1;
+    }
+
+    modifier nonReentrant() {
+        require(_status != 2, "ReentrancyGuard: reentrant call");
+        _status = 2;
+        _;
+        _status = 1;
+    }
+}
+
+// ERC165
+interface IERC165 {
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+abstract contract ERC165 is IERC165 {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+// IERC2981
+interface IERC2981 is IERC165 {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address, uint256);
+}
+
+// ERC2981
+abstract contract ERC2981 is IERC2981, ERC165 {
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
+
+    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 fraction) internal {
+        require(fraction <= 10000, "Royalty too high");
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
+    }
+
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view override returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / 10000;
+        return (royalty.receiver, royaltyAmount);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+}
+
+// ERC721 minimal + URIStorage
+interface IERC721 {
+    function ownerOf(uint256 tokenId) external view returns (address);
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+}
+
+abstract contract ERC721URIStorage is Context, IERC721 {
+    mapping(uint256 => address) private _owners;
+    mapping(uint256 => string) private _tokenURIs;
+
+    function _safeMint(address to, uint256 tokenId) internal {
+        _owners[tokenId] = to;
+    }
+
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function ownerOf(uint256 tokenId) public view override returns (address) {
+        return _owners[tokenId];
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
+        require(msg.sender == from || msg.sender == to, "Not authorized");
+        _owners[tokenId] = to;
+    }
+}
+
+/* ===== RoyaltySplitter Contract ===== */
+
 contract RoyaltySplitter is Ownable, ReentrancyGuard {
     address public immutable galeria;
     address public immutable artista;
-
     uint96 public immutable percentGaleria;
     uint96 public immutable percentArtista;
 
@@ -23,7 +129,6 @@ contract RoyaltySplitter is Ownable, ReentrancyGuard {
     ) {
         require(_galeria != address(0) && _artista != address(0), "Enderecos invalidos");
         require(_percentGaleria + _percentArtista == 10000, "Soma dos percentuais deve ser 10000");
-
         galeria = _galeria;
         artista = _artista;
         percentGaleria = _percentGaleria;
@@ -44,7 +149,8 @@ contract RoyaltySplitter is Ownable, ReentrancyGuard {
     }
 }
 
-// ==== CONTRATO PRINCIPAL DA GALERIA ====
+/* ===== NANdARTGallery Contract ===== */
+
 contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
     uint256 public tokenCounter;
     address public curador;
@@ -57,7 +163,7 @@ contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
         _;
     }
 
-    constructor() ERC721("NANdARTGallery", "NANdART") {
+    constructor() {
         tokenCounter = 0;
         curador = msg.sender;
     }
@@ -75,7 +181,7 @@ contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
         isWhitelisted[utilizador] = false;
     }
 
-    function mintComCuradoria(address artista, string memory tokenURI_) public apenasCurador {
+    function mintComCuradoria(address artista, string memory tokenURI_) public payable apenasCurador {
         require(bytes(tokenURI_).length > 0, "Token URI obrigatoria");
         require(artista != address(0), "Endereco do artista invalido");
 
@@ -100,7 +206,7 @@ contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721URIStorage, ERC2981)
+        override(ERC2981)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

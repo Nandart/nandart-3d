@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 // Endereços do contrato por rede (usa sempre strings como keys)
 const enderecosPorRede = {
-  '137': '0x3994c906f3242e0e216c53af50381f66c020287c', // Polygon Mainnet
+  '137': '0x095c5037d606D0B988a31DA2a2E50Ab12685D717', // Polygon Mainnet
   // Adiciona aqui outras redes se necessário (ex: '80001': '0x...') para Mumbai
 };
 

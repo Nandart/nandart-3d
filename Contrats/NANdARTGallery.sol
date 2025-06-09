@@ -1,34 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/* ===== OpenZeppelin Contracts v4.9.0 ===== */
-
-// Context
+/* ===== Contexto ===== */
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 }
 
-// Ownable
+/* ===== Ownable ===== */
 abstract contract Ownable is Context {
     address private _owner;
 
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
     constructor() {
-        _owner = _msgSender();
+        _transferOwnership(_msgSender());
     }
 
     modifier onlyOwner() {
-        require(_msgSender() == _owner, "Ownable: not the owner");
+        require(_msgSender() == _owner, "Ownable: nao e o dono");
         _;
     }
 
     function owner() public view returns (address) {
         return _owner;
     }
+
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: novo dono e o endereco zero");
+        _transferOwnership(newOwner);
+    }
+
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
 }
 
-// ReentrancyGuard
+/* ===== ReentrancyGuard ===== */
 abstract contract ReentrancyGuard {
     uint256 private _status;
 
@@ -37,31 +48,57 @@ abstract contract ReentrancyGuard {
     }
 
     modifier nonReentrant() {
-        require(_status != 2, "ReentrancyGuard: reentrant call");
+        require(_status != 2, "ReentrancyGuard: chamada reentrante");
         _status = 2;
         _;
         _status = 1;
     }
 }
 
-// ERC165
+/* ===== Interfaces ===== */
 interface IERC165 {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-abstract contract ERC165 is IERC165 {
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId;
-    }
-}
-
-// IERC2981
 interface IERC2981 is IERC165 {
     function royaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address, uint256);
 }
 
-// ERC2981
-abstract contract ERC2981 is IERC2981, ERC165 {
+interface IERC721 is IERC165 {
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    function balanceOf(address owner) external view returns (uint256 balance);
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
+    function approve(address to, uint256 tokenId) external;
+    function setApprovalForAll(address operator, bool approved) external;
+    function getApproved(uint256 tokenId) external view returns (address operator);
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+}
+
+interface IERC721Metadata is IERC721 {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+}
+
+interface IERC721Receiver {
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external returns (bytes4);
+}
+
+/* ===== ERC165 ===== */
+abstract contract ERC165 is IERC165 {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165) returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+/* ===== ERC2981 ===== */
+abstract contract ERC2981 is ERC165, IERC2981 {
     struct RoyaltyInfo {
         address receiver;
         uint96 royaltyFraction;
@@ -70,11 +107,11 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
 
     function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 fraction) internal {
-        require(fraction <= 10000, "Royalty too high");
+        require(fraction <= 10000, "Royalty demasiado alta");
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
     }
 
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view override returns (address, uint256) {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
         uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / 10000;
         return (royalty.receiver, royaltyAmount);
@@ -85,36 +122,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     }
 }
 
-// ERC721 minimal + URIStorage
-interface IERC721 {
-    function ownerOf(uint256 tokenId) external view returns (address);
-    function safeTransferFrom(address from, address to, uint256 tokenId) external;
-}
-
-abstract contract ERC721URIStorage is Context, IERC721 {
-    mapping(uint256 => address) private _owners;
-    mapping(uint256 => string) private _tokenURIs;
-
-    function _safeMint(address to, uint256 tokenId) internal {
-        _owners[tokenId] = to;
-    }
-
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
-        _tokenURIs[tokenId] = _tokenURI;
-    }
-
-    function ownerOf(uint256 tokenId) public view override returns (address) {
-        return _owners[tokenId];
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
-        require(msg.sender == from || msg.sender == to, "Not authorized");
-        _owners[tokenId] = to;
-    }
-}
-
-/* ===== RoyaltySplitter Contract ===== */
-
+/* ===== Royalty Splitter ===== */
 contract RoyaltySplitter is Ownable, ReentrancyGuard {
     address public immutable galeria;
     address public immutable artista;
@@ -128,7 +136,8 @@ contract RoyaltySplitter is Ownable, ReentrancyGuard {
         uint96 _percentArtista
     ) {
         require(_galeria != address(0) && _artista != address(0), "Enderecos invalidos");
-        require(_percentGaleria + _percentArtista == 10000, "Soma dos percentuais deve ser 10000");
+        require(_percentGaleria + _percentArtista == 10000, "Percentagens devem somar 10000");
+
         galeria = _galeria;
         artista = _artista;
         percentGaleria = _percentGaleria;
@@ -139,7 +148,7 @@ contract RoyaltySplitter is Ownable, ReentrancyGuard {
 
     function distribuir() external nonReentrant {
         uint256 total = address(this).balance;
-        require(total > 0, "Sem fundos a distribuir");
+        require(total > 0, "Sem saldo");
 
         uint256 valorGaleria = (total * percentGaleria) / 10000;
         uint256 valorArtista = total - valorGaleria;
@@ -149,17 +158,93 @@ contract RoyaltySplitter is Ownable, ReentrancyGuard {
     }
 }
 
-/* ===== NANdARTGallery Contract ===== */
+/* ===== ERC721 Metadata Minimal ===== */
+abstract contract ERC721MetadataMinimal is ERC165, IERC721Metadata {
+    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 => address) private _owners;
+    mapping(address => uint256) private _balances;
 
-contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+        require(bytes(_tokenURI).length > 0, "URI invalida");
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function _mint(address to, uint256 tokenId) internal virtual {
+        require(to != address(0), "Endereco invalido");
+        require(_owners[tokenId] == address(0), "Token ja existe");
+        _owners[tokenId] = to;
+        _balances[to] += 1;
+        emit Transfer(address(0), to, tokenId);
+    }
+
+    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+        return _owners[tokenId];
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        return _tokenURIs[tokenId];
+    }
+
+    function balanceOf(address owner) public view virtual override returns (uint256) {
+        return _balances[owner];
+    }
+
+    function name() public view virtual override returns (string memory) {
+        return "NANdART Gallery";
+    }
+
+    function symbol() public view virtual override returns (string memory) {
+        return "NART";
+    }
+
+    function approve(address, uint256) external virtual override {
+        revert("Not implemented");
+    }
+
+    function setApprovalForAll(address, bool) external virtual override {
+        revert("Not implemented");
+    }
+
+    function getApproved(uint256) external view virtual override returns (address) {
+        revert("Not implemented");
+    }
+
+    function isApprovedForAll(address, address) external view virtual override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function safeTransferFrom(address, address, uint256) external virtual override {
+        revert("Not implemented");
+    }
+
+    function safeTransferFrom(address, address, uint256, bytes calldata) external virtual override {
+        revert("Not implemented");
+    }
+
+    function transferFrom(address, address, uint256) external virtual override {
+        revert("Not implemented");
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IERC721Metadata).interfaceId || super.supportsInterface(interfaceId);
+    }
+}
+
+/* ===== NANdARTGallery ===== */
+contract NANdARTGallery is Ownable, ERC721MetadataMinimal, ERC2981 {
     uint256 public tokenCounter;
     address public curador;
 
     mapping(address => bool) public isWhitelisted;
     mapping(uint256 => address) public contratosDeRoyalties;
 
+    event ObraCunhada(address artista, uint256 tokenId, address contratoRoyalties);
+    event CuradorAlterado(address novoCurador);
+    event WhitelistAdicionado(address utilizador);
+    event WhitelistRemovido(address utilizador);
+
     modifier apenasCurador() {
-        require(msg.sender == curador, "Somente o curador pode executar esta acao");
+        require(msg.sender == curador, "Apenas o curador pode");
         _;
     }
 
@@ -169,46 +254,47 @@ contract NANdARTGallery is ERC721URIStorage, Ownable, ERC2981 {
     }
 
     function definirCurador(address novoCurador) public onlyOwner {
-        require(novoCurador != address(0), "Endereco do curador invalido");
+        require(novoCurador != address(0), "Curador invalido");
         curador = novoCurador;
+        emit CuradorAlterado(novoCurador);
     }
 
     function adicionarAWhitelist(address utilizador) public apenasCurador {
+        require(utilizador != address(0), "Endereco invalido");
         isWhitelisted[utilizador] = true;
+        emit WhitelistAdicionado(utilizador);
     }
 
     function removerDaWhitelist(address utilizador) public apenasCurador {
         isWhitelisted[utilizador] = false;
+        emit WhitelistRemovido(utilizador);
     }
 
-    function mintComCuradoria(address artista, string memory tokenURI_) public payable apenasCurador {
-        require(bytes(tokenURI_).length > 0, "Token URI obrigatoria");
-        require(artista != address(0), "Endereco do artista invalido");
+    function mintComCuradoria(address artista, string memory tokenURI_) public apenasCurador {
+        require(bytes(tokenURI_).length > 0, "URI obrigatoria");
+        require(artista != address(0), "Artista invalido");
 
         uint256 tokenId = tokenCounter;
 
-        _safeMint(artista, tokenId);
+        _mint(artista, tokenId);
         _setTokenURI(tokenId, tokenURI_);
 
         RoyaltySplitter splitter = new RoyaltySplitter(
             address(this),
             artista,
-            400,
-            600
+            4000,
+            6000
         );
 
         contratosDeRoyalties[tokenId] = address(splitter);
-        _setTokenRoyalty(tokenId, address(splitter), 1000); // 10%
+        _setTokenRoyalty(tokenId, address(splitter), 1000);
+
+        emit ObraCunhada(artista, tokenId, address(splitter));
 
         tokenCounter++;
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC2981)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721MetadataMinimal, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

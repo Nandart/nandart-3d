@@ -638,8 +638,7 @@ const artworkData = [
     year: "2023",
     price: "1.55",
     tokenURI: "ipfs://bafkreieevpfuos62jiiflarwwpgubw3znzsfv5fjl3k2tv2uiykpeiueee",
-    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41",
-    tokenId: 15
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
     title: "Silhouette of Tomorrow",
@@ -787,8 +786,11 @@ function showArtModal(artworkPosition, data) {
   openSeaButton.textContent = "See on OpenSea";
   openSeaButton.style.marginLeft = "8px";
   openSeaButton.onclick = () => {
-    const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 
-    window.open(linkOpenSea(tokenId), '_blank');
+    if (data.tokenId !== undefined) {
+    window.open(linkOpenSea(data.tokenId), '_blank');
+  } else {
+    alert("Este NFT ainda não foi cunhado.");
+  }
   };
 
   const revendaDiv = document.createElement('div');

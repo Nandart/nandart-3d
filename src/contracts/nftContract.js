@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 // Endereço do contrato deployado na blockchain (copiado do Remix)
-const CONTRACT_ADDRESS = "0xD91...391"; // substitui pelo teu
+const CONTRACT_ADDRESS = "0xeAA6711D4d6604Aeb134aa90bE7a7439aE473440"; // substitui pelo teu
 
 // ABI do contrato (podes copiar da aba "ABI" no Remix)
 import CONTRACT_ABI from "./NandartNFT_ABI.json";

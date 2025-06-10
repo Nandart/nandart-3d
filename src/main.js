@@ -642,10 +642,10 @@ const artworkData = [
   },
   {
     title: "Silhouette of Tomorrow",
-    artist: "Tiago Faria",
-    year: "2025",
-    price: "0.5",
-    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/silhouette_of_tomorrow.json",
+    artist: "Rénner Nunes",
+    year: "2024",
+    price: "0.04",
+    tokenURI: "ipfs://bafkreif45vd7woswi3pbdzrowr6mtkobu6e7wop4yj3lukn4l4lm6k6h6y",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
 ];

@@ -1,3 +1,19 @@
+function getTokenId(data) {
+  if (data && typeof data.tokenId !== 'undefined') {
+    return data.tokenId;
+  }
+
+  // Tentativa de extrair a partir do tokenURI, se houver padrão com número no nome
+  try {
+    const fallback = data.tokenURI?.split('/').pop().split('.')[0].split('_').pop();
+    const parsed = parseInt(fallback);
+    return isNaN(parsed) ? undefined : parsed;
+  } catch {
+    return undefined;
+  }
+}
+
+
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
@@ -843,10 +859,16 @@ function showArtModal(artworkPosition, data) {
   openSeaButton.className = 'dynamic-element'; // <-- Classe para identificação
   openSeaButton.textContent = "See on OpenSea";
   openSeaButton.style.marginLeft = "8px";
-  openSeaButton.onclick = () => {
-    const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 
-    window.open(linkOpenSea(tokenId), '_blank');
-  };
+  
+openSeaButton.onclick = () => {
+  console.log("🧪 Dados recebidos no modal:", data);
+  if (data.tokenId !== undefined) {
+    window.open(linkOpenSea(data.tokenId), '_blank');
+  } else {
+    alert("Este NFT ainda não foi cunhado.");
+  }
+};
+
 
   const revendaDiv = document.createElement('div');
   revendaDiv.className = 'dynamic-element'; // <-- Classe para identificação

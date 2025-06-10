@@ -1,0 +1,11 @@
+{
+  "name": "Silhouette of Tomorrow",
+  "description": "Uma silhueta emergente que dança entre o tempo e o desejo. A sombra do futuro projectada no presente.",
+  "image": "ipfs://bafybeib3q2upiklnwjcocjlxty2dwirogbksaual5mpizsc4sipi2uwmsq",
+  "attributes": [
+    { "trait_type": "Obra", "value": "Original" },
+    { "trait_type": "Ano", "value": "2025" },
+    { "trait_type": "Cor predominante", "value": "Azul profundo" },
+    { "trait_type": "Estilo", "value": "Abstraccionismo lírico" }
+  ]
+}

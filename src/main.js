@@ -654,7 +654,8 @@ const artworkData = [
     year: "2023",
     price: "1.55",
     tokenURI: "ipfs://bafkreieevpfuos62jiiflarwwpgubw3znzsfv5fjl3k2tv2uiykpeiueee",
-    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41",
+    TokenId: 15
   },
   {
     title: "Silhouette of Tomorrow",

@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NANdART Gallery – Painel do Artista</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background-color: #f2f2f2; }
+    h1, h2 { color: #222; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input { width: 100%; padding: 0.5rem; margin-top: 0.3rem; border: 1px solid #ccc; border-radius: 6px; }
+    button {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background-color: #4b57d2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #373fa0; }
+    .obra-card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .obra-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+    .secao {
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Painel do Artista – NANdART Gallery</h1>
+
+  <section class="secao">
+    <h2>Submeter Nova Obra</h2>
+    <label for="titulo">Título da Obra</label>
+    <input type="text" id="titulo" placeholder="Ex: Fragment of Eternity" />
+
+    <label for="ano">Ano</label>
+    <input type="number" id="ano" placeholder="Ex: 2024" />
+
+    <label for="preco">Preço (ETH)</label>
+    <input type="number" step="0.01" id="preco" placeholder="Ex: 0.5" />
+
+    <label for="imagem">URL da Imagem (IPFS)</label>
+    <input type="text" id="imagem" placeholder="Ex: ipfs://..." />
+
+    <button id="submit-art">Submeter Obra</button>
+  </section>
+
+  <section class="secao">
+    <h2>Submissões Pendentes</h2>
+    <div id="obras-pendentes"></div>
+  </section>
+
+  <section class="secao">
+    <h2>Obras Aprovadas e Cunhadas</h2>
+    <div id="minhas-obras"></div>
+  </section>
+
+  <script type="module" src="./artists_submit_logic.js"></script>
+</body>
+</html>

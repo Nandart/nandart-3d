@@ -649,7 +649,8 @@ const artworkData = [
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
 ];
-export const obrasSuspensas = [  {
+export const obrasSuspensas = [
+  {
     title: "Shadows of Light",
     artist: "Rénner Nunes",
     year: "2024",
@@ -696,7 +697,7 @@ export const obrasSuspensas = [  {
     price: "1.55",
     tokenURI: "ipfs://bafkreieevpfuos62jiiflarwwpgubw3znzsfv5fjl3k2tv2uiykpeiueee",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41",
-    TokenId: 15
+    tokenId: 15
   },
   {
     title: "Silhouette of Tomorrow",
@@ -705,7 +706,8 @@ export const obrasSuspensas = [  {
     price: "0.04",
     tokenURI: "ipfs://bafkreif45vd7woswi3pbdzrowr6mtkobu6e7wop4yj3lukn4l4lm6k6h6y",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
-  }]; // ou adicione os elementos necessários
+  }
+]; // ou adicione os elementos necessários
 
 const artworks = [];
 const artworkReflections = [];
@@ -842,11 +844,8 @@ function showArtModal(artworkPosition, data) {
   openSeaButton.textContent = "See on OpenSea";
   openSeaButton.style.marginLeft = "8px";
   openSeaButton.onclick = () => {
-    if (data.tokenId !== undefined) {
-    window.open(linkOpenSea(data.tokenId), '_blank');
-  } else {
-    alert("Este NFT ainda não foi cunhado.");
-  }
+    const tokenId = parseInt(data.tokenURI.split('/').pop().split('.')[0].split('_').pop()); 
+    window.open(linkOpenSea(tokenId), '_blank');
   };
 
   const revendaDiv = document.createElement('div');

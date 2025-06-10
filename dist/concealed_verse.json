@@ -1,5 +1,11 @@
 {
-  "name": "Concealed Verse",
-  "description": "Obra de Rénner Nunes, 2024.",
-  "image": "ipfs://bafkreignnijshij54cfdpayxzndpgzr4vxyyisduh5nyantylvclz7bo74",
+  "name": "Fragments of Identity",
+  "description": "Uma silhueta emergente que dança entre o tempo e o desejo. A sombra do futuro projectada no presente.",
+  "image": "ipfs://bafybeibnaydu2n5gdudynphewhwejgbt43hmcquf3giglca5udyjoqgudu",
+  "attributes": [
+    { "trait_type": "Artwork", "value": "Original" },
+    { "trait_type": "Year", "value": "2025" },
+    { "trait_type": "Artist Name", "value": "Rénner Nunes" },
+    { "trait_type": "Estilo", "value": "Abstraccionismo lírico" }
+  ]
 }

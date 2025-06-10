@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Artist Panel - NANdART Gallery</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background-color: #f8f8f8; }
+    h1 { color: #333; }
+    .obra-card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .obra-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .obra-card button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #5c67f2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .obra-card button:hover {
+      background-color: #4752c4;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>As tuas obras já cunhadas</h1>
+  <div id="minhas-obras"></div>
+
+  <script type="module" src="./artists_obras_cunhadas.js"></script>
+</body>
+</html>

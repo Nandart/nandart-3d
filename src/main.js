@@ -618,7 +618,7 @@ const artworkData = [
   },
   {
     title: "Contained Rhythm",
-    artist: "Joana Serra",
+    artist: "Rénner Nunes",
     year: "2025",
     price: "0.0001",
     tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/contained_rhythm.json",
@@ -626,18 +626,18 @@ const artworkData = [
   },
   {
     title: "Inner Fluctuation",
-    artist: "André Luz",
+    artist: "Rénner Nunes",
     year: "2023",
     price: "0.2",
     tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/inner_fluctuation.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {
-    title: "Concealed Verse",
+    title: "Fragments of Identity",
     artist: "Rénner Nunes",
-    year: "2024",
+    year: "2023",
     price: "1.55",
-    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/concealed_verse.json",
+    tokenURI: "ipfs://bafkreig3s2kt6ziz3uekgybp5rb3veqskjkqz3axmjjgobarlwpanfx5ie",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
   {

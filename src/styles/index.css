@@ -280,3 +280,40 @@ html, body {
   transform: translateX(-50%);
   z-index: 1;
 }
+
+
+/* ======== FLOATING MENU ======== */
+.floating-menu {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  gap: 18px;
+  animation: floatUpDown 3s ease-in-out infinite;
+}
+
+.floating-menu a, .floating-menu button.floating {
+  color: #e0eaff;
+  background-color: rgba(78, 92, 244, 0.15);
+  padding: 10px 18px;
+  border: 1px solid rgba(78, 92, 244, 0.6);
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(78, 92, 244, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.floating-menu a:hover, .floating-menu button.floating:hover {
+  transform: translateY(-3px);
+  background-color: rgba(109, 132, 255, 0.25);
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-3px); }
+}

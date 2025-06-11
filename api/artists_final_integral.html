@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+ <head>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+  <meta content="Submit your artwork to NANdART and join our curated NFT gallery" name="description"/>
+  <meta content="#111111" name="theme-color"/>
+  <title>
+   Join NANdART | Submit Your Artwork
+  </title>
+  <!-- Import map para módulos ES -->
+  <script type="importmap">
+   {
+        "imports": {
+          "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm",
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"
+        }
+      }
+  </script>
+  <link href="/src/styles/index.css" rel="stylesheet"/>
+  <link href="/assets/favicon.ico" rel="icon" type="image/x-icon"/>
+  <script type="importmap">
+   {
+      "imports": {
+        "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+      }
+    }
+  </script>
+  <style>
+   html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000811;
+      color: #e0e0e0;
+      font-family: 'Orbitron', sans-serif;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .navigation-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 12px;
+    }
+
+    .navigation-bar a {
+      background-color: rgba(0, 17, 37, 0.5);
+      border: 1px solid #89b4ff;
+      color: #89b4ff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .navigation-bar a:hover {
+      background-color: rgba(0, 19, 40, 0.6);
+      color: #ffffff;
+    }
+
+    .anchor-nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 100px 0 40px;
+      flex-wrap: wrap;
+    }
+
+    .anchor-nav a {
+      color: #89b4ff;
+      text-decoration: none;
+      font-size: 1rem;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .anchor-nav a:hover {
+      border-bottom: 1px solid #89b4ff;
+    }
+
+    .section {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background-color: rgba(20, 20, 20, 0.9);
+      border: 1px solid #89b4ff;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      color: #89b4ff;
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+    }
+
+    .section p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    form.artist-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    form.artist-form label {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    form.artist-form input,
+    form.artist-form select {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+
+    form.artist-form button {
+      background: #89b4ff;
+      color: #111;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+
+    form.artist-form button:hover {
+      background: rgba(0, 19, 40, 0.6);
+    }
+
+    #curadoria-btn {
+      display: none;
+      background-color: #d8b26c;
+      color: #111;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      margin: 20px auto;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    #curation-panel {
+      display: none;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #f5f5f5;
+      border: 1px solid rgba(0, 22, 45, 0.5);
+      border-radius: 8px;
+      margin-bottom: 40px;
+    }
+
+    #curation-panel h2 {
+      text-align: center;
+      color: #89b4ff;
+      margin-bottom: 1.5rem;
+    }
+
+    #curadoria-lista {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .submission-card {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 22, 45, 0.3);
+    }
+
+    .submission-image img {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .submission-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-approve {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .btn-reject {
+      background-color: #f44336;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      z-index: 1000;
+      font-family: 'Orbitron', sans-serif;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .notification.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .notification.error {
+      background-color: #f44336;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .anchor-nav {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .section {
+        margin: 0 16px 40px;
+        padding: 24px;
+      }
+
+      .navigation-bar {
+        flex-direction: column;
+        top: 12px;
+        right: 12px;
+        gap: 10px;
+      }
+
+      .navigation-bar a {
+        font-size: 0.82rem;
+        padding: 6px 10px;
+      }
+
+      #curation-panel {
+        margin: 0 16px 40px;
+        padding: 1rem;
+      }
+
+      .submission-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+ </head>
+ <body class="pagina-scrollavel">
+  <div class="navigation-bar">
+   <a href="index.html">
+    Return to Gallery
+   </a>
+   <a href="menu.html">
+    Back to Menu
+   </a>
+  </div>
+  <div class="anchor-nav">
+   <a href="#about">
+    About
+   </a>
+   <a href="#form">
+    Submit
+   </a>
+   <a href="#premium">
+    Premium Info
+   </a>
+   <a href="#terms">
+    Terms
+   </a>
+  </div>
+  <button id="curadoria-btn">
+   Acessar Painel de Curadoria
+  </button>
+  <button onclick="cunharObrasSuspensas()">
+   Cunhar obras suspensas
+  </button>
+  <div id="status-cunhagem">
+  </div>
+  <section id="curation-panel">
+   <h2>
+    Curatorial Panel
+   </h2>
+   <div id="curadoria-lista">
+    <p>
+     Loading submissions...
+    </p>
+   </div>
+  </section>
+  <main>
+   <section class="section" id="about">
+    <h2>
+     Welcome, Visionary Artist
+    </h2>
+    <p>
+     You are invited to join
+     <strong>
+      NANdART
+     </strong>
+     , a curated sanctuary of digital expression where each artwork transcends boundaries.
+        Submit your creation to be reviewed by our curatorial board. Accepted artworks will be minted and featured either on our
+     <em>
+      Web3 &amp; NFT
+     </em>
+     page or in the central spotlight of our virtual gallery, depending on the display option you choose.
+    </p>
+    <p>
+     The Premium Service allows your approved piece to take centre stage in the main exhibition circle — a paid option for artists seeking elevated visibility.
+    </p>
+   </section>
+   <section class="section" id="form">
+    <h2>
+     Submit Your Artwork
+    </h2>
+    <form class="artist-form" enctype="multipart/form-data" id="artwork-form">
+     <label for="artist-name">
+      Artist Name
+     </label>
+     <input id="artist-name" name="artistName" required="" type="text"/>
+     <label for="art-title">
+      Artwork Title
+     </label>
+     <input id="art-title" name="artTitle" required="" type="text"/>
+     <label for="art-year">
+      Year
+     </label>
+     <input id="art-year" max="2100" min="1900" name="artYear" required="" type="number"/>
+     <label for="art-price">
+      Suggested Price (in ETH)
+     </label>
+     <input id="art-price" name="artPrice" placeholder="e.g. 0.75" required="" type="text"/>
+     <label for="art-image">
+      Artwork Image (JPG or PNG)
+     </label>
+     <input accept="image/png, image/jpeg" id="art-image" name="artImage" required="" type="file"/>
+     <label for="highlight">
+      Display Preference
+     </label>
+     <select id="highlight" name="highlight">
+      <option value="standard">
+       Standard – Web3 Page Only (Free)
+      </option>
+      <option value="premium">
+       Premium – Central Highlight in Gallery (Paid)
+      </option>
+     </select>
+     <p style="font-size: 0.85rem; text-align: center;">
+      By submitting, you agree to our
+      <a href="terms.html" style="color:#89b4ff;">
+       Terms &amp; Conditions
+      </a>
+      regarding royalties, rights, and responsibilities.
+     </p>
+     <p id="submission-error" style="color: red; display: none; text-align: center;">
+      An unexpected error occurred. Please try again later.
+     </p>
+     <button type="submit">
+      Submit Artwork
+     </button>
+    </form>
+   </section>
+   <section class="section" id="premium">
+    <h2>
+     Premium Option
+    </h2>
+    <p>
+     The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.
+    </p>
+    <p>
+     This service supports the gallery's infrastructure and ensures your work is prominently visible to collectors and guests alike.
+    </p>
+    <p>
+     The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.
+    </p>
+   </section>
+   <section class="section" id="terms">
+    <h2>
+     Artist Agreement Summary
+    </h2>
+    <p>
+     Every submission is subject to curatorial review. Accepted works are either:
+    </p>
+    <ul>
+     <li>
+      <strong>
+       Premium
+      </strong>
+      — prominently displayed in the main gallery (paid)
+     </li>
+     <li>
+      <strong>
+       Standard
+      </strong>
+      — listed on the
+      <em>
+       Web3 &amp; NFT
+      </em>
+      page (free)
+     </li>
+    </ul>
+    <p>
+     The artist retains all rights to the artwork. NANdART manages minting, display, and royalties as outlined in the
+     <a href="terms.html" style="color:#89b4ff;">
+      Terms &amp; Conditions
+     </a>
+     .
+    </p>
+   </section>
+   <section class="section" id="obras-cunhadas">
+    <h2>
+     Your Approved &amp; Minted Works
+    </h2>
+    <div id="minhas-obras">
+    </div>
+   </section>
+  </main>
+  <script>
+   document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const errorEl = document.getElementById("submission-error");
+      errorEl.style.display = "none";
+
+      const formData = new FormData(form);
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch("https://api.nandartart.art/api/submit-artwork", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json'
+          },
+          credentials: 'include',
+          mode: 'cors'
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        showNotification("Submission successful! Your artwork is under review.", "success");
+        form.reset();
+      } catch (err) {
+        console.error("Submission error:", err);
+        errorEl.textContent = err.name === 'AbortError' 
+          ? "Request timeout. Please check your connection and try again." 
+          : err.message || "Network error. Please try again later.";
+        errorEl.style.display = "block";
+        showNotification("Submission failed: " + errorEl.textContent, "error");
+      }
+    });
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 500);
+      }, 5000);
+    }
+  </script>
+  <script type="module">
+   import { getContrato } from './src/contrato.js';
+    
+    const ADMIN_ADDRESSES = [
+      "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+    ];
+
+    async function checkCurador() {
+      try {
+        if (!window.ethereum) {
+          console.error("MetaMask não está instalado");
+          return false;
+        }
+
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length === 0) {
+          console.error("Nenhuma conta conectada");
+          return false;
+        }
+
+        const user = accounts[0].toLowerCase();
+        
+        if (ADMIN_ADDRESSES.some(addr => addr.toLowerCase() === user)) {
+          console.log("Acesso concedido: Endereço admin");
+          return true;
+        }
+
+        try {
+          const contrato = await getContrato();
+          const isWhitelisted = await contrato.isWhitelisted(accounts[0]);
+          if (isWhitelisted) {
+            console.log("Acesso concedido: Endereço whitelisted");
+            return true;
+          }
+        } catch (e) {
+          console.error("Erro ao verificar whitelist:", e);
+        }
+
+        console.error("Acesso negado: Sem permissões");
+        return false;
+      } catch (error) {
+        console.error("Erro na verificação:", error);
+        return false;
+      }
+    }
+
+    async function loadCuradoriaPanel() {
+      try {
+        const lista = document.getElementById("curadoria-lista");
+        lista.innerHTML = "<p>Carregando submissões...</p>";
+
+        const curadoriaModule = await import('/src/api/curadoria.js');
+        
+        if (typeof curadoriaModule.carregarSubmissoes !== 'function') {
+          throw new Error('Função carregarSubmissoes não encontrada no módulo');
+        }
+        
+        await curadoriaModule.carregarSubmissoes();
+      } catch (e) {
+        console.error("Erro ao carregar painel:", e);
+        showNotification("Erro ao carregar painel de curadoria", "error");
+        document.getElementById("curadoria-lista").innerHTML = `
+          <div class="error-message">
+            <p>Erro ao carregar submissões: ${e.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function initCuradoria() {
+      const isCurador = await checkCurador();
+      const btnCuradoria = document.getElementById('curadoria-btn');
+      const panel = document.getElementById('curation-panel');
+      
+      if (isCurador) {
+        btnCuradoria.style.display = 'block';
+        btnCuradoria.addEventListener('click', () => {
+          const willShow = panel.style.display !== 'block';
+          panel.style.display = willShow ? 'block' : 'none';
+          if (willShow) loadCuradoriaPanel();
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initCuradoria);
+    
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', initCuradoria);
+    }
+  </script>
+  <script type="module">
+   import { getContrato } from './src/contrato.js';
+import { obrasSuspensas } from './src/main.js';
+
+async function cunharObrasSuspensas() {
+  const contrato = await getContrato();
+  const contas = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const curador = contas[0];
+
+  const enderecoCurador = await contrato.curador();
+  if (curador.toLowerCase() !== enderecoCurador.toLowerCase()) {
+    console.error("❌ Apenas o curador pode cunhar estas obras.");
+    alert("Apenas o curador pode cunhar estas obras.");
+    return;
+  }
+
+  if (!confirm("Desejas cunhar todas as obras suspensas?")) return;
+
+  for (const obra of obrasSuspensas) {
+    try {
+      const valor = ethers.parseEther(obra.price.toString());
+      const tx = await contrato.mintComCuradoria(
+        obra.artista,
+        obra.tokenURI,
+        { value: valor }
+      );
+      console.log(`🛠️ A cunhar "${obra.title}"... TX: ${tx.hash}`);
+      await tx.wait();
+      console.log(`✅ Cunhagem da obra "${obra.title}" concluída com sucesso.`);
+    } catch (erro) {
+      console.error(`❌ Erro ao cunhar "${obra.title}":`, erro);
+    }
+  }
+}
+
+window.cunharObrasSuspensas = cunharObrasSuspensas;
+  </script>
+ <script src="src/artists_submit_logic_min.js" type="module"></script>
+  </script>
+ </body>
+</html>

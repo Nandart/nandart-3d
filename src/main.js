@@ -177,7 +177,7 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   metalness: 1,
   roughness: 0.08,
   emissive: 0xf3cc80,
-  emissiveIntensity: 0.45
+  emissiveIntensity: 0.85
 });
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
@@ -307,7 +307,7 @@ const wallMaterial = new THREE.MeshStandardMaterial({
   color: 0x3a3a3a,
   emissive: 0x1a1a1a,
   emissiveIntensity: 0.8,
-  roughness: 0.5,
+  roughness: 0.25,
   metalness: 0.15,
   side: THREE.FrontSide
 });
@@ -409,7 +409,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
       artworkGroup.add(painting);
 
       artworkGroup.position.set(x, y, z);
-      artworkGroup.rotation.y = rotY;
+      artworkGroup.rotation.y = rotY; artworkGroup.position.z = 0.02;
       scene.add(artworkGroup);
     },
     undefined,
@@ -439,11 +439,11 @@ function createShowcase(x, z, index) {
   const emissiveIntensity = 2.4;
 
   const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(1.05, pedestalHeight, 1.05),
+    new THREE.CylinderGeometry(0.6, 0.6, pedestalHeight, 32),
     new THREE.MeshStandardMaterial({
       map: showcaseTexture,
-      roughness: 0.5,
-      metalness: 0.25
+      roughness: 0.25,
+      metalness: 0.6
     })
   );
   pedestal.position.set(x, pedestalHeight / 2, z);
@@ -465,6 +465,10 @@ function createShowcase(x, z, index) {
       metalness: 0.1,
       roughness: 0.02,
       transmission: 1,
+      opacity: 0.15,
+      transparent: true,
+      ior: 1.45,
+      reflectivity: 0.8,
       thickness: 0.5,
       transparent: true,
       opacity: 0.1,
@@ -520,11 +524,11 @@ fontLoader.load(
     const text = new THREE.Mesh(
       textGeo,
       new THREE.MeshStandardMaterial({
-        color: 0xc49b42,
+        color: 0xd8b26c,
         metalness: 1,
         roughness: 0.25,
         emissive: 0x2c1d07,
-        emissiveIntensity: 0.45
+        emissiveIntensity: 0.85
       })
     );
 
@@ -1029,7 +1033,7 @@ function handleArtInteraction(event) {
   raycaster.setFromCamera(mouse, camera);
 
   // Check intersections with artworks only (filter out reflections and other objects)
-  const intersects = raycaster.intersectObjects(artworks);
+  const intersects = raycaster.intersectObjects(artworks, true);
   
   if (intersects.length > 0) {
     const clickedArtwork = intersects[0].object;

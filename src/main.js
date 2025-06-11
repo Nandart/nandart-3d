@@ -179,7 +179,7 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.04,
   roughness: 0.08,
   emissive: 0xf3cc80,
-  emissiveIntensity: 0.85
+  emissiveIntensity: 0.25
 });
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
@@ -306,15 +306,18 @@ scene.add(centerArtGroup);
 
 // Configuração melhorada das paredes
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x3a3a3a,
-  emissive: 0x1a1a1a,
-  emissiveIntensity: 0.8,
+  color: 0x2e2a25,
+  emissive: 0x302820,
+  emissiveIntensity: 0.25,
   roughness: 0.25,
   metalness: 0.15,
   side: THREE.FrontSide
 });
 
-const wallNoiseTexture = new THREE.DataTexture(
+const wallTexture = textureLoader.load("/textures/dark_wall.jpg");
+wallMaterial.map = wallTexture;
+
+// const wallNoiseTexture = new THREE.DataTexture(
   new Uint8Array(Array(64).fill().map(() => Math.random() * 55 + 200)),
   8,
   8,
@@ -414,7 +417,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
-      artworkGroup.position.z = 0.1; artworkGroup.position.z = 0.02;
+      artworkGroup.position.z = 0;
       scene.add(artworkGroup);
     },
     undefined,
@@ -446,9 +449,9 @@ function createShowcase(x, z, index) {
   const emissiveIntensity = 2.4;
 
   const pedestal = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.6, 0.6, pedestalHeight, 32),
+    new THREE.BoxGeometry(1.2, pedestalHeight, 1.2),
     new THREE.MeshStandardMaterial({
-      map: showcaseTexture,
+      map: textureLoader.load("/textures/black_marble.jpg"),
       roughness: 0.25,
       metalness: 0.6
     })
@@ -472,10 +475,10 @@ function createShowcase(x, z, index) {
       metalness: 0.1,
       roughness: 0.02,
       transmission: 1,
-      opacity: 0.15,
+      opacity: 0.4,
       transparent: true,
       ior: 1.45,
-      reflectivity: 0.8,
+      reflectivity: 1,
       thickness: 0.5,
       transparent: true,
       opacity: 0.1,
@@ -492,6 +495,7 @@ function createShowcase(x, z, index) {
   const gem = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.4, 1),
     new THREE.MeshStandardMaterial({
+      envMap: textureLoader.load("/textures/glass_reflection.jpg"),
       map: gemTexture,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity,
@@ -536,8 +540,8 @@ fontLoader.load(
   reflectivity: 1,
   roughness: 0.04,
         roughness: 0.25,
-        emissive: 0x2c1d07,
-        emissiveIntensity: 0.85
+        emissive: 0x8b6e3b,
+        emissiveIntensity: 0.25
       })
     );
 

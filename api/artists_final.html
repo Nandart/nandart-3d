@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Artists Panel - NANdART Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body style="background-color: #000811; font-family: 'Orbitron', sans-serif; color: #e0e0e0;">
+
+  <nav class="floating-menu">
+    <a href="index.html">Home</a>
+    <a href="contactos.html">Contacts</a>
+    <a href="info.html">Info</a>
+    <a href="web3.html">Web3 & NFT</a>
+    <button id="wallet-button" class="floating">Connect</button>
+  </nav>
+
+
+  <nav class="floating-menu">
+    <a href="index.html">Home</a>
+    <a href="contactos.html">Contacts</a>
+    <a href="info.html">Info</a>
+    <a href="web3.html">Web3 & NFT</a>
+    <button id="wallet-button" class="floating">Connect</button>
+  </nav>
+
+  <div class="admin-container">
+    <h1>Artist Submission Panel</h1>
+    <form id="artForm">
+      <div>
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" required><br><br>
+      </div>
+      <div>
+        <label for="year">Year:</label><br>
+        <input type="text" id="year" name="year" required><br><br>
+      </div>
+      <div>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" required></textarea><br><br>
+      </div>
+      <div>
+        <label for="premium">Premium Service:</label>
+        <input type="checkbox" id="premium" name="premium"><br><br>
+      </div>
+      <div>
+        <label for="image">Upload Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>
+      </div>
+      <button class="btn-main" type="submit">Submit Artwork</button>
+    </form>
+
+    <div class="success-message" id="successMessage" style="display:none;">Artwork submitted successfully.</div>
+    <div class="error-message" id="errorMessage" style="display:none;">There was an error submitting the artwork.</div>
+
+    <div id="log" class="log-output"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <script src="wallet.js"></script>
+  <script src="submit.js"></script>
+
+</body>
+</html>

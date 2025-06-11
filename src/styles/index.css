@@ -317,3 +317,38 @@ html, body {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-3px); }
 }
+
+
+
+/* Círculo central de obras premium */
+#premium-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  height: 60vw;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.floating-art {
+  position: absolute;
+  animation: rotateAround 20s linear infinite;
+}
+
+.floating-art img {
+  max-width: 80px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes rotateAround {
+  from { transform: rotate(0deg) translateX(28vw) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(28vw) rotate(-360deg); }
+}

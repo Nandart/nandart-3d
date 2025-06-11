@@ -13,7 +13,6 @@ function getTokenId(data) {
   }
 }
 
-
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes
@@ -317,15 +316,6 @@ const wallMaterial = new THREE.MeshStandardMaterial({
 const wallTexture = textureLoader.load("/textures/dark_wall.jpg");
 wallMaterial.map = wallTexture;
 
-// const wallNoiseTexture = new THREE.DataTexture(
-  new Uint8Array(Array(64).fill().map(() => Math.random() * 55 + 200)),
-  8,
-  8,
-  THREE.LuminanceFormat
-);
-wallNoiseTexture.needsUpdate = true;
-wallMaterial.map = wallNoiseTexture;
-
 const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
@@ -537,8 +527,8 @@ fontLoader.load(
       new THREE.MeshStandardMaterial({
         color: 0xd8b26c,
         metalness: 1,
-  reflectivity: 1,
-  roughness: 0.04,
+        reflectivity: 1,
+        roughness: 0.04,
         roughness: 0.25,
         emissive: 0x8b6e3b,
         emissiveIntensity: 0.25
@@ -548,7 +538,6 @@ fontLoader.load(
     text.position.set(-width / 2, 15.5, -config.wallDistance - 3.98);
     text.castShadow = true;
     
-    // Aumentar a intensidade da luz do texto
     const textLight = new THREE.SpotLight(0xfff1cc, 2.5, 12, Math.PI / 9, 0.4);
     textLight.position.set(0, 18, -config.wallDistance - 2);
     textLight.target = text;
@@ -741,7 +730,7 @@ export const obrasSuspensas = [
     tokenURI: "ipfs://bafkreif45vd7woswi3pbdzrowr6mtkobu6e7wop4yj3lukn4l4lm6k6h6y",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   }
-]; // ou adicione os elementos necessários
+];
 
 const artworks = [];
 const artworkReflections = [];
@@ -810,7 +799,6 @@ const modalPrice = document.getElementById('art-price');
 const buyButton = document.getElementById('buy-art');
 const blurOverlay = document.getElementById('blur-overlay');
 
-// Configuração estilística do modal
 modal.style.border = 'none';
 modal.style.background = 'rgba(10, 10, 10, 0.88)';
 modal.style.backdropFilter = 'blur(1.5px)';
@@ -820,20 +808,17 @@ modal.style.borderRadius = '4px';
 modal.style.width = 'auto';
 modal.style.maxWidth = 'none';
 
-// Estilo minimalista do botão
 buyButton.style.padding = '6px 12px';
 buyButton.style.fontSize = '0.82rem';
 buyButton.style.marginTop = '10px';
 buyButton.style.background = 'rgba(216, 178, 108, 0.9)';
-buyButton.style.width = '50px';  // Largura fixa
-buyButton.style.height = '30px'; // Altura fixa
+buyButton.style.width = '50px';
+buyButton.style.height = '30px';
 buyButton.style.border = 'none';
-// Centralização do botão 
-buyButton.style.display = 'block'; // necessário para margin auto funcionar
+buyButton.style.display = 'block';
 buyButton.style.marginLeft = 'auto';
 buyButton.style.marginRight = 'auto';
 
-// Função para calcular posição precisa
 function calculateModalPosition(artwork) {
   const vector = new THREE.Vector3();
   vector.setFromMatrixPosition(artwork.matrixWorld);
@@ -855,11 +840,9 @@ function calculateModalPosition(artwork) {
 }
 
 function showArtModal(artworkPosition, data) {
-  // 1. Limpa APENAS os elementos dinâmicos anteriores (não toca nos elementos base)
   const dynamicElements = modal.querySelectorAll('.dynamic-element');
   dynamicElements.forEach(el => el.remove());
 
-  // 2. Mantém o resto do código ORIGINAL para posicionamento e dados
   const maxWidth = 280;
   
   modalTitle.textContent = data.title;
@@ -872,35 +855,31 @@ function showArtModal(artworkPosition, data) {
   modal.style.maxHeight = `${artworkPosition.height}px`;
   modal.style.overflow = 'auto';
 
-  // 3. Adiciona classe única aos novos elementos dinâmicos
   const openSeaButton = document.createElement('button');
-  openSeaButton.className = 'dynamic-element'; // <-- Classe para identificação
+  openSeaButton.className = 'dynamic-element';
   openSeaButton.textContent = "See on OpenSea";
   openSeaButton.style.marginLeft = "8px";
   
-openSeaButton.onclick = () => {
-  console.log("🧪 Dados recebidos no modal:", data);
-  if (data.tokenId !== undefined) {
-    window.open(linkOpenSea(data.tokenId), '_blank');
-  } else {
-    alert("Este NFT ainda não foi cunhado.");
-  }
-};
-
+  openSeaButton.onclick = () => {
+    console.log("🧪 Dados recebidos no modal:", data);
+    if (data.tokenId !== undefined) {
+      window.open(linkOpenSea(data.tokenId), '_blank');
+    } else {
+      alert("Este NFT ainda não foi cunhado.");
+    }
+  };
 
   const revendaDiv = document.createElement('div');
-  revendaDiv.className = 'dynamic-element'; // <-- Classe para identificação
+  revendaDiv.className = 'dynamic-element';
   revendaDiv.style.marginTop = '8px';
   revendaDiv.innerHTML = `
     <input type="text" placeholder="Buyer's address" id="revenda-address" style="width: 70%; padding: 4px;" />
     <button id="resell-button" style="padding: 4px 8px; margin-left: 6px;">resell</button>
   `;
 
-  // 4. Adiciona os elementos ao modal (igual ao original)
   modal.appendChild(openSeaButton);
   modal.appendChild(revendaDiv);
 
-  // 5. Mantém o código ORIGINAL de posicionamento
   modal.style.display = 'flex';
   modal.style.top = `${artworkPosition.bottom - 5}px`;
   modal.style.left = `${artworkPosition.left + (artworkPosition.width / 2) - (maxWidth / 2)}px`;
@@ -922,13 +901,11 @@ openSeaButton.onclick = () => {
   }, 10);
 }
 
-// Função completa de highlight
 async function highlightArtwork(artwork, data) {
   if (isHighlighted) return;
   isHighlighted = true;
   selectedArtwork = artwork;
-// ✅ Define a camada da obra destacada
- artwork.layers.set(LAYERS.DEFAULT);
+  artwork.layers.set(LAYERS.DEFAULT);
   artwork.userData.reflection.visible = true;
   
   scene.remove(artwork);
@@ -943,12 +920,10 @@ async function highlightArtwork(artwork, data) {
   artwork.userData.highlightGroup = highlightGroup;
   artwork.userData.reflection.visible = false;
 
-  // Reset transformações internas
   artwork.position.set(0, 0, 0);
   artwork.rotation.set(0, 0, 0);
   artwork.scale.set(1, 1, 1);
 
-  // Animação para posição central
   await Promise.all([
     new Promise(resolve => gsap.to(highlightGroup.position, {
       x: 0,
@@ -974,19 +949,16 @@ async function highlightArtwork(artwork, data) {
     }))
   ]);
 
-  // Mostra modal com posicionamento preciso
   const artworkRect = calculateModalPosition(artwork);
   showArtModal(artworkRect, data);
 }
 
-// Função para restaurar obra
 async function restoreArtwork() {
   if (!isHighlighted || !selectedArtwork) return;
 
   const artwork = selectedArtwork;
   const highlightGroup = artwork.userData.highlightGroup;
 
-  // Animação de retorno
   await Promise.all([
     new Promise(resolve => gsap.to(highlightGroup.position, {
       x: artwork.userData.originalPosition.x,
@@ -1012,7 +984,6 @@ async function restoreArtwork() {
     }))
   ]);
 
-  // Retorna à cena principal
   highlightGroup.remove(artwork);
   artwork.position.copy(artwork.userData.originalPosition);
   artwork.rotation.copy(artwork.userData.originalRotation);
@@ -1024,7 +995,6 @@ async function restoreArtwork() {
   isHighlighted = false;
   selectedArtwork = null;
   
-  // Esconde modal suavemente
   modal.style.opacity = '0';
   modal.style.transform = 'translateY(8px)';
   blurOverlay.style.opacity = '0';
@@ -1033,19 +1003,17 @@ async function restoreArtwork() {
     blurOverlay.style.display = 'none';
   }, 250);
 }
+
 function handleArtInteraction(event) {
   event.preventDefault();
   
-  // Calculate mouse position in normalized device coordinates
   const mouse = new THREE.Vector2();
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // Raycasting to detect clicked artwork
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // Check intersections with artworks only (filter out reflections and other objects)
   const intersects = raycaster.intersectObjects(artworks, true);
   
   if (intersects.length > 0) {
@@ -1053,35 +1021,29 @@ function handleArtInteraction(event) {
     const index = artworks.indexOf(clickedArtwork);
     
     if (index !== -1) {
-      // If already highlighted, restore it
       if (isHighlighted && selectedArtwork === clickedArtwork) {
         restoreArtwork();
       } 
-      // Otherwise highlight the new artwork
       else if (!isHighlighted) {
         highlightArtwork(clickedArtwork, artworkData[index]);
       }
     }
   } 
-  // Clicked outside an artwork - restore if something is highlighted
   else if (isHighlighted) {
     restoreArtwork();
   }
 }
-// Configura listeners otimizados
+
 function setupInteractionListeners() {
-  // Eventos principais
-renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
+  renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
   renderer.domElement.addEventListener('click', handleArtInteraction);
   
-  // Fechar modal clicando fora
   document.addEventListener('click', (e) => {
     if (isHighlighted && !modal.contains(e.target) && e.target !== renderer.domElement) {
       restoreArtwork();
     }
   }, { passive: true });
 
-  // Evento de compra
   if (buyButton) {
     buyButton.addEventListener('click', () => {
       if (selectedArtwork) {
@@ -1092,7 +1054,6 @@ renderer.domElement.addEventListener('pointerdown', handleArtInteraction);
   }
 }
 
-// Inicializa o sistema
 setupInteractionListeners();
 
 function animate() {
@@ -1122,7 +1083,7 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-// ===== FIM DO SISTEMA DE INTERAÇÃO CORRIGIDO =====
+
 async function toggleWalletConnection() {
   if (!window.ethereum) {
     alert('Please install MetaMask to connect your wallet.');
@@ -1294,4 +1255,3 @@ document.querySelectorAll('.artwork').forEach((obra) => {
   sombra.style.background = 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)';
   sombra.style.zIndex = '1';
 });
-

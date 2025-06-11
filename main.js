@@ -175,9 +175,11 @@ scene.add(circle);
 const trimMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
   metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
   roughness: 0.08,
   emissive: 0xf3cc80,
-  emissiveIntensity: 0.45
+  emissiveIntensity: 0.25
 });
 
 function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
@@ -304,15 +306,18 @@ scene.add(centerArtGroup);
 
 // Configuração melhorada das paredes
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x3a3a3a,
-  emissive: 0x1a1a1a,
-  emissiveIntensity: 0.8,
-  roughness: 0.5,
+  color: 0x2e2a25,
+  emissive: 0x302820,
+  emissiveIntensity: 0.25,
+  roughness: 0.25,
   metalness: 0.15,
   side: THREE.FrontSide
 });
 
-const wallNoiseTexture = new THREE.DataTexture(
+const wallTexture = textureLoader.load("/textures/dark_wall.jpg");
+wallMaterial.map = wallTexture;
+
+// const wallNoiseTexture = new THREE.DataTexture(
   new Uint8Array(Array(64).fill().map(() => Math.random() * 55 + 200)),
   8,
   8,
@@ -348,12 +353,14 @@ rightWall.layers.set(2);
 scene.add(rightWall);
 
 [backWallLight1, backWallLight2].forEach(light => {
-  light.intensity = 1.0;
+  light.intensity = 2.2;
+  light.color.setHex(0xf8e0c0);
   light.color.setHex(0xfff2e0);
 });
 
 [leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
-  light.intensity = 0.8;
+  light.intensity = 1.8;
+  light.color.setHex(0xf8e0c0);
   light.color.setHex(0xfff2e0);
 });
 
@@ -393,7 +400,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
           emissiveIntensity: 0.15
         })
       );
-      frame.position.z = -0.1;
+      frame.position.z = -0.12;
       artworkGroup.add(frame);
 
       const painting = new THREE.Mesh(
@@ -410,6 +417,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 
       artworkGroup.position.set(x, y, z);
       artworkGroup.rotation.y = rotY;
+      artworkGroup.position.z = 0;
       scene.add(artworkGroup);
     },
     undefined,
@@ -420,6 +428,8 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 const goldMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
   roughness: 0.08,
   clearcoat: 0.9,
   clearcoatRoughness: 0.05,
@@ -439,11 +449,11 @@ function createShowcase(x, z, index) {
   const emissiveIntensity = 2.4;
 
   const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(1.05, pedestalHeight, 1.05),
+    new THREE.BoxGeometry(1.2, pedestalHeight, 1.2),
     new THREE.MeshStandardMaterial({
-      map: showcaseTexture,
-      roughness: 0.5,
-      metalness: 0.25
+      map: textureLoader.load("/textures/black_marble.jpg"),
+      roughness: 0.25,
+      metalness: 0.6
     })
   );
   pedestal.position.set(x, pedestalHeight / 2, z);
@@ -465,6 +475,10 @@ function createShowcase(x, z, index) {
       metalness: 0.1,
       roughness: 0.02,
       transmission: 1,
+      opacity: 0.4,
+      transparent: true,
+      ior: 1.45,
+      reflectivity: 1,
       thickness: 0.5,
       transparent: true,
       opacity: 0.1,
@@ -481,6 +495,7 @@ function createShowcase(x, z, index) {
   const gem = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.4, 1),
     new THREE.MeshStandardMaterial({
+      envMap: textureLoader.load("/textures/glass_reflection.jpg"),
       map: gemTexture,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity,
@@ -520,11 +535,13 @@ fontLoader.load(
     const text = new THREE.Mesh(
       textGeo,
       new THREE.MeshStandardMaterial({
-        color: 0xc49b42,
+        color: 0xd8b26c,
         metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
         roughness: 0.25,
-        emissive: 0x2c1d07,
-        emissiveIntensity: 0.45
+        emissive: 0x8b6e3b,
+        emissiveIntensity: 0.25
       })
     );
 
@@ -1029,7 +1046,7 @@ function handleArtInteraction(event) {
   raycaster.setFromCamera(mouse, camera);
 
   // Check intersections with artworks only (filter out reflections and other objects)
-  const intersects = raycaster.intersectObjects(artworks);
+  const intersects = raycaster.intersectObjects(artworks, true);
   
   if (intersects.length > 0) {
     const clickedArtwork = intersects[0].object;

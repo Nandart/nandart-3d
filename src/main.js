@@ -175,6 +175,8 @@ scene.add(circle);
 const trimMaterial = new THREE.MeshStandardMaterial({
   color: 0xf3cc80,
   metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
   roughness: 0.08,
   emissive: 0xf3cc80,
   emissiveIntensity: 0.85
@@ -348,12 +350,14 @@ rightWall.layers.set(2);
 scene.add(rightWall);
 
 [backWallLight1, backWallLight2].forEach(light => {
-  light.intensity = 1.0;
+  light.intensity = 2.2;
+  light.color.setHex(0xf8e0c0);
   light.color.setHex(0xfff2e0);
 });
 
 [leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
-  light.intensity = 0.8;
+  light.intensity = 1.8;
+  light.color.setHex(0xf8e0c0);
   light.color.setHex(0xfff2e0);
 });
 
@@ -393,7 +397,7 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
           emissiveIntensity: 0.15
         })
       );
-      frame.position.z = -0.1;
+      frame.position.z = -0.12;
       artworkGroup.add(frame);
 
       const painting = new THREE.Mesh(
@@ -409,7 +413,8 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
       artworkGroup.add(painting);
 
       artworkGroup.position.set(x, y, z);
-      artworkGroup.rotation.y = rotY; artworkGroup.position.z = 0.02;
+      artworkGroup.rotation.y = rotY;
+      artworkGroup.position.z = 0.1; artworkGroup.position.z = 0.02;
       scene.add(artworkGroup);
     },
     undefined,
@@ -420,6 +425,8 @@ wallArtworks.forEach(({ src, x, y, z, rotY }) => {
 const goldMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xd9b96c,
   metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
   roughness: 0.08,
   clearcoat: 0.9,
   clearcoatRoughness: 0.05,
@@ -526,6 +533,8 @@ fontLoader.load(
       new THREE.MeshStandardMaterial({
         color: 0xd8b26c,
         metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
         roughness: 0.25,
         emissive: 0x2c1d07,
         emissiveIntensity: 0.85

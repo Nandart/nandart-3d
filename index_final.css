@@ -1,0 +1,354 @@
+/* ==================== RESET BÁSICO ==================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  background-color: #111111;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #e0e0e0;
+}
+
+/* ==================== CANVAS 3D ==================== */
+#scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  outline: none;
+  filter: brightness(1.575) contrast(1.1);
+}
+
+/* ==================== estilo admin.js ==================== */
+.admin-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+
+.btn-main {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #4e5cf4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.success-message {
+  color: green;
+}
+.error-message {
+  color: red;
+}
+.log-output {
+  margin-top: 24px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+
+
+/* ==================== ÍCONES FIXOS ==================== */
+.navigation-icons {
+  position: fixed;
+  top: 16px;
+  left: 18px;
+  z-index: 100;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.navigation-icons img {
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.navigation-icons img:hover {
+  transform: scale(1.1);
+}
+
+/* ==================== MENU DROPDOWN ==================== */
+#menu-dropdown {
+  position: fixed;
+  top: 60px;
+  left: 18px;
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 12px;
+  flex-direction: column;
+  z-index: 200;
+  display: none;
+  border: 1px solid rgba(216, 178, 108, 0.15);
+}
+
+#menu-dropdown a {
+  color: #d8b26c;
+  text-decoration: none;
+  font-family: 'Playfair Display', serif;
+  margin: 6px 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+#menu-dropdown a:hover {
+  background-color: rgba(216, 178, 108, 0.1);
+}
+
+/* ==================== WALLET BUTTON ==================== */
+#wallet-button {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 250;
+  padding: 10px 18px 10px 42px;
+  font-size: 1em;
+  background-color: #d8b26c;
+  color: #111;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
+  background-image: url('/assets/icons/metamask.svg');
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 20px 20px;
+  transition: all 0.3s ease;
+}
+
+#wallet-button.connected {
+  background-color: #c4a860;
+  padding: 10px 18px 10px 16px !important;
+}
+
+#wallet-button:hover {
+  background-color: #e2c278;
+  transform: scale(1.04);
+}
+
+#wallet-button:active {
+  transform: scale(0.97);
+}
+
+#wallet-balance {
+  margin-left: 8px;
+  font-weight: 700;
+}
+
+/* ==================== MODAL ==================== */
+.art-modal {
+  position: fixed;
+  background: rgba(10, 10, 10, 0.88) !important;
+  backdrop-filter: blur(1.5px);
+  color: #f0f0f0;
+  padding: 12px 16px;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  border: none !important;
+  box-shadow: none !important;
+  
+  /* Novas propriedades para controle de tamanho */
+  max-width: min(280px, 80vw) !important; /* Limite absoluto de largura */
+  max-height: 60vh !important; /* Limite baseado na viewport */
+  width: auto !important; /* Largura controlada via JS */
+  overflow-y: auto; /* Scroll se o conteúdo for longo */
+  box-sizing: border-box;
+}
+
+.art-modal h2 {
+  color: #d8b26c;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Garante que títulos longos não quebrem o layout */
+}
+
+.art-modal p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  overflow-wrap: break-word; /* Quebra palavras longas */
+}
+
+#buy-art {
+  background: rgba(216, 178, 108, 0.9) !important;
+  color: #111;
+  border: none !important;
+  padding: 6px 12px !important;
+  font-size: 0.82rem !important;
+  margin-top: 10px !important;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  align-self: flex-start; /* Alinha com o conteúdo do modal */
+}
+
+/* Overlay - ajustado para não interferir com a obra */
+#blur-overlay {
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: none !important; /* Remove desfoque do overlay */
+  pointer-events: auto; /* Permite interação com o modal */
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .art-modal {
+    max-width: min(260px, 90vw) !important;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .art-modal {
+    max-width: 90vw !important;
+    max-height: 50vh !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(10px) !important;
+    padding: 10px;
+  }
+  
+  .art-modal.active {
+    transform: translateX(-50%) translateY(0) !important;
+  }
+}
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 20px); }
+  to { transform: translate(-50%, 0); }
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+  .navigation-icons img {
+    height: 24px;
+  }
+
+  #wallet-button {
+    padding: 8px 16px 8px 40px;
+    font-size: 0.9rem;
+    background-size: 18px 18px;
+    background-position: 10px center;
+  }
+
+  #wallet-button.connected {
+    padding: 8px 16px 8px 16px !important;
+  }
+}
+
+.shadow-below-art {
+  width: 90px;
+  height: 12px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+
+/* ======== FLOATING MENU ======== */
+.floating-menu {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  gap: 18px;
+  animation: floatUpDown 3s ease-in-out infinite;
+}
+
+.floating-menu a, .floating-menu button.floating {
+  color: #e0eaff;
+  background-color: rgba(78, 92, 244, 0.15);
+  padding: 10px 18px;
+  border: 1px solid rgba(78, 92, 244, 0.6);
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(78, 92, 244, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.floating-menu a:hover, .floating-menu button.floating:hover {
+  transform: translateY(-3px);
+  background-color: rgba(109, 132, 255, 0.25);
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-3px); }
+}
+
+
+
+/* Círculo central de obras premium */
+#premium-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  height: 60vw;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.floating-art {
+  position: absolute;
+  animation: rotateAround 20s linear infinite;
+}
+
+.floating-art img {
+  max-width: 80px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes rotateAround {
+  from { transform: rotate(0deg) translateX(28vw) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(28vw) rotate(-360deg); }
+}

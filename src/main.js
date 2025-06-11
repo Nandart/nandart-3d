@@ -80,6 +80,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
+scene.background = new THREE.Color('#000811');
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.8;
@@ -136,22 +137,11 @@ const createWallLight = (x, z, intensity) => {
     return light;
 };
 
-const backWallLight1 = createWallLight(0, -config.wallDistance - 2, 0.6);
-const backWallLight2 = createWallLight(0, -config.wallDistance - 2, 0.6);
-const leftWallLight1 = createWallLight(-14, -config.wallDistance/2, 0.525);
-const leftWallLight2 = createWallLight(-14, -config.wallDistance/2, 0.525);
-const rightWallLight1 = createWallLight(14, -config.wallDistance/2, 0.525);
-const rightWallLight2 = createWallLight(14, -config.wallDistance/2, 0.525);
 
-[backWallLight1, backWallLight2, leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
-    scene.add(light);
-    scene.add(light.target);
-    light.layers.set(2);
-});
 
-hemisphereLight.layers.disable(2);
-spotLightLeft.layers.disable(2);
-spotLightRight.layers.disable(2);
+
+
+
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
@@ -181,93 +171,25 @@ const trimMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.25
 });
 
-function createTrimLine(x, y, z, width, height = 0.06, rotY = 0) {
-  const trim = new THREE.Mesh(
-    new THREE.BoxGeometry(width, height, 0.02),
-    trimMaterial
-  );
-  trim.position.set(x, y, z);
-  trim.rotation.y = rotY;
-  trim.castShadow = false;
-  trim.receiveShadow = false;
-  trim.layers.enable(1);
-  scene.add(trim);
-  return trim;
-}
 
-function createTrimRect(x, y, z, width, height, rotY = 0) {
-  const group = new THREE.Group();
-  const thickness = 0.06;
 
-  const top = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  top.position.set(0, height / 2, 0);
-  top.receiveShadow = false;
-  top.layers.enable(1);
-  group.add(top);
-
-  const bottom = new THREE.Mesh(new THREE.BoxGeometry(width, thickness, 0.02), trimMaterial);
-  bottom.position.set(0, -height / 2, 0);
-  bottom.receiveShadow = false;
-  bottom.layers.enable(1);
-  group.add(bottom);
-
-  const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  left.position.set(-width / 2 + thickness / 2, 0, 0);
-  left.receiveShadow = false;
-  left.layers.enable(1);
-  group.add(left);
-
-  const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height - thickness * 2, 0.02), trimMaterial);
-  right.position.set(width / 2 - thickness / 2, 0, 0);
-  right.receiveShadow = false;
-  right.layers.enable(1);
-  group.add(right);
-
-  group.position.set(x, y, z);
-  group.rotation.y = rotY;
-  scene.add(group);
-  return group;
-}
-
-const centerTrim = createTrimRect(
-  0,
-  10.3,
-  -config.wallDistance + 0.01,
-  6.8,
-  7.0
-);
-
-createTrimLine(
-  0,
-  13.1,
-  -config.wallDistance + 0.012,
-  4.5
-);
 
 const sideTrimPosX = 6.7;
 const outerTrimHeight = 8.8;
 const innerTrimHeight = 7.1;
 
-createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
-createTrimRect(-sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
-createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.01, 3.2, outerTrimHeight);
-createTrimRect(sideTrimPosX, 10.3, -config.wallDistance + 0.012, 1.6, innerTrimHeight);
 
-const backWallTopTrim = createTrimLine(0, 2.0, -config.wallDistance + 0.01, 36);
-const backWallBottomTrim = createTrimLine(0, 1.7, -config.wallDistance + 0.012, 36);
-const leftWallTopTrim = createTrimLine(-16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const leftWallBottomTrim = createTrimLine(-16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, Math.PI / 2);
-const rightWallTopTrim = createTrimLine(16.2, 2.0, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
-const rightWallBottomTrim = createTrimLine(16.2, 1.7, -config.wallDistance / 2, 2.2, 0.06, -Math.PI / 2);
 
-const centerTexture = textureLoader.load(
-  '/assets/obras/obra-central.jpg',
-  undefined,
-  undefined,
-  err => console.error('Error loading center artwork:', err)
-);
 
-const centerArtGroup = new THREE.Group();
+
+
+
+
+
+
+
+
+
 
 const frameWidth = 4.6;
 const frameHeight = 5.8;
@@ -304,42 +226,17 @@ centerArtGroup.position.set(
 scene.add(centerArtGroup);
 
 // Configuração melhorada das paredes
-const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0x2e2a25,
-  emissive: 0x302820,
-  emissiveIntensity: 0.25,
-  roughness: 0.25,
-  metalness: 0.15,
-  side: THREE.FrontSide
-});
 
-const wallTexture = textureLoader.load("/textures/dark_wall.jpg");
-wallMaterial.map = wallTexture;
 
-const backWallGeo = new THREE.PlaneGeometry(40, 30);
 const sideWallGeo = new THREE.PlaneGeometry(30, 28);
 
-const backWall = new THREE.Mesh(backWallGeo, wallMaterial);
-backWall.position.set(0, 13.6, -config.wallDistance - 4.1);
-backWall.receiveShadow = true;
-backWall.castShadow = true;
-backWall.layers.set(2);
+
 scene.add(backWall);
 
-const leftWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-leftWall.position.set(-14.6, 13.4, -config.wallDistance / 2);
-leftWall.rotation.y = Math.PI / 2;
-leftWall.receiveShadow = true;
-leftWall.castShadow = true;
-leftWall.layers.set(2);
+
 scene.add(leftWall);
 
-const rightWall = new THREE.Mesh(sideWallGeo, wallMaterial);
-rightWall.position.set(14.6, 13.4, -config.wallDistance / 2);
-rightWall.rotation.y = -Math.PI / 2;
-rightWall.receiveShadow = true;
-rightWall.castShadow = true;
-rightWall.layers.set(2);
+
 scene.add(rightWall);
 
 [backWallLight1, backWallLight2].forEach(light => {
@@ -354,155 +251,7 @@ scene.add(rightWall);
   light.color.setHex(0xfff2e0);
 });
 
-const wallArtworks = [
-  {
-    src: '/assets/obras/obra-lateral-esquerda.jpg',
-    x: -12.0,
-    y: 9.1,
-    z: 0,
-    rotY: Math.PI / 2
-  },
-  {
-    src: '/assets/obras/obra-lateral-direita.jpg',
-    x: 12.0,
-    y: 9.1,
-    z: 0,
-    rotY: -Math.PI / 2
-  }
-];
 
-wallArtworks.forEach(({ src, x, y, z, rotY }) => {
-  const texture = textureLoader.load(
-    src,
-    texture => {
-      const width = 4.4;
-      const height = 6.4;
-
-      const artworkGroup = new THREE.Group();
-
-      const frame = new THREE.Mesh(
-        new THREE.BoxGeometry(width + 0.3, height + 0.3, 0.18),
-        new THREE.MeshStandardMaterial({
-          color: 0x1e1a16,
-          metalness: 0.6,
-          roughness: 0.3,
-          emissive: 0x0d0c0a,
-          emissiveIntensity: 0.15
-        })
-      );
-      frame.position.z = -0.12;
-      artworkGroup.add(frame);
-
-      const painting = new THREE.Mesh(
-        new THREE.PlaneGeometry(width, height),
-        new THREE.MeshStandardMaterial({
-          map: texture,
-          roughness: 0.2,
-          metalness: 0.05,
-          side: THREE.FrontSide
-        })
-      );
-      painting.position.z = 0.01;
-      artworkGroup.add(painting);
-
-      artworkGroup.position.set(x, y, z);
-      artworkGroup.rotation.y = rotY;
-      artworkGroup.position.z = 0;
-      scene.add(artworkGroup);
-    },
-    undefined,
-    err => console.error(`Error loading ${src}:`, err)
-  );
-});
-
-const goldMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xd9b96c,
-  metalness: 1,
-  reflectivity: 1,
-  roughness: 0.04,
-  roughness: 0.08,
-  clearcoat: 0.9,
-  clearcoatRoughness: 0.05,
-  emissive: 0x4a320a,
-  emissiveIntensity: 0.25,
-  reflectivity: 0.6
-});
-
-const gemTexture = textureLoader.load('/assets/gemas/gema1.png');
-const showcaseTexture = textureLoader.load('/assets/vitrine-escura.jpg');
-
-function createShowcase(x, z, index) {
-  const pedestalHeight = 4.6;
-  const showcaseHeight = 1.6;
-  const gemHeight = pedestalHeight + showcaseHeight / 2 + 0.25;
-  const emissiveColor = 0x3377cc;
-  const emissiveIntensity = 2.4;
-
-  const pedestal = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2, pedestalHeight, 1.2),
-    new THREE.MeshStandardMaterial({
-      map: textureLoader.load("/textures/black_marble.jpg"),
-      roughness: 0.25,
-      metalness: 0.6
-    })
-  );
-  pedestal.position.set(x, pedestalHeight / 2, z);
-  pedestal.castShadow = true;
-  scene.add(pedestal);
-
-  const goldTop = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.4, 0.4, 0.06, 32),
-    goldMaterial
-  );
-  goldTop.position.set(x, pedestalHeight + 0.03, z);
-  goldTop.castShadow = true;
-  scene.add(goldTop);
-
-  const showcase = new THREE.Mesh(
-    new THREE.BoxGeometry(1.0, showcaseHeight, 1.0),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xf8f8f8,
-      metalness: 0.1,
-      roughness: 0.02,
-      transmission: 1,
-      opacity: 0.4,
-      transparent: true,
-      ior: 1.45,
-      reflectivity: 1,
-      thickness: 0.5,
-      transparent: true,
-      opacity: 0.1,
-      ior: 1.52,
-      reflectivity: 0.9,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.02
-    })
-  );
-  showcase.position.set(x, pedestalHeight + showcaseHeight / 2 + 0.06, z);
-  showcase.castShadow = true;
-  scene.add(showcase);
-
-  const gem = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.4, 1),
-    new THREE.MeshStandardMaterial({
-      envMap: textureLoader.load("/textures/glass_reflection.jpg"),
-      map: gemTexture,
-      emissive: emissiveColor,
-      emissiveIntensity: emissiveIntensity,
-      transparent: true,
-      opacity: 0.95
-    })
-  );
-  gem.position.set(x, gemHeight, z);
-  gem.rotation.y = index * 0.3;
-  gem.castShadow = true;
-  scene.add(gem);
-}
-
-createShowcase(-12.0, -1.8, 0);
-createShowcase(-12.0, 1.8, 1);
-createShowcase(12.0, -1.8, 2);
-createShowcase(12.0, 1.8, 3);
 
 const fontLoader = new FontLoader();
 fontLoader.load(

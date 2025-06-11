@@ -100,7 +100,7 @@
       font-family: 'Playfair Display', serif;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
-      background-image: url('/assets/icons/metamask.svg');
+      background-image: url('assets/icons/metamask.svg');
       background-repeat: no-repeat;
       background-position: 12px center;
       background-size: 20px 20px;
@@ -349,26 +349,15 @@
 </head>
 <body>
   
-<nav class="floating-menu">
-  <a href="artists.html">Artists</a>
-  <a href="contactos.html">Contacts</a>
-  <a href="info.html">Info</a>
-  <a href="web3.html">Web3 & NFT</a>
-  <button id="wallet-button" class="floating">Connect</button>
-</nav>
-
   <canvas id="scene"></canvas>
   <div id="blur-overlay"></div>
   
   <div class="navigation-icons">
-    
-    <img src="/assets/icons/info.png" alt="Info" id="info-button">
+    <img src="assets/icons/info.png" alt="Info" id="info-button">
   </div>
   
   <button id="wallet-button">Connect Wallet</button>
 
-  
-  
   <div class="art-modal">
     <h2 id="art-title"></h2>
     <p id="art-description"></p>
@@ -385,6 +374,10 @@
     </div>
   </section>
 
+  <div id="premium-circle" class="suspended-circle">
+    <!-- As obras premium vão aparecer aqui automaticamente -->
+  </div>
+
   <script>
     function checkWebGL() {
       try {
@@ -400,22 +393,11 @@
       return true;
     };
 
-    document.getElementById('menu-toggle').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
     document.getElementById('info-button').addEventListener('click', () => {
       window.location.href = 'info.html';
     });
 
     document.addEventListener('click', (e) => {
-      const menu = document.getElementById('menu-dropdown');
-      if (!e.target.closest('.navigation-icons') && menu.style.display === 'flex') {
-        menu.style.display = 'none';
-      }
-      
       const modal = document.querySelector('.art-modal');
       if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
         modal.classList.remove('active');
@@ -430,13 +412,8 @@
     }
   </script>
   
-  <script type="module" src="/src/main.js"></script>
-  <script type="module" src="/src/api/curadoria.js"></script>
-
-<div id="premium-circle" class="suspended-circle">
-  <!-- As obras premium vão aparecer aqui automaticamente -->
-</div>
-
-<script type="module" src="loadPremiumNFTs.js"></script>
+  <script type="module" src="src/main.js"></script>
+  <script type="module" src="src/api/curadoria.js"></script>
+  <script type="module" src="loadPremiumNFTs.js"></script>
 </body>
 </html>

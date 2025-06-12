@@ -9,11 +9,13 @@
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="src/styles/index.css">
   <!-- Preloads -->
+  <link rel="preload" href="assets/icons/info.png" as="image">
+  <link rel="preload" href="assets/icons/horizontes.png" as="image">
   <link rel="preload" href="assets/icons/metamask.svg" as="image">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
   <!-- Import Maps -->
   <script type="importmap">
     {
@@ -75,7 +77,7 @@
     #menu-dropdown a {
       color: #d8b26c;
       text-decoration: none;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       margin: 6px 0;
       padding: 4px 8px;
       border-radius: 4px;
@@ -84,34 +86,18 @@
     #menu-dropdown a:hover {
       background-color: rgba(216, 178, 108, 0.1);
     }
-    .floating-menu {
+    #wallet-button {
       position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 100;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .floating-menu a {
-      color: #d8b26c;
-      text-decoration: none;
-      font-family: 'Orbitron', sans-serif;
-      padding: 8px 12px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
-    .floating-menu a:hover {
-      background-color: rgba(216, 178, 108, 0.1);
-    }
-    .floating-menu button {
-      padding: 8px 18px 8px 42px;
+      top: 18px;
+      right: 20px;
+      z-index: 250;
+      padding: 10px 18px 10px 42px;
       font-size: 1em;
       background-color: #d8b26c;
       color: #111;
       border: none;
       border-radius: 6px;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
       background-image: url('/assets/icons/metamask.svg');
@@ -120,15 +106,15 @@
       background-size: 20px 20px;
       transition: all 0.3s ease;
     }
-    .floating-menu button.connected {
+    #wallet-button.connected {
       background-color: #c4a860;
-      padding: 8px 18px 8px 16px !important;
+      padding: 10px 18px 10px 16px !important;
     }
-    .floating-menu button:hover {
+    #wallet-button:hover {
       background-color: #e2c278;
       transform: scale(1.04);
     }
-    .floating-menu button:active {
+    #wallet-button:active {
       transform: scale(0.97);
     }
     #wallet-balance {
@@ -177,7 +163,7 @@
       margin-bottom: 12px;
       font-size: 1.3rem;
       font-weight: 700;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       text-align: center;
     }
     .art-modal p {
@@ -214,7 +200,7 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       margin-top: 15px;
     }
     .art-modal #buy-art:hover {
@@ -227,7 +213,7 @@
       padding: 2rem;
       background: #1a1a1a;
       color: #f5f5f5;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       position: fixed;
       top: 50%;
       left: 50%;
@@ -273,7 +259,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       transition: all 0.2s ease;
     }
     .btn-reject {
@@ -283,7 +269,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       transition: all 0.2s ease;
     }
     .btn-approve:hover, .btn-reject:hover {
@@ -297,7 +283,7 @@
       padding: 1rem 1.5rem;
       border-radius: 4px;
       z-index: 1000;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       animation: fadeIn 0.3s ease-out;
     }
     .notification.success {
@@ -316,20 +302,14 @@
       .navigation-icons img {
         height: 24px;
       }
-      .floating-menu {
-        gap: 12px;
-      }
-      .floating-menu a, .floating-menu button {
-        padding: 6px 12px;
+      #wallet-button {
+        padding: 8px 16px 8px 40px;
         font-size: 0.9rem;
-      }
-      .floating-menu button {
-        padding: 6px 12px 6px 36px;
         background-size: 18px 18px;
         background-position: 10px center;
       }
-      .floating-menu button.connected {
-        padding: 6px 12px 6px 12px !important;
+      #wallet-button.connected {
+        padding: 8px 16px 8px 16px !important;
       }
       .art-modal {
         max-width: 280px;
@@ -365,39 +345,23 @@
         gap: 0.5rem;
       }
     }
-  
-.floating-menu a, .floating-menu button {
-  font-family: 'Orbitron', sans-serif !important;
-  border: 1px solid #89b4ff;
-  border-radius: 6px;
-  color: #89b4ff !important;
-  background-color: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 0 6px rgba(137, 180, 255, 0.4);
-  transition: all 0.3s ease;
-}
-.floating-menu a:hover, .floating-menu button:hover {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white !important;
-  transform: translateY(-2px);
-}
-
-</style>
+  </style>
 </head>
 <body>
-  
-  <nav class="floating-menu">
-    <a href="artists.html">Artists</a>
-    <a href="contactos.html">Contacts</a>
-    <a href="info.html">Info</a>
-    <a href="web3.html">Web3 & NFT</a>
-    <button id="wallet-button" class="floating">Connect</button>
-  </nav>
-
   <canvas id="scene"></canvas>
   <div id="blur-overlay"></div>
   
   <div class="navigation-icons">
+    <img src="/assets/icons/horizontes.png" alt="Menu" id="menu-toggle">
     <img src="/assets/icons/info.png" alt="Info" id="info-button">
+  </div>
+  
+  <button id="wallet-button">Connect Wallet</button>
+
+  <div id="menu-dropdown">
+    <a href="contactos.html">Contacts</a>
+    <a href="artists.html">Artists</a>
+    <a href="web3.html">Web3 & NFT</a>
   </div>
   
   <div class="art-modal">
@@ -416,9 +380,7 @@
     </div>
   </section>
 
-  
-<script>
-window.addEventListener("DOMContentLoaded", () => {
+  <script>
     function checkWebGL() {
       try {
         const canvas = document.createElement('canvas');
@@ -433,12 +395,11 @@ window.addEventListener("DOMContentLoaded", () => {
       return true;
     };
 
-    // Removido o event listener para 'menu-toggle' que não existe
-    // document.getElementById('menu-toggle').addEventListener('click', (e) => {
-    //   e.stopPropagation();
-    //   const menu = document.getElementById('menu-dropdown');
-    //   menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    // });
+    document.getElementById('menu-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
 
     document.getElementById('info-button').addEventListener('click', () => {
       window.location.href = 'info.html';
@@ -446,12 +407,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener('click', (e) => {
       const menu = document.getElementById('menu-dropdown');
-      if (!e.target.closest('.navigation-icons') && menu && menu.style.display === 'flex') {
+      if (!e.target.closest('.navigation-icons') && menu.style.display === 'flex') {
         menu.style.display = 'none';
       }
       
       const modal = document.querySelector('.art-modal');
-      if (modal && modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
+      if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
         modal.classList.remove('active');
         setTimeout(() => {
           modal.style.display = 'none';
@@ -462,17 +423,9 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!checkWebGL()) {
       console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
     }
-});
-</script>
+  </script>
+  
 
-   <script type="module" src="/src/main.js"></script>
   <script type="module" src="/src/api/curadoria.js"></script>
-
-  <div id="premium-circle" class="suspended-circle">
-    <!-- As obras premium vão aparecer aqui automaticamente -->
-  </div>
-
- // premium 
 </body>
 </html>
-

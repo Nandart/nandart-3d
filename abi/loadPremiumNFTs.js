@@ -28,3 +28,4 @@ async function loadPremiumNFTs() {
 }
 
 window.addEventListener("DOMContentLoaded", loadPremiumNFTs);
+

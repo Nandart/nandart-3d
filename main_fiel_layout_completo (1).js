@@ -3,16 +3,6 @@ function getTokenId(data) {
     return data.tokenId;
   }
 
-  // Tentativa de extrair a partir do tokenURI, se houver padrão com número no nome
-  try {
-    const fallback = data.tokenURI?.split('/').pop().split('.')[0].split('_').pop();
-    const parsed = parseInt(fallback);
-    return isNaN(parsed) ? undefined : parsed;
-  } catch {
-    return undefined;
-  }
-}
-
 import { getContrato } from "./contrato.js";
 import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
 // Versão final com iluminação específica para paredes

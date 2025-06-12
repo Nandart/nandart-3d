@@ -1,3 +1,349 @@
+function getTokenId(data) {
+  if (data && typeof data.tokenId !== 'undefined') {
+    return data.tokenId;
+  }
+
+  // Tentativa de extrair a partir do tokenURI, se houver padrão com número no nome
+  try {
+    const fallback = data.tokenURI?.split('/').pop().split('.')[0].split('_').pop();
+    const parsed = parseInt(fallback);
+    return isNaN(parsed) ? undefined : parsed;
+  } catch {
+    return undefined;
+  }
+}
+
+import { getContrato } from "./contrato.js";
+import { comprarObra, revenderObra, linkOpenSea } from "./market.js";
+// Versão final com iluminação específica para paredes
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { ethers } from 'ethers';
+
+// --- VARIÁVEIS DE ESTADO DA INTERAÇÃO ---
+let isHighlighted = false;
+let selectedArtwork = null;
+// Configuração de camadas para evitar desfoque
+const LAYERS = {
+  DEFAULT: 0,
+  HIGHLIGHTED: 1,  // Camara para obras destacadas
+  WALLS: 2         // Já existente para paredes
+};
+const walletButton = document.getElementById('wallet-button');
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+function getViewportLevel() {
+  const width = window.innerWidth;
+  if (width < 480) return 'XS';
+  if (width < 768) return 'SM';
+  if (width < 1024) return 'MD';
+  return 'LG';
+}
+
+const configMap = {
+  XS: { obraSize: 0.9, circleRadius: 2.4, wallDistance: 8, cameraZ: 12, cameraY: 5.4, textSize: 0.4 },
+  SM: { obraSize: 1.1, circleRadius: 2.8, wallDistance: 9.5, cameraZ: 13, cameraY: 5.7, textSize: 0.45 },
+  MD: { obraSize: 1.3, circleRadius: 3.3, wallDistance: 10.5, cameraZ: 14, cameraY: 6.1, textSize: 0.5 },
+  LG: { obraSize: 1.45, circleRadius: 3.6, wallDistance: 11, cameraZ: 15, cameraY: 6.4, textSize: 0.55 }
+};
+
+let config = configMap[getViewportLevel()];
+
+const artworkPaths = [
+  "/assets/obras/obra1.jpg",
+  "/assets/obras/obra2.jpg",
+  "/assets/obras/obra3.jpg",
+  "/assets/obras/obra4.jpg",
+  "/assets/obras/obra5.jpg",
+  "/assets/obras/obra6.jpg",
+  "/assets/obras/obra7.jpg",
+  "/assets/obras/obra8.jpg"
+];
+const artworkData = [
+  {
+    title: "Fragment of Eternity",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "0.08",
+    tokenURI: "https://ipfs.io/ipfs/bafkreibhrxsmbi6t36qupa5zw6mrc5n5voirsclvkkolobj7wudm5emot4/fragment_of_eternity.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Shadows of Light",
+    artist: "Rénner Nunes",
+    year: "2024",
+    price: "0.01",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shadows_of_light.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Shared Horizon",
+    artist: "Rénner Nunes",
+    year: "2022",
+    price: "1",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shared_horizon.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Memories of Silence",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "0.15",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/memories_of_silence.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Contained Rhythm",
+    artist: "Rénner Nunes",
+    year: "2025",
+    price: "0.0001",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/contained_rhythm.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Inner Fluctuation",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "0.2",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/inner_fluctuation.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Fragments of Identity",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "1.55",
+    tokenURI: "ipfs://bafkreieevpfuos62jiiflarwwpgubw3znzsfv5fjl3k2tv2uiykpeiueee",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41",
+    tokenId: 15
+  },
+  {
+    title: "Silhouette of Tomorrow",
+    artist: "Rénner Nunes",
+    year: "2024",
+    price: "0.04",
+    tokenURI: "ipfs://bafkreif45vd7woswi3pbdzrowr6mtkobu6e7wop4yj3lukn4l4lm6k6h6y",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  }
+];
+
+const scene = new THREE.Scene();
+
+// === CHÃO REFLEXIVO ===
+const groundMirror = new Reflector(
+  new THREE.PlaneGeometry(100, 100),
+  {
+    clipBias: 0.003,
+    textureWidth: window.innerWidth * window.devicePixelRatio,
+    textureHeight: window.innerHeight * window.devicePixelRatio,
+    color: 0x111111
+  }
+);
+groundMirror.rotateX(-Math.PI / 2);
+groundMirror.position.y = 0.001;
+scene.add(groundMirror);
+
+scene.background = new THREE.Color(0x111111);
+
+const textureLoader = new THREE.TextureLoader();
+
+const camera = new THREE.PerspectiveCamera();
+function updateCamera() {
+  config = configMap[getViewportLevel()];
+  camera.fov = 50;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.position.set(0, 12, 25);
+  camera.lookAt(0, 5, -config.wallDistance);
+  camera.near = 0.1;
+  camera.far = 150;
+  camera.updateProjectionMatrix();
+}
+updateCamera();
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('scene'),
+  antialias: true,
+  alpha: true
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+scene.background = new THREE.Color('#000811');
+
+// === NÉVOA ATMOSFÉRICA ===
+scene.fog = new THREE.FogExp2(0x111111, 0.015);
+
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.6;
+
+window.addEventListener('resize', () => {
+  updateCamera();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Iluminação
+const hemisphereLight = new THREE.HemisphereLight(
+  0xfff2e0,
+  0x202020,
+  1.35
+);
+hemisphereLight.groundColor.setHSL(0.1, 0.2, 0.15);
+scene.add(hemisphereLight);
+
+const fillLight = new THREE.AmbientLight(
+  0xfff2dd, 
+  0.225
+);
+scene.add(fillLight);
+
+const spotLightLeft = new THREE.SpotLight(0xfff2dd, 1.5);
+spotLightLeft.position.set(-10, 8, 0);
+spotLightLeft.angle = Math.PI / 6;
+spotLightLeft.penumbra = 0.3;
+spotLightLeft.decay = 2;
+spotLightLeft.distance = 25;
+spotLightLeft.castShadow = true;
+spotLightLeft.shadow.mapSize.width = 2048;
+spotLightLeft.shadow.mapSize.height = 2048;
+spotLightLeft.shadow.bias = -0.0005;
+scene.add(spotLightLeft);
+
+const spotLightRight = new THREE.SpotLight(0xfff2dd, 1.5);
+spotLightRight.position.set(10, 8, 0);
+spotLightRight.angle = Math.PI / 6;
+spotLightRight.penumbra = 0.3;
+spotLightRight.decay = 2;
+spotLightRight.distance = 25;
+spotLightRight.castShadow = true;
+spotLightRight.shadow.mapSize.width = 2048;
+spotLightRight.shadow.mapSize.height = 2048;
+spotLightRight.shadow.bias = -0.0005;
+scene.add(spotLightRight);
+
+const createWallLight = (x, z, intensity) => {
+    const light = new THREE.SpotLight(0xffffff, intensity, 25, Math.PI/4, 0.5);
+    light.position.set(x, 15, z);
+    light.target.position.set(x, 0, z > -10 ? -config.wallDistance/2 : -config.wallDistance);
+    light.castShadow = false;
+    return light;
+};
+
+const trimMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xf3cc80,
+  metalness: 1,
+  reflectivity: 1,
+  roughness: 0.04,
+  roughness: 0.08,
+  emissive: 0xf3cc80,
+  emissiveIntensity: 0.25
+});
+
+const sideTrimPosX = 6.7;
+const outerTrimHeight = 8.8;
+const innerTrimHeight = 7.1;
+
+const frameWidth = 4.6;
+const frameHeight = 5.8;
+
+const centerArtGroup = new THREE.Group();
+const centerTexture = textureLoader.load(artworkPaths[0]);
+
+const centerFrame = new THREE.Mesh(
+  new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
+  new THREE.MeshPhysicalMaterial({
+    color: 0x1e1a16,
+    metalness: 0.6,
+    roughness: 0.3,
+    emissive: 0x0d0c0a,
+    emissiveIntensity: 0.15
+  })
+);
+centerFrame.position.z = -0.1;
+centerArtGroup.add(centerFrame);
+
+const centerPainting = new THREE.Mesh(
+  new THREE.PlaneGeometry(frameWidth, frameHeight),
+  new THREE.MeshPhysicalMaterial({
+    map: centerTexture,
+    roughness: 0.15,
+    metalness: 0.1
+  })
+);
+centerPainting.position.z = 0.01;
+centerArtGroup.add(centerPainting);
+
+centerArtGroup.position.set(
+  0,
+  10.3,
+  -config.wallDistance + 0.001
+);
+scene.add(centerArtGroup);
+
+// Configuração melhorada das paredes
+const backWall = new THREE.Mesh(
+  new THREE.PlaneGeometry(30, 28),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+);
+backWall.position.set(0, 14, -config.wallDistance);
+backWall.rotation.y = Math.PI;
+backWall.layers.set(LAYERS.WALLS);
+
+const leftWall = new THREE.Mesh(
+  new THREE.PlaneGeometry(30, 28),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+);
+leftWall.position.set(-15, 14, 0);
+leftWall.rotation.y = Math.PI / 2;
+leftWall.layers.set(LAYERS.WALLS);
+
+const rightWall = new THREE.Mesh(
+  new THREE.PlaneGeometry(30, 28),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+);
+rightWall.position.set(15, 14, 0);
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.layers.set(LAYERS.WALLS);
+
+scene.add(backWall);
+scene.add(leftWall);
+scene.add(rightWall);
+
+const backWallLight1 = createWallLight(-5, -config.wallDistance, 2.2);
+const backWallLight2 = createWallLight(5, -config.wallDistance, 2.2);
+const leftWallLight1 = createWallLight(-15, -5, 1.8);
+const leftWallLight2 = createWallLight(-15, 5, 1.8);
+const rightWallLight1 = createWallLight(15, -5, 1.8);
+const rightWallLight2 = createWallLight(15, 5, 1.8);
+
+scene.add(backWallLight1);
+scene.add(backWallLight2);
+scene.add(leftWallLight1);
+scene.add(leftWallLight2);
+scene.add(rightWallLight1);
+scene.add(rightWallLight2);
+
+[backWallLight1, backWallLight2].forEach(light => {
+  light.intensity = 2.2;
+  light.color.setHex(0xf8e0c0);
+  light.color.setHex(0xfff2e0);
+});
+
+[leftWallLight1, leftWallLight2, rightWallLight1, rightWallLight2].forEach(light => {
+  light.intensity = 1.8;
+  light.color.setHex(0xf8e0c0);
+  light.color.setHex(0xfff2e0);
+});
+
+const fontLoader = new FontLoader();
+fontLoader.load(
+  'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
+
 font => {
     const textGeo = new TextGeometry('NANdART', {
       font,

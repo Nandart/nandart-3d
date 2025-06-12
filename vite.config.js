@@ -18,8 +18,14 @@ export default defineConfig({
       }
     }
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      supported: {
+        'import-assertions': true
+      }
+    }
+  },
   server: {
     open: true
   }
 });
-

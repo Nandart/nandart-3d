@@ -86,12 +86,28 @@
     #menu-dropdown a:hover {
       background-color: rgba(216, 178, 108, 0.1);
     }
-    #wallet-button {
+    .floating-menu {
       position: fixed;
-      top: 18px;
-      right: 20px;
-      z-index: 250;
-      padding: 10px 18px 10px 42px;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .floating-menu a {
+      color: #d8b26c;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    .floating-menu a:hover {
+      background-color: rgba(216, 178, 108, 0.1);
+    }
+    .floating-menu button {
+      padding: 8px 18px 8px 42px;
       font-size: 1em;
       background-color: #d8b26c;
       color: #111;
@@ -100,21 +116,21 @@
       font-family: 'Playfair Display', serif;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
-      background-image: url('assets/icons/metamask.svg');
+      background-image: url('/assets/icons/metamask.svg');
       background-repeat: no-repeat;
       background-position: 12px center;
       background-size: 20px 20px;
       transition: all 0.3s ease;
     }
-    #wallet-button.connected {
+    .floating-menu button.connected {
       background-color: #c4a860;
-      padding: 10px 18px 10px 16px !important;
+      padding: 8px 18px 8px 16px !important;
     }
-    #wallet-button:hover {
+    .floating-menu button:hover {
       background-color: #e2c278;
       transform: scale(1.04);
     }
-    #wallet-button:active {
+    .floating-menu button:active {
       transform: scale(0.97);
     }
     #wallet-balance {
@@ -302,14 +318,20 @@
       .navigation-icons img {
         height: 24px;
       }
-      #wallet-button {
-        padding: 8px 16px 8px 40px;
+      .floating-menu {
+        gap: 12px;
+      }
+      .floating-menu a, .floating-menu button {
+        padding: 6px 12px;
         font-size: 0.9rem;
+      }
+      .floating-menu button {
+        padding: 6px 12px 6px 36px;
         background-size: 18px 18px;
         background-position: 10px center;
       }
-      #wallet-button.connected {
-        padding: 8px 16px 8px 16px !important;
+      .floating-menu button.connected {
+        padding: 6px 12px 6px 12px !important;
       }
       .art-modal {
         max-width: 280px;
@@ -361,9 +383,9 @@
   <div id="blur-overlay"></div>
   
   <div class="navigation-icons">
-    <img src="assets/icons/info.png" alt="Info" id="info-button">
+    <img src="/assets/icons/info.png" alt="Info" id="info-button">
   </div>
-
+  
   <div class="art-modal">
     <h2 id="art-title"></h2>
     <p id="art-description"></p>
@@ -380,10 +402,6 @@
     </div>
   </section>
 
-  <div id="premium-circle" class="suspended-circle">
-    <!-- As obras premium vão aparecer aqui automaticamente -->
-  </div>
-
   <script>
     function checkWebGL() {
       try {
@@ -399,11 +417,22 @@
       return true;
     };
 
+    document.getElementById('menu-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
     document.getElementById('info-button').addEventListener('click', () => {
       window.location.href = 'info.html';
     });
 
     document.addEventListener('click', (e) => {
+      const menu = document.getElementById('menu-dropdown');
+      if (!e.target.closest('.navigation-icons') && menu.style.display === 'flex') {
+        menu.style.display = 'none';
+      }
+      
       const modal = document.querySelector('.art-modal');
       if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
         modal.classList.remove('active');
@@ -418,8 +447,13 @@
     }
   </script>
   
-  <script type="module" src="src/main.js"></script>
-  <script type="module" src="src/api/curadoria.js"></script>
+  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/api/curadoria.js"></script>
+
+  <div id="premium-circle" class="suspended-circle">
+    <!-- As obras premium vão aparecer aqui automaticamente -->
+  </div>
+
   <script type="module" src="abi/loadPremiumNFTs.js"></script>
 </body>
 </html>

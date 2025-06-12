@@ -419,7 +419,6 @@
   
 <script>
 window.addEventListener("DOMContentLoaded", () => {
-
     function checkWebGL() {
       try {
         const canvas = document.createElement('canvas');
@@ -434,11 +433,12 @@ window.addEventListener("DOMContentLoaded", () => {
       return true;
     };
 
-    document.getElementById('menu-toggle').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const menu = document.getElementById('menu-dropdown');
-      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-    });
+    // Removido o event listener para 'menu-toggle' que não existe
+    // document.getElementById('menu-toggle').addEventListener('click', (e) => {
+    //   e.stopPropagation();
+    //   const menu = document.getElementById('menu-dropdown');
+    //   menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    // });
 
     document.getElementById('info-button').addEventListener('click', () => {
       window.location.href = 'info.html';
@@ -446,12 +446,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener('click', (e) => {
       const menu = document.getElementById('menu-dropdown');
-      if (!e.target.closest('.navigation-icons') && menu.style.display === 'flex') {
+      if (!e.target.closest('.navigation-icons') && menu && menu.style.display === 'flex') {
         menu.style.display = 'none';
       }
       
       const modal = document.querySelector('.art-modal');
-      if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
+      if (modal && modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
         modal.classList.remove('active');
         setTimeout(() => {
           modal.style.display = 'none';
@@ -462,7 +462,6 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!checkWebGL()) {
       console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
     }
-  
 });
 </script>
 
@@ -476,4 +475,3 @@ window.addEventListener("DOMContentLoaded", () => {
  <script type="module" src="./abi/loadPremiumNFTs.js"></script>
 </body>
 </html>
-

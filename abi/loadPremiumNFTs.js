@@ -7,7 +7,7 @@ const provider = new ethers.BrowserProvider(window.ethereum);
 async function loadPremiumNFTs() {
   await window.ethereum.request({ method: "eth_requestAccounts" });
   const signer = await provider.getSigner();
-  const abi = await fetch("/NandartNFT_ABI.json").then(res => res.json());
+  const abi = await fetch("./abi/NandartNFT_ABI.json").then(res => res.json());
   const contract = new ethers.Contract(contractAddress, abi, signer);
 
   const total = await contract.totalSupply();

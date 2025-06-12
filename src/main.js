@@ -133,6 +133,22 @@ const artworkData = [
   }
 ];
 const scene = new THREE.Scene();
+
+// === CHÃO REFLEXIVO ===
+import { Reflector } from 'three/addons/objects/Reflector.js';
+const groundMirror = new Reflector(
+  new THREE.PlaneGeometry(100, 100),
+  {
+    clipBias: 0.003,
+    textureWidth: window.innerWidth * window.devicePixelRatio,
+    textureHeight: window.innerHeight * window.devicePixelRatio,
+    color: 0x111111
+  }
+);
+groundMirror.rotateX(-Math.PI / 2);
+groundMirror.position.y = 0.001;
+scene.add(groundMirror);
+
 scene.background = new THREE.Color(0x111111);
 
 const textureLoader = new THREE.TextureLoader();
@@ -159,9 +175,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 scene.background = new THREE.Color('#000811');
+
+// === NÉVOA ATMOSFÉRICA ===
+scene.fog = new THREE.FogExp2(0x111111, 0.015);
+
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.8;
+renderer.toneMappingExposure = 1.6;
 
 window.addEventListener('resize', () => {
   updateCamera();
@@ -215,23 +235,6 @@ const createWallLight = (x, z, intensity) => {
     return light;
 };
 
-const circle = new THREE.Mesh(
-  new THREE.RingGeometry(4.3, 4.55, 100),
-  new THREE.MeshPhysicalMaterial({
-    color: 0xfdf6dc,
-    emissive: 0xffefc6,
-    emissiveIntensity: 3.8,
-    metalness: 0.75,
-    roughness: 0.1,
-    transparent: true,
-    opacity: 0.92,
-    side: THREE.DoubleSide
-  })
-);
-circle.rotation.x = -Math.PI / 2;
-circle.position.y = 0.051;
-circle.receiveShadow = true;
-scene.add(circle);
 
 const trimMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xf3cc80,
@@ -1016,3 +1019,68 @@ document.querySelectorAll('.artwork').forEach((obra) => {
   sombra.style.background = 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)';
   sombra.style.zIndex = '1';
 });
+
+// === COLUNAS FUTURISTAS ===
+const columnMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x89b4ff,
+  metalness: 0.9,
+  roughness: 0.05,
+  clearcoat: 0.9,
+  emissive: 0x406080,
+  emissiveIntensity: 0.25
+});
+
+const createColumn = (x, z) => {
+  const geometry = new THREE.CylinderGeometry(0.4, 0.4, 14, 32);
+  const column = new THREE.Mesh(geometry, columnMaterial);
+  column.position.set(x, 7, z);
+  column.castShadow = true;
+  column.receiveShadow = true;
+  scene.add(column);
+};
+
+createColumn(-10, -config.wallDistance + 2);
+createColumn(10, -config.wallDistance + 2);
+createColumn(-12, 0);
+createColumn(12, 0);
+createColumn(-10, config.wallDistance - 2);
+createColumn(10, config.wallDistance - 2);
+
+// === LUZES VOLUMÉTRICAS ===
+import { RectAreaLight, RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+RectAreaLightUniformsLib.init();
+
+const rectLight1 = new THREE.RectAreaLight(0xfff2dd, 6, 8, 3);
+rectLight1.position.set(0, 10, -config.wallDistance + 0.2);
+rectLight1.lookAt(0, 6, 0);
+scene.add(rectLight1);
+
+const rectLight2 = new THREE.RectAreaLight(0xfff2dd, 4, 4, 2.5);
+rectLight2.position.set(-10, 10, 0);
+rectLight2.lookAt(0, 6, 0);
+scene.add(rectLight2);
+
+const rectLight3 = new THREE.RectAreaLight(0xfff2dd, 4, 4, 2.5);
+rectLight3.position.set(10, 10, 0);
+rectLight3.lookAt(0, 6, 0);
+scene.add(rectLight3);
+
+// === TEXTURA NAS PAREDES ===
+const wallTexture = textureLoader.load('/assets/textures/wall_diffuse.jpg');
+const wallNormal = textureLoader.load('/assets/textures/wall_normal.jpg');
+const wallMaterial = new THREE.MeshStandardMaterial({
+  map: wallTexture,
+  normalMap: wallNormal,
+  roughness: 0.8,
+  metalness: 0.2,
+  color: 0x1a1a1a
+});
+
+backWall.material = wallMaterial;
+leftWall.material = wallMaterial;
+rightWall.material = wallMaterial;
+
+// === AJUSTES FINAIS DE ESTILO VISUAL ===
+scene.background = new THREE.Color(0x0c0c12);
+renderer.setClearColor(0x0c0c12, 1);
+renderer.toneMappingExposure = 1.6;

@@ -31,7 +31,7 @@ let selectedArtwork = null;
 // Configuração de camadas para evitar desfoque
 const LAYERS = {
   DEFAULT: 0,
-  HIGHLIGHTED: 1,  // Camada para obras destacadas
+  HIGHLIGHTED: 1,  // Camara para obras destacadas
   WALLS: 2         // Já existente para paredes
 };
 const walletButton = document.getElementById('wallet-button');
@@ -211,35 +211,36 @@ const backWall = new THREE.Mesh(
   new THREE.PlaneGeometry(30, 28),
   new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
 );
-backWall.position.set(0, 10, -config.wallDistance);
+backWall.position.set(0, 14, -config.wallDistance);
 backWall.rotation.y = Math.PI;
 backWall.layers.set(LAYERS.WALLS);
-scene.add(backWall);
 
 const leftWall = new THREE.Mesh(
   new THREE.PlaneGeometry(30, 28),
   new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
 );
-leftWall.position.set(-15, 10, 0);
+leftWall.position.set(-15, 14, 0);
 leftWall.rotation.y = Math.PI / 2;
 leftWall.layers.set(LAYERS.WALLS);
-scene.add(leftWall);
 
 const rightWall = new THREE.Mesh(
   new THREE.PlaneGeometry(30, 28),
   new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
 );
-rightWall.position.set(15, 10, 0);
+rightWall.position.set(15, 14, 0);
 rightWall.rotation.y = -Math.PI / 2;
 rightWall.layers.set(LAYERS.WALLS);
+
+scene.add(backWall);
+scene.add(leftWall);
 scene.add(rightWall);
 
-const backWallLight1 = createWallLight(-5, -config.wallDistance - 0.1, 2.2);
-const backWallLight2 = createWallLight(5, -config.wallDistance - 0.1, 2.2);
-const leftWallLight1 = createWallLight(-15 - 0.1, -5, 1.8);
-const leftWallLight2 = createWallLight(-15 - 0.1, 5, 1.8);
-const rightWallLight1 = createWallLight(15 + 0.1, -5, 1.8);
-const rightWallLight2 = createWallLight(15 + 0.1, 5, 1.8);
+const backWallLight1 = createWallLight(-5, -config.wallDistance, 2.2);
+const backWallLight2 = createWallLight(5, -config.wallDistance, 2.2);
+const leftWallLight1 = createWallLight(-15, -5, 1.8);
+const leftWallLight2 = createWallLight(-15, 5, 1.8);
+const rightWallLight1 = createWallLight(15, -5, 1.8);
+const rightWallLight2 = createWallLight(15, 5, 1.8);
 
 scene.add(backWallLight1);
 scene.add(backWallLight2);
@@ -370,6 +371,66 @@ const artworkData = [
     tokenURI: "https://ipfs.io/ipfs/bafkreibhrxsmbi6t36qupa5zw6mrc5n5voirsclvkkolobj7wudm5emot4/fragment_of_eternity.json",
     artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
   },
+  {
+    title: "Shadows of Light",
+    artist: "Rénner Nunes",
+    year: "2024",
+    price: "0.01",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shadows_of_light.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Shared Horizon",
+    artist: "Rénner Nunes",
+    year: "2022",
+    price: "1",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/shared_horizon.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Memories of Silence",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "0.15",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/memories_of_silence.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Contained Rhythm",
+    artist: "Rénner Nunes",
+    year: "2025",
+    price: "0.0001",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/contained_rhythm.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Inner Fluctuation",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "0.2",
+    tokenURI: "https://ipfs.io/ipfs/bafybeia6bbrqltffiwc4hq6zfwciybwdjmwi3z7hn4w3wo7b3mbaxshfqy/inner_fluctuation.json",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  },
+  {
+    title: "Fragments of Identity",
+    artist: "Rénner Nunes",
+    year: "2023",
+    price: "1.55",
+    tokenURI: "ipfs://bafkreieevpfuos62jiiflarwwpgubw3znzsfv5fjl3k2tv2uiykpeiueee",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41",
+    tokenId: 15
+  },
+  {
+    title: "Silhouette of Tomorrow",
+    artist: "Rénner Nunes",
+    year: "2024",
+    price: "0.04",
+    tokenURI: "ipfs://bafkreif45vd7woswi3pbdzrowr6mtkobu6e7wop4yj3lukn4l4lm6k6h6y",
+    artista: "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
+  }
+];
+
+export const obrasSuspensas = [
   {
     title: "Shadows of Light",
     artist: "Rénner Nunes",
@@ -560,7 +621,7 @@ function showArtModal(artworkPosition, data) {
   openSeaButton.onclick = () => {
     console.log("🧪 Dados recebidos no modal:", data);
     if (data.tokenId !== undefined) {
-      window.open(linkOpenSea(data.tokenId), '_blank';
+      window.open(linkOpenSea(data.tokenId), '_blank');
     } else {
       alert("Este NFT ainda não foi cunhado.");
     }

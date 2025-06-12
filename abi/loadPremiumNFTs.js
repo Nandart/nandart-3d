@@ -1,5 +1,5 @@
 import { ethers } from 'https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm';
-import NandartNFT_ABI from './abi/NandartNFT_ABI.json' assert { type: "json" };
+import NandartNFT_ABI from './NandartNFT_ABI.json' assert { type: "json" };
 
 const contractAddress = "0xeAA6711D4d6604Aeb134aa90bE7a7439aE473440";
 const provider = new ethers.providers.Web3Provider(window.ethereum);

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NANdART Virtual Gallery — Premium 3D Art Experience">
+  <meta name="theme-color" content="#111111">
+  <title>NANdART 3D Gallery</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="src/styles/index.css">
+  <!-- Preloads -->
+  <link rel="preload" href="assets/icons/info.png" as="image">
+  <link rel="preload" href="assets/icons/horizontes.png" as="image">
+  <link rel="preload" href="assets/icons/metamask.svg" as="image">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Import Maps -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+        "gsap/MotionPathPlugin": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/MotionPathPlugin.js",
+        "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
+      }
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #111;
+    }
+    canvas#scene {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    .navigation-icons {
+      position: fixed;
+      top: 16px;
+      left: 18px;
+      z-index: 100;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .navigation-icons img {
+      height: 28px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .navigation-icons img:hover {
+      transform: scale(1.1);
+    }
+    #menu-dropdown {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 18px;
+      background: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 12px;
+      flex-direction: column;
+      z-index: 200;
+      border: 1px solid rgba(216, 178, 108, 0.15);
+    }
+    #menu-dropdown a {
+      color: #d8b26c;
+      text-decoration: none;
+      font-family: 'Orbitron', sans-serif;
+      margin: 6px 0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    #menu-dropdown a:hover {
+      background-color: rgba(216, 178, 108, 0.1);
+    }
+    .floating-menu {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .floating-menu a {
+      color: #d8b26c;
+      text-decoration: none;
+      font-family: 'Orbitron', sans-serif;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    .floating-menu a:hover {
+      background-color: rgba(216, 178, 108, 0.1);
+    }
+    .floating-menu button {
+      padding: 8px 18px 8px 42px;
+      font-size: 1em;
+      background-color: #d8b26c;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
+      background-image: url('/assets/icons/metamask.svg');
+      background-repeat: no-repeat;
+      background-position: 12px center;
+      background-size: 20px 20px;
+      transition: all 0.3s ease;
+    }
+    .floating-menu button.connected {
+      background-color: #c4a860;
+      padding: 8px 18px 8px 16px !important;
+    }
+    .floating-menu button:hover {
+      background-color: #e2c278;
+      transform: scale(1.04);
+    }
+    .floating-menu button:active {
+      transform: scale(0.97);
+    }
+    #wallet-balance {
+      margin-left: 8px;
+      font-weight: 700;
+    }
+    #blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 150;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    #blur-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .art-modal {
+      position: fixed;
+      background: rgba(10, 10, 10, 0.95);
+      color: white;
+      padding: 20px;
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+      border: 1px solid rgba(216, 178, 108, 0.3);
+      border-radius: 8px;
+      max-width: 320px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .art-modal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .art-modal h2 {
+      color: #d8b26c;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+    }
+    .art-modal p {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+    .art-modal #art-artist {
+      font-weight: 600;
+      color: #f3cc80;
+    }
+    .art-modal #art-year {
+      font-style: italic;
+      opacity: 0.8;
+    }
+    .art-modal #art-price {
+      font-weight: 700;
+      color: #d8b26c;
+      margin-top: 10px;
+      font-size: 1.1rem;
+    }
+    .art-modal #buy-art {
+      background-color: #d8b26c;
+      color: #111;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Orbitron', sans-serif;
+      margin-top: 15px;
+    }
+    .art-modal #buy-art:hover {
+      background-color: #e2c278;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    #curation-panel {
+      display: none;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #f5f5f5;
+      font-family: 'Orbitron', sans-serif;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 400;
+      width: 80%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(216, 178, 108, 0.3);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    #curation-panel h2 {
+      text-align: center;
+      color: #c4b582;
+      margin-bottom: 1.5rem;
+    }
+    #curadoria-lista {
+      display: grid;
+      gap: 1rem;
+    }
+    .submission-card {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(216, 178, 108, 0.2);
+    }
+    .submission-image img {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .submission-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .btn-approve {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.2s ease;
+    }
+    .btn-reject {
+      background-color: #f44336;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.2s ease;
+    }
+    .btn-approve:hover, .btn-reject:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 4px;
+      z-index: 1000;
+      font-family: 'Orbitron', sans-serif;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .notification.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .notification.error {
+      background-color: #f44336;
+      color: white;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      .navigation-icons img {
+        height: 24px;
+      }
+      .floating-menu {
+        gap: 12px;
+      }
+      .floating-menu a, .floating-menu button {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+      .floating-menu button {
+        padding: 6px 12px 6px 36px;
+        background-size: 18px 18px;
+        background-position: 10px center;
+      }
+      .floating-menu button.connected {
+        padding: 6px 12px 6px 12px !important;
+      }
+      .art-modal {
+        max-width: 280px;
+        padding: 16px;
+        left: 50% !important;
+        transform: translateX(-50%) translateY(20px) !important;
+      }
+      .art-modal.active {
+        transform: translateX(-50%) translateY(0) !important;
+      }
+      .art-modal h2 {
+        font-size: 1.1rem;
+      }
+      .art-modal p {
+        font-size: 0.85rem;
+      }
+      .art-modal #buy-art {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+      #blur-overlay {
+        backdrop-filter: blur(8px);
+      }
+      #curation-panel {
+        width: 90%;
+        padding: 1rem;
+      }
+      .submission-card {
+        padding: 0.8rem;
+      }
+      .submission-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  
+.floating-menu a, .floating-menu button {
+  font-family: 'Orbitron', sans-serif !important;
+  border: 1px solid #89b4ff;
+  border-radius: 6px;
+  color: #89b4ff !important;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(137, 180, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.floating-menu a:hover, .floating-menu button:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white !important;
+  transform: translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+  
+  <nav class="floating-menu">
+    <a href="artists.html">Artists</a>
+    <a href="contactos.html">Contacts</a>
+    <a href="info.html">Info</a>
+    <a href="web3.html">Web3 & NFT</a>
+    <button id="wallet-button" class="floating">Connect</button>
+  </nav>
+
+  <canvas id="scene"></canvas>
+  <div id="blur-overlay"></div>
+  
+  <div class="navigation-icons">
+    <img src="/assets/icons/info.png" alt="Info" id="info-button">
+  </div>
+  
+  <div class="art-modal">
+    <h2 id="art-title"></h2>
+    <p id="art-description"></p>
+    <p>Artist: <span id="art-artist"></span></p>
+    <p>Year: <span id="art-year"></span></p>
+    <p>Price: <span id="art-price"></span></p>
+    <button id="buy-art">Buy</button>
+  </div>
+
+  <section id="curation-panel">
+    <h2>Curatorial Panel</h2>
+    <div id="curadoria-lista">
+      <p>Loading submissions...</p>
+    </div>
+  </section>
+
+  
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+
+    function checkWebGL() {
+      try {
+        const canvas = document.createElement('canvas');
+        return !!window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error(`📛 Erro global detectado: → Mensagem: ${message} → Fonte: ${source} → Linha: ${lineno} → Coluna: ${colno} → Stack: ${error?.stack || 'sem stack'} → Objeto de erro:`, error);
+      return true;
+    };
+
+    document.getElementById('menu-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById('menu-dropdown');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    document.getElementById('info-button').addEventListener('click', () => {
+      window.location.href = 'info.html';
+    });
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('menu-dropdown');
+      if (!e.target.closest('.navigation-icons') && menu.style.display === 'flex') {
+        menu.style.display = 'none';
+      }
+      
+      const modal = document.querySelector('.art-modal');
+      if (modal.style.display === 'flex' && !e.target.closest('.art-modal') && !e.target.closest('canvas')) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      }
+    });
+
+    if (!checkWebGL()) {
+      console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
+    }
+  
+});
+</script>
+
+  
+  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/api/curadoria.js"></script>
+
+  <div id="premium-circle" class="suspended-circle">
+    <!-- As obras premium vão aparecer aqui automaticamente -->
+  </div>
+
+  <script type="module" src="abi/loadPremiumNFTs.js"></script>
+</body>
+</html>

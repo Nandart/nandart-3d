@@ -2022,3 +2022,4 @@ rightWall.material = wallMaterial;
 scene.background = new THREE.Color(0x0c0c12);
 renderer.setClearColor(0x0c0c12, 1);
 renderer.toneMappingExposure = 1.6;
+

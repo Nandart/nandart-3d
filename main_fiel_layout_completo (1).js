@@ -187,6 +187,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+
 // Iluminação
 const hemisphereLight = new THREE.HemisphereLight(
   0xfff2e0,

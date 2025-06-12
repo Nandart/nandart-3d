@@ -999,12 +999,6 @@ rectLight3.position.set(10, 10, 0);
 rectLight3.lookAt(0, 6, 0);
 scene.add(rectLight3);
 
-// === TEXTURA NAS PAREDES ===
-const wallTexture = textureLoader.load('/assets/textures/function getTokenId(data) {
-  if (data && typeof data.tokenId !== 'undefined') {
-    return data.tokenId;
-  }
-
   // Tentativa de extrair a partir do tokenURI, se houver padrão com número no nome
   try {
     const fallback = data.tokenURI?.split('/').pop().split('.')[0].split('_').pop();

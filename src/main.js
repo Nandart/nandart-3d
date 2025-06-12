@@ -1067,7 +1067,7 @@ scene.add(rectLight3);
 
 // === TEXTURA NAS PAREDES ===
 const wallTexture = textureLoader.load('/assets/textures/wall_diffuse.jpg');
-const wallNormal = textureLoader.load('/assets/textures/wall_normal.jpg');
+//const wallNormal = textureLoader.load('/assets/textures/texture_wall_from_layout_normal.jpg');
 const wallMaterial = new THREE.MeshStandardMaterial({
   map: wallTexture,
   normalMap: wallNormal,

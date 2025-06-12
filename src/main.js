@@ -145,7 +145,7 @@ const createWallLight = (x, z, intensity) => {
 
 const circle = new THREE.Mesh(
   new THREE.RingGeometry(4.3, 4.55, 100),
-  new THREE.MeshStandardMaterial({
+  new THREE.MeshPhysicalMaterial({
     color: 0xfdf6dc,
     emissive: 0xffefc6,
     emissiveIntensity: 3.8,
@@ -161,7 +161,7 @@ circle.position.y = 0.051;
 circle.receiveShadow = true;
 scene.add(circle);
 
-const trimMaterial = new THREE.MeshStandardMaterial({
+const trimMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xf3cc80,
   metalness: 1,
   reflectivity: 1,
@@ -196,7 +196,7 @@ const frameHeight = 5.8;
 
 const centerFrame = new THREE.Mesh(
   new THREE.BoxGeometry(frameWidth + 0.3, frameHeight + 0.3, 0.18),
-  new THREE.MeshStandardMaterial({
+  new THREE.MeshPhysicalMaterial({
     color: 0x1e1a16,
     metalness: 0.6,
     roughness: 0.3,
@@ -209,7 +209,7 @@ centerArtGroup.add(centerFrame);
 
 const centerPainting = new THREE.Mesh(
   new THREE.PlaneGeometry(frameWidth, frameHeight),
-  new THREE.MeshStandardMaterial({
+  new THREE.MeshPhysicalMaterial({
     map: centerTexture,
     roughness: 0.15,
     metalness: 0.1
@@ -273,7 +273,7 @@ fontLoader.load(
 
     const text = new THREE.Mesh(
       textGeo,
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshPhysicalMaterial({
         color: 0xd8b26c,
         metalness: 1,
         reflectivity: 1,
@@ -494,7 +494,7 @@ artworkPaths.forEach((src, i) => {
 
   const artwork = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshPhysicalMaterial({
       map: texture,
       roughness: 0.2,
       metalness: 0.05,
@@ -509,7 +509,7 @@ artworkPaths.forEach((src, i) => {
 
   const reflection = new THREE.Mesh(
     new THREE.PlaneGeometry(config.obraSize, config.obraSize),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshPhysicalMaterial({
       map: texture,
       roughness: 0.2,
       metalness: 0.05,

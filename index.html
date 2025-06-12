@@ -418,7 +418,10 @@
     </div>
   </section>
 
-  <script>
+  
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+
     function checkWebGL() {
       try {
         const canvas = document.createElement('canvas');
@@ -461,7 +464,10 @@
     if (!checkWebGL()) {
       console.warn('WebGL não suportado - Algumas funcionalidades podem não estar disponíveis');
     }
-  </script>
+  
+});
+</script>
+
   
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="/src/api/curadoria.js"></script>

@@ -15,7 +15,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
   <!-- Import Maps -->
   <script type="importmap">
     {
@@ -77,7 +77,7 @@
     #menu-dropdown a {
       color: #d8b26c;
       text-decoration: none;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       margin: 6px 0;
       padding: 4px 8px;
       border-radius: 4px;
@@ -98,7 +98,7 @@
     .floating-menu a {
       color: #d8b26c;
       text-decoration: none;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       padding: 8px 12px;
       border-radius: 4px;
       transition: background-color 0.3s ease;
@@ -113,7 +113,7 @@
       color: #111;
       border: none;
       border-radius: 6px;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(216, 178, 108, 0.3);
       background-image: url('/assets/icons/metamask.svg');
@@ -179,7 +179,7 @@
       margin-bottom: 12px;
       font-size: 1.3rem;
       font-weight: 700;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       text-align: center;
     }
     .art-modal p {
@@ -216,7 +216,7 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       margin-top: 15px;
     }
     .art-modal #buy-art:hover {
@@ -229,7 +229,7 @@
       padding: 2rem;
       background: #1a1a1a;
       color: #f5f5f5;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       position: fixed;
       top: 50%;
       left: 50%;
@@ -275,7 +275,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       transition: all 0.2s ease;
     }
     .btn-reject {
@@ -285,7 +285,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       transition: all 0.2s ease;
     }
     .btn-approve:hover, .btn-reject:hover {
@@ -299,7 +299,7 @@
       padding: 1rem 1.5rem;
       border-radius: 4px;
       z-index: 1000;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Orbitron', sans-serif;
       animation: fadeIn 0.3s ease-out;
     }
     .notification.success {
@@ -367,7 +367,23 @@
         gap: 0.5rem;
       }
     }
-  </style>
+  
+.floating-menu a, .floating-menu button {
+  font-family: 'Orbitron', sans-serif !important;
+  border: 1px solid #89b4ff;
+  border-radius: 6px;
+  color: #89b4ff !important;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(137, 180, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.floating-menu a:hover, .floating-menu button:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white !important;
+  transform: translateY(-2px);
+}
+
+</style>
 </head>
 <body>
   

@@ -1,31 +1,41 @@
-import { ethers } from 'https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm';
-import NandartNFT_ABI from './NandartNFT_ABI.json' assert { type: "json" };
+import { ethers } from "ethers";
 
 const contractAddress = "0xeAA6711D4d6604Aeb134aa90bE7a7439aE473440";
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const contract = new ethers.Contract(contractAddress, NandartNFT_ABI, provider);
-
-const premiumCircle = document.getElementById("premium-circle");
+const provider = new ethers.BrowserProvider(window.ethereum);
 
 async function loadPremiumNFTs() {
-    for (let tokenId = 0; tokenId < 50; tokenId++) {
-        try {
-            const tokenURI = await contract.tokenURI(tokenId);
-            const response = await fetch(`https://ipfs.io/ipfs/${tokenURI.replace("ipfs://", "")}`);
-            const metadata = await response.json();
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    const signer = await provider.getSigner();
+    const abi = await fetch("./abi/NandartNFT_ABI.json").then(res => res.json());
+    const contract = new ethers.Contract(contractAddress, abi, signer);
 
-            if (metadata.premium === true) {
-                const img = document.createElement("img");
-                img.src = `https://ipfs.io/ipfs/${metadata.image.replace("ipfs://", "")}`;
-                img.alt = metadata.title || "NFT";
-                img.className = "floating-art";
-                premiumCircle.appendChild(img);
-            }
-        } catch (err) {
-            console.log("Token", tokenId, "não encontrado ou erro:", err.message);
+    // Note: Your ABI doesn't show a 'totalSupply' function, using 'tokenCounter' instead
+    const total = await contract.tokenCounter();
+    const circle = document.getElementById("premium-circle");
+    if (!circle) return;
+
+    for (let i = 0; i < total; i++) {
+      try {
+        const uri = await contract.tokenURI(i);
+        const metadataURL = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+        const metadata = await fetch(metadataURL).then(r => r.json());
+
+        if (metadata.premium === true || metadata.premium === "true") {
+          const art = document.createElement("div");
+          art.className = "floating-art";
+          art.innerHTML = `
+            <img src="${(metadata.image || '').replace("ipfs://", "https://ipfs.io/ipfs/")}" alt="${metadata.name || 'NFT'}" />
+          `;
+          circle.appendChild(art);
         }
+      } catch (e) {
+        console.error("Error loading tokenId", i, e);
+      }
     }
+  } catch (error) {
+    console.error("Error in loadPremiumNFTs:", error);
+  }
 }
 
 window.addEventListener("DOMContentLoaded", loadPremiumNFTs);
-

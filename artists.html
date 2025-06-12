@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html lang="en-GB">
- <head>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-  <meta content="Submit your artwork to NANdART and join our curated NFT gallery" name="description"/>
-  <meta content="#111111" name="theme-color"/>
-  <title>
-   Join NANdART | Submit Your Artwork
-  </title>
-  <!-- Import map para módulos ES -->
-  <script type="importmap">
-   {
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Submit your artwork to NANdART and join our curated NFT gallery" />
+  <meta name="theme-color" content="#111111" />
+  <title>Join NANdART | Submit Your Artwork</title>
+
+    <!-- Import map para módulos ES -->
+    <script type="importmap">
+      {
         "imports": {
           "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm",
           "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"
         }
       }
-  </script>
-  <link href="/src/styles/index.css" rel="stylesheet"/>
-  <link href="/assets/favicon.ico" rel="icon" type="image/x-icon"/>
+    </script>
+
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
   <script type="importmap">
-   {
+    {
       "imports": {
         "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm"
       }
     }
   </script>
   <style>
-   html, body {
+    html, body {
       margin: 0;
       padding: 0;
-      background-color: #000811;
+      background-color: #111111;
       color: #e0e0e0;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -48,9 +47,9 @@
     }
 
     .navigation-bar a {
-      background-color: rgba(0, 17, 37, 0.5);
-      border: 1px solid #89b4ff;
-      color: #89b4ff;
+      background-color: rgba(196, 181, 130, 0.1);
+      border: 1px solid #c4b582;
+      color: #c4b582;
       padding: 8px 12px;
       border-radius: 4px;
       text-decoration: none;
@@ -62,7 +61,7 @@
     }
 
     .navigation-bar a:hover {
-      background-color: rgba(0, 19, 40, 0.6);
+      background-color: rgba(196, 181, 130, 0.3);
       color: #ffffff;
     }
 
@@ -75,7 +74,7 @@
     }
 
     .anchor-nav a {
-      color: #89b4ff;
+      color: #c4b582;
       text-decoration: none;
       font-size: 1rem;
       border-bottom: 1px solid transparent;
@@ -83,7 +82,7 @@
     }
 
     .anchor-nav a:hover {
-      border-bottom: 1px solid #89b4ff;
+      border-bottom: 1px solid #c4b582;
     }
 
     .section {
@@ -91,14 +90,14 @@
       margin: 0 auto;
       padding: 40px 20px;
       background-color: rgba(20, 20, 20, 0.9);
-      border: 1px solid #89b4ff;
+      border: 1px solid #c4b582;
       border-radius: 8px;
       backdrop-filter: blur(8px);
       margin-bottom: 40px;
     }
 
     .section h2 {
-      color: #89b4ff;
+      color: #c4b582;
       font-size: 1.6rem;
       margin-bottom: 16px;
     }
@@ -130,7 +129,7 @@
     }
 
     form.artist-form button {
-      background: #89b4ff;
+      background: #c4b582;
       color: #111;
       padding: 10px;
       border: none;
@@ -143,7 +142,7 @@
     }
 
     form.artist-form button:hover {
-      background: rgba(0, 19, 40, 0.6);
+      background: #d1c08f;
     }
 
     #curadoria-btn {
@@ -155,7 +154,7 @@
       border-radius: 4px;
       margin: 20px auto;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       max-width: 700px;
       width: 100%;
     }
@@ -167,14 +166,14 @@
       padding: 2rem;
       background: #1a1a1a;
       color: #f5f5f5;
-      border: 1px solid rgba(0, 22, 45, 0.5);
+      border: 1px solid rgba(216, 178, 108, 0.3);
       border-radius: 8px;
       margin-bottom: 40px;
     }
 
     #curation-panel h2 {
       text-align: center;
-      color: #89b4ff;
+      color: #c4b582;
       margin-bottom: 1.5rem;
     }
 
@@ -187,7 +186,7 @@
       background: rgba(30, 30, 30, 0.8);
       padding: 1rem;
       border-radius: 8px;
-      border: 1px solid rgba(0, 22, 45, 0.3);
+      border: 1px solid rgba(216, 178, 108, 0.2);
     }
 
     .submission-image img {
@@ -209,7 +208,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
     }
 
     .btn-reject {
@@ -219,7 +218,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
     }
 
     .notification {
@@ -229,7 +228,7 @@
       padding: 12px 24px;
       border-radius: 4px;
       z-index: 1000;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Playfair Display', serif;
       animation: fadeIn 0.3s ease-out;
     }
 
@@ -281,196 +280,110 @@
         gap: 0.5rem;
       }
     }
-  
-body, h1, h2, h3, h4, h5, h6, p, a, span, label, input, textarea, button, select, option {
-  font-family: 'Orbitron', sans-serif !important;
-}
-button, .navigation-bar a, .btn-approve, .btn-reject {
-  font-family: 'Orbitron', sans-serif !important;
-  border-radius: 6px;
-  border: 1px solid #89b4ff;
-  background-color: rgba(0, 17, 37, 0.5);
-  color: #89b4ff;
-  box-shadow: 0 0 6px rgba(137, 180, 255, 0.4);
-  transition: all 0.3s ease;
-}
-button:hover, .navigation-bar a:hover, .btn-approve:hover, .btn-reject:hover {
-  background-color: rgba(0, 19, 40, 0.6);
-  color: #ffffff;
-}
-
-</style>
- </head>
- <body class="pagina-scrollavel">
+  </style>
+</head>
+<body class="pagina-scrollavel">
   <div class="navigation-bar">
-   <a href="index.html">
-    Return to Gallery
-   </a>
-   <a href="menu.html">
-    Back to Menu
-   </a>
+    <a href="index.html">Return to Gallery</a>
+    <a href="menu.html">Back to Menu</a>
   </div>
+
   <div class="anchor-nav">
-   <a href="#about">
-    About
-   </a>
-   <a href="#form">
-    Submit
-   </a>
-   <a href="#premium">
-    Premium Info
-   </a>
-   <a href="#terms">
-    Terms
-   </a>
+    <a href="#about">About</a>
+    <a href="#form">Submit</a>
+    <a href="#premium">Premium Info</a>
+    <a href="#terms">Terms</a>
   </div>
-  <button id="curadoria-btn">
-   Acessar Painel de Curadoria
-  </button>
-  <button onclick="cunharObrasSuspensas()">
-   Cunhar obras suspensas
-  </button>
-  <div id="status-cunhagem">
-  </div>
+
+  <button id="curadoria-btn">Acessar Painel de Curadoria</button>
+
+<div id="status-cunhagem"></div>
+
   <section id="curation-panel">
-   <h2>
-    Curatorial Panel
-   </h2>
-   <div id="curadoria-lista">
-    <p>
-     Loading submissions...
-    </p>
-   </div>
-  </section>
-  <main>
-   <section class="section" id="about">
-    <h2>
-     Welcome, Visionary Artist
-    </h2>
-    <p>
-     You are invited to join
-     <strong>
-      NANdART
-     </strong>
-     , a curated sanctuary of digital expression where each artwork transcends boundaries.
-        Submit your creation to be reviewed by our curatorial board. Accepted artworks will be minted and featured either on our
-     <em>
-      Web3 &amp; NFT
-     </em>
-     page or in the central spotlight of our virtual gallery, depending on the display option you choose.
-    </p>
-    <p>
-     The Premium Service allows your approved piece to take centre stage in the main exhibition circle — a paid option for artists seeking elevated visibility.
-    </p>
-   </section>
-   <section class="section" id="form">
-    <h2>
-     Submit Your Artwork
-    </h2>
-    <form class="artist-form" enctype="multipart/form-data" id="artwork-form">
-     <label for="artist-name">
-      Artist Name
-     </label>
-     <input id="artist-name" name="artistName" required="" type="text"/>
-     <label for="art-title">
-      Artwork Title
-     </label>
-     <input id="art-title" name="artTitle" required="" type="text"/>
-     <label for="art-year">
-      Year
-     </label>
-     <input id="art-year" max="2100" min="1900" name="artYear" required="" type="number"/>
-     <label for="art-price">
-      Suggested Price (in ETH)
-     </label>
-     <input id="art-price" name="artPrice" placeholder="e.g. 0.75" required="" type="text"/>
-     <label for="art-image">
-      Artwork Image (JPG or PNG)
-     </label>
-     <input accept="image/png, image/jpeg" id="art-image" name="artImage" required="" type="file"/>
-     <label for="highlight">
-      Display Preference
-     </label>
-     <select id="highlight" name="highlight">
-      <option value="standard">
-       Standard – Web3 Page Only (Free)
-      </option>
-      <option value="premium">
-       Premium – Central Highlight in Gallery (Paid)
-      </option>
-     </select>
-     <p style="font-size: 0.85rem; text-align: center;">
-      By submitting, you agree to our
-      <a href="terms.html" style="color:#89b4ff;">
-       Terms &amp; Conditions
-      </a>
-      regarding royalties, rights, and responsibilities.
-     </p>
-     <p id="submission-error" style="color: red; display: none; text-align: center;">
-      An unexpected error occurred. Please try again later.
-     </p>
-     <button type="submit">
-      Submit Artwork
-     </button>
-    </form>
-   </section>
-   <section class="section" id="premium">
-    <h2>
-     Premium Option
-    </h2>
-    <p>
-     The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.
-    </p>
-    <p>
-     This service supports the gallery's infrastructure and ensures your work is prominently visible to collectors and guests alike.
-    </p>
-    <p>
-     The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.
-    </p>
-   </section>
-   <section class="section" id="terms">
-    <h2>
-     Artist Agreement Summary
-    </h2>
-    <p>
-     Every submission is subject to curatorial review. Accepted works are either:
-    </p>
-    <ul>
-     <li>
-      <strong>
-       Premium
-      </strong>
-      — prominently displayed in the main gallery (paid)
-     </li>
-     <li>
-      <strong>
-       Standard
-      </strong>
-      — listed on the
-      <em>
-       Web3 &amp; NFT
-      </em>
-      page (free)
-     </li>
-    </ul>
-    <p>
-     The artist retains all rights to the artwork. NANdART manages minting, display, and royalties as outlined in the
-     <a href="terms.html" style="color:#89b4ff;">
-      Terms &amp; Conditions
-     </a>
-     .
-    </p>
-   </section>
-   <section class="section" id="obras-cunhadas">
-    <h2>
-     Your Approved &amp; Minted Works
-    </h2>
-    <div id="minhas-obras">
+    <h2>Curatorial Panel</h2>
+    <div id="curadoria-lista">
+      <p>Loading submissions...</p>
     </div>
-   </section>
+  </section>
+
+  <main>
+    <section id="about" class="section">
+      <h2>Welcome, Visionary Artist</h2>
+      <p>
+        You are invited to join <strong>NANdART</strong>, a curated sanctuary of digital expression where each artwork transcends boundaries.
+        Submit your creation to be reviewed by our curatorial board. Accepted artworks will be minted and featured either on our <em>Web3 & NFT</em> page or in the central spotlight of our virtual gallery, depending on the display option you choose.
+      </p>
+      <p>
+        The Premium Service allows your approved piece to take centre stage in the main exhibition circle — a paid option for artists seeking elevated visibility.
+      </p>
+    </section>
+
+    <section id="form" class="section">
+      <h2>Submit Your Artwork</h2>
+      <form id="artwork-form" enctype="multipart/form-data" class="artist-form">
+        <label for="artist-name">Artist Name</label>
+        <input type="text" id="artist-name" name="artistName" required />
+
+        <label for="art-title">Artwork Title</label>
+        <input type="text" id="art-title" name="artTitle" required />
+
+        <label for="art-year">Year</label>
+        <input type="number" id="art-year" name="artYear" min="1900" max="2100" required />
+
+        <label for="art-price">Suggested Price (in ETH)</label>
+        <input type="text" id="art-price" name="artPrice" placeholder="e.g. 0.75" required />
+
+        <label for="art-image">Artwork Image (JPG or PNG)</label>
+        <input type="file" id="art-image" name="artImage" accept="image/png, image/jpeg" required />
+
+        <label for="highlight">Display Preference</label>
+        <select id="highlight" name="highlight">
+          <option value="standard">Standard – Web3 Page Only (Free)</option>
+          <option value="premium">Premium – Central Highlight in Gallery (Paid)</option>
+        </select>
+
+        <p style="font-size: 0.85rem; text-align: center;">
+          By submitting, you agree to our <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a> regarding royalties, rights, and responsibilities.
+        </p>
+
+        <p id="submission-error" style="color: red; display: none; text-align: center;">
+          An unexpected error occurred. Please try again later.
+        </p>
+
+        <button type="submit">Submit Artwork</button>
+      </form>
+    </section>
+
+    <section id="premium" class="section">
+      <h2>Premium Option</h2>
+      <p>
+        The Premium Service is an optional paid feature that elevates your artwork to a prime position in the main gallery loop — the central circle of light where selected pieces gain maximum exposure.
+      </p>
+      <p>
+        This service supports the gallery's infrastructure and ensures your work is prominently visible to collectors and guests alike.
+      </p>
+      <p>
+        The price for the Premium Service is defined by NANdART and may evolve as the gallery grows. The current value is displayed at submission or communicated post-approval.
+      </p>
+    </section>
+
+    <section id="terms" class="section">
+      <h2>Artist Agreement Summary</h2>
+      <p>
+        Every submission is subject to curatorial review. Accepted works are either:
+      </p>
+      <ul>
+        <li><strong>Premium</strong> — prominently displayed in the main gallery (paid)</li>
+        <li><strong>Standard</strong> — listed on the <em>Web3 & NFT</em> page (free)</li>
+      </ul>
+      <p>
+        The artist retains all rights to the artwork. NANdART manages minting, display, and royalties as outlined in the <a href="terms.html" style="color:#c4b582;">Terms & Conditions</a>.
+      </p>
+    </section>
   </main>
+
   <script>
-   document.getElementById("artwork-form").addEventListener("submit", async function (e) {
+    document.getElementById("artwork-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const form = e.target;
       const errorEl = document.getElementById("submission-error");
@@ -525,8 +438,9 @@ button:hover, .navigation-bar a:hover, .btn-approve:hover, .btn-reject:hover {
       }, 5000);
     }
   </script>
+
   <script type="module">
-   import { getContrato } from './src/contrato.js';
+    import { getContrato } from '/src/contrato.js';
     
     const ADMIN_ADDRESSES = [
       "0x913b3984583Ac44dE06Ef480a8Ac925DEA378b41"
@@ -615,9 +529,10 @@ button:hover, .navigation-bar a:hover, .btn-approve:hover, .btn-reject:hover {
       window.ethereum.on('accountsChanged', initCuradoria);
     }
   </script>
-  <script type="module">
-   import { getContrato } from './src/contrato.js';
-import { obrasSuspensas } from './src/main.js';
+
+<script type="module">
+import { getContrato } from './contrato.js';
+import { obrasSuspensas } from './main.js';
 
 async function cunharObrasSuspensas() {
   const contrato = await getContrato();
@@ -651,8 +566,7 @@ async function cunharObrasSuspensas() {
 }
 
 window.cunharObrasSuspensas = cunharObrasSuspensas;
-  </script>
- <script src="src/artists_submit_logic_min.js" type="module"></script>
-  </script>
- </body>
+</script>
+
+</body>
 </html>
